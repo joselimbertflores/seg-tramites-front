@@ -6,26 +6,20 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { RouterModule } from '@angular/router';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { RouterModule } from '@angular/router';
-import { MatListModule } from '@angular/material/list';
-
-import {
-  animate,
-  state,
-  style,
-  transition,
-  trigger,
-} from '@angular/animations';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatDialog } from '@angular/material/dialog';
+import { SelectionModel } from '@angular/cdk/collections';
 
 import { forkJoin } from 'rxjs';
-import { GroupedCommunication } from '../../../../domain/models';
+import { GroupedCommunication, StatusMail } from '../../../../domain/models';
 import {
   PaginatorComponent,
   SidenavButtonComponent,
@@ -33,13 +27,17 @@ import {
 import { StateLabelPipe } from '../../../../presentation/pipes';
 import {
   AlertService,
-  OutboxService,
   ProcedureService,
   PdfService,
   CacheService,
 } from '../../../../presentation/services';
 import { SearchInputComponent } from '../../../../shared';
 import { communication } from '../../../infrastructure';
+import { OutboxService } from '../../services';
+import {
+  SubmissionDialogComponent,
+  TransferDetails,
+} from '../inbox/submission-dialog/submission-dialog.component';
 
 interface PaginationOptions {
   limit: number;
@@ -51,37 +49,24 @@ interface CacheData {
   term: string;
 }
 @Component({
-  selector: 'app-outbox',
+  selector: 'outbox',
   standalone: true,
   imports: [
     CommonModule,
     RouterModule,
     MatIconModule,
     MatMenuModule,
-    MatListModule,
     MatTableModule,
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
     MatToolbarModule,
     PaginatorComponent,
-    SidenavButtonComponent,
     SearchInputComponent,
-    StateLabelPipe,
+    MatCheckboxModule,
   ],
   templateUrl: './outbox.component.html',
-  styleUrl: './outbox.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  animations: [
-    trigger('detailExpand', [
-      state('collapsed', style({ height: '0px', minHeight: '0' })),
-      state('expanded', style({ height: '*' })),
-      transition(
-        'expanded <=> collapsed',
-        animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')
-      ),
-    ]),
-  ],
 })
 export default class OutboxComponent {
   private alertService = inject(AlertService);
@@ -90,11 +75,21 @@ export default class OutboxComponent {
   private pdfService = inject(PdfService);
   private cacheService: CacheService<CacheData> = inject(CacheService);
 
-  public displayedColumns = ['code', 'reference', 'sentDate', 'options'];
+  private dialog = inject(MatDialog);
+
+  public displayedColumns = [
+    'select',
+    'code',
+    'reference',
+    'sentDate',
+    'options',
+  ];
   public datasource = signal<communication[]>([]);
   public datasize = signal<number>(0);
   public expandedElement: GroupedCommunication | null = null;
   public term: string = '';
+
+  selection = new SelectionModel<communication>(true, []);
 
   constructor() {
     inject(DestroyRef).onDestroy(() => {
@@ -120,38 +115,37 @@ export default class OutboxComponent {
     this.getData();
   }
 
-  cancelMails(id_procedure: string, ids: string[], date: Date) {
-    this.outboxService.cancelMails(id_procedure, ids).subscribe((resp) => {
-      this.removeElementDatasource(date, ids);
-      this.alertService.Alert({
-        icon: 'success',
-        title: 'Envios cancelados',
-        text: resp.message,
-      });
+  cancel() {
+    const communications = this.selection.selected.map(
+      ({ _id, procedure }) => ({
+        communicationId: _id,
+        procedureId: procedure._id,
+      })
+    );
+    this.outboxService.cancel(communications).subscribe((resp) => {
+      console.log(resp);
     });
   }
 
   cancelAll(communication: GroupedCommunication) {
-    const ids = communication.dispatches.map((item) => item._id);
-    this.alertService.QuestionAlert({
-      title: `¿Cancelar remision del tramite ${communication.procedure.code}?`,
-      text: `Envios a cancelar: ${ids.length}`,
-      callback: () => {
-        this.cancelMails(communication.procedure._id, ids, communication.date);
-      },
-    });
+    // const ids = communication.dispatches.map((item) => item._id);
+    // this.alertService.QuestionAlert({
+    //   title: `¿Cancelar remision del tramite ${communication.procedure.code}?`,
+    //   text: `Envios a cancelar: ${ids.length}`,
+    //   callback: () => {
+    //     this.cancelMails(communication.procedure._id, ids, communication.date);
+    //   },
+    // });
   }
 
-  cancelSelected(ids: string[] | null, communication: GroupedCommunication) {
-    if (!ids) return;
-    if (ids.length === 0) return;
-    this.alertService.QuestionAlert({
-      title: `¿Cancelar remision del tramtie ${communication.procedure.code}?`,
-      text: `Envios a cancelar: ${ids.length}`,
-      callback: () => {
-        this.cancelMails(communication.procedure._id, ids, communication.date);
-      },
-    });
+  cancelSelection(): void {
+    // this.alertService.QuestionAlert({
+    //   title: `¿Cancelar remision del tramtie ${communication.procedure.code}?`,
+    //   text: `Envios a cancelar: ${ids.length}`,
+    //   callback: () => {
+    //     this.cancelMails(communication.procedure._id, ids, communication.date);
+    //   },
+    // });
   }
 
   generateRouteMap({ procedure }: GroupedCommunication) {
@@ -213,5 +207,55 @@ export default class OutboxComponent {
   }
   get offset() {
     return this.cacheService.pageOffset();
+  }
+
+  checkboxLabel(row?: any): string {
+    if (!row) {
+      return `${this.isAllSelected() ? 'deselect' : 'select'} all`;
+    }
+    return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${
+      row.position + 1
+    }`;
+  }
+
+  isAllSelected() {
+    const numSelected = this.selection.selected.length;
+    const numRows = this.datasource().length;
+    return numSelected === numRows;
+  }
+
+  toggleAllRows() {
+    if (this.isAllSelected()) {
+      this.selection.clear();
+      return;
+    }
+    this.selection.select(...this.datasource());
+  }
+
+  send({
+    _id,
+    procedure,
+    attachmentsCount,
+    isOriginal,
+    status,
+  }: communication): void {
+    const detail: TransferDetails = {
+      attachmentsCount,
+      isOriginal,
+      procedureId: procedure._id,
+      code: procedure.code,
+      communication: {
+        id: _id,
+        status,
+      },
+    };
+    const dialogRef = this.dialog.open(SubmissionDialogComponent, {
+      maxWidth: '900px',
+      width: '900px',
+      data: detail,
+    });
+    dialogRef.afterClosed().subscribe((message: string) => {
+      if (!message) return;
+    });
   }
 }

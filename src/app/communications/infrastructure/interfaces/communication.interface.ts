@@ -16,6 +16,7 @@ export interface communication {
   sentDate: string;
   receivedDate?: string;
   actionLog?: actionLog;
+  isOriginal: boolean;
 }
 
 interface officer {

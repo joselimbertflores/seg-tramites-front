@@ -21,9 +21,9 @@ import {
   MatDialogRef,
 } from '@angular/material/dialog';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
+import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import {
@@ -47,14 +47,18 @@ import {
   onlineAccount,
   SocketService,
 } from '../../../../../presentation/services';
-import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { StatusMail } from '../../../../../domain/models';
 
 export interface TransferDetails {
-  mailId?: string;
+  communication?: communicationProps;
   procedureId: string;
   code: string;
   attachmentsCount: string;
   isOriginal: boolean;
+}
+interface communicationProps {
+  id: string;
+  status: StatusMail;
 }
 
 @Component({
@@ -69,7 +73,6 @@ export interface TransferDetails {
     MatButtonModule,
     MatSelectModule,
     MatDialogModule,
-    MatProgressSpinner,
     NgxMatSelectSearchModule,
     SimpleSelectSearchComponent,
   ],
@@ -77,9 +80,10 @@ export interface TransferDetails {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SubmissionDialogComponent implements OnInit {
-  private fb = inject(FormBuilder);
+  private formBuilder = inject(FormBuilder);
   private dialogRef = inject(MatDialogRef<SubmissionDialogComponent>);
   private destroyRef = inject(DestroyRef);
+
   private alertService = inject(AlertService);
   private inboxService = inject(InboxService);
   private socketService = inject(SocketService);
@@ -88,7 +92,7 @@ export class SubmissionDialogComponent implements OnInit {
   institutions = signal<SimpleSelectOption<string>[]>([]);
   dependencies = signal<SimpleSelectOption<string>[]>([]);
 
-  FormEnvio: FormGroup = this.fb.group({
+  formSubmission: FormGroup = this.formBuilder.group({
     reference: ['PARA SU ATENCION', Validators.required],
     attachmentsCount: [this.data.attachmentsCount, Validators.required],
     internalNumber: [''],
@@ -131,8 +135,8 @@ export class SubmissionDialogComponent implements OnInit {
     this.isFormPosting.set(true);
     this.inboxService
       .create({
-        form: this.FormEnvio.value,
-        mailId: this.data.mailId,
+        form: this.formSubmission.value,
+        mailId: this.data.communication?.id,
         procedureId: this.data.procedureId,
         recipients: this.recipients(),
       })
@@ -192,7 +196,7 @@ export class SubmissionDialogComponent implements OnInit {
       ]);
     } else {
       if (type === 'original') {
-        console.log('no se puede derivar el original con una copia');
+        console.log('no se puede derivar el original como una copia');
         return;
       }
       const { officer, jobtitle, accountId } = receiver;
@@ -209,14 +213,36 @@ export class SubmissionDialogComponent implements OnInit {
     );
   }
 
-  get isValidForm(): boolean {
-    if (this.data.isOriginal) {
+  get isFormValid(): boolean {
+    if (!this.data.isOriginal) {
       return (
-        this.FormEnvio.valid &&
-        this.recipients().some(({ isOriginal }) => isOriginal)
+        this.formSubmission.valid &&
+        this.recipients().length > 0 &&
+        this.recipients().length <= 1 &&
+        this.recipients().every(({ isOriginal }) => !isOriginal)
       );
     }
-    return this.FormEnvio.valid && this.recipients().length > 0;
+    if (this.data.communication?.status === StatusMail.Pending) {
+      return (
+        this.formSubmission.valid &&
+        this.recipients().length > 0 &&
+        this.recipients().every(({ isOriginal }) => !isOriginal)
+      );
+    }
+    return (
+      this.formSubmission.valid &&
+      this.recipients().length > 0 &&
+      this.recipients().some(({ isOriginal }) => isOriginal)
+    );
+  }
+
+  get isAddEnabled(): boolean {
+    if (this.data.isOriginal) {
+      if (this.data.communication?.status === StatusMail.Pending) return false;
+
+      return this.recipients().every(({ isOriginal }) => !isOriginal);
+    }
+    return true;
   }
 
   private _getRequiredProps(): void {

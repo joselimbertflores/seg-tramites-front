@@ -3,119 +3,17 @@
   <div class="mb-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
     <dt class="text-lg font-medium leading-6">TRAMITE:</dt>
     <dd class="mt-1 text-lg leading-6 sm:col-span-2 sm:mt-0">
-      <!-- {{ data.code }} -->
+      {{ data.code }}
     </dd>
   </div>
 
-  <!-- <form [formGroup]="FormEnvio">
-    <div class="row">
-      <div class="col-sm-4">
-        <simple-select-search
-          placeholder="Buscar institucion"
-          [elements]="institutions()"
-          (onSelect)="getDependencies($event)"
-        />
-      </div>
-      <div class="col-sm-8">
-        <simple-select-search
-          placeholder="Buscar dependencia"
-          [elements]="dependencies()"
-          (onSelect)="getAccounts($event)"
-        />
-      </div>
-      <div class="col-12">
-        <mat-form-field>
-          <mat-label>Destinatarios</mat-label>
-          <mat-chip-grid #chipGrid aria-label="User selection">
-            @for (fruit of selectedReceivers(); track fruit.id_account) {
-            <mat-chip-row (removed)="remove(fruit.id_account)">
-              <img
-                matChipAvatar
-                src="../../../../../../assets/img/account.png"
-                alt="Photo of officer"
-              />
-              {{ fruit.officer.fullname | titlecase }}
-
-              <button
-                matChipRemove
-                [attr.aria-label]="'remove ' + fruit.id_account"
-              >
-                <mat-icon>cancel</mat-icon>
-              </button>
-            </mat-chip-row>
-            }
-          </mat-chip-grid>
-          <input
-            placeholder="Agregar destinatario..."
-            #receiverInput
-            [formControl]="filterReceiverCtrl"
-            [matChipInputFor]="chipGrid"
-            [matAutocomplete]="auto"
-          />
-          <mat-autocomplete
-            #auto="matAutocomplete"
-            (optionSelected)="selected($event.option.value)"
-          >
-            @for (user of filteredReceivers$ | async; track user.id_account) {
-            <mat-option [value]="user">
-              <img
-                class="option-img"
-                src="../../../../../../assets/img/account.png"
-                height="25"
-              />
-              <span>{{ user.officer.fullname | titlecase }} </span>
-              <small>({{ user.officer.jobtitle | uppercase }})</small>
-              <span
-                class="c-pill"
-                [ngClass]="user.online ? 'c-pill--success' : 'c-pill--danger'"
-                >{{ user.online ? "Conectado" : "Sin conexion" }}</span
-              >
-            </mat-option>
-            }
-          </mat-autocomplete>
-        </mat-form-field>
-      </div>
-    </div>
-    <dl class="row">
-      <dt class="col-sm-2">TRAMITE:</dt>
-      <dd class="col-sm-10">{{ data.code }}</dd>
-    </dl>
-    <div class="row">
-      <mat-form-field>
-        <mat-label>Instruccion / Proveido</mat-label>
-        <textarea formControlName="motivo" matInput required> </textarea>
-        <mat-error *ngIf="FormEnvio.controls['motivo'].invalid">
-          Ingrese el motivo
-        </mat-error>
-      </mat-form-field>
-    </div>
-
-    <div class="row">
-      <div class="col-sm-4">
-        <mat-form-field class="example-full-width">
-          <mat-label>Cantidad: hojas / anexos</mat-label>
-          <input formControlName="cantidad" matInput required />
-          <mat-error *ngIf="FormEnvio.controls['cantidad'].invalid">
-            Ingrese la cantidad
-          </mat-error>
-        </mat-form-field>
-      </div>
-      <div class="col-sm-4">
-        <mat-form-field class="example-full-width">
-          <mat-label>Numero de registro interno</mat-label>
-          <input formControlName="numero_interno" matInput />
-        </mat-form-field>
-      </div>
-    </div>
-  </form> -->
-
-  <form [formGroup]="FormEnvio">
+  <form [formGroup]="formSubmission">
     <div class="grid grid-cols-3 gap-x-2">
       <div class="col-span-3">
         <mat-form-field>
           <mat-label>Instruccion / Proveido</mat-label>
           <textarea formControlName="reference" matInput required> </textarea>
-          <mat-error *ngIf="FormEnvio.controls['reference'].invalid">
+          <mat-error *ngIf="formSubmission.controls['reference'].invalid">
             Ingrese el motivo
           </mat-error>
         </mat-form-field>
@@ -124,7 +22,9 @@
         <mat-form-field>
           <mat-label>Cantidad: hojas / anexos</mat-label>
           <input formControlName="attachmentsCount" matInput required />
-          <mat-error *ngIf="FormEnvio.controls['attachmentsCount'].invalid">
+          <mat-error
+            *ngIf="formSubmission.controls['attachmentsCount'].invalid"
+          >
             Ingrese la cantidad
           </mat-error>
         </mat-form-field>
@@ -185,15 +85,15 @@
       </mat-form-field>
     </div>
     <div class="flex justify-center gap-x-2">
-      <button mat-stroked-button (click)="add('original')">Original</button>
+      <button mat-stroked-button (click)="add('original')" [disabled]="!isAddEnabled">Original</button>
       <button mat-stroked-button (click)="add('copy')">Copia</button>
     </div>
     <div class="col-span-3">
       <mat-list role="list">
         @for (item of recipients(); track $index) {
         <mat-list-item role="listitem">
-          <img matListItemAvatar src="assets/img/account.png" alt="" />
-          <span matListItemTitle> {{ item.fullname }}</span>
+          <img matListItemAvatar src="assets/img/account.png" alt="Profile" />
+          <span matListItemTitle> {{ item.fullname | titlecase }}</span>
           <div matListItemLine>
             {{ item.isOriginal ? "Original" : "Copia" }}
           </div>
@@ -215,7 +115,7 @@
   <button
     mat-button
     color="primary"
-    [disabled]="!isValidForm"
+    [disabled]="!isFormValid"
     (click)="showConfirmSend()"
   >
     Remitir
