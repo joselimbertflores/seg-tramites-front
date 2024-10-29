@@ -3,7 +3,11 @@ import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfirmDialogComponent, confirmDialogData } from '../../shared';
+import {
+  ConfirmDialogComponent,
+  confirmDialogData,
+  DescriptionDialogComponent,
+} from '../../shared';
 import { Observable } from 'rxjs';
 
 interface AlertOptions {
@@ -36,6 +40,11 @@ interface SnackbarOptions {
   duration?: number;
   action?: string;
 }
+
+interface dialogProps {
+  title: string;
+  description: string;
+}
 @Injectable({
   providedIn: 'root',
 })
@@ -58,7 +67,16 @@ export class AlertService {
       .open(ConfirmDialogComponent, {
         data: data,
         disableClose: true,
-        width: '400px',
+      })
+      .afterClosed();
+  }
+
+  descriptionDialog(data: dialogProps): Observable<string | null> {
+    return this.dialog
+      .open(DescriptionDialogComponent, {
+        data: data,
+        disableClose: true,
+        width: '800px',
       })
       .afterClosed();
   }

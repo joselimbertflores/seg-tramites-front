@@ -106,15 +106,15 @@ export default class DashboardComponent {
   }
 
   private handleCommunications(): void {
-    this.socketService
-      .listenProceduresDispatches()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((data) =>
-        this.alertservice.Toast({
-          title: `${data.emitter.fullname} ha enviado un tramite`,
-          message: data.reference,
-        })
-      );
+    // this.socketService
+    //   .listenProceduresDispatches()
+    //   .pipe(takeUntilDestroyed(this.destroyRef))
+    //   .subscribe((data) =>
+    //     this.alertservice.Toast({
+    //       title: `${data.emitter.fullname} ha enviado un tramite`,
+    //       message: data.reference,
+    //     })
+    //   );
   }
 
   get menu() {

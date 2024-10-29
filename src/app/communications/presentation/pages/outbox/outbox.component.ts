@@ -17,8 +17,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog } from '@angular/material/dialog';
 import { SelectionModel } from '@angular/cdk/collections';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { forkJoin } from 'rxjs';
+import { filter, forkJoin, switchMap } from 'rxjs';
 import { GroupedCommunication, StatusMail } from '../../../../domain/models';
 import {
   PaginatorComponent,
@@ -64,6 +65,7 @@ interface CacheData {
     PaginatorComponent,
     SearchInputComponent,
     MatCheckboxModule,
+    MatTooltipModule,
   ],
   templateUrl: './outbox.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -79,8 +81,11 @@ export default class OutboxComponent {
 
   public displayedColumns = [
     'select',
+    'status',
     'code',
+    'type',
     'reference',
+    'recipient',
     'sentDate',
     'options',
   ];
@@ -115,16 +120,27 @@ export default class OutboxComponent {
     this.getData();
   }
 
-  cancel() {
-    const communications = this.selection.selected.map(
+  cancel(): void {
+    const selectedCommunications = this.selection.selected.map(
       ({ _id, procedure }) => ({
         communicationId: _id,
         procedureId: procedure._id,
       })
     );
-    this.outboxService.cancel(communications).subscribe((resp) => {
-      console.log(resp);
-    });
+    this.alertService
+      .confirmDialog({
+        title: `¿Esta seguro en cancelar ${selectedCommunications.length} envios?`,
+        description: 'Se cancelaran los envios que aun no hayan sido recibidos',
+      })
+      .pipe(
+        filter((result) => !!result),
+        switchMap(() => this.outboxService.cancel(selectedCommunications))
+      )
+      .subscribe(() => {
+        selectedCommunications.forEach(({ communicationId }) =>
+          this._removeDatasourceItem(communicationId)
+        );
+      });
   }
 
   cancelAll(communication: GroupedCommunication) {
@@ -257,5 +273,10 @@ export default class OutboxComponent {
     dialogRef.afterClosed().subscribe((message: string) => {
       if (!message) return;
     });
+  }
+
+  private _removeDatasourceItem(id: string): void {
+    this.datasource.update((values) => values.filter((el) => el._id !== id));
+    this.datasize.update((length) => (length -= 1));
   }
 }

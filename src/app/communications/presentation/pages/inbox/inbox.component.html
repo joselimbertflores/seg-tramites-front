@@ -1,8 +1,8 @@
+<div class="animate-fadeIn">
 <mat-toolbar>
   <span>Bandeja de entrada</span>
 </mat-toolbar>
 
-<div class="container-fluid animate__animated animate__fadeIn animate__faster">
   <div class="row">
     <div class="col-sm-9">
       <!-- <search-input
@@ -12,7 +12,7 @@
       /> -->
     </div>
     <div class="col-sm-3">
-      <mat-form-field>
+      <!-- <mat-form-field>
         <mat-label>Situacion</mat-label>
         <mat-select
           (selectionChange)="applyStatusFilter($event.value)"
@@ -22,16 +22,18 @@
           <mat-option [value]="'received'">RECIBIDOS </mat-option>
           <mat-option [value]="'pending'"> PENDIENTES </mat-option>
         </mat-select>
-      </mat-form-field>
+      </mat-form-field> -->
     </div>
   </div>
 
-  <div class="example-container mat-elevation-z8">
+  <div class="mt-2 container mat-elevation-z8">
     <div class="table-container">
       <table mat-table [dataSource]="datasource()">
         <ng-container matColumnDef="group">
           <th mat-header-cell *matHeaderCellDef>Grupo</th>
-          <td mat-cell *matCellDef="let row">{{ row.groupLabel() }}</td>
+          <td mat-cell *matCellDef="let row">
+            <!-- {{ row.groupLabel() }} -->
+          </td>
         </ng-container>
         <ng-container matColumnDef="code">
           <th mat-header-cell *matHeaderCellDef>Alterno</th>
@@ -52,16 +54,16 @@
         <ng-container matColumnDef="state">
           <th mat-header-cell *matHeaderCellDef>Estado</th>
           <td mat-cell *matCellDef="let row">
-            <span class="badge" [ngClass]="row.procedure.state | stateLabel">
+            <!-- <span class="badge" [ngClass]="row.procedure.state | stateLabel">
               {{ row.procedure.state }}
-            </span>
+            </span> -->
           </td>
         </ng-container>
 
         <ng-container matColumnDef="emitter">
           <th mat-header-cell *matHeaderCellDef>Emisor</th>
           <td mat-cell *matCellDef="let row">
-            <div class="d-flex align-items-center">
+            <!-- <div class="d-flex align-items-center">
               <div class="flex-shrink-0">
                 <img
                   src="../../../../../assets/img/account.png"
@@ -73,7 +75,7 @@
                 <span class="fw-bold d-block">{{ row.emitter.fullname }}</span>
                 <span class="d-block">{{ row.emitter.jobtitle }}</span>
               </div>
-            </div>
+            </div> -->
           </td>
         </ng-container>
 
@@ -86,7 +88,7 @@
 
         <ng-container matColumnDef="options">
           <th mat-header-cell *matHeaderCellDef></th>
-          <td mat-cell *matCellDef="let row">
+          <td mat-cell *matCellDef="let row" class="w-8">
             <button mat-icon-button [matMenuTriggerFor]="menu">
               <mat-icon>more_vert</mat-icon>
             </button>

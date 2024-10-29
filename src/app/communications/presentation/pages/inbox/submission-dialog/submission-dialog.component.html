@@ -37,7 +37,19 @@
       </div>
     </div>
   </form>
-  <div class="py-3 text-lg font-medium">DESTINATARIOS:</div>
+  <div class="flex items-center py-4">
+    <div class="flex-1 text-lg font-medium">DESTINATARIOS:</div>
+    <div class="flex justify-center gap-x-2">
+      <button
+        mat-stroked-button
+        (click)="add('original')"
+        [disabled]="!isAddEnabled"
+      >
+        Original
+      </button>
+      <button mat-stroked-button (click)="add('copy')">Copia</button>
+    </div>
+  </div>
   <div class="grid grid-cols-3 gap-x-2">
     <div class="col-start-1">
       <simple-select-search
@@ -53,7 +65,7 @@
         (onSelect)="getRecipientsByDependency($event)"
       />
     </div>
-    <div class="col-span-2">
+    <div class="col-span-3">
       <mat-form-field>
         <mat-select
           [formControl]="bankServerSideCtrl"
@@ -84,19 +96,16 @@
         </mat-select>
       </mat-form-field>
     </div>
-    <div class="flex justify-center gap-x-2">
-      <button mat-stroked-button (click)="add('original')" [disabled]="!isAddEnabled">Original</button>
-      <button mat-stroked-button (click)="add('copy')">Copia</button>
-    </div>
-    <div class="col-span-3">
+    <div class="col-span-3 overflow-y-scroll max-h-72">
       <mat-list role="list">
         @for (item of recipients(); track $index) {
         <mat-list-item role="listitem">
           <img matListItemAvatar src="assets/img/account.png" alt="Profile" />
-          <span matListItemTitle> {{ item.fullname | titlecase }}</span>
-          <div matListItemLine>
-            {{ item.isOriginal ? "Original" : "Copia" }}
-          </div>
+          <h3 matListItemTitle>
+            {{ item.fullname | titlecase }}
+            <span> ({{ item.isOriginal ? "Original" : "Copia" }})</span>
+          </h3>
+          <small matListItemLine class="ml-1">{{ item.jobtitle }}</small>
           <button
             mat-icon-button
             matListItemMeta

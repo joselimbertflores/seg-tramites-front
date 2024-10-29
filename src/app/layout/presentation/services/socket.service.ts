@@ -9,6 +9,7 @@ import {
 import { Communication } from '../../../domain/models';
 import { publication } from '../../../publications/infrastructure';
 import { userSocket } from '../../infrastructure';
+import { communication } from '../../../communications/infrastructure';
 
 @Injectable({
   providedIn: 'root',
@@ -38,10 +39,10 @@ export class SocketService {
     });
   }
 
-  listenProceduresDispatches(): Observable<Communication> {
+  listenCommunications(): Observable<communication> {
     return new Observable((observable) => {
-      this.socket.on('new-mail', (data: communicationResponse) => {
-        observable.next(Communication.fromResponse(data));
+      this.socket.on('new-communication', (data: communication) => {
+        observable.next(data);
       });
     });
   }

@@ -9,10 +9,15 @@ import {
   dependencyResponse,
   institution,
 } from '../../../infraestructure/interfaces';
-import { Communication, StateProcedure, StatusMail } from '../../../domain/models';
+import {
+  Communication,
+  StateProcedure,
+  StatusMail,
+} from '../../../domain/models';
 import { CreateCommunicationDto } from '../../../infraestructure/dtos';
 import { OfficerMapper } from '../../../administration/infrastructure';
 import { Officer } from '../../../administration/domain';
+import { communication } from '../../infrastructure';
 
 interface SearchParams {
   text: string;
@@ -30,6 +35,7 @@ interface sendMailProps {
 
 export interface onlineAccount {
   accountId: string;
+  userId: string;
   officer: Officer;
   jobtitle: string;
   online: boolean;
@@ -59,12 +65,13 @@ export class InboxService {
       `${this.url}/dependencies/${id_institution}`
     );
   }
-  
+
   searchRecipients(term: string): Observable<onlineAccount[]> {
     return this.http.get<account[]>(`${this.url}/recipients/${term}`).pipe(
       map((resp) =>
         resp.map((el) => ({
           accountId: el._id,
+          userId: el.user._id,
           officer: OfficerMapper.fromResponse(el.officer!),
           jobtitle: el.jobtitle,
           online: false,
@@ -74,7 +81,7 @@ export class InboxService {
   }
 
   create({ form, recipients, procedureId, mailId }: sendMailProps) {
-    return this.http.post<{ message: string }>(`${this.url}`, {
+    return this.http.post<communication[]>(`${this.url}`, {
       ...form,
       recipients,
       procedureId,
@@ -86,17 +93,10 @@ export class InboxService {
     const params = new HttpParams({
       fromObject: { limit, offset, ...(status && { status }) },
     });
-    return this.http
-      .get<{ mails: communicationResponse[]; length: number }>(
-        `${this.url}/inbox`,
-        { params }
-      )
-      .pipe(
-        map((resp) => ({
-          mails: resp.mails.map((el) => Communication.fromResponse(el)),
-          length: resp.length,
-        }))
-      );
+    return this.http.get<{ mails: communication[]; length: number }>(
+      `${this.url}/inbox`,
+      { params }
+    );
   }
   search({ status, text, ...values }: SearchParams) {
     const params = new HttpParams({
@@ -125,14 +125,12 @@ export class InboxService {
       .pipe(map((resp) => Communication.fromResponse(resp)));
   }
 
-  accept(id_mail: string) {
-    return this.http.put<{ message: string }>(
-      `${this.url}/accept/${id_mail}`,
-      null
-    );
+  accept(id: string) {
+    return this.http.put<{ message: string }>(`${this.url}/accept/${id}`, null);
   }
-  reject(id_mail: string, description: string) {
-    return this.http.put<{ message: string }>(`${this.url}/reject/${id_mail}`, {
+
+  reject(id: string, description: string) {
+    return this.http.put<{ message: string }>(`${this.url}/reject/${id}`, {
       description,
     });
   }

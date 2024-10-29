@@ -239,7 +239,6 @@ export class SubmissionDialogComponent implements OnInit {
   get isAddEnabled(): boolean {
     if (this.data.isOriginal) {
       if (this.data.communication?.status === StatusMail.Pending) return false;
-
       return this.recipients().every(({ isOriginal }) => !isOriginal);
     }
     return true;
@@ -290,14 +289,14 @@ export class SubmissionDialogComponent implements OnInit {
   ): Observable<onlineAccount[]> {
     return this.socketService.onlineClients$.pipe(
       takeUntilDestroyed(this.destroyRef),
-      map((clients) =>
-        accounts.map((receiver) => {
+      map((clients) => {
+        return accounts.map((receiver) => {
           const isOnline = clients.some(
-            ({ userId }) => userId === receiver.accountId
+            ({ userId }) => userId === receiver.userId
           );
           return { ...receiver, online: isOnline };
-        })
-      )
+        });
+      })
     );
   }
 }
