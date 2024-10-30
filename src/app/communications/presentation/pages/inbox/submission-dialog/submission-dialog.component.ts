@@ -42,7 +42,7 @@ import {
 } from '../../../../../shared';
 import {
   AlertService,
-  InboxService,
+  CommunicationService,
   recipient,
   onlineAccount,
   SocketService,
@@ -85,7 +85,7 @@ export class SubmissionDialogComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
 
   private alertService = inject(AlertService);
-  private inboxService = inject(InboxService);
+  private inboxService = inject(CommunicationService);
   private socketService = inject(SocketService);
 
   data: TransferDetails = inject(MAT_DIALOG_DATA);
@@ -140,8 +140,8 @@ export class SubmissionDialogComponent implements OnInit {
         procedureId: this.data.procedureId,
         recipients: this.recipients(),
       })
-      .subscribe(() => {
-        this.dialogRef.close(true);
+      .subscribe((communications) => {
+        this.dialogRef.close(communications);
         this.isFormPosting.set(false);
       });
   }

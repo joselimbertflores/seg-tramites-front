@@ -13,7 +13,7 @@ export interface confirmDialogData {
   template: `
     <h2 mat-dialog-title>{{ data.title }}</h2>
     <mat-dialog-content>
-      <p class="text-lg">{{ data.description }}</p>
+      <p class="text-lg py-2">{{ data.description }}</p>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button color="warn" [mat-dialog-close]="false">

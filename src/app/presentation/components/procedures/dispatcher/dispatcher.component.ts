@@ -20,7 +20,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, Observable, filter, map, switchMap } from 'rxjs';
 
-import { AlertService, InboxService, SocketService } from '../../../services';
+import { AlertService, CommunicationService, SocketService } from '../../../services';
 import { SimpleSelectSearchComponent } from '../../../components';
 import { receiver } from '../../../../infraestructure/interfaces';
 import { MaterialModule } from '../../../../material.module';
@@ -55,7 +55,7 @@ export class DispatcherComponent implements OnInit {
   private dialogRef = inject(MatDialogRef<DispatcherComponent>);
   private destroyRef = inject(DestroyRef);
   private alertService = inject(AlertService);
-  private inboxService = inject(InboxService);
+  private inboxService = inject(CommunicationService);
   private socketService = inject(SocketService);
 
   public data: TransferDetails = inject(MAT_DIALOG_DATA);

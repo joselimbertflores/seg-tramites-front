@@ -24,7 +24,7 @@ import {
 } from '../../../../domain/models';
 import { PaginatorComponent } from '../../../../presentation/components';
 import {
-  InboxService,
+  CommunicationService,
   SocketService,
   AlertService,
   ProcedureService,
@@ -64,7 +64,7 @@ export interface InboxCache {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class InboxComponent implements OnInit {
-  private inboxService = inject(InboxService);
+  private inboxService = inject(CommunicationService);
   private socketService = inject(SocketService);
   private destroyRef = inject(DestroyRef);
   private alertService = inject(AlertService);
@@ -102,10 +102,9 @@ export default class InboxComponent implements OnInit {
   getData(): void {
     this.inboxService
       .findAll(this.limit, this.offset, this.status)
-      .subscribe((data) => {
-        console.log(data);
-        this.datasource.set(data.mails);
-        this.datasize.set(data.length);
+      .subscribe(({ communications, length }) => {
+        this.datasource.set(communications);
+        this.datasize.set(length);
       });
   }
 

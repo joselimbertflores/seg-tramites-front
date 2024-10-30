@@ -19,7 +19,7 @@ import {
   StateProcedure,
   StatusMail,
 } from '../../../../domain/models';
-import { CacheService, InboxService } from '../../../services';
+import { CacheService, CommunicationService } from '../../../services';
 import { MaterialModule } from '../../../../material.module';
 import { InboxCache } from '../../../../communications/presentation/pages/inbox/inbox.component';
 
@@ -41,7 +41,7 @@ import { InboxCache } from '../../../../communications/presentation/pages/inbox/
 export class CommunicationComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private location = inject(Location);
-  private inboxService = inject(InboxService);
+  private inboxService = inject(CommunicationService);
   private cacheService: CacheService<InboxCache> = inject(CacheService);
 
   public mail = signal<Communication | null>(null);

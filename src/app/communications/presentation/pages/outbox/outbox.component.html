@@ -2,21 +2,74 @@
   <mat-toolbar>
     <span>Bandeja de salida</span>
     <span class="flex-1"></span>
+    @if (selection.selected.length>0) {
     <button
       mat-icon-button
       aria-label="Cancel"
-      (click)="cancel()"
       matTooltip="Cancelar"
+      (click)="cancelSelectedCommunications()"
     >
       <mat-icon> delete</mat-icon>
     </button>
+    }
+    <button
+      mat-icon-button
+      aria-label="Filter"
+      cdkOverlayOrigin
+      #menuOverlay="cdkOverlayOrigin"
+      matTooltip="Filtrar"
+      (click)="isOpen = !isOpen"
+    >
+      <mat-icon>filter_alt</mat-icon>
+    </button>
   </mat-toolbar>
-  <!-- <search-input
-    placeholder="Alterno / Referencia "
-    (onSearch)="applyFilter($event)"
-  /> -->
+  <ng-template
+    cdkConnectedOverlay
+    [cdkConnectedOverlayOrigin]="menuOverlay"
+    [cdkConnectedOverlayOpen]="isOpen"
+    (overlayOutsideClick)="isOpen = false"
+  >
+    <div class="overlay-menu mat-elevation-z8 px-2 py-3 sm:w-[450px]">
+      <div class="flex flex-col">
+        <div>
+          <mat-form-field>
+            <mat-label>Estado de envio</mat-label>
+            <mat-select [(ngModel)]="status">
+              @for (item of statusOptions; track $index) {
+              <mat-option [value]="item.value">{{ item.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div>
+          <mat-form-field>
+            <mat-label>Tipo de documento</mat-label>
+            <mat-select [(ngModel)]="isOriginal">
+              @for (item of documentOptions; track $index) {
+              <mat-option [value]="item.value">{{ item.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
 
-  <div class="mat-elevation-z8 mt-2">
+      <div class="flex justify-end gap-x-2 mt-2">
+        <button mat-button (click)="reset()">Restablecer</button>
+        <button mat-flat-button (click)="filter()">Buscar</button>
+      </div>
+    </div>
+  </ng-template>
+
+  <div class="flex justify-end py-2">
+    <div class="w-full px-2 sm:w-1/4 h-11">
+      <search-input
+        (onSearch)="search($event)"
+        placeholder="Proveido / Destinatario"
+      />
+    </div>
+  </div>
+
+  <div class="mat-elevation-z8">
     <table mat-table [dataSource]="datasource()">
       <ng-container matColumnDef="select">
         <th mat-header-cell *matHeaderCellDef class="w-8">
@@ -105,6 +158,10 @@
               <mat-icon>send</mat-icon>
               <span>Remitir</span>
             </button>
+            <button (click)="cancel(element)" mat-menu-item>
+              <mat-icon>delete</mat-icon>
+              <span>Cancelar</span>
+            </button>
           </mat-menu>
         </td>
       </ng-container>
@@ -115,13 +172,13 @@
         <td class="mat-cell p-3" colspan="8">No se encontraron resultados</td>
       </tr>
     </table>
-
-    <paginator
-      [pageSizeOptions]="[10, 20, 30, 50]"
-      [limit]="limit"
-      [index]="index"
+    <mat-paginator
+      aria-label="Select page of users search results"
+      showFirstLastButtons
       [length]="datasize()"
-      (onPageChage)="changePage($event)"
+      [pageIndex]="index()"
+      [pageSize]="10"
+      (page)="onPageChange($event)"
     />
   </div>
 </div>

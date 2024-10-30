@@ -48,10 +48,23 @@ export interface recipient {
   isOriginal: boolean;
 }
 
+interface cancelCommunicationProps {
+  procedureId: string;
+  communicationId: string;
+}
+
+interface filterOutboxProps {
+  limit: number;
+  offset: number;
+  term?: string;
+  status?: StatusMail.Pending | StatusMail.Rejected | null;
+  isOriginal?: boolean | null;
+}
+
 @Injectable({
   providedIn: 'root',
 })
-export class InboxService {
+export class CommunicationService {
   private readonly url = `${environment.base_url}/communication`;
   private http = inject(HttpClient);
   constructor() {}
@@ -93,11 +106,12 @@ export class InboxService {
     const params = new HttpParams({
       fromObject: { limit, offset, ...(status && { status }) },
     });
-    return this.http.get<{ mails: communication[]; length: number }>(
+    return this.http.get<{ communications: communication[]; length: number }>(
       `${this.url}/inbox`,
       { params }
     );
   }
+
   search({ status, text, ...values }: SearchParams) {
     const params = new HttpParams({
       fromObject: { ...values, ...(status && { status }) },
@@ -132,6 +146,30 @@ export class InboxService {
   reject(id: string, description: string) {
     return this.http.put<{ message: string }>(`${this.url}/reject/${id}`, {
       description,
+    });
+  }
+
+  getOutbox({ limit, offset, status, isOriginal, term }: filterOutboxProps) {
+    const params = new HttpParams({
+      fromObject: {
+        limit,
+        offset,
+        ...(term && { term }),
+        ...(status && { status }),
+        ...(isOriginal !== null && isOriginal !== undefined
+          ? { isOriginal }
+          : {}),
+      },
+    });
+    return this.http.get<{ communications: communication[]; length: number }>(
+      `${this.url}/outbox`,
+      { params }
+    );
+  }
+
+  cancel(selected: string[]) {
+    return this.http.delete<{ message: string }>(`${this.url}/outbox`, {
+      body: { selected },
     });
   }
 }
