@@ -1,151 +1,210 @@
 <div class="animate-fadeIn">
-<mat-toolbar>
-  <span>Bandeja de entrada</span>
-</mat-toolbar>
+  <mat-toolbar>
+    <span>Bandeja de entrada</span>
+    <span class="flex-1"></span>
+    <button
+      mat-icon-button
+      aria-label="Recibir"
+      matTooltip="Aceptar"
+      (click)="acceptMultiple()"
+    >
+      <mat-icon>check</mat-icon>
+    </button>
 
-  <div class="row">
-    <div class="col-sm-9">
-      <!-- <search-input
-        placeholder="Alterno / Referencia"
-        [initialValue]="term"
-        (onSearch)="applyTextFilter($event)"
-      /> -->
+    <button
+      mat-icon-button
+      aria-label="Filter"
+      cdkOverlayOrigin
+      #menuOverlay="cdkOverlayOrigin"
+      matTooltip="Filtrar"
+      (click)="isOpen = !isOpen"
+    >
+      <mat-icon>filter_alt</mat-icon>
+    </button>
+  </mat-toolbar>
+  <ng-template
+    cdkConnectedOverlay
+    [cdkConnectedOverlayOrigin]="menuOverlay"
+    [cdkConnectedOverlayOpen]="isOpen"
+    (overlayOutsideClick)="isOpen = false"
+  >
+    <div class="overlay-menu mat-elevation-z8 px-2 py-3 sm:w-[400px]">
+      <form [formGroup]="filterForm">
+        <div class="flex flex-col">
+          <div>
+            <mat-form-field>
+              <mat-label>Estado</mat-label>
+              <mat-select formControlName="status">
+                @for (status of statusOptions; track $index) {
+                <mat-option [value]="status.value">
+                  {{ status.label }}
+                </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div>
+            <mat-form-field>
+              <mat-label>Grupo</mat-label>
+              <mat-select formControlName="group">
+                @for (group of groups; track $index) {
+                <mat-option [value]="group.value">
+                  {{ group.label }}
+                </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div>
+            <mat-form-field>
+              <mat-label>Recibido de:</mat-label>
+              <input
+                matInput
+                placeholder="Nombre remitente"
+                formControlName="from"
+              />
+            </mat-form-field>
+          </div>
+        </div>
+      </form>
+      <div class="flex justify-end gap-x-2 mt-2">
+        <button mat-button (click)="reset()">Restablecer</button>
+        <button mat-flat-button (click)="filter()">Buscar</button>
+      </div>
     </div>
-    <div class="col-sm-3">
-      <!-- <mat-form-field>
-        <mat-label>Situacion</mat-label>
-        <mat-select
-          (selectionChange)="applyStatusFilter($event.value)"
-          [(ngModel)]="status"
-        >
-          <mat-option [value]="undefined"> --- </mat-option>
-          <mat-option [value]="'received'">RECIBIDOS </mat-option>
-          <mat-option [value]="'pending'"> PENDIENTES </mat-option>
-        </mat-select>
-      </mat-form-field> -->
+  </ng-template>
+
+  <div class="flex justify-end py-2">
+    <div class="w-full px-2 sm:w-1/4 h-11">
+      <search-input
+        (onSearch)="search($event)"
+        placeholder="Alterno / Referencia"
+      />
     </div>
   </div>
 
-  <div class="mt-2 container mat-elevation-z8">
-    <div class="table-container">
-      <table mat-table [dataSource]="datasource()">
-        <ng-container matColumnDef="group">
-          <th mat-header-cell *matHeaderCellDef>Grupo</th>
-          <td mat-cell *matCellDef="let row">
-            <!-- {{ row.groupLabel() }} -->
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="code">
-          <th mat-header-cell *matHeaderCellDef>Alterno</th>
-          <td mat-cell *matCellDef="let mail">
-            <a
-              class="underline text-blue-600"
-              [routerLink]="['/home/inbox', mail._id]"
-              [queryParams]="{limit, index}"
-            >
-              {{ mail.procedure.code }}
-            </a>
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="reference">
-          <th mat-header-cell *matHeaderCellDef>Referencia</th>
-          <td mat-cell *matCellDef="let row">{{ row.procedure.reference }}</td>
-        </ng-container>
-        <ng-container matColumnDef="state">
-          <th mat-header-cell *matHeaderCellDef>Estado</th>
-          <td mat-cell *matCellDef="let row">
-            <!-- <span class="badge" [ngClass]="row.procedure.state | stateLabel">
-              {{ row.procedure.state }}
-            </span> -->
-          </td>
-        </ng-container>
+  <div class="mat-elevation-z8">
+    <table mat-table [dataSource]="datasource()">
+      <ng-container matColumnDef="select">
+        <th mat-header-cell *matHeaderCellDef>
+          <mat-checkbox
+            (change)="$event ? toggleAllRows() : null"
+            [checked]="selection.hasValue() && isAllSelected()"
+            [indeterminate]="selection.hasValue() && !isAllSelected()"
+          >
+          </mat-checkbox>
+        </th>
+        <td mat-cell *matCellDef="let row" class="w-8">
+          <mat-checkbox
+            (click)="$event.stopPropagation()"
+            (change)="$event ? selection.toggle(row) : null"
+            [checked]="selection.isSelected(row)"
+          >
+          </mat-checkbox>
+        </td>
+      </ng-container>
 
-        <ng-container matColumnDef="emitter">
-          <th mat-header-cell *matHeaderCellDef>Emisor</th>
-          <td mat-cell *matCellDef="let row">
-            <!-- <div class="d-flex align-items-center">
-              <div class="flex-shrink-0">
-                <img
-                  src="../../../../../assets/img/account.png"
-                  alt="emitter profile"
-                  width="30px"
-                />
-              </div>
-              <div class="flex-grow-1 ms-3">
-                <span class="fw-bold d-block">{{ row.emitter.fullname }}</span>
-                <span class="d-block">{{ row.emitter.jobtitle }}</span>
-              </div>
-            </div> -->
-          </td>
-        </ng-container>
+      <ng-container matColumnDef="group">
+        <th mat-header-cell *matHeaderCellDef>Grupo</th>
+        <td mat-cell *matCellDef="let row">
+          {{ row.procedure.group }}
+          ({{ row.isOriginal ? "Original" : "Copia" }})
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="code">
+        <th mat-header-cell *matHeaderCellDef>Alterno</th>
+        <td mat-cell *matCellDef="let mail">
+          <a
+            class="underline text-blue-600"
+            [routerLink]="['/home/inbox', mail._id]"
+            [queryParams]="{limit, index}"
+          >
+            {{ mail.procedure.code }}
+          </a>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="reference">
+        <th mat-header-cell *matHeaderCellDef>Referencia</th>
+        <td mat-cell *matCellDef="let row" class="w-full sm:w-96">
+          {{ row.procedure.reference }}
+        </td>
+      </ng-container>
 
-        <ng-container matColumnDef="outboundDate">
-          <th mat-header-cell *matHeaderCellDef>Ingreso</th>
-          <td mat-cell *matCellDef="let row">
-            {{ row.outboundDate | date : "short" }}
-          </td>
-        </ng-container>
+      <ng-container matColumnDef="emitter">
+        <th mat-header-cell *matHeaderCellDef>Remitente</th>
+        <td mat-cell *matCellDef="let row">
+          <p>{{ row.sender.fullname | titlecase }}</p>
+          <small>{{ row.sender.jobtitle }}</small>
+        </td>
+      </ng-container>
 
-        <ng-container matColumnDef="options">
-          <th mat-header-cell *matHeaderCellDef></th>
-          <td mat-cell *matCellDef="let row" class="w-8">
-            <button mat-icon-button [matMenuTriggerFor]="menu">
-              <mat-icon>more_vert</mat-icon>
+      <ng-container matColumnDef="sentDate">
+        <th mat-header-cell *matHeaderCellDef>Ingreso</th>
+        <td mat-cell *matCellDef="let row">
+          {{ row.sentDate | date : "short" }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="options">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let row" class="w-8">
+          <button mat-icon-button [matMenuTriggerFor]="menu">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #menu="matMenu">
+            @if(row.status === 'pending') {
+            <button mat-menu-item (click)="acceptOne(row)">
+              <mat-icon>done</mat-icon>
+              <span>Aceptar</span>
             </button>
-            <mat-menu #menu="matMenu">
-              @if(row.status === 'pending'){
-              <button (click)="accept(row)" mat-menu-item>
-                <mat-icon>done</mat-icon>
-                <span>Aceptar</span>
-              </button>
-              <button (click)="reject(row)" mat-menu-item>
-                <mat-icon>block</mat-icon>
-                <span>Rechazar</span>
-              </button>
-              } @else {
-              <button (click)="send(row)" mat-menu-item>
-                <mat-icon>send</mat-icon>
-                <span>Remitir</span>
-              </button>
-              <button
-                mat-menu-item
-                (click)="archive(row, StateProcedure.Concluido)"
-              >
-                <mat-icon>domain_verification</mat-icon>
-                Concluir
-              </button>
-              <button
-                mat-menu-item
-                (click)="archive(row, StateProcedure.Suspendido)"
-              >
-                <mat-icon>pause_presentation</mat-icon>
-                Suspender
-              </button>
-              <button (click)="generateRouteMap(row)" mat-menu-item>
-                <mat-icon>description</mat-icon>
-                <span>Hoja de ruta</span>
-              </button>
-              }
-            </mat-menu>
-          </td>
-        </ng-container>
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr
-          mat-row
-          *matRowDef="let row; columns: displayedColumns"
-          [class.mail-pending]="row.status === 'pending'"
-        ></tr>
-        <tr class="mat-row" *matNoDataRow>
-          <td class="mat-cell p-3" colspan="5">No se econtraron resultados</td>
-        </tr>
-      </table>
-    </div>
-    <paginator
-      [pageSizeOptions]="[10, 20, 30, 50]"
-      [limit]="limit"
-      [index]="index"
+            <button mat-menu-item (click)="rejectOne(row)">
+              <mat-icon>block</mat-icon>
+              <span>Rechazar</span>
+            </button>
+            } @else {
+            <button (click)="send(row)" mat-menu-item>
+              <mat-icon>send</mat-icon>
+              <span>Remitir</span>
+            </button>
+            <button
+              mat-menu-item
+              (click)="archive(row, StateProcedure.Concluido)"
+            >
+              <mat-icon>domain_verification</mat-icon>
+              Concluir
+            </button>
+            <button
+              mat-menu-item
+              (click)="archive(row, StateProcedure.Suspendido)"
+            >
+              <mat-icon>pause_presentation</mat-icon>
+              Suspender
+            </button>
+            <button (click)="generateRouteMap(row)" mat-menu-item>
+              <mat-icon>description</mat-icon>
+              <span>Hoja de ruta</span>
+            </button>
+            }
+          </mat-menu>
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: displayedColumns"
+        [class.mail-pending]="row.status === 'pending'"
+      ></tr>
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell p-3" colspan="5">No se econtraron resultados</td>
+      </tr>
+    </table>
+    <mat-paginator
+      aria-label="Select page of users search results"
+      showFirstLastButtons
       [length]="datasize()"
-      (onPageChage)="changePage($event)"
+      [pageIndex]="index()"
+      [pageSize]="10"
+      (page)="onPageChange($event)"
     />
   </div>
 </div>

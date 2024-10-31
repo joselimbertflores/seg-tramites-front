@@ -13,14 +13,15 @@ import { InternalDialogComponent } from './internal-dialog/internal-dialog.compo
 
 import { transferDetails } from '../../../../infraestructure/interfaces';
 import { MaterialModule } from '../../../../material.module';
-import {
-  PaginatorComponent,
-  DispatcherComponent,
-} from '../../../../presentation/components';
+import { PaginatorComponent } from '../../../../presentation/components';
 import { PdfService, CacheService } from '../../../../presentation/services';
 import { SearchInputComponent } from '../../../../shared';
 import { InternalService, ProcedureService } from '../../services';
 import { InternalProcedure } from '../../../domain/models/internal.model';
+import {
+  SubmissionDialogComponent,
+  TransferDetails,
+} from '../../../../communications/presentation/pages/inbox/submission-dialog/submission-dialog.component';
 
 interface CacheData {
   results: InternalProcedure[];
@@ -118,24 +119,25 @@ export default class InternalsManageComponent {
   }
 
   send(procedure: InternalProcedure) {
-    // const transfer: transferDetails = {
-    //   id_procedure: procedure._id,
-    //   code: procedure.code,
-    //   attachmentQuantity: procedure.amount,
-    // };
-    // const dialogRef = this.dialog.open(DispatcherComponent, {
-    //   maxWidth: '1200px',
-    //   width: '1200px',
-    //   data: transfer,
-    // });
-    // dialogRef.afterClosed().subscribe((message) => {
-    //   if (!message) return;
-    //   this.datasource.update((values) => {
-    //     const index = values.findIndex(({ _id }) => _id === procedure._id);
-    //     values[index].isSend = true;
-    //     return [...values];
-    //   });
-    // });
+    const data: TransferDetails = {
+      procedureId: procedure._id,
+      code: procedure.code,
+      attachmentsCount: procedure.numberOfDocuments,
+      isOriginal: true,
+    };
+    const dialogRef = this.dialog.open(SubmissionDialogComponent, {
+      maxWidth: '1200px',
+      width: '1200px',
+      data,
+    });
+    dialogRef.afterClosed().subscribe((message) => {
+      if (!message) return;
+      this.datasource.update((values) => {
+        const index = values.findIndex(({ _id }) => _id === procedure._id);
+        values[index].isSend = true;
+        return [...values];
+      });
+    });
   }
 
   generateRouteMap(procedure: InternalProcedure) {

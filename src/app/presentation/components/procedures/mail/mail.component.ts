@@ -46,27 +46,27 @@ export class MailComponent {
   mail = model.required<Communication | null>();
 
   accept() {
-    this.alertService.QuestionAlert({
-      title: `¿Aceptar tramite ${this.detail.procedure.code}?`,
-      text: 'Solo debe aceptar tramites que haya recibido en fisico',
-      callback: () => {
-        this.inboxService.accept(this.detail._id).subscribe(() => {
-          this.mail.set(this.detail.copyWith({ status: StatusMail.Received }));
-        });
-      },
-    });
+    // this.alertService.QuestionAlert({
+    //   title: `¿Aceptar tramite ${this.detail.procedure.code}?`,
+    //   text: 'Solo debe aceptar tramites que haya recibido en fisico',
+    //   callback: () => {
+    //     this.inboxService.accept(this.detail._id).subscribe(() => {
+    //       this.mail.set(this.detail.copyWith({ status: StatusMail.Received }));
+    //     });
+    //   },
+    // });
   }
 
   reject() {
-    this.alertService.ConfirmAlert({
-      title: `¿Rechazar tramite ${this.detail.procedure.code}?`,
-      text: 'El tramite sera devuelto al funcionario emisor',
-      callback: (descripion) => {
-        this.inboxService.reject(this.detail._id, descripion).subscribe(() => {
-          this.mail.set(this.detail.copyWith({ status: StatusMail.Rejected }));
-        });
-      },
-    });
+    // this.alertService.ConfirmAlert({
+    //   title: `¿Rechazar tramite ${this.detail.procedure.code}?`,
+    //   text: 'El tramite sera devuelto al funcionario emisor',
+    //   callback: (descripion) => {
+    //     this.inboxService.reject(this.detail._id, descripion).subscribe(() => {
+    //       this.mail.set(this.detail.copyWith({ status: StatusMail.Rejected }));
+    //     });
+    //   },
+    // });
   }
 
   send() {

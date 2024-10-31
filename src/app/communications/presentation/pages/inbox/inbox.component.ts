@@ -4,17 +4,26 @@ import {
   Component,
   DestroyRef,
   OnInit,
+  computed,
   inject,
   signal,
 } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
+import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
+import { SelectionModel } from '@angular/cdk/collections';
+import { OverlayModule } from '@angular/cdk/overlay';
 import { filter, forkJoin, switchMap } from 'rxjs';
 
 import {
@@ -22,7 +31,6 @@ import {
   StatusMail,
   StateProcedure,
 } from '../../../../domain/models';
-import { PaginatorComponent } from '../../../../presentation/components';
 import {
   CommunicationService,
   SocketService,
@@ -49,14 +57,20 @@ export interface InboxCache {
   selector: 'app-inbox',
   standalone: true,
   imports: [
-    FormsModule,
     CommonModule,
     RouterModule,
-    MatIconModule,
-    MatTableModule,
+    ReactiveFormsModule,
+    OverlayModule,
     MatMenuModule,
+    MatIconModule,
+    MatInputModule,
+    MatTableModule,
+    MatSelectModule,
+    MatButtonModule,
     MatToolbarModule,
-    PaginatorComponent,
+    MatTooltipModule,
+    MatCheckboxModule,
+    MatPaginatorModule,
     SearchInputComponent,
   ],
   templateUrl: './inbox.component.html',
@@ -73,19 +87,44 @@ export default class InboxComponent implements OnInit {
   private pdfService = inject(PdfService);
   private archiveService = inject(ArchiveService);
   private cacheService: CacheService<InboxCache> = inject(CacheService);
+  private formBuilder = inject(FormBuilder);
 
-  public displayedColumns: string[] = [
+  datasize = signal<number>(0);
+  datasource = signal<communication[]>([]);
+  selection = new SelectionModel<communication>(true, []);
+
+  limit = signal<number>(10);
+  index = signal<number>(0);
+  offset = computed<number>(() => this.limit() * this.index());
+  isOpen = false;
+
+  filterForm = this.formBuilder.nonNullable.group({
+    status: [''],
+    from: [''],
+    group: [''],
+    term: [''],
+  });
+
+  readonly displayedColumns: string[] = [
+    'select',
     'group',
     'code',
     'reference',
     'emitter',
-    'outboundDate',
+    'sentDate',
     'options',
   ];
-  public datasize = signal<number>(0);
-  public datasource = signal<communication[]>([]);
-  public term: string = '';
-  public status?: StatusMail;
+  readonly statusOptions = [
+    { value: null, label: 'Todos' },
+    { value: StatusMail.Pending, label: 'Sin Recibir' },
+    { value: StatusMail.Received, label: 'Recibidos' },
+  ];
+  readonly groups = [
+    { value: null, label: 'Todos' },
+    { value: 'ExternalProcedure', label: 'Externos' },
+    { value: 'InternalProcedure', label: 'Internos' },
+    { value: 'Contratacion', label: 'Contrataciones' },
+  ];
 
   constructor() {
     this.destroyRef.onDestroy(() => {
@@ -101,64 +140,32 @@ export default class InboxComponent implements OnInit {
 
   getData(): void {
     this.inboxService
-      .findAll(this.limit, this.offset, this.status)
+      .getInbox({
+        limit: this.limit(),
+        offset: this.offset(),
+        filterForm: this.filterForm.value,
+      })
       .subscribe(({ communications, length }) => {
         this.datasource.set(communications);
         this.datasize.set(length);
+        this.selection.clear();
       });
   }
 
-  applyStatusFilter(status: StatusMail): void {
-    this.cacheService.pageIndex.set(0);
-    this.status = status;
-    this.getData();
+  acceptOne(item: communication): void {
+    this._accept([item]);
   }
 
-  applyTextFilter(term: string): void {
-    this.cacheService.pageIndex.set(0);
-    this.term = term;
-    this.getData();
+  acceptMultiple(): void {
+    this._accept(this.selection.selected);
   }
 
-  changePage(params: { limit: number; index: number }) {
-    this.cacheService.pageSize.set(params.limit);
-    this.cacheService.pageIndex.set(params.index);
-    this.getData();
+  rejectOne(item: communication): void {
+    this._reject([item]);
   }
 
-  accept(communication: communication): void {
-    this.alertService
-      .confirmDialog({
-        title: `¿Aceptar tramite ${communication.procedure.code}?`,
-        description:
-          'IMPORTANTE: Solo debe aceptar tramites que haya recibido en fisico',
-      })
-      .pipe(
-        filter((result) => result),
-        switchMap(() => this.inboxService.accept(communication._id))
-      )
-      .subscribe(() => {
-        this.datasource.update((values) => {
-          const index = values.findIndex((el) => el._id === communication._id);
-          values[index].status = StatusMail.Received;
-          return [...values];
-        });
-      });
-  }
-
-  reject({ _id, procedure }: communication): void {
-    this.alertService
-      .descriptionDialog({
-        title: `¿Rechazar tramite ${procedure.code}?`,
-        description: 'Ingrese el motivo del rechazo',
-      })
-      .pipe(
-        filter((term) => !!term),
-        switchMap((description) => this.inboxService.reject(_id, description!))
-      )
-      .subscribe(() => {
-        this._removeDatasourceItem(_id);
-      });
+  rejectMultiple(): void {
+    this._reject(this.selection.selected);
   }
 
   send(communication: communication) {
@@ -184,17 +191,23 @@ export default class InboxComponent implements OnInit {
     { _id, procedure }: Communication,
     state: StateProcedure.Concluido | StateProcedure.Suspendido
   ) {
-    this.alertService.ConfirmAlert({
-      title: `¿${
-        state === StateProcedure.Concluido ? 'Concluir' : 'Suspender'
-      } el tramite ${procedure.code}?`,
-      text: 'El tramite pasara a su seccion de archivos',
-      callback: (description) => {
-        this.archiveService.create(_id, description, state).subscribe(() => {
-          this._removeDatasourceItem(_id);
-        });
-      },
-    });
+    // this.alertService.ConfirmAlert({
+    //   title: `¿${
+    //     state === StateProcedure.Concluido ? 'Concluir' : 'Suspender'
+    //   } el tramite ${procedure.code}?`,
+    //   text: 'El tramite pasara a su seccion de archivos',
+    //   callback: (description) => {
+    //     this.archiveService.create(_id, description, state).subscribe(() => {
+    //       this._removeDatasourceItem(_id);
+    //     });
+    //   },
+    // });
+  }
+
+  search(term: string) {
+    this.index.set(0);
+    this.filterForm.patchValue({ term });
+    this.getData();
   }
 
   generateRouteMap({ procedure }: Communication) {
@@ -206,20 +219,41 @@ export default class InboxComponent implements OnInit {
     });
   }
 
-  get index() {
-    return this.cacheService.pageIndex();
-  }
-
-  get limit() {
-    return this.cacheService.pageSize();
-  }
-
-  get offset() {
-    return this.cacheService.pageOffset();
-  }
-
   get StateProcedure() {
     return StateProcedure;
+  }
+
+  isAllSelected() {
+    const numSelected = this.selection.selected.length;
+    const numRows = this.datasource().length;
+    return numSelected === numRows;
+  }
+
+  toggleAllRows() {
+    if (this.isAllSelected()) {
+      this.selection.clear();
+      return;
+    }
+
+    this.selection.select(...this.datasource());
+  }
+
+  filter() {
+    this.index.set(0);
+    this.isOpen = false;
+    this.getData();
+  }
+
+  reset() {
+    this.isOpen = false;
+    this.filterForm.reset();
+    this.getData();
+  }
+
+  onPageChange({ pageIndex, pageSize }: PageEvent) {
+    this.limit.set(pageSize);
+    this.index.set(pageIndex);
+    this.getData();
   }
 
   private saveCache(): void {
@@ -246,27 +280,75 @@ export default class InboxComponent implements OnInit {
   }
 
   private _listenCommunications() {
-    this.socketService
-      .listenCommunications()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((communication) => {
-        this.datasource.update((values) => {
-          if (values.length === this.limit) values.pop();
-          return [communication, ...values];
-        });
-        this.datasize.update((length) => (length += 1));
-      });
+    // this.socketService
+    //   .listenCommunications()
+    //   .pipe(takeUntilDestroyed(this.destroyRef))
+    //   .subscribe((communication) => {
+    //     this.datasource.update((values) => {
+    //       if (values.length === this.limit) values.pop();
+    //       return [communication, ...values];
+    //     });
+    //     this.datasize.update((length) => (length += 1));
+    //   });
   }
 
   private listenCancelDispatches() {
-    this.socketService
-      .listenCancelDispatches()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((id) => this._removeDatasourceItem(id));
+    // this.socketService
+    //   .listenCancelDispatches()
+    //   .pipe(takeUntilDestroyed(this.destroyRef))
+    //   .subscribe((id) => this._removeDatasourceItem(id));
   }
 
-  private _removeDatasourceItem(id: string): void {
-    this.datasource.update((values) => values.filter((el) => el._id !== id));
-    this.datasize.update((length) => (length -= 1));
+  private _accept(communications: communication[]): void {
+    const selected = communications.map(({ _id }) => _id);
+    const title =
+      communications.length === 1
+        ? `¿Aceptar tramite ${communications[0].procedure.code}?`
+        : `¿Aceptar los tramites seleccionados`;
+    this.alertService
+      .confirmDialog({
+        title,
+        description:
+          'IMPORTANTE: Solo debe aceptar tramites que haya recibido en fisico',
+      })
+      .pipe(
+        filter((result) => result),
+        switchMap(() => this.inboxService.accept(selected))
+      )
+      .subscribe(() => {
+        this.datasource.update((values) => {
+          values.map((item, index) => {
+            if (selected.includes(item._id)) {
+              values[index].status = StatusMail.Received;
+            }
+            return item;
+          });
+          return [...values];
+        });
+      });
+  }
+
+  private _reject(communications: communication[]): void {
+    const selected = communications.map(({ _id }) => _id);
+    this.alertService
+      .descriptionDialog({
+        title:
+          selected.length === 1
+            ? `Rechazar tramite ${communications[0].procedure.code}?`
+            : `¿Rechazar los tramites seleccionados?`,
+        description: 'Ingrese el motivo del rechazo',
+      })
+      .pipe(
+        filter((term) => !!term),
+        switchMap((description) =>
+          this.inboxService.reject(selected, description!)
+        )
+      )
+      .subscribe(() => {
+        this.datasource.update((values) =>
+          values.filter((el) => !selected.includes(el._id))
+        );
+        this.datasize.update((length) => (length -= communications.length));
+      });
   }
 }

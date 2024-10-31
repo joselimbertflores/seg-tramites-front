@@ -11,24 +11,23 @@ import { MatDialog } from '@angular/material/dialog';
 
 import { ExternalDialogComponent } from './external-dialog/external-dialog.component';
 import { MaterialModule } from '../../../../material.module';
-import {
-  PaginatorComponent,
-  DispatcherComponent,
-} from '../../../../presentation/components';
+
 import { StateLabelPipe } from '../../../../presentation/pipes';
-import { CacheService, PdfService } from '../../../../presentation/services';
-import { SearchInputComponent } from '../../../../shared';
+import { CacheService, SearchInputComponent } from '../../../../shared';
 import { ExternalService, ProcedureService } from '../../services';
 import { ExternalProcedure } from '../../../domain';
 import {
   SubmissionDialogComponent,
   TransferDetails,
 } from '../../../../communications/presentation/pages/inbox/submission-dialog/submission-dialog.component';
+import { external } from '../../../infrastructure';
 
-interface CacheData {
+interface cache {
   datasource: ExternalProcedure[];
   datasize: number;
-  text: string;
+  term: string;
+  limit: number;
+  index: number;
 }
 @Component({
   selector: 'app-externals-manage',
@@ -37,8 +36,7 @@ interface CacheData {
     CommonModule,
     RouterModule,
     MaterialModule,
-    PaginatorComponent,
-    PaginatorComponent,
+
     SearchInputComponent,
     StateLabelPipe,
   ],
@@ -48,11 +46,11 @@ interface CacheData {
 export default class ExternalsManageComponent {
   private dialog = inject(MatDialog);
   private externalService = inject(ExternalService);
-  private cacheService: CacheService<CacheData> = inject(CacheService);
+  private cacheService: CacheService<cache> = inject(CacheService);
   private procedureService = inject(ProcedureService);
-  private pdfService = inject(PdfService);
+  // private pdfService = inject(PdfService);
 
-  public term: string = '';
+  public term = signal<string>('');
   public datasource = signal<ExternalProcedure[]>([]);
   public datasize = signal<number>(0);
   public displayedColumns: string[] = [
@@ -64,10 +62,15 @@ export default class ExternalsManageComponent {
     'options',
   ];
 
+  t = signal<string>('');
+  public limit = signal<number>(10);
+  public index = signal<number>(0);
+  // public offset = computed<number>(() => this.limit() * this.index());
+
   constructor() {
-    inject(DestroyRef).onDestroy(() => {
-      this.savePaginationData();
-    });
+    // inject(DestroyRef).onDestroy(() => {
+    //   this.savePaginationData();
+    // });
   }
 
   ngOnInit(): void {
@@ -76,16 +79,16 @@ export default class ExternalsManageComponent {
   }
 
   getData() {
-    this.externalService.findAll(this.limit, this.offset).subscribe((data) => {
-      this.datasource.set(data.procedures);
-      this.datasize.set(data.length);
-    });
+    // this.externalService.findAll(this.limit, this.offset).subscribe((data) => {
+    //   this.datasource.set(data.procedures);
+    //   this.datasize.set(data.length);
+    // });
   }
 
   applyFilter(term: string) {
-    this.cacheService.pageIndex.set(0);
-    this.term = term;
-    this.getData();
+    // this.cacheService.pageIndex.set(0);
+    // this.term = term;
+    // this.getData();
   }
 
   create(): void {
@@ -96,10 +99,10 @@ export default class ExternalsManageComponent {
     dialogRef.afterClosed().subscribe((result) => {
       if (!result) return;
       this.datasize.update((value) => (value += 1));
-      this.datasource.update((values) => {
-        if (values.length === this.limit) values.pop();
-        return [result, ...values];
-      });
+      // this.datasource.update((values) => {
+      //   if (values.length === this.limit) values.pop();
+      //   return [result, ...values];
+      // });
       this.send(result);
     });
   }
@@ -150,40 +153,28 @@ export default class ExternalsManageComponent {
   }
 
   changePage(params: { limit: number; index: number }) {
-    this.cacheService.pageSize.set(params.limit);
-    this.cacheService.pageIndex.set(params.index);
-    this.getData();
+    // this.cacheService.pageSize.set(params.limit);
+    // this.cacheService.pageIndex.set(params.index);
+    // this.getData();
   }
 
-  private savePaginationData(): void {
-    this.cacheService.resetPagination();
-    const cache: CacheData = {
+  private _saveCache(): void {
+    this.cacheService.save('externals', {
       datasource: this.datasource(),
       datasize: this.datasize(),
-      text: this.term,
-    };
-    this.cacheService.save('externals', cache);
+      term: this.term(),
+      limit: this.limit(),
+      index: this.index(),
+    });
   }
 
-  private loadPaginationData(): void {
+  private _loadCache(): void {
     const cache = this.cacheService.load('externals');
-    if (!this.cacheService.keepAliveData() || !cache) return this.getData();
+    if (!this.cacheService.keepAlive() || !cache) return this.getData();
     this.datasource.set(cache.datasource);
     this.datasize.set(cache.datasize);
-    this.term = cache.text;
-  }
-
-  get index() {
-    return this.cacheService.pageIndex();
-  }
-  get limit() {
-    return this.cacheService.pageSize();
-  }
-  get offset() {
-    return this.cacheService.pageOffset();
-  }
-
-  get PageParam(): { limit: number; index: number } {
-    return { limit: this.limit, index: this.index };
+    this.term.set(cache.term);
+    this.limit.set(cache.limit);
+    this.index.set(cache.index);
   }
 }

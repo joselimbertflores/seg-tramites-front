@@ -61,12 +61,25 @@ interface filterOutboxProps {
   isOriginal?: boolean | null;
 }
 
+interface filterInboxProps {
+  limit: number;
+  offset: number;
+  filterForm: formInbox;
+}
+interface formInbox {
+  status?: string;
+  from?: string;
+  group?: string;
+  term?: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class CommunicationService {
   private readonly url = `${environment.base_url}/communication`;
   private http = inject(HttpClient);
+
   constructor() {}
 
   getInstitucions() {
@@ -102,9 +115,20 @@ export class CommunicationService {
     });
   }
 
-  findAll(limit: number, offset: number, status?: StatusMail) {
+  getInbox({ limit, offset, filterForm }: filterInboxProps) {
+    console.log(
+      Object.fromEntries(
+        Object.entries(filterForm).filter(([, value]) => value)
+      )
+    );
     const params = new HttpParams({
-      fromObject: { limit, offset, ...(status && { status }) },
+      fromObject: {
+        limit,
+        offset,
+        ...Object.fromEntries(
+          Object.entries(filterForm).filter(([, value]) => value)
+        ),
+      },
     });
     return this.http.get<{ communications: communication[]; length: number }>(
       `${this.url}/inbox`,
@@ -139,13 +163,16 @@ export class CommunicationService {
       .pipe(map((resp) => Communication.fromResponse(resp)));
   }
 
-  accept(id: string) {
-    return this.http.put<{ message: string }>(`${this.url}/accept/${id}`, null);
+  accept(communicationIds: string[]) {
+    return this.http.put<{ message: string }>(`${this.url}/accept`, {
+      communicationIds,
+    });
   }
 
-  reject(id: string, description: string) {
-    return this.http.put<{ message: string }>(`${this.url}/reject/${id}`, {
+  reject(communicationIds: string[], description: string) {
+    return this.http.put<{ message: string }>(`${this.url}/reject`, {
       description,
+      communicationIds,
     });
   }
 
