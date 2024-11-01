@@ -6,9 +6,15 @@ import {
 import { external } from '../interfaces/external.interface';
 
 export class ExternalMapper {
-  static fromResponse({ group, state, ...props }: external): ExternalProcedure {
+  static fromResponse({
+    group,
+    state,
+    type,
+    ...props
+  }: external): ExternalProcedure {
     return new ExternalProcedure({
       ...props,
+      type: type.nombre,
       group: group as GroupProcedure,
       state: state as StateProcedure,
     });

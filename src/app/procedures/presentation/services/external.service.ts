@@ -33,6 +33,22 @@ export class ExternalService {
     );
   }
 
+  findAll(limit: number, offset: number) {
+    const params = new HttpParams({ fromObject: { limit, offset } });
+    return this.http
+      .get<{ procedures: external[]; length: number }>(`${this.base_url}`, {
+        params,
+      })
+      .pipe(
+        map(({ procedures, length }) => ({
+          procedures: procedures.map((item) =>
+            ExternalMapper.fromResponse(item)
+          ),
+          length,
+        }))
+      );
+  }
+
   create({
     formApplicant,
     formProcedure,
@@ -68,40 +84,9 @@ export class ExternalService {
       .pipe(map((response) => ExternalMapper.fromResponse(response)));
   }
 
-  findAll(limit: number, offset: number) {
-    const params = new HttpParams({ fromObject: { limit, offset } });
+  getOne(id: string) {
     return this.http
-      .get<{ procedures: external[]; length: number }>(`${this.base_url}`, {
-        params,
-      })
-      .pipe(
-        map(({ procedures, length }) => ({
-          procedures: procedures.map((item) =>
-            ExternalMapper.fromResponse(item)
-          ),
-          length,
-        }))
-      );
-  }
-
-  // getDetail(id:STR){
-
-  // }
-
-  search(text: string, limit: number, offset: number) {
-    const params = new HttpParams().set('limit', limit).set('offset', offset);
-    return this.http
-      .get<{ procedures: externalResponse[]; length: number }>(
-        `${this.base_url}/search/${text}`,
-        { params }
-      )
-      .pipe(
-        map((response) => {
-          const model = response.procedures.map((procedure) =>
-            ExternalProcedure.ResponseToModel(procedure)
-          );
-          return { procedures: model, length: response.length };
-        })
-      );
+      .get<external>(`${this.base_url}/${id}`)
+      .pipe(map((response) => ExternalMapper.fromResponse(response)));
   }
 }

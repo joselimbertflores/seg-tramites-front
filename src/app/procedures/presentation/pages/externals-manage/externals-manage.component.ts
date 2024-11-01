@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   inject,
   signal,
@@ -65,24 +66,25 @@ export default class ExternalsManageComponent {
   t = signal<string>('');
   public limit = signal<number>(10);
   public index = signal<number>(0);
-  // public offset = computed<number>(() => this.limit() * this.index());
+  public offset = computed<number>(() => this.limit() * this.index());
 
   constructor() {
-    // inject(DestroyRef).onDestroy(() => {
-    //   this.savePaginationData();
-    // });
+    inject(DestroyRef).onDestroy(() => {
+      this._saveCache();
+    });
   }
 
   ngOnInit(): void {
-    // this.loadPaginationData();
-    this.getData();
+    this._loadCache();
   }
 
   getData() {
-    // this.externalService.findAll(this.limit, this.offset).subscribe((data) => {
-    //   this.datasource.set(data.procedures);
-    //   this.datasize.set(data.length);
-    // });
+    this.externalService
+      .findAll(this.limit(), this.offset())
+      .subscribe(({ procedures, length }) => {
+        this.datasource.set(procedures);
+        this.datasize.set(length);
+      });
   }
 
   applyFilter(term: string) {
@@ -170,7 +172,7 @@ export default class ExternalsManageComponent {
 
   private _loadCache(): void {
     const cache = this.cacheService.load('externals');
-    if (!this.cacheService.keepAlive() || !cache) return this.getData();
+    if (!cache) return this.getData();
     this.datasource.set(cache.datasource);
     this.datasize.set(cache.datasize);
     this.term.set(cache.term);
