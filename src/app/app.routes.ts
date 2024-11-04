@@ -91,12 +91,11 @@ export const routes: Routes = [
       },
       {
         path: 'manage',
-        canActivate: [accountGuard],
+        canActivate: [accountGuard, updatedPasswordGuard],
         children: [
           {
             path: 'external',
             title: 'Externos',
-            canActivate: [updatedPasswordGuard],
             loadComponent: () =>
               import(
                 './procedures/presentation/pages/externals-manage/externals-manage.component'
@@ -112,10 +111,41 @@ export const routes: Routes = [
           {
             path: 'internal',
             title: 'Internos',
-            canActivate: [updatedPasswordGuard],
             loadComponent: () =>
               import(
                 './procedures/presentation/pages/internals-manage/internals-manage.component'
+              ),
+          },
+          {
+            path: 'internal/:id',
+            loadComponent: () =>
+              import(
+                './procedures/presentation/pages/internals-manage/internal-detail/internal-detail.component'
+              ),
+          },
+          {
+            path: 'inbox',
+            title: 'Bandeja - Entrada',
+            // data: { resource: VALID_RESOURCES.communication },
+            loadComponent: () =>
+              import(
+                './communications/presentation/pages/inbox/inbox.component'
+              ),
+          },
+          {
+            path: 'inbox/:id',
+            title: 'Detalle - Envio',
+            loadComponent: () =>
+              import(
+                './communications/presentation/pages/inbox/communication-detail/communication-detail.component'
+              ),
+          },
+          {
+            path: 'outbox',
+            title: 'Bandeja - Salida',
+            loadComponent: () =>
+              import(
+                './communications/presentation/pages/outbox/outbox.component'
               ),
           },
         ],
@@ -129,30 +159,7 @@ export const routes: Routes = [
       //       './presentation/pages/procedures/detail/detail.component'
       //     ).then((c) => c.DetailComponent),
       // },
-      {
-        path: 'inbox',
-        title: 'Bandeja - Entrada',
-        data: { resource: VALID_RESOURCES.communication },
-        canActivate: [updatedPasswordGuard],
-        loadComponent: () =>
-          import('./communications/presentation/pages/inbox/inbox.component'),
-      },
-      {
-        path: 'inbox/:id',
-        title: 'Detalle - Envio',
-        canActivate: [updatedPasswordGuard],
-        loadComponent: () =>
-          import(
-            './presentation/pages/communications/communication/communication.component'
-          ).then((c) => c.CommunicationComponent),
-      },
-      {
-        path: 'outbox',
-        title: 'Bandeja - Salida',
-        canActivate: [updatedPasswordGuard],
-        loadComponent: () =>
-          import('./communications/presentation/pages/outbox/outbox.component'),
-      },
+
       {
         path: 'archives',
         canActivate: [updatedPasswordGuard],

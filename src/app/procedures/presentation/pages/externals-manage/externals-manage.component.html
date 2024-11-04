@@ -7,11 +7,15 @@
     </button>
   </mat-toolbar>
 
-  <!-- <search-input
-    placeholder="Alterno / Referencia / Solicitante"
-    [initialValue]="term"
-    (onSearch)="applyFilter($event)"
-  /> -->
+  <div class="flex justify-end py-2">
+    <div class="w-full px-2 sm:w-1/4 h-11">
+      <search-input
+        [initValue]="term()"
+        (onSearch)="search($event)"
+        placeholder="Alterno / Referencia"
+      />
+    </div>
+  </div>
 
   <div class="mat-elevation-z8">
     <div class="table-container">
@@ -33,7 +37,7 @@
         <ng-container matColumnDef="applicant">
           <th mat-header-cell *matHeaderCellDef>Solicitante</th>
           <td mat-cell *matCellDef="let row">
-            <!-- {{ row.fullNameApplicant }} -->
+            {{ row.fullnameApplicant }}
           </td>
         </ng-container>
         <ng-container matColumnDef="state">
@@ -42,19 +46,10 @@
             {{ row.state }}
           </td>
         </ng-container>
-        <ng-container matColumnDef="startDate">
+        <ng-container matColumnDef="createdAt">
           <th mat-header-cell *matHeaderCellDef>Fecha</th>
           <td mat-cell *matCellDef="let row">
-            <!-- {{ row.createdAt | date : "short" : "-400" }} -->
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="send">
-          <th mat-header-cell *matHeaderCellDef></th>
-          <td mat-cell *matCellDef="let row">
-            <!-- <mat-icon
-              [ngStyle]="row.isSend ? { color: 'green' } : { color: 'red' }"
-              >{{ row.isSend ? "mark_email_read" : "unsubscribe" }}</mat-icon
-            > -->
+            {{ row.createdAt | date : "short" : "-400" }}
           </td>
         </ng-container>
         <ng-container matColumnDef="options">
@@ -70,15 +65,19 @@
             <mat-menu #menu="matMenu">
               <button
                 mat-menu-item
-                [disabled]="!row.isEditable"
+                [disabled]="!row.isEnable"
                 (click)="update(row)"
               >
                 <mat-icon>edit</mat-icon>
-                <span>Editar tramite</span>
+                <span>Editar</span>
               </button>
-              <button mat-menu-item [disabled]="row.isSend" (click)="send(row)">
+              <button
+                mat-menu-item
+                [disabled]="!row.isEnable"
+                (click)="send(row)"
+              >
                 <mat-icon>send</mat-icon>
-                <span>Remitir tramite </span>
+                <span>Remitir </span>
               </button>
               <button mat-menu-item (click)="generateRouteMap(row)">
                 <mat-icon>feed</mat-icon>
@@ -90,10 +89,17 @@
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
         <tr class="mat-row" *matNoDataRow>
-          <td class="mat-cell p-3" colspan="4">No se encontraron resultados</td>
+          <td class="mat-cell p-2" colspan="6">Sin resultados</td>
         </tr>
       </table>
+      <mat-paginator
+        aria-label="Select page of officers search results"
+        showFirstLastButtons
+        [length]="datasize()"
+        [pageIndex]="index()"
+        [pageSize]="10"
+        (page)="onPageChange($event)"
+      />
     </div>
-   
   </div>
 </div>

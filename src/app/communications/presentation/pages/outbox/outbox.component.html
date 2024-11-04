@@ -7,7 +7,7 @@
       mat-icon-button
       aria-label="Cancel"
       matTooltip="Cancelar"
-      (click)="cancelSelectedCommunications()"
+      (click)="cacelSelection()"
     >
       <mat-icon> delete</mat-icon>
     </button>
@@ -158,7 +158,7 @@
               <mat-icon>send</mat-icon>
               <span>Remitir</span>
             </button>
-            <button (click)="cancel(element)" mat-menu-item>
+            <button (click)="cancelOne(element)" mat-menu-item>
               <mat-icon>delete</mat-icon>
               <span>Cancelar</span>
             </button>
@@ -169,7 +169,7 @@
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
       <tr class="mat-row" *matNoDataRow>
-        <td class="mat-cell p-3" colspan="8">No se encontraron resultados</td>
+        <td class="mat-cell p-3" colspan="8">Sin resultados</td>
       </tr>
     </table>
     <mat-paginator

@@ -12,8 +12,8 @@ export interface external {
   numberOfDocuments: string;
   send: boolean;
   group: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
   isSend: boolean;
 }
 

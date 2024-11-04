@@ -21,15 +21,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog } from '@angular/material/dialog';
 
-import { OverlayModule } from '@angular/cdk/overlay';
 import { SelectionModel } from '@angular/cdk/collections';
+import { OverlayModule } from '@angular/cdk/overlay';
 import { filter, switchMap } from 'rxjs';
 
 import {
   AlertService,
-  ProcedureService,
-  PdfService,
-  CacheService,
   CommunicationService,
 } from '../../../../presentation/services';
 import { SearchInputComponent } from '../../../../shared';
@@ -41,11 +38,6 @@ import {
 import { StatusMail } from '../../../../domain/models';
 import { communication } from '../../../infrastructure';
 
-interface CacheData {
-  results: communication[];
-  length: number;
-  term: string;
-}
 @Component({
   selector: 'outbox',
   standalone: true,
@@ -59,12 +51,12 @@ interface CacheData {
     MatTableModule,
     MatInputModule,
     MatButtonModule,
-    MatToolbarModule,
     MatSelectModule,
-    MatCheckboxModule,
-    SearchInputComponent,
     MatTooltipModule,
+    MatToolbarModule,
+    MatCheckboxModule,
     MatPaginatorModule,
+    SearchInputComponent,
   ],
   templateUrl: './outbox.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -72,9 +64,7 @@ interface CacheData {
 export default class OutboxComponent {
   private alertService = inject(AlertService);
   private communicationService = inject(CommunicationService);
-  private procedureService = inject(ProcedureService);
-  private pdfService = inject(PdfService);
-  private cacheService: CacheService<CacheData> = inject(CacheService);
+  // private pdfService = inject(PdfService);
 
   private dialog = inject(MatDialog);
 
@@ -112,6 +102,9 @@ export default class OutboxComponent {
   ];
   isOpen = false;
 
+  constructor() {
+  }
+
   ngOnInit(): void {
     this.getData();
   }
@@ -134,12 +127,12 @@ export default class OutboxComponent {
 
   send({
     _id,
-    procedure,
-    attachmentsCount,
-    isOriginal,
     status,
+    procedure,
+    isOriginal,
+    attachmentsCount,
   }: communication): void {
-    const detail: TransferDetails = {
+    const data: TransferDetails = {
       attachmentsCount,
       isOriginal,
       procedureId: procedure._id,
@@ -152,88 +145,47 @@ export default class OutboxComponent {
     const dialogRef = this.dialog.open(SubmissionDialogComponent, {
       maxWidth: '900px',
       width: '900px',
-      data: detail,
+      data: data,
     });
     dialogRef.afterClosed().subscribe((result: communication[]) => {
       if (!result) return;
-      switch (status) {
-        case StatusMail.Pending:
-          this.datasource.update((values) => [...result, ...values]);
-          this.datasize.update((value) => (value += result.length));
-          break;
-        case StatusMail.Rejected:
-          this.datasource.update((values) => {
-            const filtered = values.filter((el) => el._id !== _id);
-            return [...result, ...filtered];
-          });
-          this.datasize.update((value) => (value += result.length - 1));
-          break;
-        default:
-          break;
-      }
+      this.datasource.update((values) => {
+        values.unshift(...result);
+        if (status === StatusMail.Rejected) {
+          values = values.filter((el) => el._id !== _id);
+        }
+        if (values.length > this.limit()) {
+          values.splice(this.limit(), values.length - this.limit());
+        }
+        return [...values];
+      });
+      this.datasize.update((value) => {
+        value += result.length;
+        if (status === StatusMail.Rejected) {
+          value -= 1;
+        }
+        return value;
+      });
+      this.selection.clear();
     });
   }
 
-  cancelSelectedCommunications(): void {
-    const selection = this.selection.selected.map((el) => el._id);
-    this.alertService
-      .confirmDialog({
-        title: `¿Cancelar los envios seleccionados?`,
-        description: 'Se cancelaran los envios que aun no hayan sido recibidos',
-      })
-      .pipe(
-        filter((result) => !!result),
-        switchMap(() => this.communicationService.cancel(selection))
-      )
-      .subscribe(() => {
-        this.datasource.update((values) =>
-          values.filter(({ _id }) => !selection.includes(_id))
-        );
-        this.datasize.update((value) => (value -= selection.length));
-        this.selection.clear();
-      });
+  cacelSelection(): void {
+    const communicationIds = this.selection.selected.map((el) => el._id);
+    this._cancel(communicationIds);
   }
 
-  cancel(communication: communication): void {
-    this.alertService
-      .confirmDialog({
-        title: `¿Cancelar tramite ${communication.procedure.code}?`,
-        description: `Se cancelaran los envios que aun no hayan sido recibidos`,
-      })
-      .pipe(
-        filter((result) => !!result),
-        switchMap(() => this.communicationService.cancel([communication._id]))
-      )
-      .subscribe(() => {
-        this.datasource.update((values) =>
-          values.filter(({ _id }) => _id !== communication._id)
-        );
-        this.datasize.update((value) => (value -= 1));
-        this.selection.clear();
-      });
+  cancelOne(communication: communication): void {
+    this._cancel([communication._id], communication.procedure.code);
   }
 
   generateRouteMap({ procedure }: communication) {
+    // TODO generate router map
     // forkJoin([
     //   this.procedureService.getDetail(procedure._id, procedure.group),
     //   this.procedureService.getWorkflow(procedure._id),
     // ]).subscribe((resp) => {
     //   this.pdfService.generateRouteSheet(resp[0], resp[1]);
-    // });
-  }
-
-  private removeElementDatasource(outboundDate: Date, ids: string[]) {
-    // this.datasource.update((values) => {
-    //   const index = values.findIndex((item) => item.date === outboundDate);
-    //   const filteredDispatches = values[index].dispatches.filter(
-    //     (mail) => !ids.includes(mail._id)
-    //   );
-    //   values[index].dispatches = filteredDispatches;
-    //   if (filteredDispatches.length === 0) {
-    //     this.datasize.update((length) => (length -= 1));
-    //     values.splice(index, 1);
-    //   }
-    //   return [...values];
     // });
   }
 
@@ -286,24 +238,29 @@ export default class OutboxComponent {
     this.selection.select(...this.datasource());
   }
 
-  private savePaginationData(): void {
-    // this.cacheService.resetPagination();
-    // const cache: CacheData = {
-    //   results: this.datasource(),
-    //   length: this.datasize(),
-    //   term: this.term,
-    // };
-    // this.cacheService.save('outbox', cache);
-  }
-
-  private loadPaginationData(): void {
-    // const cacheData = this.cacheService.load('outbox');
-    // if (!this.cacheService.keepAliveData() || !cacheData) {
-    //   this.getData();
-    //   return;
-    // }
-    // this.datasource.set(cacheData.results);
-    // this.datasize.set(cacheData.length);
-    // this.term = cacheData.term;
+  private _cancel(communicationIds: string[], code?: string): void {
+    this.alertService
+      .confirmDialog({
+        title:
+          communicationIds.length === 1
+            ? `¿Cancelar tramite ${code}?`
+            : `¿Cancelar los envios seleccionados?`,
+        description: `Se cancelaran los envios que aun no hayan sido recibidos`,
+      })
+      .pipe(
+        filter((result) => !!result),
+        switchMap(() => this.communicationService.cancel(communicationIds))
+      )
+      .subscribe(() => {
+        this.datasource.update((values) =>
+          values.filter(({ _id }) => !communicationIds.includes(_id))
+        );
+        this.datasize.update((value) => (value -= communicationIds.length));
+        this.selection.clear();
+        if (this.datasource().length === 0 && this.datasize() > 0) {
+          this.index.set(0);
+          this.getData();
+        }
+      });
   }
 }

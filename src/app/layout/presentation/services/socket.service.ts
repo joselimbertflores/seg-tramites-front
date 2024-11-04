@@ -47,10 +47,10 @@ export class SocketService {
     });
   }
 
-  listenCancelDispatches(): Observable<string> {
+  listenCancelCommunications(): Observable<string> {
     return new Observable((observable) => {
-      this.socket.on('cancel-mail', (id_mail: string) => {
-        observable.next(id_mail);
+      this.socket.on('cancel-communication', (communicationId: string) => {
+        observable.next(communicationId);
       });
     });
   }

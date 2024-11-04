@@ -37,11 +37,7 @@ export default class ExternalDetailComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.paramMap
-      .pipe(
-        switchMap((params) =>
-          this._getProcedureData(params.get('id') ?? 'error')
-        )
-      )
+      .pipe(switchMap((params) => this._getProcedureData(params.get('id')!)))
       .subscribe(([procedure]) => {
         this.procedure.set(procedure);
       });

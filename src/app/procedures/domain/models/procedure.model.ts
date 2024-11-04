@@ -9,7 +9,7 @@ export interface ProcedureProps {
   account: string;
   group: GroupProcedure;
   state: StateProcedure;
-  endDate?: Date;
+  createdAt: Date;
 }
 
 export interface OriginDetails {
@@ -65,7 +65,7 @@ export abstract class Procedure {
     reference,
     numberOfDocuments,
     isSend,
-    endDate,
+    createdAt,
     group,
   }: ProcedureProps) {
     this._id = _id;
@@ -78,17 +78,16 @@ export abstract class Procedure {
     this.numberOfDocuments = numberOfDocuments;
     this.isSend = isSend;
     this.group = group;
-    if (endDate) this.endDate = new Date(endDate);
+    this.createdAt = createdAt;
+    // if (endDate) this.endDate = new Date(endDate);
   }
-
 
   get citeCode() {
     if (this.cite === '') return 'S/C';
     return this.cite;
   }
 
-  get isEditable(): boolean {
+  get isEnable(): boolean {
     return this.state === 'INSCRITO';
   }
-
 }

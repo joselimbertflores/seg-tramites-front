@@ -7,21 +7,22 @@
     </button>
   </mat-toolbar>
 
-  <!-- <search-input
-    placeholder="Alterno / Referencia"
-    [initialValue]="term"
-    (onSearch)="applyFilter($event)"
-  /> -->
+  <div class="flex justify-end py-2">
+    <div class="w-full px-2 sm:w-1/4 h-11">
+      <search-input
+        [initValue]="term()"
+        (onSearch)="search($event)"
+        placeholder="Alterno / Referencia"
+      />
+    </div>
+  </div>
+
   <div class="mat-elevation-z8">
     <table mat-table [dataSource]="datasource()">
       <ng-container matColumnDef="code">
         <th mat-header-cell *matHeaderCellDef>Alterno</th>
         <td mat-cell *matCellDef="let element" [id]="element._id">
-          <a
-            class="underline text-blue-600"
-            [routerLink]="['/home/internal', element.group, element._id]"
-            [queryParams]="PageParam"
-          >
+          <a [routerLink]="['../internal', element._id]">
             {{ element.code }}
           </a>
         </td>
@@ -35,7 +36,7 @@
       <ng-container matColumnDef="applicant">
         <th mat-header-cell *matHeaderCellDef>Destinatario</th>
         <td mat-cell *matCellDef="let element">
-          <!-- {{ element.details.destinatario.nombre | titlecase }} -->
+          {{ element.receiver.fullname | titlecase }}
         </td>
       </ng-container>
       <ng-container matColumnDef="state">
@@ -44,19 +45,10 @@
           {{ element.state }}
         </td>
       </ng-container>
-      <ng-container matColumnDef="startDate">
+      <ng-container matColumnDef="createdAt">
         <th mat-header-cell *matHeaderCellDef>Fecha</th>
         <td mat-cell *matCellDef="let element">
-          {{ element.startDate | date : "short" }}
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="send">
-        <th mat-header-cell *matHeaderCellDef></th>
-        <td mat-cell *matCellDef="let element">
-          <mat-icon
-            [ngStyle]="element.isSend ? { color: 'green' } : { color: 'red' }"
-            >{{ element.isSend ? "mark_email_read" : "unsubscribe" }}</mat-icon
-          >
+          {{ element.createdAt | date : "short" }}
         </td>
       </ng-container>
       <ng-container matColumnDef="options">
@@ -64,23 +56,27 @@
         <td mat-cell *matCellDef="let row" class="w-8">
           <button
             mat-icon-button
-            [matMenuTriggerFor]="menu"
             aria-label="menu options"
+            [matMenuTriggerFor]="menu"
           >
             <mat-icon>more_vert</mat-icon>
           </button>
           <mat-menu #menu="matMenu">
             <button
               mat-menu-item
-              [disabled]="!row.isEditable"
+              [disabled]="!row.isEnable"
               (click)="update(row)"
             >
               <mat-icon>edit</mat-icon>
-              <span>Editar tramite</span>
+              <span>Editar</span>
             </button>
-            <button mat-menu-item [disabled]="row.isSend" (click)="send(row)">
+            <button
+              mat-menu-item
+              [disabled]="!row.isEnable"
+              (click)="send(row)"
+            >
               <mat-icon>send</mat-icon>
-              <span>Remitir tramite</span>
+              <span>Remitir</span>
             </button>
             <button mat-menu-item (click)="generateRouteMap(row)">
               <mat-icon>feed</mat-icon>
@@ -92,15 +88,16 @@
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
       <tr class="mat-row" *matNoDataRow>
-        <td class="p-3" colspan="7">No se encontraron resultados</td>
+        <td class="p-3" colspan="6">Sin resultados resultados</td>
       </tr>
     </table>
-    <paginator
-      [pageSizeOptions]="[10, 20, 30, 50]"
-      [limit]="limit"
-      [index]="index"
+    <mat-paginator
+      aria-label="Select page of officers search results"
+      showFirstLastButtons
       [length]="datasize()"
-      (onPageChage)="changePage($event)"
+      [pageIndex]="index()"
+      [pageSize]="10"
+      (page)="onPageChange($event)"
     />
   </div>
 </div>

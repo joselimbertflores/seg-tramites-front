@@ -53,5 +53,20 @@ export class ExternalProcedure extends Procedure {
     });
   }
 
-  
+  get fullnameApplicant() {
+    return [
+      this.applicant.firstname,
+      this.applicant.middlename,
+      this.applicant.lastname,
+    ]
+      .filter((term) => term)
+      .join(' ');
+  }
+
+  get fullnameRepresentative() {
+    return this.representative
+      ? `${this.representative.firstname} ${this.representative.middlename} ${this.representative.lastname}`
+      : 'Sin representante';
+  }
+
 }

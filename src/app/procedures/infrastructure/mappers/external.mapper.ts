@@ -10,11 +10,13 @@ export class ExternalMapper {
     group,
     state,
     type,
+    createdAt,
     ...props
   }: external): ExternalProcedure {
     return new ExternalProcedure({
       ...props,
       type: type.nombre,
+      createdAt: new Date(createdAt),
       group: group as GroupProcedure,
       state: state as StateProcedure,
     });

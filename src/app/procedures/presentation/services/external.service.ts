@@ -2,15 +2,10 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { ExternalProcedureDto } from '../../../infraestructure/dtos';
-import { ExternalProcedure } from '../../../domain/models';
-import {
-  externalResponse,
-  typeProcedureResponse,
-} from '../../../infraestructure/interfaces';
+import { typeProcedure } from '../../../administration/infrastructure';
 import { external, ExternalMapper } from '../../infrastructure';
 
-interface externalProps {
+interface manageExternalProps {
   formProcedure: Object;
   formApplicant: Object;
   formRepresentative: Object;
@@ -28,13 +23,15 @@ export class ExternalService {
   }
 
   getTypesProceduresBySegment(segment: string) {
-    return this.http.get<typeProcedureResponse[]>(
+    return this.http.get<typeProcedure[]>(
       `${this.base_url}/types-procedures/${segment}`
     );
   }
 
-  findAll(limit: number, offset: number) {
-    const params = new HttpParams({ fromObject: { limit, offset } });
+  findAll(limit: number, offset: number, term?: string) {
+    const params = new HttpParams({
+      fromObject: { limit, offset, ...(term && { term }) },
+    });
     return this.http
       .get<{ procedures: external[]; length: number }>(`${this.base_url}`, {
         params,
@@ -54,7 +51,7 @@ export class ExternalService {
     formProcedure,
     formRepresentative,
     requirements,
-  }: externalProps) {
+  }: manageExternalProps) {
     return this.http
       .post<external>(`${this.base_url}`, {
         ...formProcedure,
@@ -70,7 +67,7 @@ export class ExternalService {
 
   update(
     id: string,
-    { formProcedure, formApplicant, formRepresentative }: externalProps
+    { formProcedure, formApplicant, formRepresentative }: manageExternalProps
   ) {
     return this.http
       .patch<external>(`${this.base_url}/${id}`, {

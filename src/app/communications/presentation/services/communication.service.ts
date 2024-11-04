@@ -14,17 +14,9 @@ import {
   StateProcedure,
   StatusMail,
 } from '../../../domain/models';
-import { CreateCommunicationDto } from '../../../infraestructure/dtos';
 import { OfficerMapper } from '../../../administration/infrastructure';
 import { Officer } from '../../../administration/domain';
 import { communication } from '../../infrastructure';
-
-interface SearchParams {
-  text: string;
-  limit: number;
-  offset: number;
-  status?: StatusMail;
-}
 
 interface sendMailProps {
   form: Object;
@@ -46,11 +38,6 @@ export interface recipient {
   fullname: string;
   jobtitle: string;
   isOriginal: boolean;
-}
-
-interface cancelCommunicationProps {
-  procedureId: string;
-  communicationId: string;
 }
 
 interface filterOutboxProps {
@@ -106,21 +93,7 @@ export class CommunicationService {
     );
   }
 
-  create({ form, recipients, procedureId, mailId }: sendMailProps) {
-    return this.http.post<communication[]>(`${this.url}`, {
-      ...form,
-      recipients,
-      procedureId,
-      mailId,
-    });
-  }
-
   getInbox({ limit, offset, filterForm }: filterInboxProps) {
-    console.log(
-      Object.fromEntries(
-        Object.entries(filterForm).filter(([, value]) => value)
-      )
-    );
     const params = new HttpParams({
       fromObject: {
         limit,
@@ -135,47 +108,6 @@ export class CommunicationService {
       { params }
     );
   }
-
-  search({ status, text, ...values }: SearchParams) {
-    const params = new HttpParams({
-      fromObject: { ...values, ...(status && { status }) },
-    });
-    return this.http
-      .get<{ mails: communicationResponse[]; length: number }>(
-        `${this.url}/inbox/search/${text}`,
-        {
-          params,
-        }
-      )
-      .pipe(
-        map((resp) => {
-          return {
-            mails: resp.mails.map((el) => Communication.fromResponse(el)),
-            length: resp.length,
-          };
-        })
-      );
-  }
-
-  getMail(id: string) {
-    return this.http
-      .get<communicationResponse>(`${this.url}/${id}`)
-      .pipe(map((resp) => Communication.fromResponse(resp)));
-  }
-
-  accept(communicationIds: string[]) {
-    return this.http.put<{ message: string }>(`${this.url}/accept`, {
-      communicationIds,
-    });
-  }
-
-  reject(communicationIds: string[], description: string) {
-    return this.http.put<{ message: string }>(`${this.url}/reject`, {
-      description,
-      communicationIds,
-    });
-  }
-
   getOutbox({ limit, offset, status, isOriginal, term }: filterOutboxProps) {
     const params = new HttpParams({
       fromObject: {
@@ -194,9 +126,35 @@ export class CommunicationService {
     );
   }
 
-  cancel(selected: string[]) {
+  getOne(id: string) {
+    return this.http.get<communication>(`${this.url}/${id}`);
+  }
+
+  create({ form, recipients, procedureId, mailId }: sendMailProps) {
+    return this.http.post<communication[]>(`${this.url}`, {
+      ...form,
+      recipients,
+      procedureId,
+      mailId,
+    });
+  }
+
+  accept(communicationIds: string[]) {
+    return this.http.put<{ message: string }>(`${this.url}/accept`, {
+      communicationIds,
+    });
+  }
+
+  reject(communicationIds: string[], description: string) {
+    return this.http.put<{ message: string }>(`${this.url}/reject`, {
+      description,
+      communicationIds,
+    });
+  }
+
+  cancel(communicationIds: string[]) {
     return this.http.delete<{ message: string }>(`${this.url}/outbox`, {
-      body: { selected },
+      body: { communicationIds },
     });
   }
 }

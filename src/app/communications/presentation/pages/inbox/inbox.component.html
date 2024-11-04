@@ -113,13 +113,9 @@
       </ng-container>
       <ng-container matColumnDef="code">
         <th mat-header-cell *matHeaderCellDef>Alterno</th>
-        <td mat-cell *matCellDef="let mail">
-          <a
-            class="underline text-blue-600"
-            [routerLink]="['/home/inbox', mail._id]"
-            [queryParams]="{limit, index}"
-          >
-            {{ mail.procedure.code }}
+        <td mat-cell *matCellDef="let row">
+          <a [routerLink]="['../inbox', row._id]">
+            {{ row.procedure.code }}
           </a>
         </td>
       </ng-container>
@@ -195,7 +191,7 @@
         [class.mail-pending]="row.status === 'pending'"
       ></tr>
       <tr class="mat-row" *matNoDataRow>
-        <td class="mat-cell p-3" colspan="5">No se econtraron resultados</td>
+        <td class="mat-cell p-3" colspan="7">Sin resultados</td>
       </tr>
     </table>
     <mat-paginator

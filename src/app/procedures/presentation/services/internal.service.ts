@@ -1,26 +1,15 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { map } from 'rxjs';
+
 import { environment } from '../../../../environments/environment';
 import {
-  CreateInternalProcedureDto,
-  UpdateInternalProcedureDto,
-} from '../../../infraestructure/dtos';
-import {
   account,
-  internalResponse,
-  officerResponse,
-  typeProcedureResponse,
-} from '../../../infraestructure/interfaces';
-import { InternalProcedure, Officer } from '../../../domain/models';
-import { AccountMapper } from '../../../administration/infrastructure';
+  AccountMapper,
+  typeProcedure,
+} from '../../../administration/infrastructure';
 import { internal, InternalMapper } from '../../infrastructure';
 
-interface findProps {
-  term?: string;
-  limit: number;
-  offset: number;
-}
 @Injectable({
   providedIn: 'root',
 })
@@ -40,7 +29,7 @@ export class InternalService {
       .pipe(map((response) => InternalMapper.fromResponse(response)));
   }
 
-  findAll({ limit, offset, term }: findProps) {
+  findAll(limit: number, offset: number, term?: string) {
     const params = new HttpParams({
       fromObject: { limit, offset, ...(term && { term }) },
     });
@@ -56,21 +45,10 @@ export class InternalService {
       );
   }
 
-  search(text: string, limit: number, offset: number) {
-    const params = new HttpParams({ fromObject: { limit, offset } });
+  getOne(id: string) {
     return this.http
-      .get<{ procedures: internalResponse[]; length: number }>(
-        `${this.url}/search/${text}`,
-        { params }
-      )
-      .pipe(
-        map((response) => {
-          const model = response.procedures.map((procedure) =>
-            InternalProcedure.ResponseToModel(procedure)
-          );
-          return { procedures: model, length: response.length };
-        })
-      );
+      .get<internal>(`${this.url}/${id}`)
+      .pipe(map((response) => InternalMapper.fromResponse(response)));
   }
 
   searchAccounts(text: string) {
@@ -80,13 +58,11 @@ export class InternalService {
   }
 
   getTypesProcedures() {
-    return this.http
-      .get<typeProcedureResponse[]>(`${this.url}/types-procedures`)
-      .pipe(
-        map((resp) => {
-          return resp;
-        })
-      );
+    return this.http.get<typeProcedure[]>(`${this.url}/types-procedures`).pipe(
+      map((resp) => {
+        return resp;
+      })
+    );
   }
   conclude(id_tramite: string, descripcion: string) {
     return this.http

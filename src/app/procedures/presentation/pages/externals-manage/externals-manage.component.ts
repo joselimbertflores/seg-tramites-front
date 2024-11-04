@@ -10,18 +10,22 @@ import {
 import { RouterModule } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 
-import { ExternalDialogComponent } from './external-dialog/external-dialog.component';
-import { MaterialModule } from '../../../../material.module';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTableModule } from '@angular/material/table';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatIconModule } from '@angular/material/icon';
 
-import { StateLabelPipe } from '../../../../presentation/pipes';
+import { ExternalDialogComponent } from './external-dialog/external-dialog.component';
+
 import { CacheService, SearchInputComponent } from '../../../../shared';
-import { ExternalService, ProcedureService } from '../../services';
-import { ExternalProcedure } from '../../../domain';
+import { ExternalProcedure, StateProcedure } from '../../../domain';
+import { ExternalService } from '../../services';
 import {
   SubmissionDialogComponent,
   TransferDetails,
 } from '../../../../communications/presentation/pages/inbox/submission-dialog/submission-dialog.component';
-import { external } from '../../../infrastructure';
 
 interface cache {
   datasource: ExternalProcedure[];
@@ -36,10 +40,13 @@ interface cache {
   imports: [
     CommonModule,
     RouterModule,
-    MaterialModule,
-
+    MatTableModule,
+    MatMenuModule,
+    MatIconModule,
+    MatButtonModule,
+    MatToolbarModule,
+    MatPaginatorModule,
     SearchInputComponent,
-    StateLabelPipe,
   ],
   templateUrl: './externals-manage.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -48,25 +55,23 @@ export default class ExternalsManageComponent {
   private dialog = inject(MatDialog);
   private externalService = inject(ExternalService);
   private cacheService: CacheService<cache> = inject(CacheService);
-  private procedureService = inject(ProcedureService);
   // private pdfService = inject(PdfService);
 
-  public term = signal<string>('');
-  public datasource = signal<ExternalProcedure[]>([]);
-  public datasize = signal<number>(0);
-  public displayedColumns: string[] = [
+  datasource = signal<ExternalProcedure[]>([]);
+  datasize = signal<number>(0);
+  displayedColumns: string[] = [
     'code',
     'reference',
     'applicant',
     'state',
-    'startDate',
+    'createdAt',
     'options',
   ];
 
-  t = signal<string>('');
-  public limit = signal<number>(10);
-  public index = signal<number>(0);
-  public offset = computed<number>(() => this.limit() * this.index());
+  limit = signal<number>(10);
+  index = signal<number>(0);
+  offset = computed<number>(() => this.limit() * this.index());
+  term = signal<string>('');
 
   constructor() {
     inject(DestroyRef).onDestroy(() => {
@@ -78,19 +83,13 @@ export default class ExternalsManageComponent {
     this._loadCache();
   }
 
-  getData() {
+  getData(): void {
     this.externalService
-      .findAll(this.limit(), this.offset())
+      .findAll(this.limit(), this.offset(), this.term())
       .subscribe(({ procedures, length }) => {
         this.datasource.set(procedures);
         this.datasize.set(length);
       });
-  }
-
-  applyFilter(term: string) {
-    // this.cacheService.pageIndex.set(0);
-    // this.term = term;
-    // this.getData();
   }
 
   create(): void {
@@ -101,10 +100,10 @@ export default class ExternalsManageComponent {
     dialogRef.afterClosed().subscribe((result) => {
       if (!result) return;
       this.datasize.update((value) => (value += 1));
-      // this.datasource.update((values) => {
-      //   if (values.length === this.limit) values.pop();
-      //   return [result, ...values];
-      // });
+      this.datasource.update((values) => {
+        if (values.length === this.limit()) values.pop();
+        return [result, ...values];
+      });
       this.send(result);
     });
   }
@@ -125,7 +124,7 @@ export default class ExternalsManageComponent {
     });
   }
 
-  send(procedure: ExternalProcedure) {
+  send(procedure: ExternalProcedure): void {
     const transfer: TransferDetails = {
       procedureId: procedure._id,
       code: procedure.code,
@@ -138,26 +137,33 @@ export default class ExternalsManageComponent {
       data: transfer,
       disableClose: true,
     });
-    dialogRef.afterClosed().subscribe((message) => {
-      if (!message) return;
+    dialogRef.afterClosed().subscribe((result) => {
+      if (!result) return;
       this.datasource.update((values) => {
         const index = values.findIndex(({ _id }) => _id === procedure._id);
-        values[index].isSend = true;
+        values[index].state = StateProcedure.Revision;
         return [...values];
       });
     });
   }
 
   generateRouteMap(procedure: ExternalProcedure) {
+    // TODO generate route map
     // this.procedureService.getWorkflow(procedure._id).subscribe((workflow) => {
     //   this.pdfService.generateRouteSheet(procedure, workflow);
     // });
   }
 
-  changePage(params: { limit: number; index: number }) {
-    // this.cacheService.pageSize.set(params.limit);
-    // this.cacheService.pageIndex.set(params.index);
-    // this.getData();
+  search(term: string) {
+    this.term.set(term);
+    this.index.set(0);
+    this.getData();
+  }
+
+  onPageChange({ pageIndex, pageSize }: PageEvent) {
+    this.limit.set(pageSize);
+    this.index.set(pageIndex);
+    this.getData();
   }
 
   private _saveCache(): void {

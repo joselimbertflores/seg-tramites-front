@@ -38,20 +38,21 @@ import {
   ProcedureService,
   PdfService,
   ArchiveService,
-  CacheService,
 } from '../../../../presentation/services';
-import { SearchInputComponent } from '../../../../shared';
+import { CacheService, SearchInputComponent } from '../../../../shared';
 import { communication } from '../../../infrastructure';
 import {
   SubmissionDialogComponent,
   TransferDetails,
 } from './submission-dialog/submission-dialog.component';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-export interface InboxCache {
-  datasource: Communication[];
+interface cache {
+  datasource: communication[];
   datasize: number;
-  status?: StatusMail;
-  text: string;
+  index: number;
+  limit: number;
+  form: Object;
 }
 @Component({
   selector: 'app-inbox',
@@ -74,7 +75,17 @@ export interface InboxCache {
     SearchInputComponent,
   ],
   templateUrl: './inbox.component.html',
-  styleUrl: './inbox.component.scss',
+  styles: `
+    .mail-pending {
+      background-color: #fe5f55;
+      color: white;
+
+      a {
+        color: white;
+        font-weight: bold;
+      }
+    }
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class InboxComponent implements OnInit {
@@ -86,7 +97,7 @@ export default class InboxComponent implements OnInit {
   private procedureService = inject(ProcedureService);
   private pdfService = inject(PdfService);
   private archiveService = inject(ArchiveService);
-  private cacheService: CacheService<InboxCache> = inject(CacheService);
+  private cacheService: CacheService<cache> = inject(CacheService);
   private formBuilder = inject(FormBuilder);
 
   datasize = signal<number>(0);
@@ -127,15 +138,14 @@ export default class InboxComponent implements OnInit {
   ];
 
   constructor() {
+    this._listenCommunications();
+    this._listenCancelDispatches();
     this.destroyRef.onDestroy(() => {
-      this.saveCache();
+      this._saveCache();
     });
   }
   ngOnInit(): void {
-    this._listenCommunications();
-    this.listenCancelDispatches();
-    // this.loadCache();
-    this.getData();
+    this._loadCache();
   }
 
   getData(): void {
@@ -152,12 +162,12 @@ export default class InboxComponent implements OnInit {
       });
   }
 
-  acceptOne(item: communication): void {
-    this._accept([item]);
-  }
-
   acceptMultiple(): void {
     this._accept(this.selection.selected);
+  }
+
+  acceptOne(item: communication): void {
+    this._accept([item]);
   }
 
   rejectOne(item: communication): void {
@@ -177,8 +187,8 @@ export default class InboxComponent implements OnInit {
       code: communication.procedure.code,
     };
     const dialogRef = this.dialog.open(SubmissionDialogComponent, {
-      maxWidth: '1200px',
-      width: '1200px',
+      maxWidth: '900px',
+      width: '900px',
       data,
     });
     dialogRef.afterClosed().subscribe((message: string) => {
@@ -211,12 +221,12 @@ export default class InboxComponent implements OnInit {
   }
 
   generateRouteMap({ procedure }: Communication) {
-    forkJoin([
-      this.procedureService.getDetail(procedure._id, procedure.group),
-      this.procedureService.getWorkflow(procedure._id),
-    ]).subscribe((resp) => {
-      this.pdfService.generateRouteSheet(resp[0], resp[1]);
-    });
+    // forkJoin([
+    //   this.procedureService.getDetail(procedure._id, procedure.group),
+    //   this.procedureService.getWorkflow(procedure._id),
+    // ]).subscribe((resp) => {
+    //   this.pdfService.generateRouteSheet(resp[0], resp[1]);
+    // });
   }
 
   get StateProcedure() {
@@ -234,69 +244,25 @@ export default class InboxComponent implements OnInit {
       this.selection.clear();
       return;
     }
-
     this.selection.select(...this.datasource());
   }
 
   filter() {
     this.index.set(0);
     this.isOpen = false;
-    this.getData();
+    // this.getData();
   }
 
   reset() {
     this.isOpen = false;
     this.filterForm.reset();
-    this.getData();
+    // this.getData();
   }
 
   onPageChange({ pageIndex, pageSize }: PageEvent) {
     this.limit.set(pageSize);
     this.index.set(pageIndex);
     this.getData();
-  }
-
-  private saveCache(): void {
-    // this.cacheService.resetPagination();
-    // const cache: InboxCache = {
-    //   datasource: this.datasource(),
-    //   datasize: this.datasize(),
-    //   text: this.term,
-    //   status: this.status,
-    // };
-    // this.cacheService.save('inbox', cache);
-  }
-
-  private loadCache(): void {
-    // const cache = this.cacheService.load('inbox');
-    // if (!this.cacheService.keepAliveData() || !cache) {
-    //   this.getData();
-    //   return;
-    // }
-    // this.datasource.set(cache.datasource);
-    // this.datasize.set(cache.datasize);
-    // this.status = cache.status;
-    // this.term = cache.text;
-  }
-
-  private _listenCommunications() {
-    // this.socketService
-    //   .listenCommunications()
-    //   .pipe(takeUntilDestroyed(this.destroyRef))
-    //   .subscribe((communication) => {
-    //     this.datasource.update((values) => {
-    //       if (values.length === this.limit) values.pop();
-    //       return [communication, ...values];
-    //     });
-    //     this.datasize.update((length) => (length += 1));
-    //   });
-  }
-
-  private listenCancelDispatches() {
-    // this.socketService
-    //   .listenCancelDispatches()
-    //   .pipe(takeUntilDestroyed(this.destroyRef))
-    //   .subscribe((id) => this._removeDatasourceItem(id));
   }
 
   private _accept(communications: communication[]): void {
@@ -350,5 +316,50 @@ export default class InboxComponent implements OnInit {
         );
         this.datasize.update((length) => (length -= communications.length));
       });
+  }
+
+  private _listenCommunications(): void {
+    this.socketService
+      .listenCommunications()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((communication) => {
+        this.datasource.update((values) => {
+          if (values.length === this.limit()) values.pop();
+          return [communication, ...values];
+        });
+        this.datasize.update((length) => (length += 1));
+      });
+  }
+
+  private _listenCancelDispatches() {
+    this.socketService
+      .listenCancelCommunications()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((id) => {
+        this.datasource.update((values) =>
+          values.filter((el) => el._id !== id)
+        );
+        this.datasize.update((value) => (value -= 1));
+      });
+  }
+
+  private _saveCache(): void {
+    this.cacheService.save('inbox', {
+      datasource: this.datasource(),
+      datasize: this.datasize(),
+      limit: this.limit(),
+      index: this.index(),
+      form: this.filterForm.value,
+    });
+  }
+
+  private _loadCache(): void {
+    const cache = this.cacheService.load('inbox');
+    if (!cache) return this.getData();
+    this.datasource.set(cache.datasource);
+    this.datasize.set(cache.datasize);
+    this.limit.set(cache.limit);
+    this.index.set(cache.index);
+    this.filterForm.patchValue(cache.form);
   }
 }
