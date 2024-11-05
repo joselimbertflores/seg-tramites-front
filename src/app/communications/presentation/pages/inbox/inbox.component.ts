@@ -9,6 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterModule } from '@angular/router';
 
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -22,30 +23,29 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
+
 import { SelectionModel } from '@angular/cdk/collections';
 import { OverlayModule } from '@angular/cdk/overlay';
-import { filter, forkJoin, switchMap } from 'rxjs';
+import { filter, switchMap } from 'rxjs';
 
 import {
-  Communication,
   StatusMail,
+  Communication,
   StateProcedure,
 } from '../../../../domain/models';
 import {
-  CommunicationService,
-  SocketService,
-  AlertService,
-  ProcedureService,
   PdfService,
+  AlertService,
+  SocketService,
   ArchiveService,
+  CommunicationService,
 } from '../../../../presentation/services';
 import { CacheService, SearchInputComponent } from '../../../../shared';
 import { communication } from '../../../infrastructure';
 import {
-  SubmissionDialogComponent,
   TransferDetails,
+  SubmissionDialogComponent,
 } from './submission-dialog/submission-dialog.component';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 interface cache {
   datasource: communication[];
@@ -94,14 +94,13 @@ export default class InboxComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private alertService = inject(AlertService);
   private dialog = inject(MatDialog);
-  private procedureService = inject(ProcedureService);
   private pdfService = inject(PdfService);
   private archiveService = inject(ArchiveService);
   private cacheService: CacheService<cache> = inject(CacheService);
   private formBuilder = inject(FormBuilder);
 
-  datasize = signal<number>(0);
   datasource = signal<communication[]>([]);
+  datasize = signal<number>(0);
   selection = new SelectionModel<communication>(true, []);
 
   limit = signal<number>(10);
@@ -178,13 +177,19 @@ export default class InboxComponent implements OnInit {
     this._reject(this.selection.selected);
   }
 
-  send(communication: communication) {
+  send({
+    _id,
+    status,
+    procedure,
+    isOriginal,
+    attachmentsCount,
+  }: communication) {
     const data: TransferDetails = {
-      communication: { id: communication._id, status: communication.status },
-      attachmentsCount: communication.attachmentsCount,
-      procedureId: communication.procedure._id,
-      isOriginal: communication.isOriginal,
-      code: communication.procedure.code,
+      attachmentsCount,
+      isOriginal,
+      communication: { id: _id, status: status },
+      procedureId: procedure._id,
+      code: procedure.code,
     };
     const dialogRef = this.dialog.open(SubmissionDialogComponent, {
       maxWidth: '900px',
@@ -193,7 +198,7 @@ export default class InboxComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe((message: string) => {
       if (!message) return;
-      // this._removeDatasourceItem(_id);
+      this._removeItemDatasource([_id]);
     });
   }
 
@@ -300,7 +305,7 @@ export default class InboxComponent implements OnInit {
       .descriptionDialog({
         title:
           selected.length === 1
-            ? `Rechazar tramite ${communications[0].procedure.code}?`
+            ? `¿Rechazar tramite ${communications[0].procedure.code}?`
             : `¿Rechazar los tramites seleccionados?`,
         description: 'Ingrese el motivo del rechazo',
       })
@@ -311,10 +316,7 @@ export default class InboxComponent implements OnInit {
         )
       )
       .subscribe(() => {
-        this.datasource.update((values) =>
-          values.filter((el) => !selected.includes(el._id))
-        );
-        this.datasize.update((length) => (length -= communications.length));
+        this._removeItemDatasource(selected);
       });
   }
 
@@ -361,5 +363,16 @@ export default class InboxComponent implements OnInit {
     this.limit.set(cache.limit);
     this.index.set(cache.index);
     this.filterForm.patchValue(cache.form);
+  }
+
+  private _removeItemDatasource(ids: string[]): void {
+    this.datasource.update((values) =>
+      values.filter((el) => !ids.includes(el._id))
+    );
+    this.datasize.update((length) => (length -= ids.length));
+    this.selection.clear();
+    if (this.datasource().length === 0 && this.datasize() > 0) {
+      this.getData();
+    }
   }
 }
