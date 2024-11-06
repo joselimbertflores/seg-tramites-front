@@ -23,10 +23,9 @@
       [cdkConnectedOverlayOrigin]="trigger"
       [cdkConnectedOverlayOpen]="detailsOpen"
       (overlayOutsideClick)="detailsOpen = false"
-      [cdkConnectedOverlayWidth]="400"
     >
-      <div class="overlay-menu">
-        <profile [(isOpen)]="detailsOpen" (onLogout)="logout()" />
+      <div class="overlay-menu mat-elevation-z8 px-2 py-3 sm:w-[380px]">
+        <profile [(isOpen)]="detailsOpen" />
       </div>
     </ng-template>
   </mat-toolbar>

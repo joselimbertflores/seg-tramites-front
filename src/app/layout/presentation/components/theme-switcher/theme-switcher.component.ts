@@ -9,9 +9,9 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
+import { ThemeColor, THEME_OPTIONS } from '../../../domain';
+import { ThemeService } from '../../services/theme.service';
 
-import { ThemeService } from '../../presentation/services/theme.service';
-import { THEME_OPTIONS, ThemeColor } from '../../domain';
 
 type ThemeParts = [ThemeColor, 'light' | 'dark'];
 @Component({

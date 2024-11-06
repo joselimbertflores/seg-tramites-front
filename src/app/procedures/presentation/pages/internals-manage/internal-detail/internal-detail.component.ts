@@ -3,17 +3,17 @@ import {
   ChangeDetectionStrategy,
   Component,
   inject,
+  Input,
   signal,
 } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
-import { forkJoin, switchMap } from 'rxjs';
+import { forkJoin } from 'rxjs';
 
-import { InternalService } from '../../../services';
-import { InternalProcedure } from '../../../../domain';
+import { ProcessService } from '../../../../../communications/presentation/services';
 import { BackButtonDirective } from '../../../../../shared';
+import { InternalProcedure } from '../../../../domain';
 
 @Component({
   selector: 'app-internal-detail',
@@ -29,19 +29,23 @@ import { BackButtonDirective } from '../../../../../shared';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class InternalDetailComponent {
-  private route = inject(ActivatedRoute);
-  private internalService = inject(InternalService);
+  private processService = inject(ProcessService);
+
+  @Input('id') procedureId: string;
   procedure = signal<InternalProcedure | null>(null);
 
   ngOnInit(): void {
-    this.route.paramMap
-      .pipe(switchMap((params) => this._getProcedureData(params.get('id')!)))
-      .subscribe(([procedure]) => {
-        this.procedure.set(procedure);
-      });
+    this._getProcedureData(this.procedureId).subscribe(
+      ([procedure, workflow]) => {
+        this.procedure.set(procedure as InternalProcedure);
+      }
+    );
   }
 
   private _getProcedureData(procedureId: string) {
-    return forkJoin([this.internalService.getOne(procedureId)]);
+    return forkJoin([
+      this.processService.getProcedure(procedureId),
+      this.processService.getWorkflow(procedureId),
+    ]);
   }
 }

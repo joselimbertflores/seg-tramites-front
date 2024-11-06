@@ -28,7 +28,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { PublicationDialogComponent } from '../../../../publications/presentation/components';
 
 @Component({
-  selector: 'app-dashboard',
+  selector: 'app-home',
   standalone: true,
   imports: [
     CommonModule,
@@ -42,11 +42,11 @@ import { PublicationDialogComponent } from '../../../../publications/presentatio
     OverlayModule,
     MatButtonModule,
   ],
-  templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.scss',
+  templateUrl: './home.component.html',
+  styleUrl: './home.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export default class DashboardComponent {
+export default class HomeComponent {
   private breakpointObserver = inject(BreakpointObserver);
   private socketService = inject(SocketService);
   private alertservice = inject(AlertService);

@@ -24,7 +24,7 @@ import {
   convertImageABase64,
 } from '../../helpers';
 import { UnlinkSheet } from '../../helpers/pdf/unlink-form';
-import { AuthService } from './auth/auth.service';
+import { AuthService } from '../../auth/presentation/services/auth.service';
 import { createReportSheet } from '../../helpers/pdf/report-sheet';
 import { ReportSheetProps } from '../../domain/interfaces';
 import { Account } from '../../administration/domain';

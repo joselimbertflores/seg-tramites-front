@@ -45,12 +45,6 @@ export class InternalService {
       );
   }
 
-  getOne(id: string) {
-    return this.http
-      .get<internal>(`${this.url}/${id}`)
-      .pipe(map((response) => InternalMapper.fromResponse(response)));
-  }
-
   searchAccounts(text: string) {
     return this.http
       .get<account[]>(`${this.url}/participant/${text}`)

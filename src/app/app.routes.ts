@@ -18,18 +18,17 @@ import { accountGuard } from './procedures/presentation/guards/account.guard';
 export const routes: Routes = [
   {
     path: 'login',
-    title: 'Inicio de sesion',
-    // canActivate: [isNotAuthenticatedGuard],
+    title: 'Autentificacion',
+    canActivate: [isNotAuthenticatedGuard],
     loadComponent: () =>
-      import('./layout/presentation/pages/login/login.component'),
+      import('./auth/presentation/pages/login/login.component'),
   },
   {
-    path: '',
+    path: 'home',
+    title: 'Inicio',
     canActivate: [isAuthenticatedGuard],
-    // canActivateChild: [roleGuard],
     loadComponent: () =>
-      import('./layout/presentation/pages/dashboard/dashboard.component'),
-
+      import('./layout/presentation/pages/home/home.component'),
     children: [
       { path: '', redirectTo: 'main', pathMatch: 'full' },
       {
@@ -91,7 +90,7 @@ export const routes: Routes = [
       },
       {
         path: 'manage',
-        canActivate: [accountGuard, updatedPasswordGuard],
+        canActivate: [isAuthenticatedGuard, accountGuard],
         children: [
           {
             path: 'external',

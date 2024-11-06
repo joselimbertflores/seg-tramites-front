@@ -37,7 +37,7 @@ import { AuthService } from '../../../../presentation/services';
         <div class="sm:mx-auto mb-6">
           <img
             class="mx-auto h-16 mb-2"
-            src="assets/img/icons/app.png"
+            src="assets/images/icons/app.png"
             alt="Icon app"
           />
           <p class="text-center text-xl font-bold font-sans">
@@ -115,8 +115,8 @@ export default class LoginComponent {
 
   login() {
     if (this.loginForm.invalid) return;
-    this.authService.login(this.loginForm.value).subscribe((url) => {
-      this.router.navigateByUrl(url);
+    this.authService.login(this.loginForm.value).subscribe(() => {
+      this.router.navigateByUrl('/home');
     });
   }
 }

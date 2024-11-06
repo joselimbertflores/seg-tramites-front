@@ -80,10 +80,4 @@ export class ExternalService {
       })
       .pipe(map((response) => ExternalMapper.fromResponse(response)));
   }
-
-  getOne(id: string) {
-    return this.http
-      .get<external>(`${this.base_url}/${id}`)
-      .pipe(map((response) => ExternalMapper.fromResponse(response)));
-  }
 }

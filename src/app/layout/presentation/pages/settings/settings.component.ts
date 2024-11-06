@@ -33,8 +33,12 @@ import { Account } from '../../../../domain/models';
 import { FormValidators } from '../../../../helpers';
 import { SidenavButtonComponent } from '../../../../presentation/components';
 import { NotificationComponent } from '../../../../presentation/components/notification/notification.component';
-import { AuthService, AlertService, AppearanceService } from '../../../../presentation/services';
-import { ThemeSwitcherComponent } from '../../../components';
+import {
+  AuthService,
+  AlertService,
+  AppearanceService,
+} from '../../../../presentation/services';
+import { ThemeSwitcherComponent } from '../../components';
 
 @Component({
   selector: 'app-settings',
@@ -66,9 +70,6 @@ export default class SettingsComponent implements OnInit {
   private fb = inject(FormBuilder);
   public account = toSignal<Account>(this.authService.getMyAccount());
   private router = inject(Router);
-
-
-
 
   form = this.fb.group(
     {
@@ -139,5 +140,4 @@ export default class SettingsComponent implements OnInit {
     }
     return '';
   };
-
 }

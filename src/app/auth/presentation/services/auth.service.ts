@@ -29,7 +29,7 @@ export class AuthService {
   private _permissions = signal<Record<VALID_RESOURCES, string[]> | null>(null);
   private _updatedPassword = signal<boolean>(false);
 
-  public account = computed(() => this._account());
+  public user = computed(() => this._account());
   public menu = computed(() => this._menu());
   public code = computed(() => this._code());
   public permissions = computed(() => this._permissions()!);
@@ -44,16 +44,11 @@ export class AuthService {
       localStorage.removeItem('login');
     }
     return this.http
-      .post<{ token: string; url: string }>(`${this.base_url}/auth`, {
+      .post<{ token: string }>(`${this.base_url}/auth`, {
         login,
         password,
       })
-      .pipe(
-        map(({ token, url }) => {
-          this._setAuthentication(token);
-          return url;
-        })
-      );
+      .pipe(map(({ token }) => this._setAuthentication(token)));
   }
 
   logout() {
@@ -118,7 +113,6 @@ export class AuthService {
   }
 
   private _setAuthentication(token: string): boolean {
-    console.log(jwtDecode(token));
     this._account.set(jwtDecode(token));
     localStorage.setItem('token', token);
     return true;

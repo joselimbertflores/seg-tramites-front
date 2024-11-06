@@ -28,7 +28,7 @@ interface dependents {
 })
 export class ReportDependentsComponent implements OnInit {
   private reportService = inject(ReportService);
-  private accout = inject(AuthService).account();
+  private accout = inject(AuthService).user();
 
   displayedColumns: string[] = [
     'officer',

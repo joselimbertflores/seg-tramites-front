@@ -38,6 +38,9 @@ export default class CommunicationDetailComponent {
   communication = signal<communication | null>(null);
 
   ngOnInit(): void {
+    this.communicationService.getOne(this.communicationId).subscribe((resp) => {
+      this.communication.set(resp);
+    });
     // this.route.paramMap
     //   .pipe(
     //     switchMap((params) =>
@@ -47,7 +50,6 @@ export default class CommunicationDetailComponent {
     //   .subscribe((comm) => {
     //     this.communication.set(comm);
     //   });
-    console.log(this.communicationId);
   }
 
   private _getProcedureData(procedureId: string) {
