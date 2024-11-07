@@ -16,7 +16,11 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 
-import { CacheService, SearchInputComponent } from '../../../../shared';
+import {
+  CacheService,
+  SearchInputComponent,
+  WordGeneratorService,
+} from '../../../../shared';
 import { InternalProcedure, StateProcedure } from '../../../domain';
 import { InternalService } from '../../services';
 
@@ -53,6 +57,7 @@ interface cache {
 export default class InternalsManageComponent {
   private dialog = inject(MatDialog);
   private internalService = inject(InternalService);
+  private wordGeneratorService = inject(WordGeneratorService);
   // private pdfService = inject(PdfService);
   private cacheService: CacheService<cache> = inject(CacheService);
 
@@ -145,13 +150,6 @@ export default class InternalsManageComponent {
     });
   }
 
-  generateRouteMap(procedure: InternalProcedure) {
-    // TODO gereate route map
-    // this.procedureService.getWorkflow(procedure._id).subscribe((workflow) => {
-    //   this.pdfService.generateRouteSheet(procedure, workflow);
-    // });
-  }
-
   search(term: string) {
     this.term.set(term);
     this.index.set(0);
@@ -162,6 +160,17 @@ export default class InternalsManageComponent {
     this.limit.set(pageSize);
     this.index.set(pageIndex);
     this.getData();
+  }
+
+  generateRouteMap(procedure: InternalProcedure) {
+    // TODO gereate route map
+    // this.procedureService.getWorkflow(procedure._id).subscribe((workflow) => {
+    //   this.pdfService.generateRouteSheet(procedure, workflow);
+    // });
+  }
+
+  generateTemplate() {
+    this.wordGeneratorService.generateWord();
   }
 
   private _saveCache(): void {
