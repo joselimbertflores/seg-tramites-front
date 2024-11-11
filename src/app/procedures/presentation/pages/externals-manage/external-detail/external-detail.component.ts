@@ -11,11 +11,16 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
-import { forkJoin, switchMap } from 'rxjs';
+import { forkJoin } from 'rxjs';
 
+import { ProcessService } from '../../../../../communications/presentation/services';
+import { communication } from '../../../../../communications/infrastructure';
 import { BackButtonDirective } from '../../../../../shared';
 import { ExternalProcedure } from '../../../../domain';
-import { ProcessService } from '../../../../../communications/presentation/services';
+import {
+  WorkflowListComponent,
+  WorkflowGraphComponent,
+} from '../../../components';
 
 @Component({
   selector: 'external-detail',
@@ -27,6 +32,8 @@ import { ProcessService } from '../../../../../communications/presentation/servi
     MatButtonModule,
     MatToolbarModule,
     BackButtonDirective,
+    WorkflowListComponent,
+    WorkflowGraphComponent,
   ],
   templateUrl: './external-detail.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -34,13 +41,18 @@ import { ProcessService } from '../../../../../communications/presentation/servi
 export default class ExternalDetailComponent implements OnInit {
   @Input('id') procedureId: string;
   private processService = inject(ProcessService);
+  
   procedure = signal<ExternalProcedure | null>(null);
+  workflow = signal<communication[]>([]);
+  isLoading = signal<boolean>(false);
 
   ngOnInit(): void {
+    this.isLoading.set(true);
     this._getProcedureData(this.procedureId).subscribe(
       ([procedure, workflow]) => {
         this.procedure.set(procedure as ExternalProcedure);
-        console.log(workflow);
+        this.workflow.set(workflow);
+        this.isLoading.set(false);
       }
     );
   }

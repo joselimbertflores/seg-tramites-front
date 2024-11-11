@@ -8,26 +8,43 @@ import {
 } from '@angular/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { switchMap } from 'rxjs';
+import { forkJoin, switchMap, tap } from 'rxjs';
 
-import { CommunicationService } from '../../../services';
+import { CommunicationService, ProcessService } from '../../../services';
 import { communication } from '../../../../infrastructure';
 import { BackButtonDirective } from '../../../../../shared';
-import ExternalDetailComponent from '../../../../../procedures/presentation/pages/externals-manage/external-detail/external-detail.component';
+import {
+  WorkflowGraphComponent,
+  WorkflowListComponent,
+} from '../../../../../procedures/presentation/components';
+import {
+  ExternalProcedure,
+  InternalProcedure,
+  Procedure,
+} from '../../../../../procedures/domain';
+import {
+  ExternalCommunicationComponent,
+  InternalCommunicationComponent,
+} from '../../../components';
 
 @Component({
   selector: 'app-communication-detail',
   standalone: true,
   imports: [
     CommonModule,
-    MatToolbarModule,
     MatIconModule,
-    MatButtonModule,
     MatCardModule,
+    MatTabsModule,
+    MatButtonModule,
+    MatToolbarModule,
     BackButtonDirective,
-    ExternalDetailComponent,
+    WorkflowListComponent,
+    WorkflowGraphComponent,
+    InternalCommunicationComponent,
+    ExternalCommunicationComponent,
   ],
   templateUrl: './communication-detail.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -35,24 +52,41 @@ import ExternalDetailComponent from '../../../../../procedures/presentation/page
 export default class CommunicationDetailComponent {
   @Input('id') communicationId: string;
   private communicationService = inject(CommunicationService);
+  private procedureService = inject(ProcessService);
+
   communication = signal<communication | null>(null);
+  procedure = signal<Procedure | null>(null);
+  workflow = signal<communication[]>([]);
+
+  isLoading = signal<boolean>(false);
 
   ngOnInit(): void {
-    this.communicationService.getOne(this.communicationId).subscribe((resp) => {
-      this.communication.set(resp);
-    });
-    // this.route.paramMap
-    //   .pipe(
-    //     switchMap((params) =>
-    //       this.communicationService.getOne(params.get('id')!)
-    //     )
-    //   )
-    //   .subscribe((comm) => {
-    //     this.communication.set(comm);
-    //   });
+    this.isLoading.set(true);
+    this.communicationService
+      .getOne(this.communicationId)
+      .pipe(
+        tap((comm) => this.communication.set(comm)),
+        switchMap((comm) => this._getProcedureData(comm.procedure._id))
+      )
+      .subscribe(([procedure, workflow]) => {
+        this.procedure.set(procedure);
+        this.workflow.set(workflow);
+        this.isLoading.set(false);
+      });
+  }
+
+  get external() {
+    return this.procedure() as ExternalProcedure;
+  }
+
+  get internal() {
+    return this.procedure() as InternalProcedure;
   }
 
   private _getProcedureData(procedureId: string) {
-    // return forkJoin([this.externalService.getOne(procedureId)]);
+    return forkJoin([
+      this.procedureService.getProcedure(procedureId),
+      this.procedureService.getWorkflow(procedureId),
+    ]);
   }
 }

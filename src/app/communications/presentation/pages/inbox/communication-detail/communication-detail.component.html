@@ -23,11 +23,11 @@
   @if (communication()) {
   <mat-card appearance="outlined">
     <mat-card-header>
-      <img mat-card-avatar src="assets/img/account.png" />
+      <img mat-card-avatar src="assets/images/account.png" />
       <mat-card-title>
         {{ communication()?.sender?.fullname | titlecase }}
       </mat-card-title>
-      <mat-card-subtitle class="">
+      <mat-card-subtitle>
         {{ communication()?.sender?.jobtitle }}
       </mat-card-subtitle>
     </mat-card-header>
@@ -44,4 +44,27 @@
   </mat-card>
   }
 </div>
-<!-- <external-detail></external-detail> -->
+
+@if(!isLoading()){
+<mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+  <mat-tab label="Descripcion">
+    @switch (communication()?.procedure?.group) { 
+      @case ("ExternalProcedure") {
+        <external-communication [procedure]="external!" />
+      } 
+      @case ("InternalProcedure") {
+        <internal-communication [procedure]="internal" />
+      } 
+      @default {
+        <p>Type Procedure is not define</p>
+      }
+   }
+  </mat-tab>
+  <mat-tab label="Flujo de trabajo">
+    <!-- <worflow-list [workflow]="workflow()" /> -->
+  </mat-tab>
+  <mat-tab label="Flujo de trabajo grafico">
+    <workflow-graph [workflow]="workflow()" />
+  </mat-tab>
+</mat-tab-group>
+}

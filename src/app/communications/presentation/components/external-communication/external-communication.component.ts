@@ -1,37 +1,19 @@
-<mat-toolbar>
-  <button mat-icon-button backButton>
-    <mat-icon>arrow_back</mat-icon>
-  </button>
-  <span class="ml-4">Detalle</span>
-  <span class="flex-1"></span>
-  <button
-    mat-icon-button
-    class="example-icon favorite-icon"
-    aria-label="Example icon-button with heart icon"
-  >
-    <mat-icon>favorite</mat-icon>
-  </button>
-  <button
-    mat-icon-button
-    class="example-icon"
-    aria-label="Example icon-button with share icon"
-  >
-    <mat-icon>share</mat-icon>
-  </button>
-</mat-toolbar>
-<!-- <mat-progress-bar mode="indeterminate"></mat-progress-bar> -->
+import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ExternalProcedure } from '../../../../procedures/domain';
 
-@if(!isLoading()){
-<mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
-  <mat-tab label="Descripcion">
-    @if (procedure()) {
+@Component({
+  selector: 'external-communication',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
     <div class="py-4 sm:px-8">
       <div class="px-2 sm:px-0">
         <h3 class="text-base font-semibold leading-7">
-          {{ procedure()?.type }}
+          {{ procedure().type }}
         </h3>
         <p class="mt-1 max-w-2xl text-sm leading-6 text-gray-500">
-          {{ procedure()?.reference }}
+          {{ procedure().reference }}
         </p>
       </div>
       <div class="mt-6">
@@ -39,67 +21,67 @@
           <div class="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
             <dt class="text-sm font-medium leading-6">ALTERNO:</dt>
             <dd class="mt-1 text-sm leading-6 sm:col-span-2 sm:mt-0">
-              {{ procedure()?.code }}
+              {{ procedure().code }}
             </dd>
           </div>
           <div class="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
             <dt class="text-sm font-medium leading-6">CITE:</dt>
             <dd class="mt-1 text-sm leading-6 sm:col-span-2 sm:mt-0">
-              {{ procedure()?.citeCode }}
+              {{ procedure().citeCode }}
             </dd>
           </div>
           <div class="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
             <dt class="text-sm font-medium leading-6">ESTADO</dt>
             <dd class="mt-1 text-sm leading-6 sm:col-span-2 sm:mt-0">
-              {{ procedure()?.state }}
+              {{ procedure().state }}
             </dd>
           </div>
           <div class="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
             <dt class="text-sm font-medium leading-6">CANT. HOJAS / ANEXOS:</dt>
             <dd class="mt-1 text-sm leading-6 sm:col-span-2 sm:mt-0">
-              {{ procedure()?.numberOfDocuments }}
+              {{ procedure().numberOfDocuments }}
             </dd>
           </div>
           <div class="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
             <dt class="text-sm font-medium leading-6">CREACION:</dt>
             <dd class="mt-1 text-sm leading-6 sm:col-span-2 sm:mt-0">
-              {{ procedure()?.createdAt | date : "short" }}
+              {{ procedure().createdAt | date : 'short' }}
             </dd>
           </div>
           <div class="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
             <dt class="text-sm/6 font-medium">SOLICITANTE</dt>
             <dd class="mt-2 text-sm sm:mt-0">
               <div class="flex flex-col gap-y-1">
-                @if (procedure()?.applicant?.type==="NATURAL") {
+                @if (procedure().applicant.type==="NATURAL") {
                 <div class="flex flex-row">
                   <dt class="text-sm font-medium w-20">Nombre:</dt>
                   <dd class="text-sm sm:mt-0">
-                    {{ procedure()?.fullnameApplicant | titlecase }}
+                    {{ procedure().fullnameApplicant | titlecase }}
                   </dd>
                 </div>
                 <div class="flex flex-row">
                   <dt class="text-sm font-medium w-20">CI:</dt>
                   <dd class="text-sm sm:mt-0">
-                    {{ procedure()?.applicant?.dni }}
+                    {{ procedure().applicant.dni }}
                   </dd>
                 </div>
                 <div class="flex flex-row">
                   <dt class="text-sm font-medium w-20">Telefono:</dt>
                   <dd class="text-sm sm:mt-0">
-                    {{ procedure()?.applicant?.phone }}
+                    {{ procedure().applicant.phone }}
                   </dd>
                 </div>
                 } @else {
                 <div class="flex flex-row">
                   <dt class="text-sm font-medium w-20">Nombre:</dt>
                   <dd class="text-sm sm:mt-0">
-                    {{ procedure()?.fullnameApplicant }}
+                    {{ procedure().fullnameApplicant }}
                   </dd>
                 </div>
                 <div class="flex flex-row">
                   <dt class="text-sm font-medium w-20">Telefono:</dt>
                   <dd class="text-sm sm:mt-0">
-                    {{ procedure()?.applicant?.phone }}
+                    {{ procedure().applicant.phone }}
                   </dd>
                 </div>
                 }
@@ -111,19 +93,15 @@
       <div class="mt-6 px-4 sm:px-0">
         <p class="font-medium">Requisistos presentados</p>
         <ul class="list-disc px-4 mt-2">
-          @for (item of procedure()?.requirements; track $index) {
+          @for (item of procedure().requirements; track $index) {
           <li>{{ item }}</li>
           }
         </ul>
       </div>
     </div>
-    }
-  </mat-tab>
-  <mat-tab label="Flujo de trabajo">
-    <workflow-list [workflow]="workflow()" />
-  </mat-tab>
-  <mat-tab label="Flujo de trabajo grafico">
-    <workflow-graph [workflow]="workflow()" />
-  </mat-tab>
-</mat-tab-group>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class ExternalCommunicationComponent {
+  procedure = input.required<ExternalProcedure>();
 }

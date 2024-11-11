@@ -29,7 +29,7 @@ interface procedure {
   _id: string;
   code: string;
   reference: string;
-  group: GroupProcedure;
+  group: 'ExternalProcedure' | 'InternalProcedure';
   state: StateProcedure;
 }
 

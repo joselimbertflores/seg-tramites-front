@@ -8,6 +8,7 @@ import {
   internal,
   InternalMapper,
 } from '../../../procedures/infrastructure';
+import { communication } from '../../infrastructure';
 
 @Injectable({
   providedIn: 'root',
@@ -35,6 +36,6 @@ export class ProcessService {
   }
 
   getWorkflow(id: string) {
-    return this.http.get(`${this.url}/workflow/${id}`);
+    return this.http.get<communication[]>(`${this.url}/workflow/${id}`);
   }
 }
