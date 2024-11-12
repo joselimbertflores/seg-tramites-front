@@ -38,6 +38,7 @@ export enum StatusMail {
   Rejected = 'rejected',
   Pending = 'pending',
   Archived = 'archived',
+  Forwarding = 'forwarding',
 }
 
 export class Communication {
@@ -101,17 +102,6 @@ export class Communication {
     this.inboundDate = inboundDate;
     this.eventLog = eventLog;
     this.status = status;
-  }
-
-  statusLabel(): { label: string; color: string } {
-    const states = {
-      [StatusMail.Received]: { label: 'RECIBIDO', color: '#55A630' },
-      [StatusMail.Rejected]: { label: 'RECHAZADO', color: '#D90429' },
-      [StatusMail.Completed]: { label: 'COMPLETADO', color: '#415A77' },
-      [StatusMail.Archived]: { label: 'ARCHIVADO', color: '#0077B6' },
-      [StatusMail.Pending]: { label: 'PENDIENTE', color: '#F48C06' },
-    };
-    return states[this.status];
   }
 
   groupLabel(): string {

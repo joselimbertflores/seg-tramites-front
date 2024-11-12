@@ -3,7 +3,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  Input,
   TemplateRef,
   ViewChild,
   ViewContainerRef,

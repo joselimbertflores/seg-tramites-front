@@ -159,6 +159,7 @@ export class ReportService {
             [StatusMail.Archived]: 'ARCHIVADOS',
             [StatusMail.Completed]: 'ANTENDIDOS',
             [StatusMail.Rejected]: 'RECHAZADOS',
+            [StatusMail.Forwarding]: 'REENVIADO',
           };
           return Object.values(StatusMail).map((status) => {
             const item = resp.find((el) => el._id === status);
