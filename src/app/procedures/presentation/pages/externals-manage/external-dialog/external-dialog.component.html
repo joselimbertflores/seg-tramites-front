@@ -39,11 +39,11 @@
         </div>
       </form>
       @if(formProcedure.get('type')?.value ){
-      <ol class="list-decimal overflow-y-scroll max-h-60">
+      <ol class="overflow-y-scroll max-h-60 space-y-2">
         @for (requirement of requirements(); track $index) {
-        <li>
+        <li class="px-2">
           <mat-checkbox [(ngModel)]="requirement.isSelected">
-            <span class="text-justify">{{ requirement.name }}</span>
+            <p class="text-justify">{{ requirement.name }}</p>
           </mat-checkbox>
         </li>
         }

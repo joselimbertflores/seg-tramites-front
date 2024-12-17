@@ -22,8 +22,8 @@
       <table mat-table [dataSource]="datasource()">
         <ng-container matColumnDef="code">
           <th mat-header-cell *matHeaderCellDef>Alterno</th>
-          <td mat-cell *matCellDef="let row" [id]="row._id">
-            <a [routerLink]="['../external', row._id]">
+          <td mat-cell *matCellDef="let row" [id]="row._id" class="sm:w-[200px]">
+            <a [routerLink]="['../external', row._id]" class="text-blue-600">
               {{ row.code }}
             </a>
           </td>

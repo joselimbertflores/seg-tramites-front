@@ -35,20 +35,19 @@ interface cache {
   index: number;
 }
 @Component({
-    selector: 'app-externals-manage',
-    imports: [
-        CommonModule,
-        RouterModule,
-        MatTableModule,
-        MatMenuModule,
-        MatIconModule,
-        MatButtonModule,
-        MatToolbarModule,
-        MatPaginatorModule,
-        SearchInputComponent,
-    ],
-    templateUrl: './externals-manage.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'app-externals-manage',
+  imports: [
+    CommonModule,
+    RouterModule,
+    MatTableModule,
+    MatMenuModule,
+    MatIconModule,
+    MatButtonModule,
+    MatToolbarModule,
+    MatPaginatorModule,
+    SearchInputComponent,
+  ],
+  templateUrl: './externals-manage.component.html',
 })
 export default class ExternalsManageComponent {
   private dialog = inject(MatDialog);
@@ -60,7 +59,7 @@ export default class ExternalsManageComponent {
   datasize = signal<number>(0);
   displayedColumns: string[] = [
     'code',
-    'reference',
+    // 'reference',
     'applicant',
     'state',
     'createdAt',
@@ -96,7 +95,7 @@ export default class ExternalsManageComponent {
       maxWidth: '1000px',
       width: '1000px',
     });
-    dialogRef.afterClosed().subscribe((result) => {
+    dialogRef.afterClosed().subscribe((result: ExternalProcedure) => {
       if (!result) return;
       this.datasize.update((value) => (value += 1));
       this.datasource.update((values) => {

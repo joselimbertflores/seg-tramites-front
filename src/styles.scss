@@ -1,6 +1,15 @@
+@use "@angular/material" as mat;
 
-@import '@angular/cdk/overlay-prebuilt.css';
-@import "./assets/scss/status-badge.scss";
+html {
+  color-scheme: light;
+  @include mat.theme(
+    (
+      color: mat.$azure-palette,
+      typography: Roboto,
+      density: -1,
+    )
+  );
+}
 
 @tailwind base;
 @tailwind components;
@@ -14,153 +23,156 @@ body {
 body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
+  background: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
 }
 
+:root {
+  @include mat.table-overrides(
+    (
+      row-item-label-text-size: 12px,
+    )
+  );
+}
 
 mat-form-field {
   width: 100%;
 }
+.mdc-notched-outline__notch {
+  border-right: none;
+}
 
-// .mat-mdc-dialog-content {
-//   padding-top: 5px !important;
+// .toolbar-spacer {
+//   flex: 1 1 auto;
 // }
 
-// .swal2-title {
-//   font-size: 20px !important;
-
+// ::-webkit-scrollbar {
+//   width: 18px;
 // }
 
-.toolbar-spacer {
-  flex: 1 1 auto;
-}
+// ::-webkit-scrollbar-thumb {
+//   background-color: silver;
+//   border-radius: 20px;
+//   border: 6px solid transparent;
+//   background-clip: content-box;
+// }
 
-::-webkit-scrollbar {
-  width: 18px;
-}
+// ::-webkit-scrollbar-thumb:hover {
+//   background-color: #a8bbbf;
+// }
 
-::-webkit-scrollbar-thumb {
-  background-color: silver;
-  border-radius: 20px;
-  border: 6px solid transparent;
-  background-clip: content-box;
-}
+// table {
+//   width: 100%;
+// }
 
-::-webkit-scrollbar-thumb:hover {
-  background-color: #a8bbbf;
-}
+// @media screen and (max-width: 960px) {
+//   .mat-elevation-z8 {
+//     background: transparent;
+//     box-shadow: none;
+//   }
 
-table {
-  width: 100%;
-}
+//   .mat-mdc-header-row {
+//     display: none;
+//   }
 
-@media screen and (max-width: 960px) {
-  .mat-elevation-z8 {
-    background: transparent;
-    box-shadow: none;
-  }
+//   tbody {
+//     display: block;
+//     width: 100%;
+//   }
 
-  .mat-mdc-header-row {
-    display: none;
-  }
+//   .mat-mdc-table {
+//     background: transparent;
 
-  tbody {
-    display: block;
-    width: 100%;
-  }
+//     * {
+//       box-sizing: border-box;
+//     }
 
-  .mat-mdc-table {
-    background: transparent;
+//     .mat-mdc-row {
+//       display: block;
+//       overflow: hidden;
+//       height: auto;
+//       position: relative;
+//       clear: both;
+//       box-shadow: 0 2px 1px -1px rgba(0, 0, 0, .2), 0 1px 1px 0 rgba(0, 0, 0, .14), 0 1px 3px 0 rgba(0, 0, 0, .12);
+//       // background-color: #fff;
+//       border-radius: 3px;
 
-    * {
-      box-sizing: border-box;
-    }
+//       +.mat-mdc-row {
+//         margin-top: 10px;
+//       }
+//     }
 
-    .mat-mdc-row {
-      display: block;
-      overflow: hidden;
-      height: auto;
-      position: relative;
-      clear: both;
-      box-shadow: 0 2px 1px -1px rgba(0, 0, 0, .2), 0 1px 1px 0 rgba(0, 0, 0, .14), 0 1px 3px 0 rgba(0, 0, 0, .12);
-      // background-color: #fff;
-      border-radius: 3px;
+//     .mat-mdc-cell {
+//       display: block;
+//       width: 100%;
+//       padding: 0 16px;
+//       margin: 16px 0;
+//       border: 0 none;
 
-      +.mat-mdc-row {
-        margin-top: 10px;
-      }
-    }
+//       &:first-child {
+//         padding: 0 48px 0 16px;
 
-    .mat-mdc-cell {
-      display: block;
-      width: 100%;
-      padding: 0 16px;
-      margin: 16px 0;
-      border: 0 none;
+//         a {
+//           font-size: 20px;
+//           font-weight: 400;
+//           color: inherit;
+//         }
 
-      &:first-child {
-        padding: 0 48px 0 16px;
+//         &:before {
+//           display: none;
+//         }
+//       }
 
-        a {
-          font-size: 20px;
-          font-weight: 400;
-          color: inherit;
-        }
+//       &.m-card-sub-title {
+//         font-size: 18px;
+//         // margin-top: -8px;
+//         padding: 0 48px 0 16px;
+//       }
+//     }
 
-        &:before {
-          display: none;
-        }
-      }
+//     .has_label_on_mobile {
+//       &:before {
+//         content: attr(data-label);
+//         display: inline;
+//         font-weight: normal;
+//       }
+//     }
 
-      &.m-card-sub-title {
-        font-size: 18px;
-        // margin-top: -8px;
-        padding: 0 48px 0 16px;
-      }
-    }
+//     .mat-column-star {
+//       width: auto;
+//       padding: 8px 0 0 !important;
+//       margin: 0;
+//       position: absolute;
+//       top: 0;
+//       right: 0;
 
-    .has_label_on_mobile {
-      &:before {
-        content: attr(data-label);
-        display: inline;
-        font-weight: normal;
-      }
-    }
+//       &:before {
+//         display: none;
+//       }
+//     }
 
-    .mat-column-star {
-      width: auto;
-      padding: 8px 0 0 !important;
-      margin: 0;
-      position: absolute;
-      top: 0;
-      right: 0;
+//     .mat-column-options {
+//       width: auto;
+//       padding: 8px 0 0 !important;
+//       margin: 0;
+//       position: absolute;
+//       top: 0;
+//       right: 0;
 
-      &:before {
-        display: none;
-      }
-    }
+//       &:before {
+//         display: none;
+//       }
+//     }
+//   }
 
-    .mat-column-options {
-      width: auto;
-      padding: 8px 0 0 !important;
-      margin: 0;
-      position: absolute;
-      top: 0;
-      right: 0;
+//   .mat-mdc-paginator {
+//     margin-top: 24px;
+//   }
 
-      &:before {
-        display: none;
-      }
-    }
-  }
+// }
+// html, body { height: 100%; }
+// body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
-  .mat-mdc-paginator {
-    margin-top: 24px;
-  }
-
-}
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
-
-*, ::before, ::after {
-  border-style: none;
-}
+// *, ::before, ::after {
+//   border-style: none;
+// }
