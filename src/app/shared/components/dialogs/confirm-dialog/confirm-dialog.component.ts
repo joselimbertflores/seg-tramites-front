@@ -7,10 +7,9 @@ export interface confirmDialogData {
   description: string;
 }
 @Component({
-  selector: 'app-confirm-dialog',
-  standalone: true,
-  imports: [MatDialogModule, MatButtonModule],
-  template: `
+    selector: 'app-confirm-dialog',
+    imports: [MatDialogModule, MatButtonModule],
+    template: `
     <h2 mat-dialog-title>{{ data.title }}</h2>
     <mat-dialog-content>
       <p class="text-lg py-2">{{ data.description }}</p>
@@ -29,7 +28,7 @@ export interface confirmDialogData {
       </button>
     </mat-dialog-actions>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ConfirmDialogComponent {
   data = inject<confirmDialogData>(MAT_DIALOG_DATA);

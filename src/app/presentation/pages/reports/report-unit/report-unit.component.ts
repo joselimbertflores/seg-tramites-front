@@ -12,11 +12,10 @@ import { MaterialModule } from '../../../../material.module';
 import { TableProcedureColums } from '../../../../infraestructure/interfaces';
 
 @Component({
-  selector: 'app-report-unit',
-  standalone: true,
-  imports: [CommonModule, SimpleSelectSearchComponent, MaterialModule],
-  templateUrl: './report-unit.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-report-unit',
+    imports: [CommonModule, SimpleSelectSearchComponent, MaterialModule],
+    templateUrl: './report-unit.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ReportUnitComponent implements OnInit {
   private reporteService = inject(ReportService);

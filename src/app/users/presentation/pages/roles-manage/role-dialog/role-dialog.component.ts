@@ -28,22 +28,21 @@ import { resource, role } from '../../../../infrastructure';
 import { RoleService } from '../../../services';
 
 @Component({
-  selector: 'app-role-dialog',
-  standalone: true,
-  templateUrl: './role-dialog.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    FormsModule,
-    MatDialogModule,
-    MatIconModule,
-    CdkAccordionModule,
-    MatCheckboxModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatButtonModule,
-  ],
+    selector: 'app-role-dialog',
+    templateUrl: './role-dialog.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        FormsModule,
+        MatDialogModule,
+        MatIconModule,
+        CdkAccordionModule,
+        MatCheckboxModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatButtonModule,
+    ]
 })
 export class RoleDialogComponent {
   private dialogRef = inject(MatDialogRef);

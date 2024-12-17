@@ -25,11 +25,10 @@ import {
 import { AuthService, ProcedureService } from '../../../services';
 
 @Component({
-  selector: 'observations',
-  standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MaterialModule],
-  templateUrl: './observations.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'observations',
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, MaterialModule],
+    templateUrl: './observations.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ObservationsComponent {
   private readonly procedureService = inject(ProcedureService);

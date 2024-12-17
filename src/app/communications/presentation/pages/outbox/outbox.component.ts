@@ -39,27 +39,26 @@ import { StatusMail } from '../../../../domain/models';
 import { communication } from '../../../infrastructure';
 
 @Component({
-  selector: 'outbox',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    RouterModule,
-    MatIconModule,
-    MatMenuModule,
-    OverlayModule,
-    MatTableModule,
-    MatInputModule,
-    MatButtonModule,
-    MatSelectModule,
-    MatTooltipModule,
-    MatToolbarModule,
-    MatCheckboxModule,
-    MatPaginatorModule,
-    SearchInputComponent,
-  ],
-  templateUrl: './outbox.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'outbox',
+    imports: [
+        CommonModule,
+        FormsModule,
+        RouterModule,
+        MatIconModule,
+        MatMenuModule,
+        OverlayModule,
+        MatTableModule,
+        MatInputModule,
+        MatButtonModule,
+        MatSelectModule,
+        MatTooltipModule,
+        MatToolbarModule,
+        MatCheckboxModule,
+        MatPaginatorModule,
+        SearchInputComponent,
+    ],
+    templateUrl: './outbox.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export default class OutboxComponent {
   private alertService = inject(AlertService);

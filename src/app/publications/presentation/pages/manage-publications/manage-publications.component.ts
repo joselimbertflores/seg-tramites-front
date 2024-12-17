@@ -16,17 +16,16 @@ import { MatDialog } from '@angular/material/dialog';
 import { CreatePostComponent } from './create-post/create-post.component';
 
 @Component({
-  selector: 'app-manage-publications',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatToolbarModule,
-    MatTableModule,
-    MatButtonModule,
-    MatIconModule,
-  ],
-  templateUrl: './manage-publications.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-manage-publications',
+    imports: [
+        CommonModule,
+        MatToolbarModule,
+        MatTableModule,
+        MatButtonModule,
+        MatIconModule,
+    ],
+    templateUrl: './manage-publications.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export default class ManagePublicationsComponent implements OnInit {
   private publicationService = inject(PostService);

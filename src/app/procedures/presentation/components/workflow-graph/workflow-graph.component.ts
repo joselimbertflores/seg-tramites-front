@@ -8,10 +8,9 @@ import {
 import { Edge, NgxGraphModule, Node } from '@swimlane/ngx-graph';
 import { communication } from '../../../../communications/infrastructure';
 @Component({
-  selector: 'workflow-graph',
-  standalone: true,
-  imports: [CommonModule, NgxGraphModule],
-  template: `
+    selector: 'workflow-graph',
+    imports: [CommonModule, NgxGraphModule],
+    template: `
     <div class="w-full h-[80vh] p-6">
       <div class="graph-container h-full bg-gray-100">
         <ngx-graph
@@ -94,7 +93,7 @@ import { communication } from '../../../../communications/infrastructure';
       </div>
     </div>
   `,
-  styles: `
+    styles: `
     .graph-container {
       border: 1px solid #000;
     }
@@ -110,7 +109,7 @@ import { communication } from '../../../../communications/infrastructure';
       stroke-dasharray: 4 4;
     }
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WorkflowGraphComponent {
   workflow = input.required<communication[]>();

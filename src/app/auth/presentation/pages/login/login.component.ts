@@ -17,21 +17,19 @@ import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../../../presentation/services';
 
 @Component({
-  selector: 'app-login',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    MatFormFieldModule,
-    ReactiveFormsModule,
-
-    MatCheckboxModule,
-    MatInputModule,
-    MatIconModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
-  ],
-  template: `
+    selector: 'app-login',
+    imports: [
+        CommonModule,
+        RouterModule,
+        MatFormFieldModule,
+        ReactiveFormsModule,
+        MatCheckboxModule,
+        MatInputModule,
+        MatIconModule,
+        MatButtonModule,
+        MatProgressSpinnerModule,
+    ],
+    template: `
     <div class="min-h-screen flex items-center justify-center w-full">
       <div class="shadow-md rounded-lg p-5 mx-2 sm:mx-0 w-full sm:w-[450px]">
         <div class="sm:mx-auto mb-6">
@@ -91,7 +89,7 @@ import { AuthService } from '../../../../presentation/services';
       </div>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export default class LoginComponent {
   hidePassword = true;

@@ -11,10 +11,9 @@ import { PublicationCardComponent } from '../publication-card/publication-card.c
 import { publication } from '../../../infrastructure/interfaces/publications.interface';
 
 @Component({
-  selector: 'publication-list',
-  standalone: true,
-  imports: [CommonModule, InfiniteScrollModule, PublicationCardComponent],
-  template: `
+    selector: 'publication-list',
+    imports: [CommonModule, InfiniteScrollModule, PublicationCardComponent],
+    template: `
     <div
       infiniteScroll
       [infiniteScrollDistance]="0.5"
@@ -29,7 +28,7 @@ import { publication } from '../../../infrastructure/interfaces/publications.int
       </div>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PublicationListComponent implements OnInit {
   containerRef = input.required<HTMLDivElement>();

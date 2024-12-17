@@ -41,27 +41,26 @@ import {
 import { ThemeSwitcherComponent } from '../../components';
 
 @Component({
-  selector: 'app-settings',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatToolbarModule,
-    SidenavButtonComponent,
-    MatExpansionModule,
-    ReactiveFormsModule,
-    MatIconModule,
-    FormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatButtonToggleModule,
-    MatSelectModule,
-    MatTabsModule,
-    ThemeSwitcherComponent,
-  ],
-  templateUrl: './settings.component.html',
-  styleUrl: './settings.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-settings',
+    imports: [
+        CommonModule,
+        MatToolbarModule,
+        SidenavButtonComponent,
+        MatExpansionModule,
+        ReactiveFormsModule,
+        MatIconModule,
+        FormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        MatButtonToggleModule,
+        MatSelectModule,
+        MatTabsModule,
+        ThemeSwitcherComponent,
+    ],
+    templateUrl: './settings.component.html',
+    styleUrl: './settings.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export default class SettingsComponent implements OnInit {
   private authService = inject(AuthService);

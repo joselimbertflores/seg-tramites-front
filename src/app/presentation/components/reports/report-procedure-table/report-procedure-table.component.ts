@@ -16,21 +16,20 @@ export interface ProcedureTableColumns {
 }
 
 @Component({
-  selector: 'report-procedure-table',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatTableModule,
-    RouterModule,
-    MatTableModule,
-    StateLabelPipe,
-  ],
-  templateUrl: './report-procedure-table.component.html',
-  styles: `
+    selector: 'report-procedure-table',
+    imports: [
+        CommonModule,
+        MatTableModule,
+        RouterModule,
+        MatTableModule,
+        StateLabelPipe,
+    ],
+    templateUrl: './report-procedure-table.component.html',
+    styles: `
   .mat-mdc-cell {
   font-size: 12px;
 }`,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ReportProcedureTableComponent {
   public displayedColumns: string[] = [];

@@ -22,16 +22,15 @@ export type SimpleSelectOption<T> = {
   value: T;
 };
 @Component({
-  selector: 'simple-select-search',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    NgxMatSelectSearchModule,
-    MatFormFieldModule,
-    MatSelectModule,
-  ],
-  template: `
+    selector: 'simple-select-search',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        NgxMatSelectSearchModule,
+        MatFormFieldModule,
+        MatSelectModule,
+    ],
+    template: `
     <mat-form-field>
       <mat-select
         [formControl]="bankCtrl"
@@ -57,7 +56,7 @@ export type SimpleSelectOption<T> = {
       </mat-select>
     </mat-form-field>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SimpleSelectSearchComponent<T> implements OnInit {
   private destroyRef = inject(DestroyRef);

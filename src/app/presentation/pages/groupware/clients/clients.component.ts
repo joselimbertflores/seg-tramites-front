@@ -14,18 +14,17 @@ import { AlertService, SocketService } from '../../../services';
 import { SocketClient } from '../../../../infraestructure/interfaces';
 
 @Component({
-  selector: 'app-clients',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MaterialModule,
-    SidenavButtonComponent,
-  ],
-  templateUrl: './clients.component.html',
-  styleUrl: './clients.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-clients',
+    imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MaterialModule,
+        SidenavButtonComponent,
+    ],
+    templateUrl: './clients.component.html',
+    styleUrl: './clients.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ClientsComponent implements OnInit {
   private socketService = inject(SocketService);

@@ -38,17 +38,16 @@ interface SelectOption {
 }
 
 @Component({
-  selector: 'submission-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MaterialModule,
-    ReactiveFormsModule,
-    SimpleSelectSearchComponent,
-  ],
-  templateUrl: './dispatcher.component.html',
-  styleUrl: './dispatcher.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'submission-dialog',
+    imports: [
+        CommonModule,
+        MaterialModule,
+        ReactiveFormsModule,
+        SimpleSelectSearchComponent,
+    ],
+    templateUrl: './dispatcher.component.html',
+    styleUrl: './dispatcher.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DispatcherComponent implements OnInit {
   private fb = inject(FormBuilder);

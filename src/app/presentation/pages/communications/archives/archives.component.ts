@@ -33,23 +33,22 @@ export interface CacheData {
 }
 
 @Component({
-  selector: 'app-archives',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    MatToolbarModule,
-    MatTableModule,
-    MatIconModule,
-    MatButtonModule,
-    StateLabelPipe,
-    PaginatorComponent,
-    SidenavButtonComponent,
-    SearchInputComponent,
-  ],
-  templateUrl: './archives.component.html',
-  styleUrl: './archives.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-archives',
+    imports: [
+        CommonModule,
+        RouterModule,
+        MatToolbarModule,
+        MatTableModule,
+        MatIconModule,
+        MatButtonModule,
+        StateLabelPipe,
+        PaginatorComponent,
+        SidenavButtonComponent,
+        SearchInputComponent,
+    ],
+    templateUrl: './archives.component.html',
+    styleUrl: './archives.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ArchivesComponent implements OnInit {
   private archiveService = inject(ArchiveService);

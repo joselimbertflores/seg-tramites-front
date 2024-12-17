@@ -17,18 +17,17 @@ import { RoleDialogComponent } from './role-dialog/role-dialog.component';
 import { role } from '../../../infrastructure';
 
 @Component({
-  selector: 'app-roles-manage',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatTableModule,
-    MatToolbarModule,
-    FormsModule,
-    MatIconModule,
-    MatButtonModule,
-  ],
-  templateUrl: './roles-manage.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-roles-manage',
+    imports: [
+        CommonModule,
+        MatTableModule,
+        MatToolbarModule,
+        FormsModule,
+        MatIconModule,
+        MatButtonModule,
+    ],
+    templateUrl: './roles-manage.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export default class RolesManageComponent {
   private dialog = inject(MatDialog);

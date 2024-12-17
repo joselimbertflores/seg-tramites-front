@@ -3,10 +3,9 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { InternalProcedure } from '../../../../procedures/domain';
 
 @Component({
-  selector: 'internal-communication',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
+    selector: 'internal-communication',
+    imports: [CommonModule],
+    template: `
     <div class="py-4 sm:px-8">
       <div class="px-4 sm:px-0">
         <h3 class="text-base/7 font-semibold text-gray-900">
@@ -92,7 +91,7 @@ import { InternalProcedure } from '../../../../procedures/domain';
       </div>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InternalCommunicationComponent {
   procedure = input.required<InternalProcedure>();

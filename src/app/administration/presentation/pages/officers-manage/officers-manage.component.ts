@@ -22,21 +22,20 @@ import { OfficerService } from '../../services';
 import { Officer } from '../../../domain';
 
 @Component({
-  selector: 'app-officers-manage',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatTableModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatIconModule,
-    MatButtonModule,
-    MatPaginatorModule,
-    MatToolbarModule,
-    SearchInputComponent,
-  ],
-  templateUrl: './officers-manage.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-officers-manage',
+    imports: [
+        CommonModule,
+        MatTableModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatIconModule,
+        MatButtonModule,
+        MatPaginatorModule,
+        MatToolbarModule,
+        SearchInputComponent,
+    ],
+    templateUrl: './officers-manage.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export default class OfficersManageComponent {
   private officerService = inject(OfficerService);

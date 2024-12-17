@@ -14,11 +14,10 @@ import { publication } from '../../../infrastructure';
 import { PublicationListComponent } from '../../components';
 
 @Component({
-  selector: 'app-publication-history',
-  standalone: true,
-  imports: [CommonModule, MatToolbarModule, PublicationListComponent],
-  templateUrl: './publication-history.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-publication-history',
+    imports: [CommonModule, MatToolbarModule, PublicationListComponent],
+    templateUrl: './publication-history.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export default class PublicationHistoryComponent implements OnInit {
   private publicationService = inject(PostService);

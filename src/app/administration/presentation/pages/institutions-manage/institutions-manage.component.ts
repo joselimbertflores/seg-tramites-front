@@ -21,19 +21,18 @@ import { InstitutionService } from '../../services';
 
 
 @Component({
-  selector: 'app-institutions-manage',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    MatIconModule,
-    MatButtonModule,
-    MatPaginatorModule,
-    MatTableModule,
-    MatToolbarModule
-  ],
-  templateUrl: './institutions-manage.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-institutions-manage',
+    imports: [
+        CommonModule,
+        FormsModule,
+        MatIconModule,
+        MatButtonModule,
+        MatPaginatorModule,
+        MatTableModule,
+        MatToolbarModule
+    ],
+    templateUrl: './institutions-manage.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export default class InstitutionsManageComponent {
   dialog = inject(MatDialog);

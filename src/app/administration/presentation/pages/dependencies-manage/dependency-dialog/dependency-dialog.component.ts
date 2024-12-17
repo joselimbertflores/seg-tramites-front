@@ -31,20 +31,19 @@ interface SelectOption {
   value: string;
 }
 @Component({
-  selector: 'app-dependency-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatCheckboxModule,
-    SimpleSelectSearchComponent,
-  ],
-  templateUrl: './dependency-dialog.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-dependency-dialog',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatDialogModule,
+        MatButtonModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatCheckboxModule,
+        SimpleSelectSearchComponent,
+    ],
+    templateUrl: './dependency-dialog.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DependencyDialogComponent implements OnInit {
   private fb = inject(FormBuilder);

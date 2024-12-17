@@ -21,21 +21,20 @@ interface Menu {
   }[];
 }
 @Component({
-  selector: 'navigation-list',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatSidenavModule,
-    MatToolbarModule,
-    MatIconModule,
-    MatListModule,
-    MatButtonModule,
-    RouterModule,
-    MatExpansionModule,
-  ],
-  templateUrl: './navigation-list.component.html',
-  styleUrl: './navigation-list.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'navigation-list',
+    imports: [
+        CommonModule,
+        MatSidenavModule,
+        MatToolbarModule,
+        MatIconModule,
+        MatListModule,
+        MatButtonModule,
+        RouterModule,
+        MatExpansionModule,
+    ],
+    templateUrl: './navigation-list.component.html',
+    styleUrl: './navigation-list.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NavigationListComponent {
   @Input({ required: true }) menu!: Menu[];

@@ -35,24 +35,23 @@ import { AccountService } from '../../../services';
 import { Officer } from '../../../../domain';
 
 @Component({
-  selector: 'app-create-account-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatButtonModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatDialogModule,
-    MatIconModule,
-    MatDividerModule,
-    MatCheckboxModule,
-    MatStepperModule,
-    SimpleSelectSearchComponent,
-    ServerSelectSearchComponent,
-  ],
-  templateUrl: './create-account-dialog.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-create-account-dialog',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatButtonModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatDialogModule,
+        MatIconModule,
+        MatDividerModule,
+        MatCheckboxModule,
+        MatStepperModule,
+        SimpleSelectSearchComponent,
+        ServerSelectSearchComponent,
+    ],
+    templateUrl: './create-account-dialog.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CreateAccountDialogComponent implements OnInit {
   private formBuilder = inject(FormBuilder);

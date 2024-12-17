@@ -25,19 +25,18 @@ export type ServerSelectOption<T> = {
 };
 
 @Component({
-  selector: 'server-select-search',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatInputModule,
-    MatSelectModule,
-    NgxMatSelectSearchModule,
-    ReactiveFormsModule,
-    MatIconModule,
-    MatButtonModule,
-  ],
-  templateUrl: './server-select-search.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'server-select-search',
+    imports: [
+        CommonModule,
+        MatInputModule,
+        MatSelectModule,
+        NgxMatSelectSearchModule,
+        ReactiveFormsModule,
+        MatIconModule,
+        MatButtonModule,
+    ],
+    templateUrl: './server-select-search.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ServerSelectSearchComponent<T> implements OnInit, OnDestroy {
   elements = input.required<ServerSelectOption<T>[]>();

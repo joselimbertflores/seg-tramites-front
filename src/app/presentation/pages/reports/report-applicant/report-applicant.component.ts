@@ -37,18 +37,17 @@ interface CacheData {
 }
 
 @Component({
-  selector: 'app-report-applicant',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MaterialModule,
-    ReportProcedureTableComponent,
-    PaginatorComponent,
-  ],
-  templateUrl: './report-applicant.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-report-applicant',
+    imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MaterialModule,
+        ReportProcedureTableComponent,
+        PaginatorComponent,
+    ],
+    templateUrl: './report-applicant.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ReportApplicantComponent {
   private fb = inject(FormBuilder);

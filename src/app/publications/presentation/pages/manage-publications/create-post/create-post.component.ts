@@ -23,24 +23,22 @@ import { forkJoin, switchMap } from 'rxjs';
 import { PostService } from '../../../services/post.service';
 
 @Component({
-  selector: 'app-create-post',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-
-    MatDialogModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatInputModule,
-    MatListModule,
-    MatRadioModule,
-    MatDatepickerModule,
-  ],
-  templateUrl: './create-post.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [provideNativeDateAdapter()],
+    selector: 'app-create-post',
+    imports: [
+        ReactiveFormsModule,
+        MatDialogModule,
+        MatButtonModule,
+        MatIconModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatInputModule,
+        MatListModule,
+        MatRadioModule,
+        MatDatepickerModule,
+    ],
+    templateUrl: './create-post.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    providers: [provideNativeDateAdapter()]
 })
 export class CreatePostComponent {
   private formBuilder = inject(FormBuilder);

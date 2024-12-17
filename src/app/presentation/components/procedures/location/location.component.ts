@@ -5,12 +5,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { locationResponse } from '../../../../infraestructure/interfaces';
 
 @Component({
-  selector: 'location',
-  standalone: true,
-  imports: [CommonModule, MatListModule, MatIconModule],
-  templateUrl: './location.component.html',
-  styleUrl: './location.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'location',
+    imports: [CommonModule, MatListModule, MatIconModule],
+    templateUrl: './location.component.html',
+    styleUrl: './location.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LocationComponent {
   data = input.required<locationResponse[]>();

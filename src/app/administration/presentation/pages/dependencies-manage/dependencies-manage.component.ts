@@ -21,21 +21,20 @@ import { DependencyService } from '../../services';
 import { dependency } from '../../../infrastructure';
 
 @Component({
-  selector: 'app-dependencies-manage',
-  standalone: true,
-  imports: [
-    FormsModule,
-    MatToolbarModule,
-    MatDialogModule,
-    MatInputModule,
-    MatTableModule,
-    MatIconModule,
-    MatButtonModule,
-    MatPaginatorModule,
-    SearchInputComponent,
-  ],
-  templateUrl: './dependencies-manage.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-dependencies-manage',
+    imports: [
+        FormsModule,
+        MatToolbarModule,
+        MatDialogModule,
+        MatInputModule,
+        MatTableModule,
+        MatIconModule,
+        MatButtonModule,
+        MatPaginatorModule,
+        SearchInputComponent,
+    ],
+    templateUrl: './dependencies-manage.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export default class DependenciesManageComponent {
   private dialog = inject(MatDialog);

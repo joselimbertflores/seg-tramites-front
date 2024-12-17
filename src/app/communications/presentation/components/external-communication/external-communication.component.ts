@@ -3,10 +3,9 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { ExternalProcedure } from '../../../../procedures/domain';
 
 @Component({
-  selector: 'external-communication',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
+    selector: 'external-communication',
+    imports: [CommonModule],
+    template: `
     <div class="py-4 sm:px-8">
       <div class="px-2 sm:px-0">
         <h3 class="text-base font-semibold leading-7">
@@ -100,7 +99,7 @@ import { ExternalProcedure } from '../../../../procedures/domain';
       </div>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ExternalCommunicationComponent {
   procedure = input.required<ExternalProcedure>();

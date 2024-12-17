@@ -16,17 +16,16 @@ import { BackButtonDirective } from '../../../../../shared';
 import { InternalProcedure } from '../../../../domain';
 
 @Component({
-  selector: 'app-internal-detail',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatToolbarModule,
-    MatIconModule,
-    MatTabsModule,
-    BackButtonDirective,
-  ],
-  templateUrl: './internal-detail.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-internal-detail',
+    imports: [
+        CommonModule,
+        MatToolbarModule,
+        MatIconModule,
+        MatTabsModule,
+        BackButtonDirective,
+    ],
+    templateUrl: './internal-detail.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export default class InternalDetailComponent {
   private processService = inject(ProcessService);

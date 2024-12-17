@@ -31,23 +31,22 @@ import {
 } from '../../../components';
 
 @Component({
-  selector: 'app-communication-detail',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatIconModule,
-    MatCardModule,
-    MatTabsModule,
-    MatButtonModule,
-    MatToolbarModule,
-    BackButtonDirective,
-    WorkflowListComponent,
-    WorkflowGraphComponent,
-    InternalCommunicationComponent,
-    ExternalCommunicationComponent,
-  ],
-  templateUrl: './communication-detail.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-communication-detail',
+    imports: [
+        CommonModule,
+        MatIconModule,
+        MatCardModule,
+        MatTabsModule,
+        MatButtonModule,
+        MatToolbarModule,
+        BackButtonDirective,
+        WorkflowListComponent,
+        WorkflowGraphComponent,
+        InternalCommunicationComponent,
+        ExternalCommunicationComponent,
+    ],
+    templateUrl: './communication-detail.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export default class CommunicationDetailComponent {
   @Input('id') communicationId: string;

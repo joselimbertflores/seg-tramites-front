@@ -22,15 +22,14 @@ export type AutocompleteOption<T> = {
 };
 
 @Component({
-  selector: 'autocomplete',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatInputModule,
-    MatAutocompleteModule,
-  ],
-  template: `
+    selector: 'autocomplete',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatInputModule,
+        MatAutocompleteModule,
+    ],
+    template: `
     <form>
       <mat-form-field>
         <mat-label>{{ title() }}</mat-label>
@@ -55,7 +54,7 @@ export type AutocompleteOption<T> = {
       </mat-form-field>
     </form>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AutocompleteComponent<T> implements OnInit {
   private destroyRef = inject(DestroyRef);

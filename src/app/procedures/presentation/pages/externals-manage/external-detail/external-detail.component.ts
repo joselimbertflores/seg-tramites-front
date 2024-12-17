@@ -23,20 +23,19 @@ import {
 } from '../../../components';
 
 @Component({
-  selector: 'external-detail',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatTabsModule,
-    MatIconModule,
-    MatButtonModule,
-    MatToolbarModule,
-    BackButtonDirective,
-    WorkflowListComponent,
-    WorkflowGraphComponent,
-  ],
-  templateUrl: './external-detail.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'external-detail',
+    imports: [
+        CommonModule,
+        MatTabsModule,
+        MatIconModule,
+        MatButtonModule,
+        MatToolbarModule,
+        BackButtonDirective,
+        WorkflowListComponent,
+        WorkflowGraphComponent,
+    ],
+    templateUrl: './external-detail.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export default class ExternalDetailComponent implements OnInit {
   @Input('id') procedureId: string;

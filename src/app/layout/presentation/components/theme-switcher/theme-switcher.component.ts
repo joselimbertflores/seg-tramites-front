@@ -15,16 +15,15 @@ import { ThemeService } from '../../services/theme.service';
 
 type ThemeParts = [ThemeColor, 'light' | 'dark'];
 @Component({
-  selector: 'theme-switcher',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatIconModule,
-    FormsModule,
-    MatSelectModule,
-    MatButtonToggleModule,
-  ],
-  template: `
+    selector: 'theme-switcher',
+    imports: [
+        CommonModule,
+        MatIconModule,
+        FormsModule,
+        MatSelectModule,
+        MatButtonToggleModule,
+    ],
+    template: `
     <div>
       <div class="px-4 sm:px-0">
         <p class="text-base font-semibold">Estilo principal</p>
@@ -78,7 +77,7 @@ type ThemeParts = [ThemeColor, 'light' | 'dark'];
       </div>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ThemeSwitcherComponent {
   private themeService = inject(ThemeService);

@@ -30,18 +30,17 @@ import {
 } from '../../../../infraestructure/interfaces';
 
 @Component({
-  selector: 'external-detail',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MaterialModule,
-    LocationComponent,
-    ObservationsComponent,
-    WorkflowGraphComponent,
-    WorkflowListComponent,
-  ],
-  templateUrl: './external-detail.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'external-detail',
+    imports: [
+        CommonModule,
+        MaterialModule,
+        LocationComponent,
+        ObservationsComponent,
+        WorkflowGraphComponent,
+        WorkflowListComponent,
+    ],
+    templateUrl: './external-detail.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ExternalDetailComponent implements OnInit {
   private authService = inject(AuthService);

@@ -35,21 +35,20 @@ interface cache {
   index: number;
 }
 @Component({
-  selector: 'app-externals-manage',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    MatTableModule,
-    MatMenuModule,
-    MatIconModule,
-    MatButtonModule,
-    MatToolbarModule,
-    MatPaginatorModule,
-    SearchInputComponent,
-  ],
-  templateUrl: './externals-manage.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-externals-manage',
+    imports: [
+        CommonModule,
+        RouterModule,
+        MatTableModule,
+        MatMenuModule,
+        MatIconModule,
+        MatButtonModule,
+        MatToolbarModule,
+        MatPaginatorModule,
+        SearchInputComponent,
+    ],
+    templateUrl: './externals-manage.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export default class ExternalsManageComponent {
   private dialog = inject(MatDialog);

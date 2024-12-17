@@ -10,10 +10,9 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { communication } from '../../../../communications/infrastructure';
 
 @Component({
-  selector: 'workflow-list',
-  standalone: true,
-  imports: [CommonModule, MatTabsModule],
-  template: `
+    selector: 'workflow-list',
+    imports: [CommonModule, MatTabsModule],
+    template: `
     <mat-tab-group>
       @for (item of test(); track $index) {
       <mat-tab label="First">
@@ -115,7 +114,7 @@ import { communication } from '../../../../communications/infrastructure';
       }
     </mat-tab-group>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WorkflowListComponent implements OnInit {
   workflow = input.required<communication[]>();

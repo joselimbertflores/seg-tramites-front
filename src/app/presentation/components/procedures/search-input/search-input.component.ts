@@ -12,17 +12,16 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 
 @Component({
-  selector: 'search-input',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatInputModule,
-    MatIconModule,
-    ReactiveFormsModule,
-    MatButtonModule,
-  ],
-  templateUrl: './search-input.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'search-input',
+    imports: [
+        CommonModule,
+        MatInputModule,
+        MatIconModule,
+        ReactiveFormsModule,
+        MatButtonModule,
+    ],
+    templateUrl: './search-input.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SearchInputComponent {
   @Input() placeholder = 'Ingrese el termino a buscar';

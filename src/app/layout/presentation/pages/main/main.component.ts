@@ -11,10 +11,9 @@ import { PublicationDialogComponent } from '../../../../publications/presentatio
 import { PostService } from '../../../../publications/presentation/services/post.service';
 
 @Component({
-  selector: 'app-main',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
+    selector: 'app-main',
+    imports: [CommonModule],
+    template: `
     <div class="flex flex-col h-full">
       <div class="grow">
         <div class="flex justify-center  items-center h-full">
@@ -27,8 +26,7 @@ import { PostService } from '../../../../publications/presentation/services/post
       </div>
     </div>
   `,
-
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export default class MainComponent implements OnInit {
   private dialog = inject(MatDialog);

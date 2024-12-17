@@ -20,19 +20,18 @@ import { Officer } from '../../../../domain';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @Component({
-  selector: 'app-officer-dialog',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatIconModule,
-    MatCheckboxModule,
-  ],
-  templateUrl: './officer-dialog.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-officer-dialog',
+    imports: [
+        ReactiveFormsModule,
+        MatDialogModule,
+        MatButtonModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatIconModule,
+        MatCheckboxModule,
+    ],
+    templateUrl: './officer-dialog.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class OfficerDialogComponent {
   private fb = inject(FormBuilder);

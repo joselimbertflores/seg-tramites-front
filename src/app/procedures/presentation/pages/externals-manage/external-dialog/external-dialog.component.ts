@@ -39,22 +39,21 @@ interface requirementOption {
 }
 
 @Component({
-  selector: 'app-external-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatStepperModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatCheckboxModule,
-    SimpleSelectSearchComponent,
-  ],
-  templateUrl: './external-dialog.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-external-dialog',
+    imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatDialogModule,
+        MatStepperModule,
+        MatInputModule,
+        MatSelectModule,
+        MatButtonModule,
+        MatCheckboxModule,
+        SimpleSelectSearchComponent,
+    ],
+    templateUrl: './external-dialog.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ExternalDialogComponent {
   private formBuilder = inject(FormBuilder);

@@ -20,20 +20,19 @@ import { typeProcedure } from '../../../infrastructure';
 import { TypeProcedureService } from '../../services';
 
 @Component({
-  selector: 'app-types-procedures',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatToolbarModule,
-    MatDialogModule,
-    MatTableModule,
-    MatIconModule,
-    MatButtonModule,
-    MatPaginatorModule,
-    SearchInputComponent,
-  ],
-  templateUrl: './types-procedures.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-types-procedures',
+    imports: [
+        CommonModule,
+        MatToolbarModule,
+        MatDialogModule,
+        MatTableModule,
+        MatIconModule,
+        MatButtonModule,
+        MatPaginatorModule,
+        SearchInputComponent,
+    ],
+    templateUrl: './types-procedures.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export default class TypesProceduresComponent {
   private dialog = inject(MatDialog);

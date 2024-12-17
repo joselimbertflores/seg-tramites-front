@@ -42,23 +42,22 @@ import { Account, Officer } from '../../../../domain';
 import { CustomValidators } from '../../../../../../helpers';
 
 @Component({
-  selector: 'app-update-account-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatButtonModule,
-    MatCheckboxModule,
-    MatStepperModule,
-    ServerSelectSearchComponent,
-    SimpleSelectSearchComponent,
-  ],
-  templateUrl: './update-account-dialog.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-update-account-dialog',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatDialogModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatButtonModule,
+        MatCheckboxModule,
+        MatStepperModule,
+        ServerSelectSearchComponent,
+        SimpleSelectSearchComponent,
+    ],
+    templateUrl: './update-account-dialog.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UpdateAccountDialogComponent {
   private formBuilder = inject(FormBuilder);

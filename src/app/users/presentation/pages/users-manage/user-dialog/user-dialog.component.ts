@@ -25,21 +25,20 @@ import { MatIconModule } from '@angular/material/icon';
 import { UserService } from '../../../services';
 
 @Component({
-  selector: 'app-user-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatIconModule,
-    MatInputModule,
-    MatButtonModule,
-    MatDialogModule,
-    MatSelectModule,
-    MatCheckboxModule,
-    MatFormFieldModule,
-  ],
-  templateUrl: './user-dialog.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-user-dialog',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatIconModule,
+        MatInputModule,
+        MatButtonModule,
+        MatDialogModule,
+        MatSelectModule,
+        MatCheckboxModule,
+        MatFormFieldModule,
+    ],
+    templateUrl: './user-dialog.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UserDialogComponent implements OnInit {
   private formBuilder = inject(FormBuilder);

@@ -10,10 +10,9 @@ import { publication } from '../../../infrastructure/interfaces/publications.int
 import { PostService } from '../../services/post.service';
 
 @Component({
-  selector: 'publication-card',
-  standalone: true,
-  imports: [CommonModule, MatCardModule],
-  template: `
+    selector: 'publication-card',
+    imports: [CommonModule, MatCardModule],
+    template: `
     <mat-card class="w-full" appearance="outlined">
       <mat-card-header>
         <img mat-card-avatar src="/assets/img/account.png" />
@@ -54,8 +53,7 @@ import { PostService } from '../../services/post.service';
       </mat-card-actions>
     </mat-card>
   `,
-
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PublicationCardComponent {
   private postService = inject(PostService);

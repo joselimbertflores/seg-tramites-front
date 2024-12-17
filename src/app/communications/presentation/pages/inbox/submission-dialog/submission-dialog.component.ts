@@ -62,22 +62,21 @@ interface communicationProps {
 }
 
 @Component({
-  selector: 'submission-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatIconModule,
-    MatListModule,
-    MatInputModule,
-    MatButtonModule,
-    MatSelectModule,
-    MatDialogModule,
-    NgxMatSelectSearchModule,
-    SimpleSelectSearchComponent,
-  ],
-  templateUrl: './submission-dialog.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'submission-dialog',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatIconModule,
+        MatListModule,
+        MatInputModule,
+        MatButtonModule,
+        MatSelectModule,
+        MatDialogModule,
+        NgxMatSelectSearchModule,
+        SimpleSelectSearchComponent,
+    ],
+    templateUrl: './submission-dialog.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SubmissionDialogComponent implements OnInit {
   private formBuilder = inject(FormBuilder);

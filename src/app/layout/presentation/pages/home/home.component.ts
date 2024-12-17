@@ -28,23 +28,22 @@ import { MatDialog } from '@angular/material/dialog';
 import { PublicationDialogComponent } from '../../../../publications/presentation/components';
 
 @Component({
-  selector: 'app-home',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatIconModule,
-    MatToolbarModule,
-    NavigationListComponent,
-    SidenavButtonComponent,
-    ProfileComponent,
-    MatSidenavModule,
-    RouterModule,
-    OverlayModule,
-    MatButtonModule,
-  ],
-  templateUrl: './home.component.html',
-  styleUrl: './home.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-home',
+    imports: [
+        CommonModule,
+        MatIconModule,
+        MatToolbarModule,
+        NavigationListComponent,
+        SidenavButtonComponent,
+        ProfileComponent,
+        MatSidenavModule,
+        RouterModule,
+        OverlayModule,
+        MatButtonModule,
+    ],
+    templateUrl: './home.component.html',
+    styleUrl: './home.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export default class HomeComponent {
   private breakpointObserver = inject(BreakpointObserver);

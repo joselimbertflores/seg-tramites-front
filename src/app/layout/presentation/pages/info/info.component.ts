@@ -5,17 +5,16 @@ import { MatIconModule } from '@angular/material/icon';
 import { SidenavButtonComponent } from '../../../../presentation/components';
 
 @Component({
-  selector: 'app-info',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatToolbarModule,
-    SidenavButtonComponent,
-    MatIconModule,
-  ],
-  templateUrl: './info.component.html',
-  styleUrl: './info.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-info',
+    imports: [
+        CommonModule,
+        MatToolbarModule,
+        SidenavButtonComponent,
+        MatIconModule,
+    ],
+    templateUrl: './info.component.html',
+    styleUrl: './info.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InfoComponent {
   logs = [

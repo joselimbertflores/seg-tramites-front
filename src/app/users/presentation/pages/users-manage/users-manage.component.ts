@@ -22,21 +22,19 @@ import { UserDialogComponent } from './user-dialog/user-dialog.component';
 import { SearchInputComponent } from '../../../../shared';
 
 @Component({
-  selector: 'app-users-manage',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatIconModule,
-    MatTableModule,
-    MatButtonModule,
-    MatToolbarModule,
-    MatPaginatorModule,
-    MatProgressSpinnerModule,
-    SearchInputComponent
-  ],
-  templateUrl: './users-manage.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-
+    selector: 'app-users-manage',
+    imports: [
+        CommonModule,
+        MatIconModule,
+        MatTableModule,
+        MatButtonModule,
+        MatToolbarModule,
+        MatPaginatorModule,
+        MatProgressSpinnerModule,
+        SearchInputComponent
+    ],
+    templateUrl: './users-manage.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export default class UsersManageComponent implements OnInit {
   private userService = inject(UserService);

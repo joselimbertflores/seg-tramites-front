@@ -29,12 +29,11 @@ const ActionMap = {
 };
 
 @Component({
-  selector: 'mail',
-  standalone: true,
-  imports: [CommonModule, MaterialModule],
-  templateUrl: './mail.component.html',
-  styleUrl: './mail.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'mail',
+    imports: [CommonModule, MaterialModule],
+    templateUrl: './mail.component.html',
+    styleUrl: './mail.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MailComponent {
   private archiveService = inject(ArchiveService);

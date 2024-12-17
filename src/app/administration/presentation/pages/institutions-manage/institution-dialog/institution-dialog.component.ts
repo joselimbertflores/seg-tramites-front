@@ -21,11 +21,10 @@ import { MaterialModule } from '../../../../../material.module';
 import { institution } from '../../../../infrastructure';
 
 @Component({
-  selector: 'app-institution-dialog',
-  standalone: true,
-  imports: [CommonModule, MatDialogModule, ReactiveFormsModule, MaterialModule],
-  templateUrl: './institution-dialog.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-institution-dialog',
+    imports: [CommonModule, MatDialogModule, ReactiveFormsModule, MaterialModule],
+    templateUrl: './institution-dialog.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InstitutionDialogComponent implements OnInit {
   private fb = inject(FormBuilder);

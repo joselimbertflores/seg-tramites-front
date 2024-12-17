@@ -24,18 +24,17 @@ import { StatusMail, Workflow } from '../../../../domain/models';
 import { ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
 import { PaginatorComponent } from '../../paginator/paginator.component';
 @Component({
-  selector: 'workflow-graph',
-  standalone: true,
-  imports: [
-    CommonModule,
-    NgxGraphModule,
-    MatCardModule,
-    MatTooltipModule,
-    OverlayModule,
-  ],
-  templateUrl: './workflow-graph.component.html',
-  styleUrl: './workflow-graph.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'workflow-graph',
+    imports: [
+        CommonModule,
+        NgxGraphModule,
+        MatCardModule,
+        MatTooltipModule,
+        OverlayModule,
+    ],
+    templateUrl: './workflow-graph.component.html',
+    styleUrl: './workflow-graph.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WorkflowGraphComponent {
   workflow = input.required<Workflow[]>();

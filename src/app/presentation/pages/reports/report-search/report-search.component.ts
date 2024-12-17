@@ -43,18 +43,17 @@ interface SelectOptiom {
 }
 
 @Component({
-  selector: 'app-report-search',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    CommonModule,
-    MaterialModule,
-    PaginatorComponent,
-    ReportProcedureTableComponent,
-    ServerSelectSearchComponent,
-  ],
-  templateUrl: './report-search.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-report-search',
+    imports: [
+        ReactiveFormsModule,
+        CommonModule,
+        MaterialModule,
+        PaginatorComponent,
+        ReportProcedureTableComponent,
+        ServerSelectSearchComponent,
+    ],
+    templateUrl: './report-search.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ReportSearchComponent {
   private fb = inject(FormBuilder);

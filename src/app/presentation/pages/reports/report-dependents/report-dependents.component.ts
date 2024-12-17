@@ -20,11 +20,10 @@ interface dependents {
   pendings: number;
 }
 @Component({
-  selector: 'app-report-dependents',
-  standalone: true,
-  imports: [CommonModule, MaterialModule],
-  templateUrl: './report-dependents.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-report-dependents',
+    imports: [CommonModule, MaterialModule],
+    templateUrl: './report-dependents.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ReportDependentsComponent implements OnInit {
   private reportService = inject(ReportService);

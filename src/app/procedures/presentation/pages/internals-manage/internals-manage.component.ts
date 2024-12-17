@@ -38,21 +38,20 @@ interface cache {
   term: string;
 }
 @Component({
-  selector: 'app-internals-manage',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    MatMenuModule,
-    MatIconModule,
-    MatTableModule,
-    MatButtonModule,
-    MatToolbarModule,
-    MatPaginatorModule,
-    SearchInputComponent,
-  ],
-  templateUrl: './internals-manage.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-internals-manage',
+    imports: [
+        CommonModule,
+        RouterModule,
+        MatMenuModule,
+        MatIconModule,
+        MatTableModule,
+        MatButtonModule,
+        MatToolbarModule,
+        MatPaginatorModule,
+        SearchInputComponent,
+    ],
+    templateUrl: './internals-manage.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export default class InternalsManageComponent {
   private dialog = inject(MatDialog);

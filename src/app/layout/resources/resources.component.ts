@@ -5,12 +5,11 @@ import { SidenavButtonComponent } from '../../presentation/components';
 import { AlertService, PdfService, ReportService } from '../../presentation/services';
 
 @Component({
-  selector: 'resources',
-  standalone: true,
-  imports: [CommonModule, MatToolbarModule, SidenavButtonComponent],
-  templateUrl: './resources.component.html',
-  styleUrl: './resources.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'resources',
+    imports: [CommonModule, MatToolbarModule, SidenavButtonComponent],
+    templateUrl: './resources.component.html',
+    styleUrl: './resources.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ResourcesComponent {
   private pdfService = inject(PdfService);

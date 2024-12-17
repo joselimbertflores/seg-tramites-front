@@ -21,17 +21,16 @@ import { WorkflowListComponent } from '../workflow-list/workflow-list.component'
 import { WorkflowGraphComponent } from '../workflow-graph/workflow-graph.component';
 
 @Component({
-  selector: 'internal-detail',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MaterialModule,
-    LocationComponent,
-    WorkflowListComponent,
-    WorkflowGraphComponent,
-  ],
-  templateUrl: './internal-detail.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'internal-detail',
+    imports: [
+        CommonModule,
+        MaterialModule,
+        LocationComponent,
+        WorkflowListComponent,
+        WorkflowGraphComponent,
+    ],
+    templateUrl: './internal-detail.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InternalDetailComponent implements OnInit {
   private procedureService = inject(ProcedureService);

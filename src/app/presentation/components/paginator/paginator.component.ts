@@ -12,11 +12,10 @@ interface PageProps {
   index: number;
 }
 @Component({
-  selector: 'paginator',
-  standalone: true,
-  imports: [CommonModule, MatPaginatorModule],
-  templateUrl: './paginator.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'paginator',
+    imports: [CommonModule, MatPaginatorModule],
+    templateUrl: './paginator.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PaginatorComponent {
   @Input({ required: true }) limit!: number;

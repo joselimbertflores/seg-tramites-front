@@ -17,16 +17,15 @@ type MatSelectSearchData<T> = {
   value: T;
 };
 @Component({
-  selector: 'simple-select-search',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    CommonModule,
-    MaterialModule,
-    NgxMatSelectSearchModule,
-  ],
-  templateUrl: './simple-select-search.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'simple-select-search',
+    imports: [
+        ReactiveFormsModule,
+        CommonModule,
+        MaterialModule,
+        NgxMatSelectSearchModule,
+    ],
+    templateUrl: './simple-select-search.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SimpleSelectSearchComponent<T> {
   elements = input.required<MatSelectSearchData<T>[]>();

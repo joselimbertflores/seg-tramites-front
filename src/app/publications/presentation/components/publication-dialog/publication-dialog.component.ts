@@ -14,15 +14,14 @@ import { publication } from '../../../infrastructure';
 import { PublicationListComponent } from '..';
 
 @Component({
-  selector: 'app-publication-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatDialogModule,
-    MatButtonModule,
-    PublicationListComponent,
-  ],
-  template: `
+    selector: 'app-publication-dialog',
+    imports: [
+        CommonModule,
+        MatDialogModule,
+        MatButtonModule,
+        PublicationListComponent,
+    ],
+    template: `
     <h2 mat-dialog-title>Publicaciones</h2>
     <mat-dialog-content>
       <div class="h-full overflow-scroll" #containerRef>
@@ -39,7 +38,7 @@ import { PublicationListComponent } from '..';
       </button>
     </mat-dialog-actions>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PublicationDialogComponent {
   private publicationService = inject(PostService);

@@ -17,12 +17,11 @@ interface menu {
   description: string;
 }
 @Component({
-  selector: 'app-reports',
-  standalone: true,
-  imports: [RouterModule, CommonModule, MaterialModule],
-  templateUrl: './reports.component.html',
-  styleUrl: './reports.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-reports',
+    imports: [RouterModule, CommonModule, MaterialModule],
+    templateUrl: './reports.component.html',
+    styleUrl: './reports.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ReportsComponent implements OnInit {
   private readonly authService = inject(AuthService);

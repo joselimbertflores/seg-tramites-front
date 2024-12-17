@@ -24,20 +24,19 @@ import { AccountService } from '../../services';
 import { Account } from '../../../domain';
 
 @Component({
-  selector: 'app-accounts-manage',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    MaterialModule,
-    OverlayModule,
-    MatPaginatorModule,
-    SearchInputComponent,
-    ServerSelectSearchComponent,
-    SimpleSelectSearchComponent,
-  ],
-  templateUrl: './accounts-manage.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-accounts-manage',
+    imports: [
+        CommonModule,
+        FormsModule,
+        MaterialModule,
+        OverlayModule,
+        MatPaginatorModule,
+        SearchInputComponent,
+        ServerSelectSearchComponent,
+        SimpleSelectSearchComponent,
+    ],
+    templateUrl: './accounts-manage.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export default class AccountsManageComponent {
   private dialog = inject(MatDialog);

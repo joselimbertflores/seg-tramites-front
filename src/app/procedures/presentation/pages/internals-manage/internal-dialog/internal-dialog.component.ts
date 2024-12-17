@@ -34,20 +34,19 @@ interface workers {
   receiver: AutocompleteOption<Account>[];
 }
 @Component({
-  selector: 'app-internal-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatInputModule,
-    MatButtonModule,
-    MatDialogModule,
-    AutocompleteComponent,
-    SimpleSelectSearchComponent,
-  ],
-  templateUrl: './internal-dialog.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-internal-dialog',
+    imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatInputModule,
+        MatButtonModule,
+        MatDialogModule,
+        AutocompleteComponent,
+        SimpleSelectSearchComponent,
+    ],
+    templateUrl: './internal-dialog.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InternalDialogComponent {
   private account = inject(ProfileService).account();

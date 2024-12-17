@@ -37,23 +37,22 @@ interface excelData {
   nombre: string;
 }
 @Component({
-  selector: 'app-type-procedure',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatButtonModule,
-    MatIconModule,
-    MatDialogModule,
-    ReactiveFormsModule,
-    MatCheckboxModule,
-    MatAutocompleteModule,
-    ReactiveFormsModule,
-    MatSelectModule,
-  ],
-  templateUrl: './type-procedure.component.html',
-  changeDetection: ChangeDetectionStrategy.Default,
+    selector: 'app-type-procedure',
+    imports: [
+        CommonModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatButtonModule,
+        MatIconModule,
+        MatDialogModule,
+        ReactiveFormsModule,
+        MatCheckboxModule,
+        MatAutocompleteModule,
+        ReactiveFormsModule,
+        MatSelectModule,
+    ],
+    templateUrl: './type-procedure.component.html',
+    changeDetection: ChangeDetectionStrategy.Default
 })
 export class TypeProcedureComponent {
   private formBuilder = inject(FormBuilder);
