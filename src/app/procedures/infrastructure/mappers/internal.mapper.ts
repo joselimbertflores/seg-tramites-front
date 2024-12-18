@@ -7,12 +7,10 @@ export class InternalMapper {
     group,
     state,
     createdAt,
-    type,
     ...props
   }: internal): InternalProcedure {
     return new InternalProcedure({
       ...props,
-      type: type.nombre,
       createdAt: new Date(createdAt),
       group: group as GroupProcedure,
       state: state as StateProcedure,

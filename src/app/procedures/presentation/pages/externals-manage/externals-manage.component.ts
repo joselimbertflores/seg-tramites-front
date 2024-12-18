@@ -1,12 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  DestroyRef,
-  inject,
-  signal,
-} from '@angular/core';
+import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -59,7 +52,7 @@ export default class ExternalsManageComponent {
   datasize = signal<number>(0);
   displayedColumns: string[] = [
     'code',
-    // 'reference',
+    'reference',
     'applicant',
     'state',
     'createdAt',

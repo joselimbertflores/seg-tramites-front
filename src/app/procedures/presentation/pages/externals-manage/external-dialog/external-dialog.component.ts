@@ -1,24 +1,20 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  signal,
-} from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
   FormsModule,
-  ReactiveFormsModule,
   Validators,
+  ReactiveFormsModule,
 } from '@angular/forms';
 import {
   MAT_DIALOG_DATA,
   MatDialogModule,
   MatDialogRef,
 } from '@angular/material/dialog';
+import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
@@ -39,26 +35,35 @@ interface requirementOption {
 }
 
 @Component({
-    selector: 'app-external-dialog',
-    imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatDialogModule,
-        MatStepperModule,
-        MatInputModule,
-        MatSelectModule,
-        MatButtonModule,
-        MatCheckboxModule,
-        SimpleSelectSearchComponent,
-    ],
-    templateUrl: './external-dialog.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'app-external-dialog',
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatStepperModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatCheckboxModule,
+    SimpleSelectSearchComponent,
+  ],
+  templateUrl: './external-dialog.component.html',
+  providers: [
+    {
+      provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
+      useValue: { appearance: 'outline' },
+    },
+    {
+      provide: STEPPER_GLOBAL_OPTIONS,
+      useValue: { showError: true },
+    },
+  ],
 })
 export class ExternalDialogComponent {
   private formBuilder = inject(FormBuilder);
   private externalService = inject(ExternalService);
-  private ddialogRef = inject(MatDialogRef<ExternalDialogComponent>);
+  private dialogRef = inject(MatDialogRef<ExternalDialogComponent>);
 
   data = inject<ExternalProcedure | undefined>(MAT_DIALOG_DATA);
   applicantType = signal<'NATURAL' | 'JURIDICO'>('NATURAL');
@@ -81,6 +86,7 @@ export class ExternalDialogComponent {
       ? this._createFormApplicantNatural()
       : this._createFormApplicantJuridico()
   );
+
   formRepresentative = computed<FormGroup>(() =>
     this.hasRepresentative()
       ? this._createFormRepresentative()
@@ -127,7 +133,7 @@ export class ExternalDialogComponent {
       : this.externalService.create(form);
 
     subscriptipn.subscribe((procedure) => {
-      this.ddialogRef.close(procedure);
+      this.dialogRef.close(procedure);
     });
   }
 
@@ -202,6 +208,7 @@ export class ExternalDialogComponent {
       type: ['JURIDICO'],
     });
   }
+
   private _loadForm(): void {
     if (!this.data) return;
     const { applicant, representative, ...props } = this.data;

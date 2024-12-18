@@ -9,3 +9,5 @@ export * from './services/cache.service'
 export * from './services/word-generator.service'
 
 export * from './directives/back-button.directive'
+
+export * from './components/inputs/select-search/select-search.component'

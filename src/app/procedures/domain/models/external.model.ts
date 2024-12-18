@@ -1,6 +1,7 @@
 import { Procedure, ProcedureProps } from './procedure.model';
 
 interface ExternalProps extends ProcedureProps {
+  type: any;
   applicant: applicant;
   representative?: representative;
   requirements: string[];
@@ -24,7 +25,8 @@ interface representative {
   dni: string;
 }
 
-export class ExternalProcedure extends Procedure {
+export class ExternalProcedure extends Procedure implements ExternalProps {
+  type: any;
   applicant: applicant;
   representative?: representative;
   requirements: string[];
@@ -68,5 +70,4 @@ export class ExternalProcedure extends Procedure {
       ? `${this.representative.firstname} ${this.representative.middlename} ${this.representative.lastname}`
       : 'Sin representante';
   }
-
 }

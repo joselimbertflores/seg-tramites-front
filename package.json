@@ -30,7 +30,7 @@
     "moment": "^2.30.1",
     "moment-timezone": "^0.5.45",
     "ngx-infinite-scroll": "^18.0.0",
-    "ngx-mat-select-search": "^7.0.7",
+    "ngx-mat-select-search": "^7.0.9",
     "ngx-toastr": "^19.0.0",
     "pdfmake": "^0.2.9",
     "rxjs": "~7.8.0",

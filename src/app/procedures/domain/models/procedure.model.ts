@@ -2,7 +2,6 @@ export interface ProcedureProps {
   _id: string;
   code: string;
   cite: string;
-  type: string;
   numberOfDocuments: string;
   isSend: boolean;
   reference: string;
@@ -44,7 +43,6 @@ interface officer {
 export abstract class Procedure {
   public readonly _id: string;
   public readonly code: string;
-  public readonly type: string;
   public readonly group: GroupProcedure;
   public readonly createdAt: Date;
   public readonly account: string;
@@ -59,7 +57,6 @@ export abstract class Procedure {
     _id,
     code,
     cite,
-    type,
     account,
     state,
     reference,
@@ -71,7 +68,6 @@ export abstract class Procedure {
     this._id = _id;
     this.code = code;
     this.cite = cite;
-    this.type = type;
     this.account = account;
     this.state = state;
     this.reference = reference;

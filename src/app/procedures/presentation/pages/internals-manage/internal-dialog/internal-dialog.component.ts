@@ -9,14 +9,15 @@ import {
   ReactiveFormsModule,
   FormsModule,
   FormBuilder,
-  FormGroup,
   Validators,
+  FormGroup,
 } from '@angular/forms';
 import {
   MAT_DIALOG_DATA,
   MatDialogModule,
   MatDialogRef,
 } from '@angular/material/dialog';
+import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 
@@ -34,19 +35,25 @@ interface workers {
   receiver: AutocompleteOption<Account>[];
 }
 @Component({
-    selector: 'app-internal-dialog',
-    imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatInputModule,
-        MatButtonModule,
-        MatDialogModule,
-        AutocompleteComponent,
-        SimpleSelectSearchComponent,
-    ],
-    templateUrl: './internal-dialog.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'app-internal-dialog',
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatInputModule,
+    MatButtonModule,
+    MatDialogModule,
+    AutocompleteComponent,
+    SimpleSelectSearchComponent,
+  ],
+  templateUrl: './internal-dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [
+    {
+      provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
+      useValue: { appearance: 'outline' },
+    },
+  ],
 })
 export class InternalDialogComponent {
   private account = inject(ProfileService).account();
@@ -58,9 +65,7 @@ export class InternalDialogComponent {
 
   officers = signal<workers>({ emitter: [], receiver: [] });
   formProcedure: FormGroup = this.formBuilder.nonNullable.group({
-    type: ['', Validators.required],
     numberOfDocuments: ['', Validators.required],
-    segment: ['', Validators.required],
     reference: ['', Validators.required],
     cite: [this.account?.dependencia.codigo],
     emitter: this.formBuilder.group({
@@ -74,11 +79,7 @@ export class InternalDialogComponent {
   });
 
   ngOnInit(): void {
-    if (this.data) {
-      this._loadFormData();
-    } else {
-      this._getRequiredProps();
-    }
+    this._loadFormData();
   }
 
   save() {
@@ -108,15 +109,7 @@ export class InternalDialogComponent {
   }
 
   private _loadFormData() {
-    this.formProcedure.removeControl('type');
-    this.formProcedure.removeControl('segment');
+    if (!this.data) return;
     this.formProcedure.patchValue(this.data);
-  }
-
-  private _getRequiredProps() {
-    this.internalService.getTypesProcedures().subscribe((data) => {
-      this.formProcedure.get('type')?.setValue(data[0]?._id);
-      this.formProcedure.get('segment')?.setValue(data[0]?.segmento);
-    });
   }
 }

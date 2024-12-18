@@ -2,7 +2,6 @@ export interface internal {
   _id: string;
   code: string;
   cite: string;
-  type: type;
   account: string;
   state: string;
   reference: string;
@@ -12,15 +11,11 @@ export interface internal {
   createdAt: string;
   updatedAt: string;
   isSend: boolean;
-  emitter: worker;
-  receiver: worker;
+  sender: worker;
+  recipient: worker;
 }
 
 interface worker {
   fullname: string;
   jobtitle: string;
-}
-
-interface type {
-  nombre: string;
 }

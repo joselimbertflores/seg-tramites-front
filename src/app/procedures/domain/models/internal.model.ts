@@ -1,8 +1,8 @@
 import { Procedure, ProcedureProps } from './procedure.model';
 
 interface internalProps extends ProcedureProps {
-  emitter: worker;
-  receiver: worker;
+  sender: worker;
+  recipient: worker;
 }
 
 interface worker {
@@ -10,13 +10,13 @@ interface worker {
   jobtitle: string;
 }
 
-export class InternalProcedure extends Procedure {
-  emitter: worker;
-  receiver: worker;
+export class InternalProcedure extends Procedure implements internalProps {
+  sender: worker;
+  recipient: worker;
 
-  constructor({ emitter, receiver, ...procedureProps }: internalProps) {
+  constructor({ sender, recipient, ...procedureProps }: internalProps) {
     super(procedureProps);
-    this.emitter = emitter;
-    this.receiver = receiver;
+    this.sender = sender;
+    this.recipient = recipient;
   }
 }

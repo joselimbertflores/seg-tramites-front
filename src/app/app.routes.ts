@@ -140,6 +140,12 @@ export const routes: Routes = [
               ),
           },
           {
+            path: 'documents',
+            title: 'Documentos',
+            loadComponent: () =>
+              import('./communications/presentation/pages/docs/docs.component'),
+          },
+          {
             path: 'outbox',
             title: 'Bandeja - Salida',
             loadComponent: () =>
