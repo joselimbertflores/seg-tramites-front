@@ -1,15 +1,20 @@
+import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  effect,
   inject,
   input,
   OnInit,
   output,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
-import { BehaviorSubject, takeUntil } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MatSelectModule } from '@angular/material/select';
+import { BehaviorSubject, debounceTime } from 'rxjs';
 
 export type selectOption<T> = {
   label: string;
@@ -17,46 +22,90 @@ export type selectOption<T> = {
 };
 
 @Component({
-  selector: 'app-select-search',
-  imports: [NgxMatSelectSearchModule],
-  template: `<p>select-search works!</p>`,
+  selector: 'select-search',
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    NgxMatSelectSearchModule,
+    MatFormFieldModule,
+    MatSelectModule,
+  ],
+  template: `
+    <mat-form-field [appearance]="appearance()">
+      <mat-select
+        [formControl]="optionCtrl"
+        [placeholder]="placeholder()"
+        #singleSelect
+      >
+        <mat-option>
+          <ngx-mat-select-search
+            [formControl]="optionFilterCtrl"
+            placeholderLabel="Ingrese el termino a buscar"
+            noEntriesFoundLabel="Sin resultados"
+          ></ngx-mat-select-search>
+        </mat-option>
+
+        <mat-option
+          *ngFor="let option of filteredOptions | async"
+          [value]="option"
+        >
+          {{ option.label }}
+        </mat-option>
+      </mat-select>
+      @if (optionCtrl.invalid) {
+      <mat-error>El campo es requerido</mat-error>
+      }
+    </mat-form-field>
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SelectSearchComponent<T> implements OnInit {
   private destroyRef = inject(DestroyRef);
 
-  items = input<selectOption<T>[]>();
-  autoFilter = input<boolean>(false);
+  appearance = input<'fill' | 'outline'>('outline');
+  placeholder = input<string>('Buscar elemento');
+  items = input<selectOption<T>[]>([]);
+  autoFilter = input<boolean>(true);
+  required = input<boolean>(false);
   onTyped = output<string>();
 
-  /** list of banks */
-  protected banks: Bank[] = BANKS;
+  optionCtrl: FormControl<selectOption<T> | null> = new FormControl(null);
 
-  /** control for the selected bank */
-  public bankCtrl: FormControl<Bank> = new FormControl<Bank>(null);
-
-  /** control for the MatSelect filter keyword */
-  public bankFilterCtrl: FormControl<string> = new FormControl<string>('');
+  optionFilterCtrl: FormControl<string> = new FormControl();
 
   filteredOptions = new BehaviorSubject<selectOption<T>[]>([]);
 
+  constructor() {
+    effect(() => {
+      this.filteredOptions.next(this.items());
+    });
+  }
+
   ngOnInit(): void {
-    this.bankFilterCtrl.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((value: string) => {
+    this.optionFilterCtrl.valueChanges
+      .pipe(
+        debounceTime(this.autoFilter() ? 0 : 350),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((value) => {
         this.onTyped.emit(value);
         if (this.autoFilter()) {
           this.filter(value);
         }
       });
+
+    if (this.required()) {
+      this.optionCtrl.setValidators([Validators.required]);
+      this.optionCtrl.updateValueAndValidity();
+    }
   }
 
-  filter(term: string | undefined): void {
-    // const elements = term
-    //   ? this.items().filter(({ text }) =>
-    //       text.toLowerCase().includes(term.toLowerCase())
-    //     )
-    //   : this.options().slice();
-    // this.filteredOptions.next(elements);
+  filter(term: string): void {
+    const elements = term
+      ? this.items().filter(({ label }) =>
+          label.toLowerCase().includes(term.toLowerCase())
+        )
+      : this.items().slice();
+    this.filteredOptions.next(elements);
   }
 }

@@ -59,4 +59,5 @@ export class InternalDetailComponent implements OnInit {
   print() {
     this.pdfService.GenerateIndexCard(this.data, this.workflow());
   }
+  
 }

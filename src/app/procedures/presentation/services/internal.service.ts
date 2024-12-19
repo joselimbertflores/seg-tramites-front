@@ -58,6 +58,7 @@ export class InternalService {
       })
     );
   }
+
   conclude(id_tramite: string, descripcion: string) {
     return this.http
       .put<{ ok: boolean; message: string }>(
@@ -70,6 +71,7 @@ export class InternalService {
         })
       );
   }
+
   cancel(id_tramite: string, descripcion: string) {
     return this.http
       .put<{ ok: boolean; message: string }>(

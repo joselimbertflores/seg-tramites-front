@@ -68,7 +68,7 @@ export class AutocompleteComponent<T> implements OnInit {
   autoFilter = input<boolean>(false);
   requireSelection = input<boolean>(false);
   isRequired = input<boolean>();
-  options = input.required<AutocompleteOption<T>[]>();
+  items = input.required<AutocompleteOption<T>[]>();
 
   onTyped = output<string>();
   onSelect = output<T>();
@@ -77,7 +77,7 @@ export class AutocompleteComponent<T> implements OnInit {
     effect(() => {
       // Local filter: Set initial values
       // Server filter: Update values after options change
-      this.filteredOptions.next(this.options());
+      this.filteredOptions.next(this.items());
     });
   }
 
@@ -100,10 +100,10 @@ export class AutocompleteComponent<T> implements OnInit {
 
   filter(term: string | undefined): void {
     const elements = term
-      ? this.options().filter(({ text }) =>
+      ? this.items().filter(({ text }) =>
           text.toLowerCase().includes(term.toLowerCase())
         )
-      : this.options().slice();
+      : this.items().slice();
     this.filteredOptions.next(elements);
   }
 

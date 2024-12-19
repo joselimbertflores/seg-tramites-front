@@ -24,8 +24,12 @@ import { MatInputModule } from '@angular/material/input';
 import {
   AutocompleteComponent,
   AutocompleteOption,
-  SimpleSelectSearchComponent,
+  selectOption,
+  SelectSearchComponent,
 } from '../../../../../shared';
+
+import { DocService } from '../../../../../communications/presentation/services';
+import { doc } from '../../../../../communications/infrastructure';
 import { InternalService, ProfileService } from '../../../services';
 import { Account } from '../../../../../administration/domain';
 import { InternalProcedure } from '../../../../domain';
@@ -44,7 +48,7 @@ interface workers {
     MatButtonModule,
     MatDialogModule,
     AutocompleteComponent,
-    SimpleSelectSearchComponent,
+    SelectSearchComponent,
   ],
   templateUrl: './internal-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -58,12 +62,15 @@ interface workers {
 export class InternalDialogComponent {
   private account = inject(ProfileService).account();
   private internalService = inject(InternalService);
+  private documentService = inject(DocService);
   private formBuilder = inject(FormBuilder);
   private dialogRef = inject(MatDialogRef<InternalDialogComponent>);
 
   public data: InternalProcedure = inject(MAT_DIALOG_DATA);
 
   officers = signal<workers>({ emitter: [], receiver: [] });
+  documents = signal<selectOption<doc>[]>([]);
+
   formProcedure: FormGroup = this.formBuilder.nonNullable.group({
     numberOfDocuments: ['', Validators.required],
     reference: ['', Validators.required],
@@ -105,6 +112,18 @@ export class InternalDialogComponent {
     this.formProcedure.get(`${worker}`)?.patchValue({
       fullname: account.officer?.fullname,
       jobtitle: account.jobtitle,
+    });
+  }
+
+  searchDocuments(term: string) {
+    if (!term) return;
+    this.documentService.searchPendingDocs(term).subscribe((data) => {
+      const options: selectOption<doc>[] = data.map((item) => ({
+        label: `${item.cite} - ${item.reference}`,
+        value: item,
+      }));
+      console.log(options);
+      this.documents.set(options);
     });
   }
 

@@ -3,13 +3,13 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { InternalProcedure } from '../../../../procedures/domain';
 
 @Component({
-    selector: 'internal-communication',
-    imports: [CommonModule],
-    template: `
+  selector: 'internal-communication',
+  imports: [CommonModule],
+  template: `
     <div class="py-4 sm:px-8">
       <div class="px-4 sm:px-0">
         <h3 class="text-base/7 font-semibold text-gray-900">
-          {{ procedure().type }}
+          <!-- {{ procedure().type }} -->
         </h3>
         <p class="mt-1 max-w-2xl text-sm/6 text-gray-500">
           {{ procedure().reference }}
@@ -56,13 +56,13 @@ import { InternalProcedure } from '../../../../procedures/domain';
                 <div class="flex flex-row">
                   <dt class="text-sm font-medium w-20">Nombre:</dt>
                   <dd class="text-sm">
-                    {{ procedure().emitter.fullname | titlecase }}
+                    <!-- {{ procedure().emitter.fullname | titlecase }} -->
                   </dd>
                 </div>
                 <div class="flex flex-row">
                   <dt class="text-sm font-medium w-20">Cargo:</dt>
                   <dd class="text-sm">
-                    {{ procedure().emitter.jobtitle }}
+                    <!-- {{ procedure().emitter.jobtitle }} -->
                   </dd>
                 </div>
               </div>
@@ -75,13 +75,13 @@ import { InternalProcedure } from '../../../../procedures/domain';
                 <div class="flex flex-row">
                   <dt class="text-sm font-medium w-20">Nombre:</dt>
                   <dd class="text-sm">
-                    {{ procedure().receiver.fullname | titlecase }}
+                    <!-- {{ procedure().receiver.fullname | titlecase }} -->
                   </dd>
                 </div>
                 <div class="flex flex-row">
                   <dt class="text-sm font-medium w-20">Cargo:</dt>
                   <dd class="text-sm">
-                    {{ procedure().receiver.jobtitle }}
+                    <!-- {{ procedure().receiver.jobtitle }} -->
                   </dd>
                 </div>
               </div>
@@ -91,7 +91,7 @@ import { InternalProcedure } from '../../../../procedures/domain';
       </div>
     </div>
   `,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InternalCommunicationComponent {
   procedure = input.required<InternalProcedure>();

@@ -6,3 +6,79 @@
     Agregar
   </button>
 </div>
+
+<div class="mat-elevation-z8">
+  <div class="table-container">
+    <table mat-table [dataSource]="datasource()">
+      <ng-container matColumnDef="number">
+        <th mat-header-cell *matHeaderCellDef>Nro.</th>
+        <td mat-cell *matCellDef="let row" class="w-8">
+          {{ row.correlative }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="cite">
+        <th mat-header-cell *matHeaderCellDef>Cite</th>
+        <td mat-cell *matCellDef="let row">
+          {{ row.cite }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="reference">
+        <th mat-header-cell *matHeaderCellDef>Referencia</th>
+        <td mat-cell *matCellDef="let row">
+          {{ row.reference }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="sender">
+        <th mat-header-cell *matHeaderCellDef>Remitente</th>
+        <td mat-cell *matCellDef="let row">
+          {{ row.sender.fullname }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="procedure">
+        <th mat-header-cell *matHeaderCellDef>Tramite</th>
+        <td mat-cell *matCellDef="let row">
+          @if(row.procedure){
+          {{ row.procedure.code }}
+          } @else {
+          <span class="text-orange-600">SIN ADJUNTAR</span>
+          }
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="options">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let row" class="w-8">
+          <button
+            mat-icon-button
+            [matMenuTriggerFor]="menu"
+            aria-label="Options menu"
+          >
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #menu="matMenu">
+            <button mat-menu-item [disabled]="!row.isEnable">
+              <mat-icon>edit</mat-icon>
+              <span>Editar</span>
+            </button>
+            <button mat-menu-item (click)="generateTemplate()">
+              <mat-icon>article</mat-icon>
+              <span>Plantilla</span>
+            </button>
+          </mat-menu>
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell p-2" colspan="6">Sin resultados</td>
+      </tr>
+    </table>
+    <!-- <mat-paginator
+      aria-label="Select page of officers search results"
+      showFirstLastButtons
+      [length]="datasize()"
+      [pageIndex]="index()"
+      [pageSize]="10"
+      (page)="onPageChange($event)"
+    /> -->
+  </div>
+</div>

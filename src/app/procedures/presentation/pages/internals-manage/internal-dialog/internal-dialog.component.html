@@ -1,6 +1,12 @@
 <h2 mat-dialog-title>{{ data ? "Edicion" : "Creacion" }} Tramite Interno</h2>
 <mat-dialog-content>
-  <form [formGroup]="formProcedure">
+  <form [formGroup]="formProcedure" class="pt-2">
+    <select-search
+      [items]="documents()"
+      (onTyped)="searchDocuments($event)"
+      [autoFilter]="false"
+    />
+
     <mat-form-field>
       <mat-label>Referencia del tramite</mat-label>
       <textarea formControlName="reference" matInput></textarea>
@@ -19,7 +25,7 @@
       <div class="flex-1">
         <autocomplete
           title="Remitente"
-          [options]="officers().emitter"
+          [items]="officers().emitter"
           [initialValue]="formProcedure.get('emitter.fullname')?.value"
           (onTyped)="searchAccounts('emitter', $event)"
           (onSelect)="selectAcount('emitter', $event)"
@@ -36,7 +42,7 @@
       <div class="flex-1">
         <autocomplete
           title="Destinatario"
-          [options]="officers().receiver"
+          [items]="officers().receiver"
           [initialValue]="formProcedure.get('receiver.fullname')?.value"
           (onTyped)="searchAccounts('receiver', $event)"
           (onSelect)="selectAcount('receiver', $event)"
