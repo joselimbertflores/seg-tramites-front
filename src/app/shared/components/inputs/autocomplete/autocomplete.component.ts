@@ -64,7 +64,7 @@ export class AutocompleteComponent<T> implements OnInit {
   filteredOptions = new BehaviorSubject<AutocompleteOption<T>[]>([]);
 
   title = input<string>();
-  initialValue = input<string>();
+  value = input<string>();
   autoFilter = input<boolean>(false);
   requireSelection = input<boolean>(false);
   isRequired = input<boolean>();
@@ -78,6 +78,9 @@ export class AutocompleteComponent<T> implements OnInit {
       // Local filter: Set initial values
       // Server filter: Update values after options change
       this.filteredOptions.next(this.items());
+
+      // on input signal change set control value
+      this.control.setValue(this.value() ?? '');
     });
   }
 
@@ -125,8 +128,7 @@ export class AutocompleteComponent<T> implements OnInit {
   }
 
   private _setInitialValues() {
-    this.filter(this.initialValue());
-    this.control.setValue(this.initialValue() ?? '');
+    this.filter(this.value());
     if (this.isRequired()) {
       this.control.setValidators([Validators.required]);
     }

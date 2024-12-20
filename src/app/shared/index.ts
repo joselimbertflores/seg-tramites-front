@@ -11,3 +11,4 @@ export * from './directives/back-button.directive'
 
 export * from './components/inputs/autocomplete/autocomplete.component'
 export * from './components/inputs/select-search/select-search.component'
+export * from './components/alerts/alert-message/alert-message.component'

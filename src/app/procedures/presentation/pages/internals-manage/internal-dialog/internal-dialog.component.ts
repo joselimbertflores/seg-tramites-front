@@ -22,6 +22,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 
 import {
+  AlertMessageComponent,
   AutocompleteComponent,
   AutocompleteOption,
   selectOption,
@@ -29,15 +30,15 @@ import {
 } from '../../../../../shared';
 
 import { DocService } from '../../../../../communications/presentation/services';
-import { doc } from '../../../../../communications/infrastructure';
 import { InternalService, ProfileService } from '../../../services';
+import { doc } from '../../../../../communications/infrastructure';
 import { Account } from '../../../../../administration/domain';
 import { InternalProcedure } from '../../../../domain';
 
-interface workers {
-  emitter: AutocompleteOption<Account>[];
-  receiver: AutocompleteOption<Account>[];
-}
+type validFormfield = 'sender' | 'recipient';
+type participantOptions = {
+  [key in validFormfield]: AutocompleteOption<Account>[];
+};
 @Component({
   selector: 'app-internal-dialog',
   imports: [
@@ -49,6 +50,7 @@ interface workers {
     MatDialogModule,
     AutocompleteComponent,
     SelectSearchComponent,
+    AlertMessageComponent,
   ],
   templateUrl: './internal-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -64,26 +66,26 @@ export class InternalDialogComponent {
   private internalService = inject(InternalService);
   private documentService = inject(DocService);
   private formBuilder = inject(FormBuilder);
-  private dialogRef = inject(MatDialogRef<InternalDialogComponent>);
+  private dialogRef = inject(MatDialogRef);
 
-  public data: InternalProcedure = inject(MAT_DIALOG_DATA);
-
-  officers = signal<workers>({ emitter: [], receiver: [] });
+  data: InternalProcedure = inject(MAT_DIALOG_DATA);
+  officers = signal<participantOptions>({ sender: [], recipient: [] });
   documents = signal<selectOption<doc>[]>([]);
 
   formProcedure: FormGroup = this.formBuilder.nonNullable.group({
     numberOfDocuments: ['', Validators.required],
     reference: ['', Validators.required],
-    cite: [this.account?.dependencia.codigo],
-    emitter: this.formBuilder.group({
+    sender: this.formBuilder.group({
       fullname: [this.account?.officer?.fullname, Validators.required],
       jobtitle: [this.account?.jobtitle, Validators.required],
     }),
-    receiver: this.formBuilder.group({
+    recipient: this.formBuilder.group({
       fullname: ['', Validators.required],
       jobtitle: ['', Validators.required],
     }),
   });
+
+  selectedDocProps = signal<{ cite: string; docId: string } | null>(null);
 
   ngOnInit(): void {
     this._loadFormData();
@@ -92,24 +94,27 @@ export class InternalDialogComponent {
   save() {
     const observable = this.data
       ? this.internalService.update(this.data._id, this.formProcedure.value)
-      : this.internalService.create(this.formProcedure.value);
+      : this.internalService.create({
+          ...this.formProcedure.value,
+          ...this.selectedDocProps(),
+        });
     observable.subscribe((procedure) => this.dialogRef.close(procedure));
   }
 
-  searchAccounts(worker: 'emitter' | 'receiver', term: string): void {
-    this.formProcedure.get(`${worker}.fullname`)?.setValue(term);
+  searchAccounts(field: validFormfield, term: string): void {
+    this.formProcedure.get(`${field}.fullname`)?.setValue(term);
     if (!term) return;
     this.internalService.searchAccounts(term).subscribe((data) => {
       const options: AutocompleteOption<Account>[] = data.map((el) => ({
         text: el.officer?.fullname ?? 'Desvinculado',
         value: el,
       }));
-      this.officers.update((values) => ({ ...values, [worker]: options }));
+      this.officers.update((values) => ({ ...values, [field]: options }));
     });
   }
 
-  selectAcount(worker: 'emitter' | 'receiver', account: Account): void {
-    this.formProcedure.get(`${worker}`)?.patchValue({
+  onSelectAcount(field: validFormfield, account: Account): void {
+    this.formProcedure.get(`${field}`)?.patchValue({
       fullname: account.officer?.fullname,
       jobtitle: account.jobtitle,
     });
@@ -122,9 +127,13 @@ export class InternalDialogComponent {
         label: `${item.cite} - ${item.reference}`,
         value: item,
       }));
-      console.log(options);
       this.documents.set(options);
     });
+  }
+
+  onSelectDoc({ cite, _id, reference, sender, recipient }: doc) {
+    this.formProcedure.patchValue({ cite, reference, sender, recipient });
+    this.selectedDocProps.set({ docId: _id, cite });
   }
 
   private _loadFormData() {

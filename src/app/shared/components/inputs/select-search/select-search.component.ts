@@ -32,22 +32,23 @@ export type selectOption<T> = {
   ],
   template: `
     <mat-form-field [appearance]="appearance()">
+      <mat-label>{{ title() }}</mat-label>
       <mat-select
         [formControl]="optionCtrl"
         [placeholder]="placeholder()"
-        #singleSelect
+        (selectionChange)="select($event.value)"
       >
         <mat-option>
           <ngx-mat-select-search
             [formControl]="optionFilterCtrl"
-            placeholderLabel="Ingrese el termino a buscar"
+            [placeholderLabel]="placeholderLabel()"
             noEntriesFoundLabel="Sin resultados"
           ></ngx-mat-select-search>
         </mat-option>
 
         <mat-option
           *ngFor="let option of filteredOptions | async"
-          [value]="option"
+          [value]="option.value"
         >
           {{ option.label }}
         </mat-option>
@@ -64,10 +65,13 @@ export class SelectSearchComponent<T> implements OnInit {
 
   appearance = input<'fill' | 'outline'>('outline');
   placeholder = input<string>('Buscar elemento');
+  placeholderLabel = input<string>('Ingrese el termino a buscar');
+  title = input<string>('');
   items = input<selectOption<T>[]>([]);
   autoFilter = input<boolean>(true);
   required = input<boolean>(false);
   onTyped = output<string>();
+  onSelect = output<T>();
 
   optionCtrl: FormControl<selectOption<T> | null> = new FormControl(null);
 
@@ -107,5 +111,9 @@ export class SelectSearchComponent<T> implements OnInit {
         )
       : this.items().slice();
     this.filteredOptions.next(elements);
+  }
+
+  select(value: T) {
+    this.onSelect.emit(value);
   }
 }
