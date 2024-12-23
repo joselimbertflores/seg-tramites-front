@@ -64,7 +64,6 @@ export default class InternalsManageComponent {
     'code',
     'reference',
     'applicant',
-    'state',
     'createdAt',
     'options',
   ];

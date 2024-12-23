@@ -48,6 +48,7 @@ import {
   SocketService,
 } from '../../../../../presentation/services';
 import { StatusMail } from '../../../../../domain/models';
+import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 
 export interface TransferDetails {
   communication?: communicationProps;
@@ -62,21 +63,27 @@ interface communicationProps {
 }
 
 @Component({
-    selector: 'submission-dialog',
-    imports: [
-        CommonModule,
-        ReactiveFormsModule,
-        MatIconModule,
-        MatListModule,
-        MatInputModule,
-        MatButtonModule,
-        MatSelectModule,
-        MatDialogModule,
-        NgxMatSelectSearchModule,
-        SimpleSelectSearchComponent,
-    ],
-    templateUrl: './submission-dialog.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'submission-dialog',
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatIconModule,
+    MatListModule,
+    MatInputModule,
+    MatButtonModule,
+    MatSelectModule,
+    MatDialogModule,
+    NgxMatSelectSearchModule,
+    SimpleSelectSearchComponent,
+  ],
+  templateUrl: './submission-dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [
+    {
+      provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
+      useValue: { appearance: 'outline' },
+    },
+  ],
 })
 export class SubmissionDialogComponent implements OnInit {
   private formBuilder = inject(FormBuilder);

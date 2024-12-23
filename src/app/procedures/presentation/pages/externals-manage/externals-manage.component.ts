@@ -54,7 +54,6 @@ export default class ExternalsManageComponent {
     'code',
     'reference',
     'applicant',
-    'state',
     'createdAt',
     'options',
   ];
