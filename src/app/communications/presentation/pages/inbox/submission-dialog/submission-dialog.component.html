@@ -1,13 +1,26 @@
 <h2 mat-dialog-title>Remision Tramite</h2>
 <mat-dialog-content>
-  <div class="mb-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+  <mat-stepper #stepper>
+    <mat-step label="Detalle del envio">
+      <div class="flex justify-end">
+        <button mat-button matStepperNext>Siguiente</button>
+      </div>
+    </mat-step>
+    <mat-step label="Adjuntos">
+      <div class="flex justify-end">
+        <button mat-button matStepperPrevious>Atras</button>
+      </div>
+    </mat-step>
+  </mat-stepper>
+
+  <!-- <div class="mb-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
     <dt class="text-lg font-medium leading-6">TRAMITE:</dt>
     <dd class="mt-1 text-lg leading-6 sm:col-span-2 sm:mt-0">
       {{ data.code }}
     </dd>
-  </div>
+  </div> -->
 
-  <form [formGroup]="formSubmission">
+  <!-- <form [formGroup]="formSubmission">
     <div class="grid grid-cols-3 gap-x-2">
       <div class="col-span-3">
         <mat-form-field>
@@ -117,7 +130,7 @@
         }
       </mat-list>
     </div>
-  </div>
+  </div> -->
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button mat-button color="warn" mat-dialog-close>Cancelar</button>

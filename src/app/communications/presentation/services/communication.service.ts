@@ -133,7 +133,10 @@ export class CommunicationService {
   create({ form, recipients, procedureId, mailId }: sendMailProps) {
     return this.http.post<communication[]>(`${this.url}`, {
       ...form,
-      recipients,
+      recipients: recipients.map(({ accountId, isOriginal }) => ({
+        accountId,
+        isOriginal,
+      })),
       procedureId,
       mailId,
     });

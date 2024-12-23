@@ -20,6 +20,7 @@ import {
   MatDialogModule,
   MatDialogRef,
 } from '@angular/material/dialog';
+import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
@@ -36,6 +37,7 @@ import {
   map,
 } from 'rxjs';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
+
 import {
   SimpleSelectOption,
   SimpleSelectSearchComponent,
@@ -48,14 +50,14 @@ import {
   SocketService,
 } from '../../../../../presentation/services';
 import { StatusMail } from '../../../../../domain/models';
-import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
+import { MatStepperModule } from '@angular/material/stepper';
 
 export interface TransferDetails {
   communication?: communicationProps;
-  procedureId: string;
-  code: string;
   attachmentsCount: string;
+  procedureId: string;
   isOriginal: boolean;
+  code: string;
 }
 interface communicationProps {
   id: string;
@@ -73,6 +75,7 @@ interface communicationProps {
     MatButtonModule,
     MatSelectModule,
     MatDialogModule,
+    MatStepperModule,
     NgxMatSelectSearchModule,
     SimpleSelectSearchComponent,
   ],
