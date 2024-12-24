@@ -45,6 +45,9 @@ export type selectOption<T> = {
             noEntriesFoundLabel="Sin resultados"
           ></ngx-mat-select-search>
         </mat-option>
+        @if(nullable() && items().length > 0) {
+        <mat-option [value]="null">Ninguno</mat-option>
+        }
 
         <mat-option
           *ngFor="let option of filteredOptions | async"
@@ -72,6 +75,7 @@ export class SelectSearchComponent<T> implements OnInit {
   required = input<boolean>(false);
   onTyped = output<string>();
   onSelect = output<T>();
+  nullable = input<boolean>(false);
 
   optionCtrl: FormControl<selectOption<T> | null> = new FormControl(null);
 

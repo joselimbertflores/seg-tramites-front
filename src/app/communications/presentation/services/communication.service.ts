@@ -70,13 +70,19 @@ export class CommunicationService {
   constructor() {}
 
   getInstitucions() {
-    return this.http.get<institution[]>(`${this.url}/institutions`);
+    return this.http
+      .get<institution[]>(`${this.url}/institutions`)
+      .pipe(
+        map((resp) => resp.map((el) => ({ value: el._id, label: el.nombre })))
+      );
   }
 
   getDependenciesInInstitution(id_institution: string) {
-    return this.http.get<dependencyResponse[]>(
-      `${this.url}/dependencies/${id_institution}`
-    );
+    return this.http
+      .get<dependencyResponse[]>(`${this.url}/dependencies/${id_institution}`)
+      .pipe(
+        map((resp) => resp.map((el) => ({ value: el._id, label: el.nombre })))
+      );
   }
 
   searchRecipients(term: string): Observable<onlineAccount[]> {
@@ -108,6 +114,7 @@ export class CommunicationService {
       { params }
     );
   }
+
   getOutbox({ limit, offset, status, isOriginal, term }: filterOutboxProps) {
     const params = new HttpParams({
       fromObject: {

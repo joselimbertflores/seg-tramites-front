@@ -55,26 +55,26 @@ interface cache {
   form: Object;
 }
 @Component({
-    selector: 'app-inbox',
-    imports: [
-        CommonModule,
-        RouterModule,
-        ReactiveFormsModule,
-        OverlayModule,
-        MatMenuModule,
-        MatIconModule,
-        MatInputModule,
-        MatTableModule,
-        MatSelectModule,
-        MatButtonModule,
-        MatToolbarModule,
-        MatTooltipModule,
-        MatCheckboxModule,
-        MatPaginatorModule,
-        SearchInputComponent,
-    ],
-    templateUrl: './inbox.component.html',
-    styles: `
+  selector: 'app-inbox',
+  imports: [
+    CommonModule,
+    RouterModule,
+    ReactiveFormsModule,
+    OverlayModule,
+    MatMenuModule,
+    MatIconModule,
+    MatInputModule,
+    MatTableModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatToolbarModule,
+    MatTooltipModule,
+    MatCheckboxModule,
+    MatPaginatorModule,
+    SearchInputComponent,
+  ],
+  templateUrl: './inbox.component.html',
+  styles: `
     .mail-pending {
       background-color: #fe5f55;
       color: white;
@@ -85,7 +85,7 @@ interface cache {
       }
     }
   `,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class InboxComponent implements OnInit {
   private inboxService = inject(CommunicationService);
@@ -187,8 +187,7 @@ export default class InboxComponent implements OnInit {
       attachmentsCount,
       isOriginal,
       communication: { id: _id, status: status },
-      procedureId: procedure._id,
-      code: procedure.code,
+      procedure: { id: procedure._id, code: procedure.code },
     };
     const dialogRef = this.dialog.open(SubmissionDialogComponent, {
       maxWidth: '900px',

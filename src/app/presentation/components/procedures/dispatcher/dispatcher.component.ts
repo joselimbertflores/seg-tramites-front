@@ -128,23 +128,23 @@ export class DispatcherComponent implements OnInit {
     this.dependencies.set([]);
     this.receivers.set([]);
     this.filteredReceivers$.next([]);
-    this.inboxService.getInstitucions().subscribe((resp) => {
-      this.institutions.set(
-        resp.map(({ _id, nombre }) => ({ value: _id, text: nombre }))
-      );
-    });
+    // this.inboxService.getInstitucions().subscribe((resp) => {
+    //   this.institutions.set(
+    //     resp.map(({ _id, nombre }) => ({ value: _id, text: nombre }))
+    //   );
+    // });
   }
 
   getDependencies(id_institution: string) {
     this.receivers.set([]);
     this.filteredReceivers$.next([]);
-    this.inboxService
-      .getDependenciesInInstitution(id_institution)
-      .subscribe((data) => {
-        this.dependencies.set(
-          data.map(({ _id, nombre }) => ({ value: _id, text: nombre }))
-        );
-      });
+    // this.inboxService
+    //   .getDependenciesInInstitution(id_institution)
+    //   .subscribe((data) => {
+    //     this.dependencies.set(
+    //       data.map(({ _id, nombre }) => ({ value: _id, text: nombre }))
+    //     );
+    //   });
   }
 
   getAccounts(id_dependency: string) {

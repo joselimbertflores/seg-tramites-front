@@ -116,8 +116,7 @@ export default class ExternalsManageComponent {
 
   send(procedure: ExternalProcedure): void {
     const transfer: TransferDetails = {
-      procedureId: procedure._id,
-      code: procedure.code,
+      procedure: { id: procedure._id, code: procedure.code },
       attachmentsCount: procedure.numberOfDocuments,
       isOriginal: true,
     };

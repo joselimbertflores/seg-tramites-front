@@ -129,14 +129,16 @@ export default class InternalsManageComponent {
 
   send(procedure: InternalProcedure) {
     const data: TransferDetails = {
-      procedureId: procedure._id,
-      code: procedure.code,
+      procedure: {
+        id: procedure._id,
+        code: procedure.code,
+      },
       attachmentsCount: procedure.numberOfDocuments,
       isOriginal: true,
     };
     const dialogRef = this.dialog.open(SubmissionDialogComponent, {
-      maxWidth: '1000px',
-      width: '1000px',
+      maxWidth: '1100px',
+      width: '1100px',
       data,
     });
     dialogRef.afterClosed().subscribe((message) => {
