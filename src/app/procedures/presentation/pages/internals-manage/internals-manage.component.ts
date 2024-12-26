@@ -25,10 +25,8 @@ import { InternalProcedure, StateProcedure } from '../../../domain';
 import { InternalService } from '../../services';
 
 import { InternalDialogComponent } from './internal-dialog/internal-dialog.component';
-import {
-  SubmissionDialogComponent,
-  TransferDetails,
-} from '../../../../communications/presentation/pages/inbox/submission-dialog/submission-dialog.component';
+import { SubmissionDialogComponent } from '../../../../communications/presentation/pages/inbox/submission-dialog/submission-dialog.component';
+import { submissionDialogData } from '../../../../communications/domain';
 
 interface cache {
   datasource: InternalProcedure[];
@@ -128,12 +126,13 @@ export default class InternalsManageComponent {
   }
 
   send(procedure: InternalProcedure) {
-    const data: TransferDetails = {
+    const data: submissionDialogData = {
       procedure: {
         id: procedure._id,
         code: procedure.code,
       },
       attachmentsCount: procedure.numberOfDocuments,
+      cite: procedure.cite,
       isOriginal: true,
     };
     const dialogRef = this.dialog.open(SubmissionDialogComponent, {

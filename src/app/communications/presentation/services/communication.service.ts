@@ -14,30 +14,15 @@ import {
   StateProcedure,
   StatusMail,
 } from '../../../domain/models';
-import { OfficerMapper } from '../../../administration/infrastructure';
-import { Officer } from '../../../administration/domain';
-import { communication } from '../../infrastructure';
 
-interface sendMailProps {
+import { communication } from '../../infrastructure';
+import { onlineAccount, recipient } from '../../domain';
+
+interface createCommunicationProps {
   form: Object;
   recipients: recipient[];
   procedureId: string;
-  mailId?: string;
-}
-
-export interface onlineAccount {
-  accountId: string;
-  userId: string;
-  officer: Officer;
-  jobtitle: string;
-  online: boolean;
-}
-
-export interface recipient {
-  accountId: string;
-  fullname: string;
-  jobtitle: string;
-  isOriginal: boolean;
+  communicationId?: string;
 }
 
 interface filterOutboxProps {
@@ -85,15 +70,15 @@ export class CommunicationService {
       );
   }
 
-  searchRecipients(term: string): Observable<onlineAccount[]> {
+  searchRecipientsAccounts(term: string): Observable<onlineAccount[]> {
     return this.http.get<account[]>(`${this.url}/recipients/${term}`).pipe(
       map((resp) =>
-        resp.map((el) => ({
-          accountId: el._id,
-          userId: el.user._id,
-          officer: OfficerMapper.fromResponse(el.officer!),
-          jobtitle: el.jobtitle,
+        resp.map(({ _id, user, officer, jobtitle }) => ({
+          id: _id,
+          userId: user._id,
+          fullname: `${officer?.nombre} ${officer?.paterno} ${officer?.materno}`,
           online: false,
+          jobtitle,
         }))
       )
     );
@@ -137,15 +122,14 @@ export class CommunicationService {
     return this.http.get<communication>(`${this.url}/${id}`);
   }
 
-  create({ form, recipients, procedureId, mailId }: sendMailProps) {
+  create({ recipients, form, ...props }: createCommunicationProps) {
     return this.http.post<communication[]>(`${this.url}`, {
       ...form,
-      recipients: recipients.map(({ accountId, isOriginal }) => ({
-        accountId,
+      ...props,
+      recipients: recipients.map(({ id, isOriginal }) => ({
+        accountId: id,
         isOriginal,
       })),
-      procedureId,
-      mailId,
     });
   }
 

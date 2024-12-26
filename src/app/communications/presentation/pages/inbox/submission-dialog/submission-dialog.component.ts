@@ -1,24 +1,25 @@
 import { CommonModule } from '@angular/common';
 import {
-  ChangeDetectionStrategy,
-  DestroyRef,
-  Component,
   OnInit,
   inject,
   signal,
   effect,
+  computed,
+  Component,
+  DestroyRef,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import {
-  ReactiveFormsModule,
-  FormControl,
-  FormBuilder,
   Validators,
   FormGroup,
+  FormBuilder,
+  FormControl,
+  ReactiveFormsModule,
 } from '@angular/forms';
 import {
-  MAT_DIALOG_DATA,
-  MatDialogModule,
   MatDialogRef,
+  MatDialogModule,
+  MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
@@ -43,30 +44,16 @@ import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { selectOption, SelectSearchComponent } from '../../../../../shared';
 import {
   AlertService,
-  CommunicationService,
-  recipient,
-  onlineAccount,
   SocketService,
+  CommunicationService,
 } from '../../../../../presentation/services';
-import { StatusMail } from '../../../../../domain/models';
-import { DocService } from '../../../services';
 import { doc } from '../../../../infrastructure';
-
-export interface TransferDetails {
-  communication?: communicationProps;
-  procedure: procedureProps;
-  attachmentsCount: string;
-  isOriginal: boolean;
-}
-interface communicationProps {
-  id: string;
-  status: StatusMail;
-}
-interface procedureProps {
-  id: string;
-  code: string;
-}
-
+import { DocService } from '../../../services';
+import {
+  onlineAccount,
+  recipient,
+  submissionDialogData,
+} from '../../../../domain';
 @Component({
   selector: 'submission-dialog',
   imports: [
@@ -97,35 +84,63 @@ interface procedureProps {
 })
 export class SubmissionDialogComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
-  private dialogRef = inject(MatDialogRef);
   private destroyRef = inject(DestroyRef);
+  private dialogRef = inject(MatDialogRef);
 
   private inboxService = inject(CommunicationService);
   private documentService = inject(DocService);
   private alertService = inject(AlertService);
   private socketService = inject(SocketService);
 
-  data: TransferDetails = inject(MAT_DIALOG_DATA);
-  institutions = toSignal(this.inboxService.getInstitucions(), {
-    initialValue: [],
-  });
-  dependencies = signal<selectOption<string>[]>([]);
+  data: submissionDialogData = inject(MAT_DIALOG_DATA);
 
   formSubmission: FormGroup = this.formBuilder.group({
     reference: ['PARA SU ATENCION', Validators.required],
     attachmentsCount: [this.data.attachmentsCount, Validators.required],
-    internalNumber: [''],
+    internalNumber: [this._getInternalNumber()],
   });
 
   accounts = signal<onlineAccount[]>([]);
   recipients = signal<recipient[]>([]);
-  dependencyId = signal<string | null>(null);
-  isFormPosting = signal<boolean>(false);
   documents = signal<selectOption<doc>[]>([]);
+  institutions = toSignal(this.inboxService.getInstitucions(), {
+    initialValue: [],
+  });
+  dependencies = signal<selectOption<string>[]>([]);
+  dependencyId = signal<string | null>(null);
 
   public filterReceiverCtrl = new FormControl<string>('');
   public bankServerSideCtrl = new FormControl<onlineAccount | null>(null);
   public filteredReceivers$ = new BehaviorSubject<onlineAccount[]>([]);
+
+  isCopyButtonEnabled = computed<boolean>(() => {
+    if (this.data.isOriginal) {
+      if (this.data.isResend === false) {
+        return true;
+      }
+      return this.recipients().some(({ isOriginal }) => isOriginal);
+    }
+    return this.recipients().length === 0;
+  });
+
+  isOriginalButtonEnabled = computed<boolean>(() => {
+    return (
+      this.data.isOriginal &&
+      !this.recipients().some(({ isOriginal }) => isOriginal) &&
+      (this.data.isResend ?? true)
+    );
+  });
+
+  isFormValid = computed<boolean>(() => {
+    const hasValidRecipients = this.data.isOriginal
+      ? this.recipients().some(({ isOriginal }) => isOriginal)
+      : this.recipients().every(({ isOriginal }) => !isOriginal);
+    return (
+      this.formSubmission.valid &&
+      this.recipients().length > 0 &&
+      hasValidRecipients
+    );
+  });
 
   constructor() {
     effect(() => {
@@ -151,18 +166,48 @@ export class SubmissionDialogComponent implements OnInit {
   }
 
   send(): void {
-    this.isFormPosting.set(true);
     this.inboxService
       .create({
         form: this.formSubmission.value,
-        mailId: this.data.communication?.id,
+        communicationId: this.data.communicationId,
         procedureId: this.data.procedure.id,
         recipients: this.recipients(),
       })
       .subscribe((communications) => {
         this.dialogRef.close(communications);
-        this.isFormPosting.set(false);
       });
+  }
+
+  add(isOriginal: boolean): void {
+    const controlValue = this.bankServerSideCtrl.value;
+    if (!controlValue) return;
+
+    const newReceiver = { ...controlValue, isOriginal };
+
+    // * Si envio actual es es original
+    if (this.data.isOriginal) {
+      if (this.recipients().filter(({ isOriginal }) => isOriginal).length > 1) {
+        // * Si se quiere agregar un original
+        return;
+      }
+      const duplicante = this.recipients().some(
+        ({ id }) => id === newReceiver.id
+      );
+      if (duplicante) return;
+      this.recipients.update((values) => [...values, newReceiver]);
+    } else {
+      // * Si envio actual es copia
+      if (isOriginal || this.recipients().length >= 1) {
+        // * No se puede derivar el original como una copia y solo 1
+        return;
+      }
+      this.recipients.set([newReceiver]);
+    }
+    this.bankServerSideCtrl.setValue(null);
+  }
+
+  remove(id: string): void {
+    this.recipients.update((values) => values.filter((el) => el.id !== id));
   }
 
   getDependencies(institutionId: string) {
@@ -180,57 +225,9 @@ export class SubmissionDialogComponent implements OnInit {
       return;
     }
     this.inboxService
-      .searchRecipients(dependencyId)
+      .searchRecipientsAccounts(dependencyId)
       .pipe(switchMap((receivers) => this._checkOnlineAccounts(receivers)))
       .subscribe((accounts) => this.accounts.set(accounts));
-  }
-
-  add(isOriginal: boolean): void {
-    const receiver = this.bankServerSideCtrl.value;
-    if (!receiver) return;
-    if (this.data.isOriginal) {
-      if (isOriginal) {
-        const hasOriginal = this.recipients().some(
-          ({ isOriginal }) => isOriginal
-        );
-        if (hasOriginal) {
-          console.log('ya hay un original');
-          return;
-        }
-      }
-      const duplicante = this.recipients().some(
-        ({ accountId }) => accountId === receiver.accountId
-      );
-      if (duplicante) {
-        console.log('receptor duplicadno');
-        return;
-      }
-      this.recipients.update((values) => [
-        ...values,
-        {
-          accountId: receiver.accountId,
-          jobtitle: receiver.jobtitle,
-          fullname: receiver.officer.fullname,
-          isOriginal,
-        },
-      ]);
-    } else {
-      if (isOriginal) {
-        console.log('no se puede derivar el original como una copia');
-        return;
-      }
-      const { officer, jobtitle, accountId } = receiver;
-      this.recipients.set([
-        { fullname: officer.fullname, jobtitle, accountId, isOriginal: false },
-      ]);
-    }
-    this.bankServerSideCtrl.setValue(null);
-  }
-
-  remove(id: string): void {
-    this.recipients.update((values) =>
-      values.filter((el) => el.accountId !== id)
-    );
   }
 
   searchDocuments(term: string) {
@@ -246,37 +243,6 @@ export class SubmissionDialogComponent implements OnInit {
 
   onSelectDoc({ correlative }: doc) {
     this.formSubmission.patchValue({ internalNumber: correlative });
-  }
-
-  get isFormValid(): boolean {
-    if (!this.data.isOriginal) {
-      return (
-        this.formSubmission.valid &&
-        this.recipients().length > 0 &&
-        this.recipients().length <= 1 &&
-        this.recipients().every(({ isOriginal }) => !isOriginal)
-      );
-    }
-    if (this.data.communication?.status === StatusMail.Pending) {
-      return (
-        this.formSubmission.valid &&
-        this.recipients().length > 0 &&
-        this.recipients().every(({ isOriginal }) => !isOriginal)
-      );
-    }
-    return (
-      this.formSubmission.valid &&
-      this.recipients().length > 0 &&
-      this.recipients().some(({ isOriginal }) => isOriginal)
-    );
-  }
-
-  get isAddEnabled(): boolean {
-    if (this.data.isOriginal) {
-      if (this.data.communication?.status === StatusMail.Pending) return false;
-      return this.recipients().every(({ isOriginal }) => !isOriginal);
-    }
-    return true;
   }
 
   private _setFilterControl(): void {
@@ -295,13 +261,13 @@ export class SubmissionDialogComponent implements OnInit {
     if (!this.dependencyId()) {
       if (!term) return;
       this.inboxService
-        .searchRecipients(term)
+        .searchRecipientsAccounts(term)
         .pipe(switchMap((receivers) => this._checkOnlineAccounts(receivers)))
         .subscribe((recipients) => this.accounts.set(recipients));
     } else {
       const options: onlineAccount[] = term
-        ? this.accounts().filter(({ officer }) =>
-            officer.fullname.toLowerCase().includes(term.toLowerCase())
+        ? this.accounts().filter(({ fullname }) =>
+            fullname.toLowerCase().includes(term.toLowerCase())
           )
         : this.accounts();
 
@@ -319,5 +285,9 @@ export class SubmissionDialogComponent implements OnInit {
         }))
       )
     );
+  }
+
+  private _getInternalNumber(): string {
+    return this.data.cite?.split('/')[3] ?? '';
   }
 }

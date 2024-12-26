@@ -30,13 +30,11 @@ import {
   CommunicationService,
 } from '../../../../presentation/services';
 import { SearchInputComponent } from '../../../../shared';
-import {
-  SubmissionDialogComponent,
-  TransferDetails,
-} from '../inbox/submission-dialog/submission-dialog.component';
+import { SubmissionDialogComponent } from '../inbox/submission-dialog/submission-dialog.component';
 
 import { StatusMail } from '../../../../domain/models';
 import { communication } from '../../../infrastructure';
+import { submissionDialogData } from '../../../domain';
 
 @Component({
   selector: 'outbox',
@@ -130,14 +128,13 @@ export default class OutboxComponent {
     isOriginal,
     attachmentsCount,
   }: communication): void {
-    const data: TransferDetails = {
+    console.log(procedure);
+    const data: submissionDialogData = {
+      communicationId: _id,
+      procedure: { id: procedure.ref, code: procedure.code },
+      isResend: status === StatusMail.Rejected ? true : false,
       attachmentsCount,
       isOriginal,
-      procedure: { id: procedure._id, code: procedure.code },
-      communication: {
-        id: _id,
-        status,
-      },
     };
     const dialogRef = this.dialog.open(SubmissionDialogComponent, {
       maxWidth: '900px',

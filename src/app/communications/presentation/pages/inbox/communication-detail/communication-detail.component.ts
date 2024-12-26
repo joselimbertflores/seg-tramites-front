@@ -65,7 +65,7 @@ export default class CommunicationDetailComponent {
       .getOne(this.communicationId)
       .pipe(
         tap((comm) => this.communication.set(comm)),
-        switchMap((comm) => this._getProcedureData(comm.procedure._id))
+        switchMap((comm) => this._getProcedureData(comm.procedure.ref))
       )
       .subscribe(([procedure, workflow]) => {
         this.procedure.set(procedure);

@@ -8,7 +8,7 @@ export interface communication {
   _id: string;
   sender: officer;
   recipient: officer;
-  procedure: procedure;
+  procedure: procedureProps;
   reference: string;
   attachmentsCount: string;
   internalNumber: string;
@@ -25,12 +25,11 @@ interface officer {
   jobtitle: string;
 }
 
-interface procedure {
-  _id: string;
+interface procedureProps {
+  ref: string;
   code: string;
   reference: string;
   group: 'ExternalProcedure' | 'InternalProcedure';
-  state: StateProcedure;
 }
 
 interface actionLog {

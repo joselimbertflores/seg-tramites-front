@@ -1,0 +1,1 @@
+export * from './interfaces/submission-dialog-data.interface'

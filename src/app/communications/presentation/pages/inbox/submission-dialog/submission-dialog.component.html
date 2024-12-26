@@ -4,7 +4,7 @@
     <mat-step
       label="Destinatarios"
       [hasError]="recipients().length === 0"
-      errorMessage="Sin destinatarios"
+      errorMessage="Seleccione los destinatarios"
     >
       <div class="grid grid-cols-3 gap-x-2 mt-2">
         <div>
@@ -46,7 +46,7 @@
                   >
                   </span>
                   <div class="flex flex-col">
-                    <span> {{ receiver.officer.fullname | titlecase }}</span>
+                    <span> {{ receiver.fullname | titlecase }}</span>
                     <small> {{ receiver.jobtitle }}</small>
                   </div>
                 </div>
@@ -57,34 +57,38 @@
         </div>
       </div>
       <div class="flex items-center py-2">
-        <div class="flex-1 text-lg font-medium">DESTINATARIOS:</div>
+        <div class="flex-1 text-lg font-medium">
+          DESTINATARIOS ({{ recipients().length }}):
+        </div>
         <div class="flex justify-center gap-x-2">
           <button
             mat-stroked-button
             (click)="add(true)"
-            [disabled]="!isAddEnabled"
+            [disabled]="!isOriginalButtonEnabled()"
           >
             Original
           </button>
-          <button mat-stroked-button (click)="add(false)">Copia</button>
+          <button
+            mat-stroked-button
+            (click)="add(false)"
+            [disabled]="!isCopyButtonEnabled()"
+          >
+            Copia
+          </button>
         </div>
       </div>
-      <div class="overflow-y-scroll max-h-72">
+      <div class="overflow-y-scroll max-h-64">
         <mat-list role="list">
           @for (item of recipients(); track $index) {
           <mat-list-item role="listitem">
             <img matListItemAvatar src="images/avatar.png" alt="Profile" />
-            <h3 matListItemTitle>
+            <div matListItemTitle>
               {{ item.fullname | titlecase }}
               <span> ({{ item.isOriginal ? "Original" : "Copia" }})</span>
-            </h3>
-            <small matListItemLine class="ml-1">{{ item.jobtitle }}</small>
-            <button
-              mat-icon-button
-              matListItemMeta
-              (click)="remove(item.accountId)"
-            >
-              <mat-icon>cancel</mat-icon>
+            </div>
+            <div matListItemLine>{{ item.jobtitle }}</div>
+            <button mat-icon-button matListItemMeta (click)="remove(item.id)">
+              <mat-icon>close</mat-icon>
             </button>
           </mat-list-item>
           }
@@ -111,7 +115,8 @@
               </mat-error>
             </mat-form-field>
           </div>
-          <div class="col-span-2">
+          @if(data.isOriginal && !data.cite){
+          <div class="col-span-3">
             <select-search
               [items]="documents()"
               (onTyped)="searchDocuments($event)"
@@ -122,6 +127,7 @@
               placeholderLabel="Referencia / Codigo"
             />
           </div>
+          }
           <div>
             <mat-form-field>
               <mat-label>Cantidad: hojas / anexos</mat-label>
@@ -152,20 +158,13 @@
       </div>
     </mat-step>
   </mat-stepper>
-
-  <!-- <div class="mb-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-    <dt class="text-lg font-medium leading-6">TRAMITE:</dt>
-    <dd class="mt-1 text-lg leading-6 sm:col-span-2 sm:mt-0">
-      {{ data.code }}
-    </dd>
-  </div> -->
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button mat-button color="warn" mat-dialog-close>Cancelar</button>
   <button
     mat-button
     color="primary"
-    [disabled]="!isFormValid"
+    [disabled]="!isFormValid()"
     (click)="showConfirmSend()"
   >
     Remitir

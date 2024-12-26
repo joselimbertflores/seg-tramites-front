@@ -42,10 +42,8 @@ import {
 } from '../../../../presentation/services';
 import { CacheService, SearchInputComponent } from '../../../../shared';
 import { communication } from '../../../infrastructure';
-import {
-  TransferDetails,
-  SubmissionDialogComponent,
-} from './submission-dialog/submission-dialog.component';
+import { SubmissionDialogComponent } from './submission-dialog/submission-dialog.component';
+import { submissionDialogData } from '../../../domain';
 
 interface cache {
   datasource: communication[];
@@ -176,18 +174,12 @@ export default class InboxComponent implements OnInit {
     this._reject(this.selection.selected);
   }
 
-  send({
-    _id,
-    status,
-    procedure,
-    isOriginal,
-    attachmentsCount,
-  }: communication) {
-    const data: TransferDetails = {
+  send({ _id, procedure, isOriginal, attachmentsCount }: communication) {
+    const data: submissionDialogData = {
       attachmentsCount,
       isOriginal,
-      communication: { id: _id, status: status },
-      procedure: { id: procedure._id, code: procedure.code },
+      procedure: { id: procedure.ref, code: procedure.code },
+      communicationId: _id,
     };
     const dialogRef = this.dialog.open(SubmissionDialogComponent, {
       maxWidth: '900px',
