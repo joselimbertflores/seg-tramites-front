@@ -49,6 +49,7 @@ export default class ExternalsManageComponent {
   datasource = signal<ExternalProcedure[]>([]);
   datasize = signal<number>(0);
   displayedColumns: string[] = [
+    'send',
     'code',
     'reference',
     'applicant',

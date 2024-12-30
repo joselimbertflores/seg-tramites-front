@@ -4,7 +4,8 @@ export interface submissionDialogData {
   isOriginal: boolean;
   procedure: procedureProps;
   cite?: string;
-  isResend?: boolean; // * for sent from outbox
+  isResend?: boolean; // * for sent from outbox and disable original button
+  allowAttachDocument?: boolean; // * for display select attach document
 }
 
 interface procedureProps {
@@ -23,5 +24,3 @@ export interface onlineAccount {
 export interface recipient extends onlineAccount {
   isOriginal: boolean;
 }
-
-// ademas esa interfaz tendra una nueva propiedad. esta servira para diferenciar si se realizara el envio desde bandeja de entrada o salida. Cuando es de salida puede que se este creando un nuevo envio o puede que se este reenviando un rechazado. Como llamaraia a esta propiedad?

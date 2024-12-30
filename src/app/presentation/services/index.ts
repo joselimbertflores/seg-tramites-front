@@ -1,4 +1,3 @@
-export * from './alert.service';
 export * from '../../layout/presentation/services/socket.service';
 export * from './pdf.service';
 export * from './cache.service';

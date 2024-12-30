@@ -26,10 +26,9 @@ import { OverlayModule } from '@angular/cdk/overlay';
 import { filter, switchMap } from 'rxjs';
 
 import {
-  AlertService,
   CommunicationService,
 } from '../../../../presentation/services';
-import { SearchInputComponent } from '../../../../shared';
+import { AlertService, SearchInputComponent } from '../../../../shared';
 import { SubmissionDialogComponent } from '../inbox/submission-dialog/submission-dialog.component';
 
 import { StatusMail } from '../../../../domain/models';
@@ -128,7 +127,6 @@ export default class OutboxComponent {
     isOriginal,
     attachmentsCount,
   }: communication): void {
-    console.log(procedure);
     const data: submissionDialogData = {
       communicationId: _id,
       procedure: { id: procedure.ref, code: procedure.code },
@@ -164,9 +162,8 @@ export default class OutboxComponent {
     });
   }
 
-  cacelSelection(): void {
-    const communicationIds = this.selection.selected.map((el) => el._id);
-    this._cancel(communicationIds);
+  cancelSelection(): void {
+    this._cancel(this.selection.selected.map((el) => el._id));
   }
 
   cancelOne(communication: communication): void {
@@ -209,15 +206,6 @@ export default class OutboxComponent {
     this.getData();
   }
 
-  checkboxLabel(row?: any): string {
-    if (!row) {
-      return `${this.isAllSelected() ? 'deselect' : 'select'} all`;
-    }
-    return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${
-      row.position + 1
-    }`;
-  }
-
   isAllSelected() {
     const numSelected = this.selection.selected.length;
     const numRows = this.datasource().length;
@@ -234,13 +222,19 @@ export default class OutboxComponent {
 
   private _cancel(communicationIds: string[], code?: string): void {
     this.alertService
-      .confirmDialog({
-        title:
-          communicationIds.length === 1
-            ? `¿Cancelar tramite ${code}?`
-            : `¿Cancelar los envios seleccionados?`,
-        description: `Se cancelaran los envios que aun no hayan sido recibidos`,
-      })
+      .confirmDialog(
+        communicationIds.length === 1
+          ? {
+              title: '¿Cancelar envio?',
+              description: `Se cancelara el envio del tramite ${
+                code ?? 'seleccionado'
+              }`,
+            }
+          : {
+              title: '¿Cancelar envios seleccionados?',
+              description: `Solo se pueden cancelar los envios que aun no hayan sido recibidos`,
+            }
+      )
       .pipe(
         filter((result) => !!result),
         switchMap(() => this.communicationService.cancel(communicationIds))

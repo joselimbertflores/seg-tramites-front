@@ -41,9 +41,12 @@ import {
 } from 'rxjs';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 
-import { selectOption, SelectSearchComponent } from '../../../../../shared';
 import {
   AlertService,
+  selectOption,
+  SelectSearchComponent,
+} from '../../../../../shared';
+import {
   SocketService,
   CommunicationService,
 } from '../../../../../presentation/services';
@@ -83,31 +86,30 @@ import {
   ],
 })
 export class SubmissionDialogComponent implements OnInit {
-  private formBuilder = inject(FormBuilder);
+  private _formBuilder = inject(FormBuilder);
   private destroyRef = inject(DestroyRef);
   private dialogRef = inject(MatDialogRef);
 
   private inboxService = inject(CommunicationService);
-  private documentService = inject(DocService);
+  private docService = inject(DocService);
   private alertService = inject(AlertService);
   private socketService = inject(SocketService);
 
   data: submissionDialogData = inject(MAT_DIALOG_DATA);
-
-  formSubmission: FormGroup = this.formBuilder.group({
-    reference: ['PARA SU ATENCION', Validators.required],
-    attachmentsCount: [this.data.attachmentsCount, Validators.required],
-    internalNumber: [this._getInternalNumber()],
-  });
-
   accounts = signal<onlineAccount[]>([]);
-  recipients = signal<recipient[]>([]);
   documents = signal<selectOption<doc>[]>([]);
   institutions = toSignal(this.inboxService.getInstitucions(), {
     initialValue: [],
   });
   dependencies = signal<selectOption<string>[]>([]);
   dependencyId = signal<string | null>(null);
+
+  formSubmission: FormGroup = this._formBuilder.group({
+    reference: ['PARA SU ATENCION', Validators.required],
+    attachmentsCount: [this.data.attachmentsCount, Validators.required],
+    internalNumber: [this._getInternalNumber()],
+  });
+  recipients = signal<recipient[]>([]);
 
   public filterReceiverCtrl = new FormControl<string>('');
   public bankServerSideCtrl = new FormControl<onlineAccount | null>(null);
@@ -132,14 +134,11 @@ export class SubmissionDialogComponent implements OnInit {
   });
 
   isFormValid = computed<boolean>(() => {
-    const hasValidRecipients = this.data.isOriginal
-      ? this.recipients().some(({ isOriginal }) => isOriginal)
-      : this.recipients().every(({ isOriginal }) => !isOriginal);
-    return (
-      this.formSubmission.valid &&
-      this.recipients().length > 0 &&
-      hasValidRecipients
-    );
+    const isValid = this.formSubmission.valid && this.recipients().length > 0;
+    const originals = this.recipients().filter(({ isOriginal }) => isOriginal);
+    if (!this.data.isOriginal) return isValid && originals.length === 0;
+    if (this.data.isResend === false) return isValid;
+    return isValid && originals.length === 1;
   });
 
   constructor() {
@@ -232,7 +231,7 @@ export class SubmissionDialogComponent implements OnInit {
 
   searchDocuments(term: string) {
     if (!term) return;
-    this.documentService.searchPendingDocs(term).subscribe((data) => {
+    this.docService.searchPendingDocs(term).subscribe((data) => {
       const options: selectOption<doc>[] = data.map((item) => ({
         label: `${item.cite} - ${item.reference}`,
         value: item,
@@ -288,6 +287,7 @@ export class SubmissionDialogComponent implements OnInit {
   }
 
   private _getInternalNumber(): string {
-    return this.data.cite?.split('/')[3] ?? '';
+    const correlativeNumber = this.data.cite?.split('/')[2] ?? '';
+    return typeof correlativeNumber === 'number' ? correlativeNumber : '';
   }
 }

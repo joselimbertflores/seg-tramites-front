@@ -10,8 +10,9 @@ import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Observable, map, startWith, switchMap } from 'rxjs';
 import { MaterialModule } from '../../../../material.module';
 import { SidenavButtonComponent } from '../../../components';
-import { AlertService, SocketService } from '../../../services';
 import { SocketClient } from '../../../../infraestructure/interfaces';
+import { SocketService } from '../../../services';
+import { AlertService } from '../../../../shared';
 
 @Component({
     selector: 'app-clients',

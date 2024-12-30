@@ -17,9 +17,10 @@ import {
   SidenavButtonComponent,
 } from '../../../components';
 import { Communication } from '../../../../domain/models';
-import { AlertService, ArchiveService, CacheService } from '../../../services';
+import { ArchiveService, CacheService } from '../../../services';
 import { StateLabelPipe } from '../../../pipes';
 import { MatButtonModule } from '@angular/material/button';
+import { AlertService } from '../../../../shared';
 
 interface PaginationOptions {
   limit: number;
@@ -33,22 +34,22 @@ export interface CacheData {
 }
 
 @Component({
-    selector: 'app-archives',
-    imports: [
-        CommonModule,
-        RouterModule,
-        MatToolbarModule,
-        MatTableModule,
-        MatIconModule,
-        MatButtonModule,
-        StateLabelPipe,
-        PaginatorComponent,
-        SidenavButtonComponent,
-        SearchInputComponent,
-    ],
-    templateUrl: './archives.component.html',
-    styleUrl: './archives.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'app-archives',
+  imports: [
+    CommonModule,
+    RouterModule,
+    MatToolbarModule,
+    MatTableModule,
+    MatIconModule,
+    MatButtonModule,
+    StateLabelPipe,
+    PaginatorComponent,
+    SidenavButtonComponent,
+    SearchInputComponent,
+  ],
+  templateUrl: './archives.component.html',
+  styleUrl: './archives.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ArchivesComponent implements OnInit {
   private archiveService = inject(ArchiveService);

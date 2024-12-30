@@ -35,12 +35,15 @@ import {
 } from '../../../../domain/models';
 import {
   PdfService,
-  AlertService,
   SocketService,
   ArchiveService,
   CommunicationService,
 } from '../../../../presentation/services';
-import { CacheService, SearchInputComponent } from '../../../../shared';
+import {
+  AlertService,
+  CacheService,
+  SearchInputComponent,
+} from '../../../../shared';
 import { communication } from '../../../infrastructure';
 import { SubmissionDialogComponent } from './submission-dialog/submission-dialog.component';
 import { submissionDialogData } from '../../../domain';

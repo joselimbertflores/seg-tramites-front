@@ -35,10 +35,10 @@ import { SidenavButtonComponent } from '../../../../presentation/components';
 import { NotificationComponent } from '../../../../presentation/components/notification/notification.component';
 import {
   AuthService,
-  AlertService,
   AppearanceService,
 } from '../../../../presentation/services';
 import { ThemeSwitcherComponent } from '../../components';
+import { AlertService } from '../../../../shared';
 
 @Component({
     selector: 'app-settings',
@@ -101,7 +101,6 @@ export default class SettingsComponent implements OnInit {
     this.authService
       .updateMyAccount(this.form.get('password')?.value!)
       .subscribe((resp) => {
-        this.alertService.SuccesToast({ title: resp.message });
         this.hide.set(true);
         this.form.reset({});
         Object.keys(this.form.controls).forEach((key) => {

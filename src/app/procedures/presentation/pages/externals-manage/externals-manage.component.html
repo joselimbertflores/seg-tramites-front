@@ -20,9 +20,25 @@
   <div class="mat-elevation-z8">
     <div class="table-container">
       <table mat-table [dataSource]="datasource()">
+        <ng-container matColumnDef="send">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let element" class="w-8">
+            @if(element.isActionable){
+            <mat-icon style="color: orangered">mark_email_unread </mat-icon>
+
+            } @else {
+            <mat-icon style="color: green">mark_email_read</mat-icon>
+            }
+          </td>
+        </ng-container>
         <ng-container matColumnDef="code">
           <th mat-header-cell *matHeaderCellDef>Alterno</th>
-          <td mat-cell *matCellDef="let row" [id]="row._id" class="sm:w-[200px]">
+          <td
+            mat-cell
+            *matCellDef="let row"
+            [id]="row._id"
+            class="sm:w-[200px]"
+          >
             <a [routerLink]="['../external', row._id]" class="text-blue-600">
               {{ row.code }}
             </a>

@@ -83,7 +83,7 @@ export abstract class Procedure {
     return this.cite;
   }
 
-  get isEnable(): boolean {
+  get isActionable(): boolean {
     return this.state === 'INSCRITO';
   }
 }

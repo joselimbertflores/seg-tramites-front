@@ -1,26 +1,20 @@
 import {
-  HttpErrorResponse,
   HttpEvent,
-  HttpHandlerFn,
   HttpRequest,
+  HttpHandlerFn,
+  HttpErrorResponse,
 } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, catchError, finalize, throwError } from 'rxjs';
-import {
-  AlertService,
-  AppearanceService,
-  AuthService,
-} from '../../presentation/services';
+import { AuthService } from '../../presentation/services';
+import { AlertService } from '../../shared';
 
 export function loggingInterceptor(
   req: HttpRequest<unknown>,
   next: HttpHandlerFn
 ): Observable<HttpEvent<unknown>> {
-  const appearanceService = inject(AppearanceService);
-  const authService = inject(AuthService);
   const alertService = inject(AlertService);
-  const router = inject(Router);
 
   const reqWithHeader = req.clone({
     headers: req.headers.append(
@@ -29,36 +23,39 @@ export function loggingInterceptor(
     ),
   });
 
-  // appearanceService.showLoading();
+  if (req.headers.has('loader')) {
+    alertService.showAppLoader();
+  }
+
   return next(reqWithHeader).pipe(
     catchError((error) => {
-      if (error instanceof HttpErrorResponse) {
-        if (error.status === 401) {
-          authService.logout();
-          router.navigate(['/login']);
-        }
-        hendleHttpErrors(error, alertService);
-      }
+      handleHttpErrors(error, alertService);
       return throwError(() => Error);
     }),
     finalize(() => {
-      // appearanceService.hideLoading();
+      alertService.closeAppLoader();
     })
   );
 }
 
-const hendleHttpErrors = (error: HttpErrorResponse, service: AlertService) => {
-  const message: string = error.error['message'] ?? 'Solicitud incorrecta';
+const handleHttpErrors = (error: HttpErrorResponse, service: AlertService) => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+  const message: string = error.error['message'] ?? 'Error no controlado';
   switch (error.status) {
     case 500:
-      // Alert.Alert({
-      //   icon: 'error',
-      //   title: 'Error en el servidor',
-      //   text: 'Se ha producido un error en el servidor',
-      // });
+      service.showToast({ type: 'error', title: 'Ha ocurrido un error' });
+      break;
+    case 401:
+      authService.logout();
+      router.navigate(['/login']);
       break;
     case 400:
-      service.Snackbar({ message });
+      service.showToast({
+        type: 'warning',
+        title: 'Solictud incorrecta',
+        message,
+      });
       break;
     case 403:
       // Alert.Alert({

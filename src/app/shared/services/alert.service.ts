@@ -1,14 +1,16 @@
 import { Injectable, inject } from '@angular/core';
-import { ToastrService } from 'ngx-toastr';
+import { IndividualConfig, ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatDialog } from '@angular/material/dialog';
-import {
-  ConfirmDialogComponent,
-  confirmDialogData,
-  DescriptionDialogComponent,
-} from '../../shared';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+
 import { Observable } from 'rxjs';
+import {
+  confirmDialogData,
+  ConfirmDialogComponent,
+  LoaderDialogComponent,
+  DescriptionDialogComponent,
+} from '..';
 
 interface AlertOptions {
   title: string;
@@ -28,11 +30,11 @@ interface ConfirmAlertOptions {
   callback: (result: string) => void;
 }
 
-interface ToastOptions {
+interface toastOptions {
   seconds?: number;
   title: string;
   message?: string;
-  onActionRouteNavigate?: string;
+  type?: 'success' | 'error' | 'info' | 'warning';
 }
 
 interface SnackbarOptions {
@@ -51,7 +53,10 @@ interface dialogProps {
 export class AlertService {
   private toast = inject(ToastrService);
   private snackBar = inject(MatSnackBar);
-  private dialog = inject(MatDialog);
+
+  private dialogRef = inject(MatDialog);
+
+  private loadingDialogRef?: MatDialogRef<LoaderDialogComponent, void>;
 
   Alert({ icon = 'info', title, text }: AlertOptions) {
     Swal.fire({
@@ -63,7 +68,7 @@ export class AlertService {
   }
 
   confirmDialog(data: confirmDialogData): Observable<boolean> {
-    return this.dialog
+    return this.dialogRef
       .open(ConfirmDialogComponent, {
         data: data,
         disableClose: true,
@@ -72,7 +77,7 @@ export class AlertService {
   }
 
   descriptionDialog(data: dialogProps): Observable<string | null> {
-    return this.dialog
+    return this.dialogRef
       .open(DescriptionDialogComponent, {
         data: data,
         disableClose: true,
@@ -123,36 +128,32 @@ export class AlertService {
     });
   }
 
-  LoadingAlert(title: string, subtitle: string): void {
-    Swal.fire({
-      title: title,
-      text: subtitle,
-      allowOutsideClick: false,
-    });
-    Swal.showLoading();
-  }
-
-  CloseLoadingAlert(): void {
-    Swal.close();
-  }
-
-  Toast({ seconds = 5000, title, message }: ToastOptions) {
-    this.toast.info(message, title, {
+  showToast({
+    seconds = 5000,
+    type = 'info',
+    message,
+    title,
+  }: toastOptions): void {
+    const config: Partial<IndividualConfig> = {
       positionClass: 'toast-bottom-right',
       closeButton: true,
       timeOut: seconds,
-    });
+      progressBar: true,
+    };
+    this.toast[type](message, title, config);
   }
 
   Snackbar({ message, duration = 3000, action }: SnackbarOptions) {
     return this.snackBar.open(message, action, { duration });
   }
 
-  SuccesToast({ seconds = 5000, title, message }: ToastOptions) {
-    this.toast.success(message, title, {
-      positionClass: 'toast-bottom-right',
-      closeButton: true,
-      timeOut: seconds,
+  showAppLoader(): void {
+    this.loadingDialogRef = this.dialogRef.open(LoaderDialogComponent, {
+      disableClose: true,
     });
+  }
+
+  closeAppLoader(): void {
+    this.loadingDialogRef?.close();
   }
 }

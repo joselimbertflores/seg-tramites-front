@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
@@ -123,14 +123,18 @@ export class CommunicationService {
   }
 
   create({ recipients, form, ...props }: createCommunicationProps) {
-    return this.http.post<communication[]>(`${this.url}`, {
-      ...form,
-      ...props,
-      recipients: recipients.map(({ id, isOriginal }) => ({
-        accountId: id,
-        isOriginal,
-      })),
-    });
+    return this.http.post<communication[]>(
+      `${this.url}`,
+      {
+        ...form,
+        ...props,
+        recipients: recipients.map(({ id, isOriginal }) => ({
+          accountId: id,
+          isOriginal,
+        })),
+      },
+      { headers: { loader: 'true' } }
+    );
   }
 
   accept(communicationIds: string[]) {

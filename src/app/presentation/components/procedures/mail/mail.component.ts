@@ -14,13 +14,13 @@ import {
 } from '../../../../domain/models';
 import { MaterialModule } from '../../../../material.module';
 import {
-  AlertService,
   ArchiveService,
   CommunicationService,
   PdfService,
 } from '../../../services';
 import { transferDetails } from '../../../../infraestructure/interfaces';
 import { DispatcherComponent } from '../dispatcher/dispatcher.component';
+import { AlertService } from '../../../../shared';
 
 
 const ActionMap = {

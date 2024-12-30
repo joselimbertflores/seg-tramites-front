@@ -9,11 +9,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterModule } from '@angular/router';
 import { map, shareReplay } from 'rxjs';
-import {
-  SocketService,
-  AlertService,
-  AuthService,
-} from '../../../../presentation/services';
+import { SocketService, AuthService } from '../../../../presentation/services';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import {
@@ -26,24 +22,25 @@ import { OverlayModule } from '@angular/cdk/overlay';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { PublicationDialogComponent } from '../../../../publications/presentation/components';
+import { AlertService } from '../../../../shared';
 
 @Component({
-    selector: 'app-home',
-    imports: [
-        CommonModule,
-        MatIconModule,
-        MatToolbarModule,
-        NavigationListComponent,
-        SidenavButtonComponent,
-        ProfileComponent,
-        MatSidenavModule,
-        RouterModule,
-        OverlayModule,
-        MatButtonModule,
-    ],
-    templateUrl: './home.component.html',
-    styleUrl: './home.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'app-home',
+  imports: [
+    CommonModule,
+    MatIconModule,
+    MatToolbarModule,
+    NavigationListComponent,
+    SidenavButtonComponent,
+    ProfileComponent,
+    MatSidenavModule,
+    RouterModule,
+    OverlayModule,
+    MatButtonModule,
+  ],
+  templateUrl: './home.component.html',
+  styleUrl: './home.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class HomeComponent {
   private breakpointObserver = inject(BreakpointObserver);

@@ -20,10 +20,11 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, Observable, filter, map, switchMap } from 'rxjs';
 
-import { AlertService, CommunicationService, SocketService } from '../../../services';
+import { CommunicationService, SocketService } from '../../../services';
 import { SimpleSelectSearchComponent } from '../../../components';
 import { receiver } from '../../../../infraestructure/interfaces';
 import { MaterialModule } from '../../../../material.module';
+import { AlertService } from '../../../../shared';
 
 export interface TransferDetails {
   id_mail?: string;
@@ -38,16 +39,16 @@ interface SelectOption {
 }
 
 @Component({
-    selector: 'submission-dialog',
-    imports: [
-        CommonModule,
-        MaterialModule,
-        ReactiveFormsModule,
-        SimpleSelectSearchComponent,
-    ],
-    templateUrl: './dispatcher.component.html',
-    styleUrl: './dispatcher.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'submission-dialog',
+  imports: [
+    CommonModule,
+    MaterialModule,
+    ReactiveFormsModule,
+    SimpleSelectSearchComponent,
+  ],
+  templateUrl: './dispatcher.component.html',
+  styleUrl: './dispatcher.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DispatcherComponent implements OnInit {
   private fb = inject(FormBuilder);
@@ -112,10 +113,7 @@ export class DispatcherComponent implements OnInit {
   }
 
   send(): void {
-    this.alertService.LoadingAlert(
-      'Enviando el tramite.....',
-      'Por favor espere'
-    );
+    
     // this.inboxService
     //   .create(this.FormEnvio.value, this.data, this.selectedReceivers())
     //   .subscribe(() => {

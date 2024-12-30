@@ -2,7 +2,8 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { SidenavButtonComponent } from '../../presentation/components';
-import { AlertService, PdfService, ReportService } from '../../presentation/services';
+import {  PdfService, ReportService } from '../../presentation/services';
+import { AlertService } from '../../shared';
 
 @Component({
     selector: 'resources',
@@ -17,10 +18,10 @@ export class ResourcesComponent {
   private alertSrevice = inject(AlertService);
 
   generateUnlinkSheet() {
-    this.alertSrevice.LoadingAlert('Generando reporte', 'Espere porfavor....');
-    this.reportService.getUnlinkAccountData().subscribe((data) => {
-      this.alertSrevice.CloseLoadingAlert();
-      this.pdfService.GenerateUnlinkSheet(data.inbox, data.accont);
-    });
+    // this.alertSrevice.LoadingAlert('Generando reporte', 'Espere porfavor....');
+    // this.reportService.getUnlinkAccountData().subscribe((data) => {
+    //   this.alertSrevice.CloseLoadingAlert();
+    //   this.pdfService.GenerateUnlinkSheet(data.inbox, data.accont);
+    // });
   }
 }

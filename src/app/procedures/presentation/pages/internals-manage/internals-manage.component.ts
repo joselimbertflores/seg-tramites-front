@@ -27,7 +27,6 @@ import { InternalService } from '../../services';
 import { InternalDialogComponent } from './internal-dialog/internal-dialog.component';
 import { SubmissionDialogComponent } from '../../../../communications/presentation/pages/inbox/submission-dialog/submission-dialog.component';
 import { submissionDialogData } from '../../../../communications/domain';
-
 interface cache {
   datasource: InternalProcedure[];
   datasize: number;
@@ -59,6 +58,7 @@ export default class InternalsManageComponent {
   private cacheService: CacheService<cache> = inject(CacheService);
 
   displayedColumns: string[] = [
+    'send',
     'code',
     'reference',
     'applicant',
