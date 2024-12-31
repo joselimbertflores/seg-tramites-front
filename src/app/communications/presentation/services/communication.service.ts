@@ -15,7 +15,7 @@ import {
   StatusMail,
 } from '../../../domain/models';
 
-import { communication } from '../../infrastructure';
+import { communication, CommunicationMapper } from '../../infrastructure';
 import { onlineAccount, recipient } from '../../domain';
 
 interface createCommunicationProps {
@@ -94,10 +94,17 @@ export class CommunicationService {
         ),
       },
     });
-    return this.http.get<{ communications: communication[]; length: number }>(
-      `${this.url}/inbox`,
-      { params }
-    );
+    return this.http
+      .get<{ communications: communication[]; length: number }>(
+        `${this.url}/inbox`,
+        { params }
+      )
+      .pipe(
+        map(({ communications, length }) => ({
+          communications: communications.map((el) =>CommunicationMapper.fromResponse(el)),
+          length,
+        }))
+      );
   }
 
   getOutbox({ limit, offset, status, isOriginal, term }: filterOutboxProps) {

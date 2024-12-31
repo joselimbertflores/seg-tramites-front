@@ -1,4 +1,4 @@
-import { GroupProcedure, StateProcedure } from '../../domain';
+import { procedureGroup, StateProcedure } from '../../domain';
 import { InternalProcedure } from '../../domain/models/internal.model';
 import { internal } from '../interfaces/internal.interface';
 
@@ -12,7 +12,7 @@ export class InternalMapper {
     return new InternalProcedure({
       ...props,
       createdAt: new Date(createdAt),
-      group: group as GroupProcedure,
+      group: group as procedureGroup,
       state: state as StateProcedure,
     });
   }

@@ -105,10 +105,9 @@
       </ng-container>
 
       <ng-container matColumnDef="group">
-        <th mat-header-cell *matHeaderCellDef>Grupo</th>
+        <th mat-header-cell *matHeaderCellDef>Documento</th>
         <td mat-cell *matCellDef="let row">
-          {{ row.procedure.group }}
-          ({{ row.isOriginal ? "Original" : "Copia" }})
+          {{ row.groupLabel }} / {{ row.documentLabel }}
         </td>
       </ng-container>
       <ng-container matColumnDef="code">
@@ -195,7 +194,7 @@
       </tr>
     </table>
     <mat-paginator
-      aria-label="Select page of users search results"
+      aria-label="Select page of comunications search results"
       showFirstLastButtons
       [length]="datasize()"
       [pageIndex]="index()"

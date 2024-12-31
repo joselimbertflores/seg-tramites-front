@@ -2,14 +2,10 @@ import { Injectable } from '@angular/core';
 import { Socket, io } from 'socket.io-client';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import {
-  SocketClient,
-  communicationResponse,
-} from '../../../infraestructure/interfaces';
-import { Communication } from '../../../domain/models';
+import { SocketClient } from '../../../infraestructure/interfaces';
 import { publication } from '../../../publications/infrastructure';
 import { userSocket } from '../../infrastructure';
-import { communication } from '../../../communications/infrastructure';
+import { Communication } from '../../../communications/domain';
 
 @Injectable({
   providedIn: 'root',
@@ -39,9 +35,9 @@ export class SocketService {
     });
   }
 
-  listenCommunications(): Observable<communication> {
+  listenCommunications(): Observable<Communication> {
     return new Observable((observable) => {
-      this.socket.on('new-communication', (data: communication) => {
+      this.socket.on('new-communication', (data: Communication) => {
         observable.next(data);
       });
     });

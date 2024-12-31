@@ -1,9 +1,3 @@
-import {
-  GroupProcedure,
-  StateProcedure,
-  StatusMail,
-} from '../../../domain/models';
-
 export interface communication {
   _id: string;
   sender: officer;
@@ -12,7 +6,7 @@ export interface communication {
   reference: string;
   attachmentsCount: string;
   internalNumber: string;
-  status: StatusMail;
+  status: string;
   sentDate: string;
   receivedDate?: string;
   actionLog?: actionLog;
@@ -20,7 +14,7 @@ export interface communication {
 }
 
 interface officer {
-  cuenta: string;
+  account: string;
   fullname: string;
   jobtitle: string;
 }
@@ -29,11 +23,11 @@ interface procedureProps {
   ref: string;
   code: string;
   reference: string;
-  group: 'ExternalProcedure' | 'InternalProcedure';
+  group: string;
 }
 
 interface actionLog {
-  manager: string;
+  fullname: string;
   description: string;
   date: string;
 }

@@ -29,11 +29,6 @@ import { OverlayModule } from '@angular/cdk/overlay';
 import { filter, switchMap } from 'rxjs';
 
 import {
-  StatusMail,
-  Communication,
-  StateProcedure,
-} from '../../../../domain/models';
-import {
   PdfService,
   SocketService,
   ArchiveService,
@@ -44,12 +39,16 @@ import {
   CacheService,
   SearchInputComponent,
 } from '../../../../shared';
-import { communication } from '../../../infrastructure';
 import { SubmissionDialogComponent } from './submission-dialog/submission-dialog.component';
-import { submissionDialogData } from '../../../domain';
+import {
+  communcationStatus,
+  Communication,
+  submissionDialogData,
+} from '../../../domain';
+import { StateProcedure } from '../../../../domain/models';
 
 interface cache {
-  datasource: communication[];
+  datasource: Communication[];
   datasize: number;
   index: number;
   limit: number;
@@ -99,9 +98,9 @@ export default class InboxComponent implements OnInit {
   private cacheService: CacheService<cache> = inject(CacheService);
   private formBuilder = inject(FormBuilder);
 
-  datasource = signal<communication[]>([]);
+  datasource = signal<Communication[]>([]);
   datasize = signal<number>(0);
-  selection = new SelectionModel<communication>(true, []);
+  selection = new SelectionModel<Communication>(true, []);
 
   limit = signal<number>(10);
   index = signal<number>(0);
@@ -126,8 +125,8 @@ export default class InboxComponent implements OnInit {
   ];
   readonly statusOptions = [
     { value: null, label: 'Todos' },
-    { value: StatusMail.Pending, label: 'Sin Recibir' },
-    { value: StatusMail.Received, label: 'Recibidos' },
+    { value: communcationStatus.Pending, label: 'Sin Recibir' },
+    { value: communcationStatus.Received, label: 'Recibidos' },
   ];
   readonly groups = [
     { value: null, label: 'Todos' },
@@ -165,11 +164,11 @@ export default class InboxComponent implements OnInit {
     this._accept(this.selection.selected);
   }
 
-  acceptOne(item: communication): void {
+  acceptOne(item: Communication): void {
     this._accept([item]);
   }
 
-  rejectOne(item: communication): void {
+  rejectOne(item: Communication): void {
     this._reject([item]);
   }
 
@@ -177,12 +176,13 @@ export default class InboxComponent implements OnInit {
     this._reject(this.selection.selected);
   }
 
-  send({ _id, procedure, isOriginal, attachmentsCount }: communication) {
+  send({ id, procedure, isOriginal, attachmentsCount }: Communication) {
     const data: submissionDialogData = {
+      communicationId: id,
+      procedure: { id: procedure.ref, code: procedure.code },
+      allowAttachDocument: true,
       attachmentsCount,
       isOriginal,
-      procedure: { id: procedure.ref, code: procedure.code },
-      communicationId: _id,
     };
     const dialogRef = this.dialog.open(SubmissionDialogComponent, {
       maxWidth: '900px',
@@ -191,12 +191,12 @@ export default class InboxComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe((message: string) => {
       if (!message) return;
-      this._removeItemDatasource([_id]);
+      this._removeItemDatasource([id]);
     });
   }
 
   archive(
-    { _id, procedure }: Communication,
+    { id, procedure }: Communication,
     state: StateProcedure.Concluido | StateProcedure.Suspendido
   ) {
     // this.alertService.ConfirmAlert({
@@ -263,12 +263,15 @@ export default class InboxComponent implements OnInit {
     this.getData();
   }
 
-  private _accept(communications: communication[]): void {
-    const selected = communications.map(({ _id }) => _id);
+  private _accept(communications: Communication[]): void {
+    const selected = communications
+      .filter(({ status }) => status === communcationStatus.Pending)
+      .map(({ id }) => id);
+    if (selected.length === 0) return;
     const title =
       communications.length === 1
         ? `¿Aceptar tramite ${communications[0].procedure.code}?`
-        : `¿Aceptar los tramites seleccionados`;
+        : `¿Aceptar los tramites seleccionados?`;
     this.alertService
       .confirmDialog({
         title,
@@ -282,8 +285,8 @@ export default class InboxComponent implements OnInit {
       .subscribe(() => {
         this.datasource.update((values) => {
           values.map((item, index) => {
-            if (selected.includes(item._id)) {
-              values[index].status = StatusMail.Received;
+            if (selected.includes(item.id)) {
+              values[index].status = communcationStatus.Received;
             }
             return item;
           });
@@ -292,18 +295,21 @@ export default class InboxComponent implements OnInit {
       });
   }
 
-  private _reject(communications: communication[]): void {
-    const selected = communications.map(({ _id }) => _id);
+  private _reject(communications: Communication[]): void {
+    const selected = communications
+      .filter(({ status }) => status === communcationStatus.Pending)
+      .map(({ id }) => id);
+    if (selected.length === 0) return;
     this.alertService
       .descriptionDialog({
         title:
           selected.length === 1
             ? `¿Rechazar tramite ${communications[0].procedure.code}?`
             : `¿Rechazar los tramites seleccionados?`,
-        description: 'Ingrese el motivo del rechazo',
+        placeholder: 'Ingrese el motivo del rechazo',
       })
       .pipe(
-        filter((term) => !!term),
+        filter((description) => !!description),
         switchMap((description) =>
           this.inboxService.reject(selected, description!)
         )
@@ -331,9 +337,7 @@ export default class InboxComponent implements OnInit {
       .listenCancelCommunications()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((id) => {
-        this.datasource.update((values) =>
-          values.filter((el) => el._id !== id)
-        );
+        this.datasource.update((values) => values.filter((el) => el.id !== id));
         this.datasize.update((value) => (value -= 1));
       });
   }
@@ -360,7 +364,7 @@ export default class InboxComponent implements OnInit {
 
   private _removeItemDatasource(ids: string[]): void {
     this.datasource.update((values) =>
-      values.filter((el) => !ids.includes(el._id))
+      values.filter((el) => !ids.includes(el.id))
     );
     this.datasize.update((length) => (length -= ids.length));
     this.selection.clear();

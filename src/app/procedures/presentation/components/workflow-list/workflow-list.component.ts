@@ -79,7 +79,7 @@ import { communication } from '../../../../communications/infrastructure';
                 <div class="flex gap-x-2">
                   <dt class="text-sm font-medium">Encargado:</dt>
                   <dd class="text-sm">
-                    {{ subitem.actionLog.manager }}
+                    {{ subitem.actionLog.fullname }}
                   </dd>
                 </div>
                 <div class="flex gap-x-2">
@@ -120,7 +120,7 @@ export class WorkflowListComponent implements OnInit {
   workflow = input.required<communication[]>();
   test = signal<communication[][]>([]);
   ngOnInit(): void {
-    this.test.set(this.findPaths(this.workflow()[0].sender.cuenta));
+    this.test.set(this.findPaths(this.workflow()[0].sender.account));
     console.log(this.test());
   }
 
@@ -140,13 +140,13 @@ export class WorkflowListComponent implements OnInit {
 
     // Filtra las comunicaciones que parten del nodo actual y busca recursivamente
     const paths = this.workflow()
-      .filter((entry) => entry.sender.cuenta === currentCuenta)
+      .filter((entry) => entry.sender.account === currentCuenta)
       .flatMap((entry) => {
         const newPath = [...path, entry];
         console.log(newPath); // Añade la comunicación actual al camino
         return this.findPaths(
           initialCuenta,
-          entry.recipient.cuenta,
+          entry.recipient.account,
           newPath,
           new Set(visited)
         );

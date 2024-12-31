@@ -10,6 +10,7 @@ import {
   ConfirmDialogComponent,
   LoaderDialogComponent,
   DescriptionDialogComponent,
+  descriptionDialogProps,
 } from '..';
 
 interface AlertOptions {
@@ -43,10 +44,6 @@ interface SnackbarOptions {
   action?: string;
 }
 
-interface dialogProps {
-  title: string;
-  description: string;
-}
 @Injectable({
   providedIn: 'root',
 })
@@ -76,7 +73,7 @@ export class AlertService {
       .afterClosed();
   }
 
-  descriptionDialog(data: dialogProps): Observable<string | null> {
+  descriptionDialog(data: descriptionDialogProps): Observable<string | null> {
     return this.dialogRef
       .open(DescriptionDialogComponent, {
         data: data,

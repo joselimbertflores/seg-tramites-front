@@ -119,17 +119,17 @@ export class WorkflowGraphComponent {
     const nodes: Record<string, Node> = {};
     const links: Edge[] = [];
     workflow.forEach(({ sender, recipient, status }, index) => {
-      nodes[sender.cuenta] = {
-        id: sender.cuenta,
-        label: sender.cuenta,
+      nodes[sender.account] = {
+        id: sender.account,
+        label: sender.account,
         data: {
           fullname: sender.fullname,
           jobtitle: sender.jobtitle,
         },
       };
-      nodes[recipient.cuenta] = {
-        id: recipient.cuenta,
-        label: recipient.cuenta,
+      nodes[recipient.account] = {
+        id: recipient.account,
+        label: recipient.account,
         data: {
           fullname: recipient.fullname,
           jobtitle: recipient.jobtitle,
@@ -137,8 +137,8 @@ export class WorkflowGraphComponent {
       };
       links.push({
         id: `a-${index}`,
-        source: sender.cuenta,
-        target: recipient.cuenta,
+        source: sender.account,
+        target: recipient.account,
         data: {
           class: status,
         },

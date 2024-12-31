@@ -9,25 +9,29 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 
+export interface descriptionDialogProps {
+  title: string;
+  placeholder: string;
+}
 @Component({
-    selector: 'description-dialog',
-    imports: [
-        ReactiveFormsModule,
-        MatDialogModule,
-        MatButtonModule,
-        MatInputModule,
-        MatFormFieldModule,
-    ],
-    template: `
+  selector: 'description-dialog',
+  imports: [
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatInputModule,
+    MatFormFieldModule,
+  ],
+  template: `
     <h2 mat-dialog-title>{{ data.title }}</h2>
     <mat-dialog-content>
       <div class="py-2">
-        <mat-form-field>
+        <mat-form-field appearance="outline">
           <mat-label>Descripcion</mat-label>
           <textarea
             matInput
             [formControl]="control"
-            [placeholder]="data.description"
+            [placeholder]="data.placeholder"
           ></textarea>
         </mat-form-field>
       </div>
@@ -44,10 +48,10 @@ import { MatInputModule } from '@angular/material/input';
       </button>
     </mat-dialog-actions>
   `,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DescriptionDialogComponent {
-  data = inject<{ title: string; description: string }>(MAT_DIALOG_DATA);
+  data = inject<descriptionDialogProps>(MAT_DIALOG_DATA);
   dialogRef = inject(MatDialogRef<DescriptionDialogComponent>);
 
   control = new FormControl<string>('', {

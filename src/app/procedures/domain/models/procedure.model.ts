@@ -6,7 +6,7 @@ export interface ProcedureProps {
   isSend: boolean;
   reference: string;
   account: string;
-  group: GroupProcedure;
+  group: procedureGroup;
   state: StateProcedure;
   createdAt: Date;
 }
@@ -17,7 +17,7 @@ export interface OriginDetails {
   phone?: string;
 }
 
-export enum GroupProcedure {
+export enum procedureGroup {
   External = 'ExternalProcedure',
   Internal = 'InternalProcedure',
 }
@@ -43,7 +43,7 @@ interface officer {
 export abstract class Procedure {
   public readonly _id: string;
   public readonly code: string;
-  public readonly group: GroupProcedure;
+  public readonly group: procedureGroup;
   public readonly createdAt: Date;
   public readonly account: string;
   public readonly endDate?: Date;
