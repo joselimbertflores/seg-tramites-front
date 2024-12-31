@@ -153,6 +153,12 @@ export const routes: Routes = [
             loadComponent: () =>
               import('./communications/presentation/pages/docs/docs.component'),
           },
+          {
+            path: 'archives',
+            title: 'Archivos',
+            loadComponent: () =>
+              import('./communications/presentation/pages/archives/archives.component'),
+          },
         ],
       },
 

@@ -39,16 +39,16 @@ export function loggingInterceptor(
 }
 
 const handleHttpErrors = (error: HttpErrorResponse, service: AlertService) => {
-  const authService = inject(AuthService);
-  const router = inject(Router);
+  // const authService = inject(AuthService);
+  // const router = inject(Router);
   const message: string = error.error['message'] ?? 'Error no controlado';
   switch (error.status) {
     case 500:
       service.showToast({ type: 'error', title: 'Ha ocurrido un error' });
       break;
     case 401:
-      authService.logout();
-      router.navigate(['/login']);
+      // authService.logout();
+      // router.navigate(['/login']);
       break;
     case 400:
       service.showToast({
