@@ -81,6 +81,7 @@ export class AuthService {
           return this._setAuthentication(token);
         }),
         catchError(() => {
+          this.logout();
           return of(false);
         })
       );
