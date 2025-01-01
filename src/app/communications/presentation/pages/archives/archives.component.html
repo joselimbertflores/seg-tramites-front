@@ -1,27 +1,6 @@
-<mat-toolbar class="bg-blue-500 text-white">
-    <span>Archivos</span>
-    <span class="flex-1"></span>
-    <button (click)="openCreateFolderDialog()" mat-flat-button color="primary" class="bg-white text-blue-500">Agregar</button>
-  </mat-toolbar>
-  
-  <div class="grid grid-cols-4 gap-4 p-4">
-    <div
-      *ngFor="let folder of folders(); let i = index"
-      class="relative group cursor-pointer bg-gray-800 text-white p-4 rounded-lg flex flex-col items-center hover:bg-gray-700 transition"
-    >
-      <!-- Icono o imagen del folder -->
-      <div class="text-6xl text-blue-400 mb-4">
-        📁
-      </div>
-      <!-- Nombre de la carpeta -->
-      <div class="truncate w-full text-center">{{ folder.name }}</div>
-      <!-- Botón de eliminar (visible al posicionar el cursor) -->
-      <button
-        class="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700"
-        (click)="deleteFolder(folder._id, $event)"
-      >
-        🗑️
-      </button>
-    </div>
-  </div>
+<mat-toolbar>
+    <button mat-icon-button (click)="back()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+</mat-toolbar>
   
