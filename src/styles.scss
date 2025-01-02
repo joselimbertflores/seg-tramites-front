@@ -10,6 +10,11 @@ html {
       density: -1,
     )
   );
+  .overlay {
+    background: var(--mat-sys-surface-container-low);
+    color: var(--mat-sys-on-surface);
+    box-shadow: var(--mat-sys-level2);
+  }
 }
 
 @tailwind base;

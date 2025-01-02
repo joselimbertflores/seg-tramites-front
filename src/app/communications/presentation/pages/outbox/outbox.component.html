@@ -9,62 +9,16 @@
       matTooltip="Cancelar"
       (click)="cancelSelection()"
     >
-      <mat-icon> delete</mat-icon>
+      <mat-icon>delete</mat-icon>
     </button>
     }
-    <button
-      mat-icon-button
-      aria-label="Filter"
-      cdkOverlayOrigin
-      #menuOverlay="cdkOverlayOrigin"
-      matTooltip="Filtrar"
-      (click)="isOpen = !isOpen"
-    >
-      <mat-icon>filter_alt</mat-icon>
-    </button>
   </mat-toolbar>
-  <ng-template
-    cdkConnectedOverlay
-    [cdkConnectedOverlayOrigin]="menuOverlay"
-    [cdkConnectedOverlayOpen]="isOpen"
-    (overlayOutsideClick)="isOpen = false"
-  >
-    <div class="overlay-menu mat-elevation-z8 px-2 py-3 sm:w-[450px]">
-      <div class="flex flex-col">
-        <div>
-          <mat-form-field>
-            <mat-label>Estado de envio</mat-label>
-            <mat-select [(ngModel)]="status">
-              @for (item of statusOptions; track $index) {
-              <mat-option [value]="item.value">{{ item.label }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-        </div>
-        <div>
-          <mat-form-field>
-            <mat-label>Tipo de documento</mat-label>
-            <mat-select [(ngModel)]="isOriginal">
-              @for (item of documentOptions; track $index) {
-              <mat-option [value]="item.value">{{ item.label }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-        </div>
-      </div>
-
-      <div class="flex justify-end gap-x-2 mt-2">
-        <button mat-button (click)="reset()">Restablecer</button>
-        <button mat-flat-button (click)="filter()">Buscar</button>
-      </div>
-    </div>
-  </ng-template>
 
   <div class="flex justify-end py-2">
     <div class="w-full px-2 sm:w-1/4 h-11">
       <search-input
         (onSearch)="search($event)"
-        placeholder="Proveido / Destinatario"
+        placeholder="Alterno / Destinatario"
       />
     </div>
   </div>
@@ -95,7 +49,7 @@
           <mat-icon class="text-orange-400">outgoing_mail</mat-icon>
           } @case ('rejected') {
           <mat-icon class="text-red-500">warning</mat-icon>
-          } @default { ? } }
+          } @default { (?) } }
         </td>
       </ng-container>
 
@@ -159,11 +113,19 @@
             <mat-icon>more_vert</mat-icon>
           </button>
           <mat-menu #menu="matMenu">
-            <button (click)="send(element)" mat-menu-item>
-              <mat-icon>send</mat-icon>
-              <span>Remitir</span>
+            <button
+              mat-menu-item
+              (click)="send(element)"
+              [disabled]="!element.isOriginal"
+            >
+              <mat-icon>reply</mat-icon>
+              <span>Reenviar</span>
             </button>
-            <button (click)="cancelOne(element)" mat-menu-item>
+            <button
+              mat-menu-item
+              (click)="cancelOne(element)"
+              [disabled]="element.status !== 'pending'"
+            >
               <mat-icon>delete</mat-icon>
               <span>Cancelar</span>
             </button>
@@ -171,7 +133,6 @@
         </td>
       </ng-container>
 
-      <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
       <ng-container matColumnDef="expandedDetail">
         <td
           mat-cell

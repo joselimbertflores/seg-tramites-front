@@ -47,6 +47,8 @@ import {
 } from '../../../domain';
 import { StateProcedure } from '../../../../domain/models';
 
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+
 interface cache {
   datasource: Communication[];
   datasize: number;
@@ -71,6 +73,7 @@ interface cache {
     MatTooltipModule,
     MatCheckboxModule,
     MatPaginatorModule,
+    MatButtonToggleModule,
     SearchInputComponent,
   ],
   templateUrl: './inbox.component.html',
@@ -243,6 +246,7 @@ export default class InboxComponent implements OnInit {
       return;
     }
     this.selection.select(...this.datasource());
+    console.log(this.selection.selected);
   }
 
   filter() {
@@ -261,6 +265,11 @@ export default class InboxComponent implements OnInit {
     this.limit.set(pageSize);
     this.index.set(pageIndex);
     this.getData();
+  }
+
+  get isButtonArchiveEnabled(): boolean {
+    if (this.selection.selected.length === 0) return false;
+    return this.selection.selected.every(({ status }) => status === 'received');
   }
 
   private _accept(communications: Communication[]): void {

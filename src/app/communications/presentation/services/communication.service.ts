@@ -29,8 +29,6 @@ interface filterOutboxProps {
   limit: number;
   offset: number;
   term?: string;
-  status?: communcationStatus.Pending | communcationStatus.Rejected | null;
-  isOriginal?: boolean | null;
 }
 
 interface filterInboxProps {
@@ -109,16 +107,12 @@ export class CommunicationService {
       );
   }
 
-  getOutbox({ limit, offset, status, isOriginal, term }: filterOutboxProps) {
+  getOutbox({ limit, offset, term }: filterOutboxProps) {
     const params = new HttpParams({
       fromObject: {
         limit,
         offset,
         ...(term && { term }),
-        ...(status && { status }),
-        ...(isOriginal !== null && isOriginal !== undefined
-          ? { isOriginal }
-          : {}),
       },
     });
     return this.http

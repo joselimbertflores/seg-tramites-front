@@ -2,14 +2,15 @@
   <mat-toolbar>
     <span>Bandeja de entrada</span>
     <span class="flex-1"></span>
-    <button
-      mat-icon-button
-      aria-label="Recibir"
-      matTooltip="Aceptar"
-      (click)="acceptMultiple()"
-    >
+    <button mat-icon-button matTooltip="Aceptar" (click)="acceptMultiple()">
       <mat-icon>check</mat-icon>
     </button>
+
+    @if(isButtonArchiveEnabled){
+    <button mat-icon-button matTooltip="Archivar">
+      <mat-icon>archive</mat-icon>
+    </button>
+    }
 
     <button
       mat-icon-button
@@ -28,7 +29,13 @@
     [cdkConnectedOverlayOpen]="isOpen"
     (overlayOutsideClick)="isOpen = false"
   >
-    <div class="overlay-menu mat-elevation-z8 px-2 py-3 sm:w-[400px]">
+    <div class="overlay px-2 py-4 sm:w-[400px]">
+      <div class="flex items-center justify-between h-24">
+        <span class="size">Filtros</span>
+        <button mat-icon-button (click)="isOpen = false">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
       <form [formGroup]="filterForm">
         <div class="flex flex-col">
           <div>
@@ -74,8 +81,18 @@
     </div>
   </ng-template>
 
-  <div class="flex justify-end py-2">
-    <div class="w-full px-2 sm:w-1/4 h-11">
+  <div
+    class="flex flex-col sm:flex-row justify-between items-center py-2 gap-y-2"
+  >
+    <div>
+      <mat-button-toggle-group aria-label="status">
+        <mat-button-toggle value="bold">Todo</mat-button-toggle>
+        <mat-button-toggle value="italic">Recibidos</mat-button-toggle>
+        <mat-button-toggle value="underline">Sin Recibir</mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+
+    <div class="w-full px-2 sm:w-1/4 h-12">
       <search-input
         (onSearch)="search($event)"
         placeholder="Alterno / Referencia"
@@ -113,7 +130,7 @@
       <ng-container matColumnDef="code">
         <th mat-header-cell *matHeaderCellDef>Alterno</th>
         <td mat-cell *matCellDef="let row">
-          <a [routerLink]="['../inbox', row._id]">
+          <a [routerLink]="['../inbox', row._id]" class="text-blue-600">
             {{ row.procedure.code }}
           </a>
         </td>

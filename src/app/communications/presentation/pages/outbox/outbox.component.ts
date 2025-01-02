@@ -14,14 +14,12 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
-import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog } from '@angular/material/dialog';
 import { SelectionModel } from '@angular/cdk/collections';
-import { OverlayModule } from '@angular/cdk/overlay';
 import {
   animate,
   state,
@@ -35,8 +33,8 @@ import { CommunicationService } from '../../../../presentation/services';
 import { AlertService, SearchInputComponent } from '../../../../shared';
 import { SubmissionDialogComponent } from '../inbox/submission-dialog/submission-dialog.component';
 import {
-  communcationStatus,
   Communication,
+  communcationStatus,
 } from '../../../domain/models/communication.model';
 import { submissionDialogData } from '../../../domain';
 
@@ -48,11 +46,9 @@ import { submissionDialogData } from '../../../domain';
     RouterModule,
     MatIconModule,
     MatMenuModule,
-    OverlayModule,
     MatTableModule,
     MatInputModule,
     MatButtonModule,
-    MatSelectModule,
     MatTooltipModule,
     MatToolbarModule,
     MatCheckboxModule,
@@ -85,7 +81,7 @@ export default class OutboxComponent {
   private communicationService = inject(CommunicationService);
   // private pdfService = inject(PdfService);
 
-  private dialog = inject(MatDialog);
+  private dialogRef = inject(MatDialog);
 
   datasource = signal<Communication[]>([]);
   datasize = signal<number>(0);
@@ -96,23 +92,8 @@ export default class OutboxComponent {
   offset = computed<number>(() => this.limit() * this.index());
 
   term = signal<string>('');
-  isOriginal = signal<boolean | null>(null);
-  status = signal<
-    communcationStatus.Pending | communcationStatus.Rejected | null
-  >(null);
+  expandedElement: Communication | null;
 
-  expandedElement: any | null;
-
-  readonly statusOptions = [
-    { value: null, label: 'Todos' },
-    { value: communcationStatus.Rejected, label: 'Rechazados' },
-    { value: communcationStatus.Pending, label: 'Pendientes' },
-  ];
-  readonly documentOptions = [
-    { value: null, label: 'Todos' },
-    { value: true, label: 'Original' },
-    { value: false, label: 'Copia' },
-  ];
   readonly displayedColumns = [
     'select',
     'status',
@@ -124,7 +105,6 @@ export default class OutboxComponent {
     'expand',
     'options',
   ];
-  isOpen = false;
 
   constructor() {}
 
@@ -138,8 +118,6 @@ export default class OutboxComponent {
         limit: this.limit(),
         offset: this.offset(),
         term: this.term(),
-        status: this.status(),
-        isOriginal: this.isOriginal(),
       })
       .subscribe(({ communications, length }) => {
         this.datasource.set(communications);
@@ -162,9 +140,9 @@ export default class OutboxComponent {
       attachmentsCount,
       isOriginal,
     };
-    const dialogRef = this.dialog.open(SubmissionDialogComponent, {
-      maxWidth: '900px',
-      width: '900px',
+    const dialogRef = this.dialogRef.open(SubmissionDialogComponent, {
+      maxWidth: '1100px',
+      width: '1100px',
       data: data,
     });
     dialogRef.afterClosed().subscribe((result: Communication[]) => {
@@ -217,20 +195,6 @@ export default class OutboxComponent {
   onPageChange({ pageIndex, pageSize }: PageEvent) {
     this.limit.set(pageSize);
     this.index.set(pageIndex);
-    this.getData();
-  }
-
-  filter() {
-    this.index.set(0);
-    this.isOpen = false;
-    this.getData();
-  }
-
-  reset() {
-    this.isOpen = false;
-    this.status.set(null);
-    this.isOriginal.set(null);
-    this.term.set('');
     this.getData();
   }
 
