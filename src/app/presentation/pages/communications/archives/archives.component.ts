@@ -34,7 +34,7 @@ export interface CacheData {
 }
 
 @Component({
-  selector: 'app-archives',
+  selector: 'app-folders',
   imports: [
     CommonModule,
     RouterModule,

@@ -157,7 +157,21 @@ export const routes: Routes = [
             path: 'archives',
             title: 'Archivos',
             loadComponent: () =>
-              import('./communications/presentation/pages/archives/archives.component'),
+              import('./communications/presentation/pages/folders/folders.component'),
+          },
+          {
+            path: 'folders',
+            loadComponent: () =>
+              import(
+                './communications/presentation/pages/folders/folders.component'
+              )
+          },
+          {
+            path: 'folders/:id',
+            loadComponent: () =>
+              import(
+                './communications/presentation/pages/archives/archives.component'
+              )
           },
         ],
       },
@@ -171,14 +185,7 @@ export const routes: Routes = [
       //     ).then((c) => c.DetailComponent),
       // },
 
-      {
-        path: 'archives',
-        canActivate: [updatedPasswordGuard],
-        loadComponent: () =>
-          import(
-            './presentation/pages/communications/archives/archives.component'
-          ).then((c) => c.ArchivesComponent),
-      },
+      
       {
         path: 'resources',
         loadComponent: () =>
