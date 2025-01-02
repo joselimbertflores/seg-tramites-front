@@ -70,7 +70,7 @@
   </div>
 
   <div class="mat-elevation-z8">
-    <table mat-table [dataSource]="datasource()">
+    <table mat-table [dataSource]="datasource()" multiTemplateDataRows>
       <ng-container matColumnDef="select">
         <th mat-header-cell *matHeaderCellDef class="w-8">
           <mat-checkbox
@@ -107,7 +107,7 @@
       <ng-container matColumnDef="type">
         <th mat-header-cell *matHeaderCellDef>Documento</th>
         <td mat-cell *matCellDef="let element">
-          {{ element.isOriginal ? "Original" : "Copia" }}
+          {{ element.groupLabel }} / {{ element.documentLabel }}
         </td>
       </ng-container>
 
@@ -117,7 +117,7 @@
       </ng-container>
 
       <ng-container matColumnDef="sentDate">
-        <th mat-header-cell *matHeaderCellDef>Fecha envio</th>
+        <th mat-header-cell *matHeaderCellDef>Fecha</th>
         <td mat-cell *matCellDef="let element" class="w-36">
           {{ element.sentDate | date : "short" }}
         </td>
@@ -126,18 +126,29 @@
       <ng-container matColumnDef="recipient">
         <th mat-header-cell *matHeaderCellDef>Destinatario</th>
         <td mat-cell *matCellDef="let element" class="sm:max-w-80">
-          <div class="flex flex-col py-2">
-            <div>Para: {{ element.recipient.fullname | titlecase }}</div>
-            @if(element.actionLog){
-            <div class="text-red-600">
-              {{ element.actionLog.fullname | titlecase }}:
-              <span class="font-bold">
-                {{ element.actionLog.description }}
-              </span>
-            </div>
-            <div>Fecha: {{ element.actionLog.date | date : "short" }}</div>
+          Para: {{ element.recipient.fullname | titlecase }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="expand">
+        <th mat-header-cell *matHeaderCellDef aria-label="row actions">
+          &nbsp;
+        </th>
+        <td mat-cell *matCellDef="let element" class="w-8">
+          <button
+            mat-icon-button
+            aria-label="expand row"
+            (click)="
+              expandedElement = expandedElement === element ? null : element;
+              $event.stopPropagation()
+            "
+          >
+            @if (expandedElement === element) {
+            <mat-icon>keyboard_arrow_up</mat-icon>
+            } @else {
+            <mat-icon>keyboard_arrow_down</mat-icon>
             }
-          </div>
+          </button>
         </td>
       </ng-container>
 
@@ -160,8 +171,50 @@
         </td>
       </ng-container>
 
+      <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
+      <ng-container matColumnDef="expandedDetail">
+        <td
+          mat-cell
+          *matCellDef="let element"
+          [attr.colspan]="displayedColumns.length"
+        >
+          <div
+            [@detailExpand]="
+              element == expandedElement ? 'expanded' : 'collapsed'
+            "
+          >
+            <div class="flex flex-col px-2 pb-4">
+              <div>
+                Para: {{ element.recipient.fullname | titlecase }} ({{
+                  element.recipient.jobtitle
+                }})
+              </div>
+              <div>Nro. Interno: {{ element.citeCode }}</div>
+              @if(element.actionLog){
+              <div class="text-red-600">
+                {{ element.actionLog.fullname | titlecase }}:
+                <span class="font-bold">
+                  {{ element.actionLog.description }}
+                </span>
+              </div>
+              <div>Fecha: {{ element.actionLog.date | date : "short" }}</div>
+              }
+            </div>
+          </div>
+        </td>
+      </ng-container>
+
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: displayedColumns"
+        class="element-row"
+      ></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: ['expandedDetail']"
+        class="detail-row"
+      ></tr>
       <tr class="mat-row" *matNoDataRow>
         <td class="mat-cell p-3" colspan="8">Sin resultados</td>
       </tr>

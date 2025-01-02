@@ -16,7 +16,7 @@ import {
 } from '../../../domain/models';
 
 import { communication, CommunicationMapper } from '../../infrastructure';
-import { onlineAccount, recipient } from '../../domain';
+import { communcationStatus, onlineAccount, recipient } from '../../domain';
 
 interface createCommunicationProps {
   form: Object;
@@ -29,7 +29,7 @@ interface filterOutboxProps {
   limit: number;
   offset: number;
   term?: string;
-  status?: StatusMail.Pending | StatusMail.Rejected | null;
+  status?: communcationStatus.Pending | communcationStatus.Rejected | null;
   isOriginal?: boolean | null;
 }
 
@@ -101,7 +101,9 @@ export class CommunicationService {
       )
       .pipe(
         map(({ communications, length }) => ({
-          communications: communications.map((el) =>CommunicationMapper.fromResponse(el)),
+          communications: communications.map((el) =>
+            CommunicationMapper.fromResponse(el)
+          ),
           length,
         }))
       );
@@ -119,10 +121,19 @@ export class CommunicationService {
           : {}),
       },
     });
-    return this.http.get<{ communications: communication[]; length: number }>(
-      `${this.url}/outbox`,
-      { params }
-    );
+    return this.http
+      .get<{ communications: communication[]; length: number }>(
+        `${this.url}/outbox`,
+        { params }
+      )
+      .pipe(
+        map(({ communications, length }) => ({
+          communications: communications.map((el) =>
+            CommunicationMapper.fromResponse(el)
+          ),
+          length,
+        }))
+      );
   }
 
   getOne(id: string) {

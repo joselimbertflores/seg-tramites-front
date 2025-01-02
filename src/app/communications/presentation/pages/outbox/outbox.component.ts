@@ -20,19 +20,24 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog } from '@angular/material/dialog';
-
 import { SelectionModel } from '@angular/cdk/collections';
 import { OverlayModule } from '@angular/cdk/overlay';
+import {
+  animate,
+  state,
+  style,
+  transition,
+  trigger,
+} from '@angular/animations';
 import { filter, switchMap } from 'rxjs';
 
-import {
-  CommunicationService,
-} from '../../../../presentation/services';
+import { CommunicationService } from '../../../../presentation/services';
 import { AlertService, SearchInputComponent } from '../../../../shared';
 import { SubmissionDialogComponent } from '../inbox/submission-dialog/submission-dialog.component';
-
-import { StatusMail } from '../../../../domain/models';
-import { communication } from '../../../infrastructure';
+import {
+  communcationStatus,
+  Communication,
+} from '../../../domain/models/communication.model';
 import { submissionDialogData } from '../../../domain';
 
 @Component({
@@ -56,6 +61,24 @@ import { submissionDialogData } from '../../../domain';
   ],
   templateUrl: './outbox.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [
+    trigger('detailExpand', [
+      state('collapsed,void', style({ height: '0px', minHeight: '0' })),
+      state('expanded', style({ height: '*' })),
+      transition(
+        'expanded <=> collapsed',
+        animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')
+      ),
+    ]),
+  ],
+  styles: `
+    tr.detail-row {
+      height: 0;
+    }
+    .element-row td {
+      border-bottom-width: 0;
+    }
+  `,
 })
 export default class OutboxComponent {
   private alertService = inject(AlertService);
@@ -64,9 +87,9 @@ export default class OutboxComponent {
 
   private dialog = inject(MatDialog);
 
-  datasource = signal<communication[]>([]);
+  datasource = signal<Communication[]>([]);
   datasize = signal<number>(0);
-  selection = new SelectionModel<communication>(true, []);
+  selection = new SelectionModel<Communication>(true, []);
 
   limit = signal<number>(10);
   index = signal<number>(0);
@@ -74,12 +97,16 @@ export default class OutboxComponent {
 
   term = signal<string>('');
   isOriginal = signal<boolean | null>(null);
-  status = signal<StatusMail.Pending | StatusMail.Rejected | null>(null);
+  status = signal<
+    communcationStatus.Pending | communcationStatus.Rejected | null
+  >(null);
+
+  expandedElement: any | null;
 
   readonly statusOptions = [
     { value: null, label: 'Todos' },
-    { value: StatusMail.Rejected, label: 'Rechazados' },
-    { value: StatusMail.Pending, label: 'Pendientes' },
+    { value: communcationStatus.Rejected, label: 'Rechazados' },
+    { value: communcationStatus.Pending, label: 'Pendientes' },
   ];
   readonly documentOptions = [
     { value: null, label: 'Todos' },
@@ -89,11 +116,12 @@ export default class OutboxComponent {
   readonly displayedColumns = [
     'select',
     'status',
-    'code',
     'type',
+    'code',
     'reference',
     'recipient',
     'sentDate',
+    'expand',
     'options',
   ];
   isOpen = false;
@@ -121,16 +149,16 @@ export default class OutboxComponent {
   }
 
   send({
-    _id,
+    id,
     status,
     procedure,
     isOriginal,
     attachmentsCount,
-  }: communication): void {
+  }: Communication): void {
     const data: submissionDialogData = {
-      communicationId: _id,
+      communicationId: id,
       procedure: { id: procedure.ref, code: procedure.code },
-      isResend: status === StatusMail.Rejected ? true : false,
+      isResend: status === communcationStatus.Rejected ? true : false,
       attachmentsCount,
       isOriginal,
     };
@@ -139,12 +167,12 @@ export default class OutboxComponent {
       width: '900px',
       data: data,
     });
-    dialogRef.afterClosed().subscribe((result: communication[]) => {
+    dialogRef.afterClosed().subscribe((result: Communication[]) => {
       if (!result) return;
       this.datasource.update((values) => {
         values.unshift(...result);
-        if (status === StatusMail.Rejected) {
-          values = values.filter((el) => el._id !== _id);
+        if (status === communcationStatus.Rejected) {
+          values = values.filter((el) => el.id !== id);
         }
         if (values.length > this.limit()) {
           values.splice(this.limit(), values.length - this.limit());
@@ -153,7 +181,7 @@ export default class OutboxComponent {
       });
       this.datasize.update((value) => {
         value += result.length;
-        if (status === StatusMail.Rejected) {
+        if (status === communcationStatus.Rejected) {
           value -= 1;
         }
         return value;
@@ -163,14 +191,14 @@ export default class OutboxComponent {
   }
 
   cancelSelection(): void {
-    this._cancel(this.selection.selected.map((el) => el._id));
+    this._cancel(this.selection.selected.map((el) => el.id));
   }
 
-  cancelOne(communication: communication): void {
-    this._cancel([communication._id], communication.procedure.code);
+  cancelOne(communication: Communication): void {
+    this._cancel([communication.id], communication.procedure.code);
   }
 
-  generateRouteMap({ procedure }: communication) {
+  generateRouteMap({ procedure }: Communication) {
     // TODO generate router map
     // forkJoin([
     //   this.procedureService.getDetail(procedure._id, procedure.group),
@@ -241,7 +269,7 @@ export default class OutboxComponent {
       )
       .subscribe(() => {
         this.datasource.update((values) =>
-          values.filter(({ _id }) => !communicationIds.includes(_id))
+          values.filter(({ id }) => !communicationIds.includes(id))
         );
         this.datasize.update((value) => (value -= communicationIds.length));
         this.selection.clear();

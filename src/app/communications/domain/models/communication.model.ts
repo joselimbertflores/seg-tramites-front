@@ -94,4 +94,8 @@ export class Communication implements communicationProps {
   get documentLabel(): string {
     return this.isOriginal ? 'Original' : 'Copia';
   }
+
+  get citeCode() {
+    return this.internalNumber ? this.internalNumber : 'S/N';
+  }
 }
