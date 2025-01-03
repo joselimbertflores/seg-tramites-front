@@ -27,51 +27,39 @@
     cdkConnectedOverlay
     [cdkConnectedOverlayOrigin]="menuOverlay"
     [cdkConnectedOverlayOpen]="isOpen"
-    (overlayOutsideClick)="isOpen = false"
   >
-    <div class="overlay px-2 py-4 sm:w-[400px]">
-      <div class="flex items-center justify-between h-24">
-        <span class="size">Filtros</span>
-        <button mat-icon-button (click)="isOpen = false">
-          <mat-icon>close</mat-icon>
-        </button>
+    <div class="overlay p-3 sm:w-[400px]">
+      <div class="flex items-center justify-between px-2 mb-4">
+        <div class="flex flex-col">
+          <span class="text-lg font-medium">Filtro avanzado</span>
+          <span class="text-sm">Ingrese los campos</span>
+        </div>
+        <div>
+          <button mat-icon-button (click)="isOpen = false">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
       </div>
       <form [formGroup]="filterForm">
         <div class="flex flex-col">
-          <div>
-            <mat-form-field>
-              <mat-label>Estado</mat-label>
-              <mat-select formControlName="status">
-                @for (status of statusOptions; track $index) {
-                <mat-option [value]="status.value">
-                  {{ status.label }}
-                </mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-          </div>
-          <div>
-            <mat-form-field>
-              <mat-label>Grupo</mat-label>
-              <mat-select formControlName="group">
-                @for (group of groups; track $index) {
-                <mat-option [value]="group.value">
-                  {{ group.label }}
-                </mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-          </div>
-          <div>
-            <mat-form-field>
-              <mat-label>Recibido de:</mat-label>
-              <input
-                matInput
-                placeholder="Nombre remitente"
-                formControlName="from"
-              />
-            </mat-form-field>
-          </div>
+          <mat-form-field appearance="outline">
+            <mat-label>Grupo de tramite</mat-label>
+            <mat-select formControlName="group">
+              @for (group of groups; track $index) {
+              <mat-option [value]="group.value">{{ group.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Tipo de documento</mat-label>
+            <mat-select formControlName="isOriginal">
+              @for (group of documentTypes; track $index) {
+              <mat-option [value]="group.value">
+                {{ group.label }}
+              </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
         </div>
       </form>
       <div class="flex justify-end gap-x-2 mt-2">
@@ -85,10 +73,10 @@
     class="flex flex-col sm:flex-row justify-between items-center py-2 gap-y-2"
   >
     <div>
-      <mat-button-toggle-group aria-label="status">
-        <mat-button-toggle value="bold">Todo</mat-button-toggle>
-        <mat-button-toggle value="italic">Recibidos</mat-button-toggle>
-        <mat-button-toggle value="underline">Sin Recibir</mat-button-toggle>
+      <mat-button-toggle-group [(ngModel)]="status" (change)="filterByStatus()">
+        <mat-button-toggle [value]="'all'">Todo</mat-button-toggle>
+        <mat-button-toggle value="received">Recibidos</mat-button-toggle>
+        <mat-button-toggle value="pending">Sin Recibir</mat-button-toggle>
       </mat-button-toggle-group>
     </div>
 

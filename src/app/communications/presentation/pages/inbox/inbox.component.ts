@@ -8,11 +8,17 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterModule } from '@angular/router';
 
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -46,8 +52,7 @@ import {
   submissionDialogData,
 } from '../../../domain';
 import { StateProcedure } from '../../../../domain/models';
-
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatRadioModule } from '@angular/material/radio';
 
 interface cache {
   datasource: Communication[];
@@ -75,6 +80,7 @@ interface cache {
     MatPaginatorModule,
     MatButtonToggleModule,
     SearchInputComponent,
+    FormsModule,
   ],
   templateUrl: './inbox.component.html',
   styles: `
@@ -108,14 +114,15 @@ export default class InboxComponent implements OnInit {
   limit = signal<number>(10);
   index = signal<number>(0);
   offset = computed<number>(() => this.limit() * this.index());
+  term = signal<string>('');
   isOpen = false;
 
-  filterForm = this.formBuilder.nonNullable.group({
-    status: [''],
-    from: [''],
-    group: [''],
-    term: [''],
+  filterForm: FormGroup = this.formBuilder.group({
+    group: [null],
+    isOriginal: [],
   });
+
+  status = signal<communcationStatus | 'all'>('all');
 
   readonly displayedColumns: string[] = [
     'select',
@@ -126,16 +133,18 @@ export default class InboxComponent implements OnInit {
     'sentDate',
     'options',
   ];
-  readonly statusOptions = [
-    { value: null, label: 'Todos' },
-    { value: communcationStatus.Pending, label: 'Sin Recibir' },
-    { value: communcationStatus.Received, label: 'Recibidos' },
-  ];
+
   readonly groups = [
     { value: null, label: 'Todos' },
     { value: 'ExternalProcedure', label: 'Externos' },
     { value: 'InternalProcedure', label: 'Internos' },
     { value: 'Contratacion', label: 'Contrataciones' },
+  ];
+
+  readonly documentTypes = [
+    { value: undefined, label: 'Todos' },
+    { value: true, label: 'Original' },
+    { value: false, label: 'Copia' },
   ];
 
   constructor() {
@@ -154,7 +163,9 @@ export default class InboxComponent implements OnInit {
       .getInbox({
         limit: this.limit(),
         offset: this.offset(),
-        filterForm: this.filterForm.value,
+        term: this.term(),
+        ...this.filterForm.value,
+        ...(this.status() !== 'all' && { status: this.status() }),
       })
       .subscribe(({ communications, length }) => {
         this.datasource.set(communications);
@@ -217,7 +228,6 @@ export default class InboxComponent implements OnInit {
 
   search(term: string) {
     this.index.set(0);
-    this.filterForm.patchValue({ term });
     this.getData();
   }
 
@@ -249,10 +259,15 @@ export default class InboxComponent implements OnInit {
     console.log(this.selection.selected);
   }
 
+  filterByStatus() {
+    this.index.set(0);
+    this.getData();
+  }
+
   filter() {
     this.index.set(0);
     this.isOpen = false;
-    // this.getData();
+    this.getData();
   }
 
   reset() {

@@ -34,15 +34,11 @@ interface filterOutboxProps {
 interface filterInboxProps {
   limit: number;
   offset: number;
-  filterForm: formInbox;
-}
-interface formInbox {
-  status?: string;
-  from?: string;
-  group?: string;
   term?: string;
+  isOriginal?: boolean;
+  group?: string;
+  status?: communcationStatus | 'all';
 }
-
 @Injectable({
   providedIn: 'root',
 })
@@ -82,16 +78,19 @@ export class CommunicationService {
     );
   }
 
-  getInbox({ limit, offset, filterForm }: filterInboxProps) {
+  getInbox({ limit, offset, isOriginal, ...props }: filterInboxProps) {
+    console.log(isOriginal);
     const params = new HttpParams({
       fromObject: {
         limit,
         offset,
+        ...(isOriginal !== undefined && { isOriginal }),
         ...Object.fromEntries(
-          Object.entries(filterForm).filter(([, value]) => value)
+          Object.entries(props).filter(([, value]) => value)
         ),
       },
     });
+    console.log(params);
     return this.http
       .get<{ communications: communication[]; length: number }>(
         `${this.url}/inbox`,
