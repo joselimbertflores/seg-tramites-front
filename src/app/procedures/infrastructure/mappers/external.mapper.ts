@@ -1,7 +1,7 @@
 import {
   ExternalProcedure,
   procedureGroup,
-  StateProcedure,
+  procedureState,
 } from '../../domain';
 import { external } from '../interfaces/external.interface';
 
@@ -18,7 +18,7 @@ export class ExternalMapper {
       type: type.nombre,
       createdAt: new Date(createdAt),
       group: group as procedureGroup,
-      state: state as StateProcedure,
+      state: state as procedureState,
     });
   }
 }

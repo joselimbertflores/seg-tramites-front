@@ -5,7 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { FolderDialogComponent } from './folder-dialog/folder-dialog.component';
-import { ArchiveService } from '../../services/archive.service';
+import { FolderService } from '../../services/folder.service';
 import { AlertService } from '../../../../shared';
 import { Router, RouterModule, Scroll } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -23,7 +23,7 @@ export default class FoldersComponent {
   viewportScroller = inject(ViewportScroller);
   scrollingRef = viewChild<HTMLElement>('scrolling');
 
-  constructor(private dialog: MatDialog, private archiveService: ArchiveService) {
+  constructor(private dialog: MatDialog, private archiveService: FolderService) {
     this.loadFolders();
     const scrollingPosition: Signal<[number, number] | undefined> = toSignal(
       inject(Router).events.pipe(

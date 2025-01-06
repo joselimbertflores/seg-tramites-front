@@ -35,9 +35,9 @@ interface filterInboxProps {
   limit: number;
   offset: number;
   term?: string;
-  isOriginal?: boolean;
-  group?: string;
-  status?: communcationStatus | 'all';
+  isOriginal?: boolean | null;
+  group?: string | null;
+  status?: communcationStatus | null;
 }
 @Injectable({
   providedIn: 'root',
@@ -78,19 +78,16 @@ export class CommunicationService {
     );
   }
 
-  getInbox({ limit, offset, isOriginal, ...props }: filterInboxProps) {
-    console.log(isOriginal);
+  getInbox({ limit, offset, term, isOriginal, ...props }: filterInboxProps) {
     const params = new HttpParams({
       fromObject: {
         limit,
         offset,
-        ...(isOriginal !== undefined && { isOriginal }),
-        ...Object.fromEntries(
-          Object.entries(props).filter(([, value]) => value)
-        ),
+        ...(term && { term }),
+        ...(typeof isOriginal === 'boolean' && { isOriginal }),
+        ...Object.fromEntries(Object.entries(props).filter(([_, v]) => v)),
       },
     });
-    console.log(params);
     return this.http
       .get<{ communications: communication[]; length: number }>(
         `${this.url}/inbox`,

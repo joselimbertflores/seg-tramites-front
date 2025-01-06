@@ -29,7 +29,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
-
 import { SelectionModel } from '@angular/cdk/collections';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { filter, switchMap } from 'rxjs';
@@ -51,8 +50,8 @@ import {
   Communication,
   submissionDialogData,
 } from '../../../domain';
-import { StateProcedure } from '../../../../domain/models';
-import { MatRadioModule } from '@angular/material/radio';
+import { procedureGroup } from '../../../../procedures/domain';
+import { ArchiveDialogComponent } from './archive-dialog/archive-dialog.component';
 
 interface cache {
   datasource: Communication[];
@@ -101,7 +100,7 @@ export default class InboxComponent implements OnInit {
   private socketService = inject(SocketService);
   private destroyRef = inject(DestroyRef);
   private alertService = inject(AlertService);
-  private dialog = inject(MatDialog);
+  private dialogRef = inject(MatDialog);
   private pdfService = inject(PdfService);
   private archiveService = inject(ArchiveService);
   private cacheService: CacheService<cache> = inject(CacheService);
@@ -118,7 +117,7 @@ export default class InboxComponent implements OnInit {
   isOpen = false;
 
   filterForm: FormGroup = this.formBuilder.group({
-    group: [null],
+    group: [],
     isOriginal: [],
   });
 
@@ -135,25 +134,24 @@ export default class InboxComponent implements OnInit {
   ];
 
   readonly groups = [
-    { value: null, label: 'Todos' },
-    { value: 'ExternalProcedure', label: 'Externos' },
-    { value: 'InternalProcedure', label: 'Internos' },
+    { value: procedureGroup.External, label: 'Externos' },
+    { value: procedureGroup.Internal, label: 'Internos' },
     { value: 'Contratacion', label: 'Contrataciones' },
   ];
 
   readonly documentTypes = [
-    { value: undefined, label: 'Todos' },
     { value: true, label: 'Original' },
     { value: false, label: 'Copia' },
   ];
 
   constructor() {
-    this._listenCommunications();
-    this._listenCancelDispatches();
+    this._listenNewCommunications();
+    this._listenCancelCommunications();
     this.destroyRef.onDestroy(() => {
       this._saveCache();
     });
   }
+
   ngOnInit(): void {
     this._loadCache();
   }
@@ -170,7 +168,6 @@ export default class InboxComponent implements OnInit {
       .subscribe(({ communications, length }) => {
         this.datasource.set(communications);
         this.datasize.set(length);
-        this.selection.clear();
       });
   }
 
@@ -198,21 +195,19 @@ export default class InboxComponent implements OnInit {
       attachmentsCount,
       isOriginal,
     };
-    const dialogRef = this.dialog.open(SubmissionDialogComponent, {
+    const dialogRef = this.dialogRef.open(SubmissionDialogComponent, {
       maxWidth: '900px',
       width: '900px',
       data,
     });
     dialogRef.afterClosed().subscribe((message: string) => {
       if (!message) return;
-      this._removeItemDatasource([id]);
+      this._removeItemsDatasource([id]);
     });
   }
 
-  archive(
-    { id, procedure }: Communication,
-    state: StateProcedure.Concluido | StateProcedure.Suspendido
-  ) {
+  archive() {
+    // this.dialog
     // this.alertService.ConfirmAlert({
     //   title: `¿${
     //     state === StateProcedure.Concluido ? 'Concluir' : 'Suspender'
@@ -224,10 +219,24 @@ export default class InboxComponent implements OnInit {
     //     });
     //   },
     // });
+    this.dialogRef.open(ArchiveDialogComponent, { width: '600px' });
   }
 
   search(term: string) {
     this.index.set(0);
+    this.term.set(term);
+    this.getData();
+  }
+
+  filter() {
+    this.index.set(0);
+    this.isOpen = false;
+    this.getData();
+  }
+
+  reset() {
+    this.filterForm.reset();
+    this.isOpen = false;
     this.getData();
   }
 
@@ -238,10 +247,6 @@ export default class InboxComponent implements OnInit {
     // ]).subscribe((resp) => {
     //   this.pdfService.generateRouteSheet(resp[0], resp[1]);
     // });
-  }
-
-  get StateProcedure() {
-    return StateProcedure;
   }
 
   isAllSelected() {
@@ -259,30 +264,20 @@ export default class InboxComponent implements OnInit {
     console.log(this.selection.selected);
   }
 
-  filterByStatus() {
-    this.index.set(0);
-    this.getData();
-  }
-
-  filter() {
-    this.index.set(0);
-    this.isOpen = false;
-    this.getData();
-  }
-
-  reset() {
-    this.isOpen = false;
-    this.filterForm.reset();
-    // this.getData();
-  }
-
   onPageChange({ pageIndex, pageSize }: PageEvent) {
     this.limit.set(pageSize);
     this.index.set(pageIndex);
     this.getData();
   }
 
-  get isButtonArchiveEnabled(): boolean {
+  isButtonEnabledForStatus(status: string): boolean {
+    return (
+      this.selection.selected.every((el) => el.status === status) &&
+      this.selection.selected.length > 0
+    );
+  }
+
+  get isButtonAcceptEnabled(): boolean {
     if (this.selection.selected.length === 0) return false;
     return this.selection.selected.every(({ status }) => status === 'received');
   }
@@ -292,13 +287,13 @@ export default class InboxComponent implements OnInit {
       .filter(({ status }) => status === communcationStatus.Pending)
       .map(({ id }) => id);
     if (selected.length === 0) return;
-    const title =
-      communications.length === 1
-        ? `¿Aceptar tramite ${communications[0].procedure.code}?`
-        : `¿Aceptar los tramites seleccionados?`;
+
     this.alertService
       .confirmDialog({
-        title,
+        title:
+          communications.length === 1
+            ? `¿Aceptar tramite ${communications[0].procedure.code}?`
+            : `¿Aceptar los tramites seleccionados?`,
         description:
           'IMPORTANTE: Solo debe aceptar tramites que haya recibido en fisico',
       })
@@ -339,13 +334,13 @@ export default class InboxComponent implements OnInit {
         )
       )
       .subscribe(() => {
-        this._removeItemDatasource(selected);
+        this._removeItemsDatasource(selected);
       });
   }
 
-  private _listenCommunications(): void {
+  private _listenNewCommunications(): void {
     this.socketService
-      .listenCommunications()
+      .listenNewCommunications()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((communication) => {
         this.datasource.update((values) => {
@@ -356,13 +351,12 @@ export default class InboxComponent implements OnInit {
       });
   }
 
-  private _listenCancelDispatches() {
+  private _listenCancelCommunications() {
     this.socketService
       .listenCancelCommunications()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((id) => {
-        this.datasource.update((values) => values.filter((el) => el.id !== id));
-        this.datasize.update((value) => (value -= 1));
+        this._removeItemsDatasource([id]);
       });
   }
 
@@ -386,7 +380,7 @@ export default class InboxComponent implements OnInit {
     this.filterForm.patchValue(cache.form);
   }
 
-  private _removeItemDatasource(ids: string[]): void {
+  private _removeItemsDatasource(ids: string[]): void {
     this.datasource.update((values) =>
       values.filter((el) => !ids.includes(el.id))
     );

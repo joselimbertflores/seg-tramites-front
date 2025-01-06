@@ -2,13 +2,20 @@
   <mat-toolbar>
     <span>Bandeja de entrada</span>
     <span class="flex-1"></span>
-    <button mat-icon-button matTooltip="Aceptar" (click)="acceptMultiple()">
+    <!-- <button mat-icon-button matTooltip="Aceptar" (click)="acceptMultiple()">
       <mat-icon>check</mat-icon>
-    </button>
+    </button> -->
 
-    @if(isButtonArchiveEnabled){
+    @if(isButtonEnabledForStatus('received')){
     <button mat-icon-button matTooltip="Archivar">
       <mat-icon>archive</mat-icon>
+    </button>
+    } @if(isButtonEnabledForStatus('pending')){
+    <button mat-icon-button matTooltip="Recibir" (click)="acceptMultiple()">
+      <mat-icon>check</mat-icon>
+    </button>
+    <button mat-icon-button matTooltip="Rechazar" (click)="rejectMultiple()">
+      <mat-icon>block</mat-icon>
     </button>
     }
 
@@ -73,8 +80,8 @@
     class="flex flex-col sm:flex-row justify-between items-center py-2 gap-y-2"
   >
     <div>
-      <mat-button-toggle-group [(ngModel)]="status" (change)="filterByStatus()">
-        <mat-button-toggle [value]="'all'">Todo</mat-button-toggle>
+      <mat-button-toggle-group [(ngModel)]="status" (change)="getData()">
+        <mat-button-toggle value="all">Todo</mat-button-toggle>
         <mat-button-toggle value="received">Recibidos</mat-button-toggle>
         <mat-button-toggle value="pending">Sin Recibir</mat-button-toggle>
       </mat-button-toggle-group>
@@ -166,17 +173,11 @@
               <mat-icon>send</mat-icon>
               <span>Remitir</span>
             </button>
-            <button
-              mat-menu-item
-              (click)="archive(row, StateProcedure.Concluido)"
-            >
+            <button mat-menu-item (click)="archive()">
               <mat-icon>domain_verification</mat-icon>
               Concluir
             </button>
-            <button
-              mat-menu-item
-              (click)="archive(row, StateProcedure.Suspendido)"
-            >
+            <button mat-menu-item (click)="archive()">
               <mat-icon>pause_presentation</mat-icon>
               Suspender
             </button>

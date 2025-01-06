@@ -1,0 +1,26 @@
+import { inject, Injectable } from '@angular/core';
+import { environment } from '../../../../environments/environment';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { folder } from '../../infrastructure';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class FolderService {
+  private readonly url = `${environment.base_url}/folders`;
+  private http = inject(HttpClient);
+  constructor() {}
+
+  createFolder(name: string) {
+    return this.http.post<folder>(this.url, { name });
+  }
+
+  getFolders() {
+    return this.http.get<folder[]>(this.url);
+  }
+
+  deleteFolder(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.url}/${id}`);
+  }
+}

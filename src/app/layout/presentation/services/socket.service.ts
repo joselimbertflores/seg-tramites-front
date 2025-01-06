@@ -6,6 +6,10 @@ import { SocketClient } from '../../../infraestructure/interfaces';
 import { publication } from '../../../publications/infrastructure';
 import { userSocket } from '../../infrastructure';
 import { Communication } from '../../../communications/domain';
+import {
+  communication,
+  CommunicationMapper,
+} from '../../../communications/infrastructure';
 
 @Injectable({
   providedIn: 'root',
@@ -35,10 +39,10 @@ export class SocketService {
     });
   }
 
-  listenCommunications(): Observable<Communication> {
+  listenNewCommunications(): Observable<Communication> {
     return new Observable((observable) => {
-      this.socket.on('new-communication', (data: Communication) => {
-        observable.next(data);
+      this.socket.on('new-communication', (data: communication) => {
+        observable.next(CommunicationMapper.fromResponse(data));
       });
     });
   }

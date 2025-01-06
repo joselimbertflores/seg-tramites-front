@@ -21,7 +21,7 @@ import {
   SearchInputComponent,
   WordGeneratorService,
 } from '../../../../shared';
-import { InternalProcedure, StateProcedure } from '../../../domain';
+import { InternalProcedure, procedureState } from '../../../domain';
 import { InternalService } from '../../services';
 
 import { InternalDialogComponent } from './internal-dialog/internal-dialog.component';
@@ -144,7 +144,7 @@ export default class InternalsManageComponent {
       if (!message) return;
       this.datasource.update((values) => {
         const index = values.findIndex(({ _id }) => _id === procedure._id);
-        values[index].state = StateProcedure.Revision;
+        values[index].state = procedureState.Revision;
         return [...values];
       });
     });

@@ -7,7 +7,7 @@ export interface ProcedureProps {
   reference: string;
   account: string;
   group: procedureGroup;
-  state: StateProcedure;
+  state: procedureState;
   createdAt: Date;
 }
 
@@ -22,7 +22,7 @@ export enum procedureGroup {
   Internal = 'InternalProcedure',
 }
 
-export enum StateProcedure {
+export enum procedureState {
   Inscrito = 'INSCRITO',
   Observado = 'OBSERVADO',
   Revision = 'EN REVISION',
@@ -47,7 +47,7 @@ export abstract class Procedure {
   public readonly createdAt: Date;
   public readonly account: string;
   public readonly endDate?: Date;
-  public state: StateProcedure;
+  public state: procedureState;
   public cite: string;
   public reference: string;
   public numberOfDocuments: string;

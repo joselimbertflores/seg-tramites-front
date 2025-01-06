@@ -13,7 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { ExternalDialogComponent } from './external-dialog/external-dialog.component';
 
 import { CacheService, SearchInputComponent } from '../../../../shared';
-import { ExternalProcedure, StateProcedure } from '../../../domain';
+import { ExternalProcedure, procedureState } from '../../../domain';
 import { ExternalService } from '../../services';
 import { SubmissionDialogComponent } from '../../../../communications/presentation/pages/inbox/submission-dialog/submission-dialog.component';
 import { submissionDialogData } from '../../../../communications/domain';
@@ -129,7 +129,7 @@ export default class ExternalsManageComponent {
       if (!result) return;
       this.datasource.update((values) => {
         const index = values.findIndex(({ _id }) => _id === procedure._id);
-        values[index].state = StateProcedure.Revision;
+        values[index].state = procedureState.Revision;
         return [...values];
       });
     });
