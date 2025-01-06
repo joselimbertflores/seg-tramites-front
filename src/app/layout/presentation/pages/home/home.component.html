@@ -45,7 +45,9 @@
     </mat-sidenav>
 
     <mat-sidenav-content class="sm:px-2">
-      <router-outlet />
+      <div [@routeTransition]="route.snapshot.data" style="display: contents">
+        <router-outlet />
+      </div>
     </mat-sidenav-content>
   </mat-sidenav-container>
 </div>

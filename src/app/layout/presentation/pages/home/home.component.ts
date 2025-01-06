@@ -7,7 +7,7 @@ import {
   inject,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, ChildrenOutletContexts, Router, RouterModule } from '@angular/router';
 import { map, shareReplay } from 'rxjs';
 import { SocketService, AuthService } from '../../../../presentation/services';
 import { MatIconModule } from '@angular/material/icon';
@@ -23,6 +23,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { PublicationDialogComponent } from '../../../../publications/presentation/components';
 import { AlertService } from '../../../../shared';
+import { routeTransition } from '../../../../../slideInAnimation';
 
 @Component({
   selector: 'app-home',
@@ -41,6 +42,7 @@ import { AlertService } from '../../../../shared';
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [routeTransition],
 })
 export default class HomeComponent {
   private breakpointObserver = inject(BreakpointObserver);
@@ -58,7 +60,9 @@ export default class HomeComponent {
     shareReplay()
   );
 
-  constructor() {
+  contexts = inject(ChildrenOutletContexts);
+
+  constructor(protected route: ActivatedRoute) {
     this.destroyRef.onDestroy(() => {
       this.socketService.disconnect();
     });
@@ -81,6 +85,10 @@ export default class HomeComponent {
     this.socketService.disconnect();
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  getRouteAnimationData() {
+    // return route.snapshot.data;
   }
 
   private listenUserConnections(): void {

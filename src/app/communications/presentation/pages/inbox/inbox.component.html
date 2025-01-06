@@ -2,19 +2,27 @@
   <mat-toolbar>
     <span>Bandeja de entrada</span>
     <span class="flex-1"></span>
-    <!-- <button mat-icon-button matTooltip="Aceptar" (click)="acceptMultiple()">
-      <mat-icon>check</mat-icon>
-    </button> -->
-
     @if(isButtonEnabledForStatus('received')){
-    <button mat-icon-button matTooltip="Archivar">
+    <button
+      mat-icon-button
+      matTooltip="Archivar"
+      (click)="archive(selection.selected)"
+    >
       <mat-icon>archive</mat-icon>
     </button>
     } @if(isButtonEnabledForStatus('pending')){
-    <button mat-icon-button matTooltip="Recibir" (click)="acceptMultiple()">
+    <button
+      mat-icon-button
+      matTooltip="Recibir"
+      (click)="accept(selection.selected)"
+    >
       <mat-icon>check</mat-icon>
     </button>
-    <button mat-icon-button matTooltip="Rechazar" (click)="rejectMultiple()">
+    <button
+      mat-icon-button
+      matTooltip="Rechazar"
+      (click)="reject(selection.selected)"
+    >
       <mat-icon>block</mat-icon>
     </button>
     }
@@ -160,11 +168,11 @@
           </button>
           <mat-menu #menu="matMenu">
             @if(row.status === 'pending') {
-            <button mat-menu-item (click)="acceptOne(row)">
+            <button mat-menu-item (click)="accept([row])">
               <mat-icon>done</mat-icon>
               <span>Aceptar</span>
             </button>
-            <button mat-menu-item (click)="rejectOne(row)">
+            <button mat-menu-item (click)="reject([row])">
               <mat-icon>block</mat-icon>
               <span>Rechazar</span>
             </button>
@@ -173,14 +181,14 @@
               <mat-icon>send</mat-icon>
               <span>Remitir</span>
             </button>
-            <button mat-menu-item (click)="archive()">
+            <!-- <button mat-menu-item (click)="archive()">
               <mat-icon>domain_verification</mat-icon>
               Concluir
             </button>
             <button mat-menu-item (click)="archive()">
               <mat-icon>pause_presentation</mat-icon>
               Suspender
-            </button>
+            </button> -->
             <button (click)="generateRouteMap(row)" mat-menu-item>
               <mat-icon>description</mat-icon>
               <span>Hoja de ruta</span>

@@ -1,5 +1,13 @@
 import { CommonModule, ViewportScroller } from '@angular/common';
-import { ChangeDetectionStrategy, Component, effect, inject, Signal, signal, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+  Signal,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,9 +21,26 @@ import { filter, map } from 'rxjs';
 
 @Component({
   selector: 'app-folders',
-  imports: [MatToolbarModule, MatButtonModule, MatIconModule, CommonModule,RouterModule],
+  imports: [
+    MatToolbarModule,
+    MatButtonModule,
+    MatIconModule,
+    CommonModule,
+    RouterModule,
+  ],
   templateUrl: './folders.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  styles: `
+    .mybox{
+   
+      box-shadow: var(--mat-sys-level2);
+    }
+
+    .mybox:hover {
+      background:var(--mat-sys-primary-fixed);
+    }
+
+  `,
 })
 export default class FoldersComponent {
   folders = signal<any[]>([]);
@@ -23,13 +48,16 @@ export default class FoldersComponent {
   viewportScroller = inject(ViewportScroller);
   scrollingRef = viewChild<HTMLElement>('scrolling');
 
-  constructor(private dialog: MatDialog, private archiveService: FolderService) {
+  constructor(
+    private dialog: MatDialog,
+    private archiveService: FolderService
+  ) {
     this.loadFolders();
     const scrollingPosition: Signal<[number, number] | undefined> = toSignal(
       inject(Router).events.pipe(
         filter((event): event is Scroll => event instanceof Scroll),
-        map((event: Scroll) => event.position || [0, 0]),
-      ),
+        map((event: Scroll) => event.position || [0, 0])
+      )
     );
 
     effect(() => {
@@ -73,14 +101,16 @@ export default class FoldersComponent {
     this.alertService
       .confirmDialog({
         title: 'Eliminar carpeta?',
-        description:
-          'Se borrara la carpeta seleccionada',
-      }).subscribe((result) => {
+        description: 'Se borrara la carpeta seleccionada',
+      })
+      .subscribe((result) => {
         if (!result) return;
 
         this.archiveService.deleteFolder(id).subscribe({
           next: () => {
-            this.folders.set(this.folders().filter((folder) => folder._id !== id));
+            this.folders.set(
+              this.folders().filter((folder) => folder._id !== id)
+            );
             console.log('Carpeta eliminada:', id);
           },
           error: (err) => {
