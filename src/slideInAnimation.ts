@@ -1,17 +1,22 @@
-import {
-  animate,
-  group,
-  query,
-  style,
-  transition,
-  trigger,
-} from '@angular/animations';
+import { animate, style, transition, trigger } from '@angular/animations';
 
-export const routeTransition = trigger('routeTransition', [
-  transition('* => *', [
-    query(':enter', [style({ opacity: 0, scale: 0.9 })], { optional: true }),
-    query(':leave', [animate('1s', style({ opacity: 0, scale: 0.9 }))], {
-      optional: true,
-    }),
+export const slideInAnimation = trigger('routeAnimations', [
+  // transition('* => slideIn', [
+  //   style({ transform: 'translateX(100%)', opacity: 0 }),
+  //   animate(
+  //     '300ms ease-out',
+  //     style({ transform: 'translateX(0)', opacity: 1 })
+  //   ),
+  // ]),
+  // transition('slideIn => *', [
+  //   style({ transform: 'translateX(-100%)', opacity: 0 }),
+  //   animate(
+  //     '300ms ease-out',
+  //     style({ transform: 'translateX(0)', opacity: 1 })
+  //   ),
+  // ]),
+  transition('* <=>  *', [
+    style({ opacity: 0 }),
+    animate('300ms ease-in', style({ opacity: 1 })),
   ]),
 ]);

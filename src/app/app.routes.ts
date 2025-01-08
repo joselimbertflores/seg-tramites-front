@@ -134,6 +134,7 @@ export const routes: Routes = [
           {
             path: 'inbox/:id',
             title: 'Detalle - Envio',
+            data: { animation: 'slideLeft' },
             loadComponent: () =>
               import(
                 './communications/presentation/pages/inbox/communication-detail/communication-detail.component'
@@ -142,6 +143,7 @@ export const routes: Routes = [
           {
             path: 'outbox',
             title: 'Bandeja - Salida',
+            data: { animation: 'slideRight' },
             loadComponent: () =>
               import(
                 './communications/presentation/pages/outbox/outbox.component'
@@ -153,25 +155,21 @@ export const routes: Routes = [
             loadComponent: () =>
               import('./communications/presentation/pages/docs/docs.component'),
           },
-          {
-            path: 'archives',
-            title: 'Archivos',
-            loadComponent: () =>
-              import('./communications/presentation/pages/folders/folders.component'),
-          },
+
           {
             path: 'folders',
             loadComponent: () =>
               import(
                 './communications/presentation/pages/folders/folders.component'
-              )
+              ),
           },
           {
             path: 'folders/:id',
+            data: { animation: 'slideIn' },
             loadComponent: () =>
               import(
                 './communications/presentation/pages/archives/archives.component'
-              )
+              ),
           },
         ],
       },
@@ -185,7 +183,6 @@ export const routes: Routes = [
       //     ).then((c) => c.DetailComponent),
       // },
 
-      
       {
         path: 'resources',
         loadComponent: () =>

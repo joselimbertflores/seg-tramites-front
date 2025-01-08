@@ -1,115 +1,108 @@
-<div class="animate-fadeIn">
-  <mat-toolbar>
-    <span>Externos</span>
-    <span class="flex-1"></span>
-    <button mat-icon-button (click)="create()" matTooltip="Crear tramite">
-      <mat-icon>add</mat-icon>
-    </button>
-  </mat-toolbar>
+<mat-toolbar>
+  <span>Externos</span>
+  <span class="flex-1"></span>
+  <button mat-icon-button (click)="create()" matTooltip="Crear tramite">
+    <mat-icon>add</mat-icon>
+  </button>
+</mat-toolbar>
 
-  <div class="flex justify-end py-2">
-    <div class="w-full px-2 sm:w-1/4 h-11">
-      <search-input
-        [initValue]="term()"
-        (onSearch)="search($event)"
-        placeholder="Alterno / Referencia"
-      />
-    </div>
+<div class="flex justify-end py-2">
+  <div class="w-full px-2 sm:w-1/4 h-11">
+    <search-input
+      [initValue]="term()"
+      (onSearch)="search($event)"
+      placeholder="Alterno / Referencia"
+    />
   </div>
+</div>
 
-  <div class="mat-elevation-z8">
-    <div class="table-container">
-      <table mat-table [dataSource]="datasource()">
-        <ng-container matColumnDef="send">
-          <th mat-header-cell *matHeaderCellDef></th>
-          <td mat-cell *matCellDef="let element" class="w-8">
-            @if(element.isActionable){
-            <mat-icon style="color: orangered">mark_email_unread </mat-icon>
+<div class="mat-elevation-z8">
+  <div class="table-container">
+    <table mat-table [dataSource]="datasource()">
+      <ng-container matColumnDef="send">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let element" class="w-8">
+          @if(element.isActionable){
+          <mat-icon style="color: orangered">mark_email_unread </mat-icon>
 
-            } @else {
-            <mat-icon style="color: green">mark_email_read</mat-icon>
-            }
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="code">
-          <th mat-header-cell *matHeaderCellDef>Alterno</th>
-          <td
-            mat-cell
-            *matCellDef="let row"
-            [id]="row._id"
-            class="sm:w-[200px]"
+          } @else {
+          <mat-icon style="color: green">mark_email_read</mat-icon>
+          }
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="code">
+        <th mat-header-cell *matHeaderCellDef>Alterno</th>
+        <td mat-cell *matCellDef="let row" [id]="row._id" class="sm:w-[200px]">
+          <a [routerLink]="['../external', row._id]" class="text-blue-600">
+            {{ row.code }}
+          </a>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="reference">
+        <th mat-header-cell *matHeaderCellDef>Referencia</th>
+        <td mat-cell *matCellDef="let row" class="sm:max-w-80">
+          {{ row.reference }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="applicant">
+        <th mat-header-cell *matHeaderCellDef>Solicitante</th>
+        <td mat-cell *matCellDef="let row">
+          {{ row.fullnameApplicant }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="createdAt">
+        <th mat-header-cell *matHeaderCellDef>Fecha</th>
+        <td mat-cell *matCellDef="let row">
+          {{ row.createdAt | date : "short" : "-400" }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="options">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let row" class="w-8">
+          <button
+            mat-icon-button
+            [matMenuTriggerFor]="menu"
+            aria-label="Options menu"
           >
-            <a [routerLink]="['../external', row._id]" class="text-blue-600">
-              {{ row.code }}
-            </a>
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="reference">
-          <th mat-header-cell *matHeaderCellDef>Referencia</th>
-          <td mat-cell *matCellDef="let row" class="sm:max-w-80">
-            {{ row.reference }}
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="applicant">
-          <th mat-header-cell *matHeaderCellDef>Solicitante</th>
-          <td mat-cell *matCellDef="let row">
-            {{ row.fullnameApplicant }}
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="createdAt">
-          <th mat-header-cell *matHeaderCellDef>Fecha</th>
-          <td mat-cell *matCellDef="let row">
-            {{ row.createdAt | date : "short" : "-400" }}
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="options">
-          <th mat-header-cell *matHeaderCellDef></th>
-          <td mat-cell *matCellDef="let row" class="w-8">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #menu="matMenu">
             <button
-              mat-icon-button
-              [matMenuTriggerFor]="menu"
-              aria-label="Options menu"
+              mat-menu-item
+              [disabled]="!row.isEnable"
+              (click)="update(row)"
             >
-              <mat-icon>more_vert</mat-icon>
+              <mat-icon>edit</mat-icon>
+              <span>Editar</span>
             </button>
-            <mat-menu #menu="matMenu">
-              <button
-                mat-menu-item
-                [disabled]="!row.isEnable"
-                (click)="update(row)"
-              >
-                <mat-icon>edit</mat-icon>
-                <span>Editar</span>
-              </button>
-              <button
-                mat-menu-item
-                [disabled]="!row.isEnable"
-                (click)="send(row)"
-              >
-                <mat-icon>send</mat-icon>
-                <span>Remitir </span>
-              </button>
-              <button mat-menu-item (click)="generateRouteMap(row)">
-                <mat-icon>feed</mat-icon>
-                <span>Hoja de ruta</span>
-              </button>
-            </mat-menu>
-          </td>
-        </ng-container>
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-        <tr class="mat-row" *matNoDataRow>
-          <td class="mat-cell p-2" colspan="6">Sin resultados</td>
-        </tr>
-      </table>
-      <mat-paginator
-        aria-label="Select page of officers search results"
-        showFirstLastButtons
-        [length]="datasize()"
-        [pageIndex]="index()"
-        [pageSize]="10"
-        (page)="onPageChange($event)"
-      />
-    </div>
+            <button
+              mat-menu-item
+              [disabled]="!row.isEnable"
+              (click)="send(row)"
+            >
+              <mat-icon>send</mat-icon>
+              <span>Remitir </span>
+            </button>
+            <button mat-menu-item (click)="generateRouteMap(row)">
+              <mat-icon>feed</mat-icon>
+              <span>Hoja de ruta</span>
+            </button>
+          </mat-menu>
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell p-2" colspan="6">Sin resultados</td>
+      </tr>
+    </table>
+    <mat-paginator
+      aria-label="Select page of officers search results"
+      showFirstLastButtons
+      [length]="datasize()"
+      [pageIndex]="index()"
+      [pageSize]="10"
+      (page)="onPageChange($event)"
+    />
   </div>
 </div>

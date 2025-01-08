@@ -1,6 +1,11 @@
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { provideRouter, withComponentInputBinding, withInMemoryScrolling } from '@angular/router';
+import {
+  provideRouter,
+  withComponentInputBinding,
+  withInMemoryScrolling,
+  withViewTransitions,
+} from '@angular/router';
 import { registerLocaleData } from '@angular/common';
 import localeEs from '@angular/common/locales/es-BO';
 import { ApplicationConfig } from '@angular/core';
@@ -16,15 +21,13 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(
       routes,
-      withInMemoryScrolling({
-        scrollPositionRestoration: 'enabled',
-      }),
+      withViewTransitions(),
+      withInMemoryScrolling({ scrollPositionRestoration: 'enabled' }),
       withComponentInputBinding()
     ),
     provideHttpClient(withInterceptors([loggingInterceptor])),
     provideAnimations(),
     provideToastr(),
     { provide: LOCALE_ID, useValue: 'es' },
-    
   ],
 };

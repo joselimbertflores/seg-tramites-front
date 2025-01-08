@@ -49,7 +49,6 @@ export default class ArchivesComponent implements OnInit {
 
   @Input('id') folderId: string;
 
-  constructor() {}
   ngOnInit(): void {
     this.getData();
   }

@@ -4,7 +4,7 @@
   <button (click)="openCreateFolderDialog()" mat-flat-button>Agregar</button>
 </mat-toolbar>
 
-<div #scrolling class="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4">
+<div #scrolling class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4">
   @for (folder of folders(); track $index) {
   <div
     class="relative group cursor-point p-4 flex flex-col items-center rounded-2xl mybox"

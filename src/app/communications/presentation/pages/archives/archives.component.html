@@ -24,7 +24,7 @@
   <ng-container matColumnDef="officer">
     <th mat-header-cell *matHeaderCellDef>Nombbre</th>
     <td mat-cell *matCellDef="let element">
-      {{ element.officer | titlecase }}
+      {{ element.officer.fullname | titlecase }}
     </td>
   </ng-container>
 
