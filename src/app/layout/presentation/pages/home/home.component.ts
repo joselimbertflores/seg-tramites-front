@@ -13,6 +13,7 @@ import {
   Data,
   Router,
   RouterModule,
+  RouterOutlet,
 } from '@angular/router';
 import { map, shareReplay } from 'rxjs';
 import { SocketService, AuthService } from '../../../../presentation/services';
@@ -29,7 +30,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { PublicationDialogComponent } from '../../../../publications/presentation/components';
 import { AlertService } from '../../../../shared';
-import { slideInAnimation } from '../../../../../slideInAnimation';
+import { routeAnimations } from '../../../../../slideInAnimation';
 
 @Component({
   selector: 'app-home',
@@ -48,7 +49,7 @@ import { slideInAnimation } from '../../../../../slideInAnimation';
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  animations: [slideInAnimation],
+  animations: [routeAnimations],
 })
 export default class HomeComponent {
   private breakpointObserver = inject(BreakpointObserver);
@@ -59,6 +60,7 @@ export default class HomeComponent {
   private router = inject(Router);
 
   readonly dialogRef = inject(MatDialog);
+
 
   public detailsOpen = false;
   public isHandset$ = this.breakpointObserver.observe(Breakpoints.Handset).pipe(
@@ -92,13 +94,12 @@ export default class HomeComponent {
     this.authService.logout();
     this.router.navigate(['/login']);
   }
-  
+
   getRouteAnimationData(): string {
     const context = this.contexts.getContext('primary');
     const route = context?.route?.snapshot;
     return route?.data?.['animation'] || route?.component?.name || 'default';
   }
-  
 
   private listenUserConnections(): void {
     this.socketService.listenUserConnections();
@@ -128,6 +129,14 @@ export default class HomeComponent {
     //       message: data.reference,
     //     })
     //   );
+  }
+
+  prepareRoute(outlet: RouterOutlet) {
+    return (
+      outlet &&
+      outlet.activatedRouteData &&
+      outlet.activatedRouteData['animation']
+    );
   }
 
   get menu() {

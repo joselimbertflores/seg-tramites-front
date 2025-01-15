@@ -45,8 +45,8 @@
     </mat-sidenav>
 
     <mat-sidenav-content class="sm:px-2">
-      <div [@routeAnimations]="getRouteAnimationData()">
-        <router-outlet />
+      <div [@routeAnimations]="prepareRoute(outlet)">
+        <router-outlet #outlet="outlet"></router-outlet>
       </div>
     </mat-sidenav-content>
   </mat-sidenav-container>

@@ -2,9 +2,8 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import {
   provideRouter,
-  withComponentInputBinding,
   withInMemoryScrolling,
-  withViewTransitions,
+  withComponentInputBinding,
 } from '@angular/router';
 import { registerLocaleData } from '@angular/common';
 import localeEs from '@angular/common/locales/es-BO';
@@ -21,7 +20,6 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(
       routes,
-      withViewTransitions(),
       withInMemoryScrolling({ scrollPositionRestoration: 'enabled' }),
       withComponentInputBinding()
     ),

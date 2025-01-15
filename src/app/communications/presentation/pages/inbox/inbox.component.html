@@ -1,187 +1,186 @@
-<div class="animate-fadeIn">
-  <mat-toolbar>
-    <span>Bandeja de entrada</span>
-    <span class="flex-1"></span>
-    @if(isButtonEnabledForStatus('received')){
-    <button
-      mat-icon-button
-      matTooltip="Archivar"
-      (click)="archive(selection.selected)"
-    >
-      <mat-icon>archive</mat-icon>
-    </button>
-    } @if(isButtonEnabledForStatus('pending')){
-    <button
-      mat-icon-button
-      matTooltip="Recibir"
-      (click)="accept(selection.selected)"
-    >
-      <mat-icon>check</mat-icon>
-    </button>
-    <button
-      mat-icon-button
-      matTooltip="Rechazar"
-      (click)="reject(selection.selected)"
-    >
-      <mat-icon>block</mat-icon>
-    </button>
-    }
-
-    <button
-      mat-icon-button
-      aria-label="Filter"
-      cdkOverlayOrigin
-      #menuOverlay="cdkOverlayOrigin"
-      matTooltip="Filtrar"
-      (click)="isOpen = !isOpen"
-    >
-      <mat-icon>filter_alt</mat-icon>
-    </button>
-  </mat-toolbar>
-  <ng-template
-    cdkConnectedOverlay
-    [cdkConnectedOverlayOrigin]="menuOverlay"
-    [cdkConnectedOverlayOpen]="isOpen"
+<mat-toolbar>
+  <span>Bandeja de entrada</span>
+  <span class="flex-1"></span>
+  @if(isButtonEnabledForStatus('received')){
+  <button
+    mat-icon-button
+    matTooltip="Archivar"
+    (click)="archive(selection.selected)"
   >
-    <div class="overlay p-3 sm:w-[400px]">
-      <div class="flex items-center justify-between px-2 mb-4">
-        <div class="flex flex-col">
-          <span class="text-lg font-medium">Filtro avanzado</span>
-          <span class="text-sm">Ingrese los campos</span>
-        </div>
-        <div>
-          <button mat-icon-button (click)="isOpen = false">
-            <mat-icon>close</mat-icon>
-          </button>
-        </div>
+    <mat-icon>archive</mat-icon>
+  </button>
+  } @if(isButtonEnabledForStatus('pending')){
+  <button
+    mat-icon-button
+    matTooltip="Recibir"
+    (click)="accept(selection.selected)"
+  >
+    <mat-icon>check</mat-icon>
+  </button>
+  <button
+    mat-icon-button
+    matTooltip="Rechazar"
+    (click)="reject(selection.selected)"
+  >
+    <mat-icon>block</mat-icon>
+  </button>
+  }
+
+  <button
+    mat-icon-button
+    aria-label="Filter"
+    cdkOverlayOrigin
+    #menuOverlay="cdkOverlayOrigin"
+    matTooltip="Filtrar"
+    (click)="isOpen = !isOpen"
+  >
+    <mat-icon>filter_alt</mat-icon>
+  </button>
+</mat-toolbar>
+<ng-template
+  cdkConnectedOverlay
+  [cdkConnectedOverlayOrigin]="menuOverlay"
+  [cdkConnectedOverlayOpen]="isOpen"
+>
+  <div class="overlay p-3 sm:w-[400px]">
+    <div class="flex items-center justify-between px-2 mb-4">
+      <div class="flex flex-col">
+        <span class="text-lg font-medium">Filtro avanzado</span>
+        <span class="text-sm">Ingrese los campos</span>
       </div>
-      <form [formGroup]="filterForm">
-        <div class="flex flex-col">
-          <mat-form-field appearance="outline">
-            <mat-label>Grupo de tramite</mat-label>
-            <mat-select formControlName="group">
-              @for (group of groups; track $index) {
-              <mat-option [value]="group.value">{{ group.label }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Tipo de documento</mat-label>
-            <mat-select formControlName="isOriginal">
-              @for (group of documentTypes; track $index) {
-              <mat-option [value]="group.value">
-                {{ group.label }}
-              </mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-        </div>
-      </form>
-      <div class="flex justify-end gap-x-2 mt-2">
-        <button mat-button (click)="reset()">Restablecer</button>
-        <button mat-flat-button (click)="filter()">Buscar</button>
+      <div>
+        <button mat-icon-button (click)="isOpen = false">
+          <mat-icon>close</mat-icon>
+        </button>
       </div>
     </div>
-  </ng-template>
-
-  <div
-    class="flex flex-col sm:flex-row justify-between items-center py-2 gap-y-2"
-  >
-    <div>
-      <mat-button-toggle-group [(ngModel)]="status" (change)="getData()">
-        <mat-button-toggle value="all">Todo</mat-button-toggle>
-        <mat-button-toggle value="received">Recibidos</mat-button-toggle>
-        <mat-button-toggle value="pending">Sin Recibir</mat-button-toggle>
-      </mat-button-toggle-group>
-    </div>
-
-    <div class="w-full px-2 sm:w-1/4 h-12">
-      <search-input
-        (onSearch)="search($event)"
-        placeholder="Alterno / Referencia"
-      />
+    <form [formGroup]="filterForm">
+      <div class="flex flex-col">
+        <mat-form-field appearance="outline">
+          <mat-label>Grupo de tramite</mat-label>
+          <mat-select formControlName="group">
+            @for (group of groups; track $index) {
+            <mat-option [value]="group.value">{{ group.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Tipo de documento</mat-label>
+          <mat-select formControlName="isOriginal">
+            @for (group of documentTypes; track $index) {
+            <mat-option [value]="group.value">
+              {{ group.label }}
+            </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </form>
+    <div class="flex justify-end gap-x-2 mt-2">
+      <button mat-button (click)="reset()">Restablecer</button>
+      <button mat-flat-button (click)="filter()">Buscar</button>
     </div>
   </div>
+</ng-template>
 
-  <div class="mat-elevation-z8">
-    <table mat-table [dataSource]="datasource()">
-      <ng-container matColumnDef="select">
-        <th mat-header-cell *matHeaderCellDef>
-          <mat-checkbox
-            (change)="$event ? toggleAllRows() : null"
-            [checked]="selection.hasValue() && isAllSelected()"
-            [indeterminate]="selection.hasValue() && !isAllSelected()"
-          >
-          </mat-checkbox>
-        </th>
-        <td mat-cell *matCellDef="let row" class="w-8">
-          <mat-checkbox
-            (click)="$event.stopPropagation()"
-            (change)="$event ? selection.toggle(row) : null"
-            [checked]="selection.isSelected(row)"
-          >
-          </mat-checkbox>
-        </td>
-      </ng-container>
+<div
+  class="flex flex-col sm:flex-row justify-between items-center py-2 gap-y-2"
+>
+  <div>
+    <mat-button-toggle-group [(ngModel)]="status" (change)="getData()">
+      <mat-button-toggle value="all">Todo</mat-button-toggle>
+      <mat-button-toggle value="received">Recibidos</mat-button-toggle>
+      <mat-button-toggle value="pending">Sin Recibir</mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
 
-      <ng-container matColumnDef="group">
-        <th mat-header-cell *matHeaderCellDef>Documento</th>
-        <td mat-cell *matCellDef="let row">
-          {{ row.groupLabel }} / {{ row.documentLabel }}
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="code">
-        <th mat-header-cell *matHeaderCellDef>Alterno</th>
-        <td mat-cell *matCellDef="let row">
-          <a [routerLink]="['../inbox', row._id]" class="text-blue-600">
-            {{ row.procedure.code }}
-          </a>
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="reference">
-        <th mat-header-cell *matHeaderCellDef>Referencia</th>
-        <td mat-cell *matCellDef="let row" class="w-full sm:w-96">
-          {{ row.procedure.reference }}
-        </td>
-      </ng-container>
+  <div class="w-full px-2 sm:w-1/4 h-12">
+    <search-input
+      (onSearch)="search($event)"
+      placeholder="Alterno / Referencia"
+    />
+  </div>
+</div>
 
-      <ng-container matColumnDef="emitter">
-        <th mat-header-cell *matHeaderCellDef>Remitente</th>
-        <td mat-cell *matCellDef="let row">
-          <p>{{ row.sender.fullname | titlecase }}</p>
-          <small>{{ row.sender.jobtitle }}</small>
-        </td>
-      </ng-container>
+<div class="mat-elevation-z8">
+  <table mat-table [dataSource]="datasource()">
+    <ng-container matColumnDef="select">
+      <th mat-header-cell *matHeaderCellDef>
+        <mat-checkbox
+          (change)="$event ? toggleAllRows() : null"
+          [checked]="selection.hasValue() && isAllSelected()"
+          [indeterminate]="selection.hasValue() && !isAllSelected()"
+        >
+        </mat-checkbox>
+      </th>
+      <td mat-cell *matCellDef="let row" class="w-8">
+        <mat-checkbox
+          (click)="$event.stopPropagation()"
+          (change)="$event ? selection.toggle(row) : null"
+          [checked]="selection.isSelected(row)"
+        >
+        </mat-checkbox>
+      </td>
+    </ng-container>
 
-      <ng-container matColumnDef="sentDate">
-        <th mat-header-cell *matHeaderCellDef>Ingreso</th>
-        <td mat-cell *matCellDef="let row">
-          {{ row.sentDate | date : "short" }}
-        </td>
-      </ng-container>
+    <ng-container matColumnDef="group">
+      <th mat-header-cell *matHeaderCellDef>Documento</th>
+      <td mat-cell *matCellDef="let row">
+        {{ row.groupLabel }} / {{ row.documentLabel }}
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="code">
+      <th mat-header-cell *matHeaderCellDef>Alterno</th>
+      <td mat-cell *matCellDef="let row">
+        <a [routerLink]="['../inbox', row._id]" class="text-blue-600">
+          {{ row.procedure.code }}
+        </a>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="reference">
+      <th mat-header-cell *matHeaderCellDef>Referencia</th>
+      <td mat-cell *matCellDef="let row" class="w-full sm:w-96">
+        {{ row.procedure.reference }}
+      </td>
+    </ng-container>
 
-      <ng-container matColumnDef="options">
-        <th mat-header-cell *matHeaderCellDef></th>
-        <td mat-cell *matCellDef="let row" class="w-8">
-          <button mat-icon-button [matMenuTriggerFor]="menu">
-            <mat-icon>more_vert</mat-icon>
+    <ng-container matColumnDef="emitter">
+      <th mat-header-cell *matHeaderCellDef>Remitente</th>
+      <td mat-cell *matCellDef="let row">
+        <p>{{ row.sender.fullname | titlecase }}</p>
+        <small>{{ row.sender.jobtitle }}</small>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="sentDate">
+      <th mat-header-cell *matHeaderCellDef>Ingreso</th>
+      <td mat-cell *matCellDef="let row">
+        {{ row.sentDate | date : "short" }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="options">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let row" class="w-8">
+        <button mat-icon-button [matMenuTriggerFor]="menu">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+          @if(row.status === 'pending') {
+          <button mat-menu-item (click)="accept([row])">
+            <mat-icon>done</mat-icon>
+            <span>Aceptar</span>
           </button>
-          <mat-menu #menu="matMenu">
-            @if(row.status === 'pending') {
-            <button mat-menu-item (click)="accept([row])">
-              <mat-icon>done</mat-icon>
-              <span>Aceptar</span>
-            </button>
-            <button mat-menu-item (click)="reject([row])">
-              <mat-icon>block</mat-icon>
-              <span>Rechazar</span>
-            </button>
-            } @else {
-            <button (click)="send(row)" mat-menu-item>
-              <mat-icon>send</mat-icon>
-              <span>Remitir</span>
-            </button>
-            <!-- <button mat-menu-item (click)="archive()">
+          <button mat-menu-item (click)="reject([row])">
+            <mat-icon>block</mat-icon>
+            <span>Rechazar</span>
+          </button>
+          } @else {
+          <button (click)="send(row)" mat-menu-item>
+            <mat-icon>send</mat-icon>
+            <span>Remitir</span>
+          </button>
+          <!-- <button mat-menu-item (click)="archive()">
               <mat-icon>domain_verification</mat-icon>
               Concluir
             </button>
@@ -189,31 +188,30 @@
               <mat-icon>pause_presentation</mat-icon>
               Suspender
             </button> -->
-            <button (click)="generateRouteMap(row)" mat-menu-item>
-              <mat-icon>description</mat-icon>
-              <span>Hoja de ruta</span>
-            </button>
-            }
-          </mat-menu>
-        </td>
-      </ng-container>
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: displayedColumns"
-        [class.mail-pending]="row.status === 'pending'"
-      ></tr>
-      <tr class="mat-row" *matNoDataRow>
-        <td class="mat-cell p-3" colspan="7">Sin resultados</td>
-      </tr>
-    </table>
-    <mat-paginator
-      aria-label="Select page of comunications search results"
-      showFirstLastButtons
-      [length]="datasize()"
-      [pageIndex]="index()"
-      [pageSize]="10"
-      (page)="onPageChange($event)"
-    />
-  </div>
+          <button (click)="generateRouteMap(row)" mat-menu-item>
+            <mat-icon>description</mat-icon>
+            <span>Hoja de ruta</span>
+          </button>
+          }
+        </mat-menu>
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr
+      mat-row
+      *matRowDef="let row; columns: displayedColumns"
+      [class.mail-pending]="row.status === 'pending'"
+    ></tr>
+    <tr class="mat-row" *matNoDataRow>
+      <td class="mat-cell p-3" colspan="7">Sin resultados</td>
+    </tr>
+  </table>
+  <mat-paginator
+    aria-label="Select page of comunications search results"
+    showFirstLastButtons
+    [length]="datasize()"
+    [pageIndex]="index()"
+    [pageSize]="10"
+    (page)="onPageChange($event)"
+  />
 </div>
