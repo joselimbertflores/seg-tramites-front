@@ -2,10 +2,14 @@ import { CommonModule, ViewportScroller } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   effect,
+  ElementRef,
   inject,
+  OnInit,
   Signal,
   signal,
+  ViewChild,
   viewChild,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -42,117 +46,23 @@ import { filter, map } from 'rxjs';
 
   `,
 })
-export default class FoldersComponent {
-  folders = signal<any[]>([
-    
-      {
-        _id: '6776916c8b103470b6e0279b',
-        name: 'Archivados',
-        dependency: '63af6409ac7469b4ea9feef8',
-        __v: 0,
-      },
-      {
-        _id: '6776917c8b103470b6e027bb',
-        name: 'No concluidos',
-        dependency: '63af6409ac7469b4ea9feef8',
-        __v: 0,
-      },
-      {
-        _id: '6776920a8b103470b6e0280f',
-        name: 'Eliminados',
-        dependency: '63af6409ac7469b4ea9feef8',
-        __v: 0,
-      },
-      {
-        _id: '678814cd09d40d87b23f1312',
-        name: 'Completados 2024',
-        dependency: '63af6409ac7469b4ea9feef8',
-        __v: 0,
-      },
-      {
-        _id: '678814e509d40d87b23f131a',
-        name: 'Extraviados',
-        dependency: '63af6409ac7469b4ea9feef8',
-        __v: 0,
-      },
-      {
-        _id: '678a5439446ba00d1dfb9ba0',
-        name: 'Flder ejemplo',
-        dependency: '63af6409ac7469b4ea9feef8',
-        __v: 0,
-      },
-      {
-        _id: '678a543f446ba00d1dfb9ba8',
-        name: '2023',
-        dependency: '63af6409ac7469b4ea9feef8',
-        __v: 0,
-      },
-      {
-        _id: '678a5444446ba00d1dfb9bb0',
-        name: 'POR REVISAR',
-        dependency: '63af6409ac7469b4ea9feef8',
-        __v: 0,
-      },
-      {
-        _id: '678a5450446ba00d1dfb9bb8',
-        name: 'Varios',
-        dependency: '63af6409ac7469b4ea9feef8',
-        __v: 0,
-      },
-      {
-        _id: '678a545b446ba00d1dfb9bc0',
-        name: 'Sin designar',
-        dependency: '63af6409ac7469b4ea9feef8',
-        __v: 0,
-      },
-      {
-        _id: '678a546a446ba00d1dfb9bc8',
-        name: 'Sin funcionario',
-        dependency: '63af6409ac7469b4ea9feef8',
-        __v: 0,
-      },
-      {
-        _id: '678a5476446ba00d1dfb9bd0',
-        name: 'ejemplo',
-        dependency: '63af6409ac7469b4ea9feef8',
-        __v: 0,
-      },
-      {
-        _id: '678a547f446ba00d1dfb9bd8',
-        name: 'fin de mes',
-        dependency: '63af6409ac7469b4ea9feef8',
-        __v: 0,
-      },
-    ],
-  );
+export default class FoldersComponent implements OnInit {
+  folders = signal<any[]>([]);
   private alertService = inject(AlertService);
-  viewportScroller = inject(ViewportScroller);
-  scrollingRef = viewChild<HTMLElement>('scrolling');
 
   constructor(
     private dialog: MatDialog,
     private archiveService: FolderService
-  ) {
-    // this.loadFolders();
-    const scrollingPosition: Signal<[number, number] | undefined> = toSignal(
-      inject(Router).events.pipe(
-        filter((event): event is Scroll => event instanceof Scroll),
-        map((event: Scroll) => event.position || [0, 0])
-      )
-    );
-
-    effect(() => {
-      if (this.scrollingRef() && scrollingPosition()) {
-        this.viewportScroller.scrollToPosition(scrollingPosition()!);
-      }
-    });
+  ) {}
+  
+  ngOnInit(): void {
+    this.loadFolders();
   }
 
   loadFolders() {
     this.archiveService.getFolders().subscribe({
       next: (data) => {
         this.folders.set(data);
-        console.log(data);
       },
       error: (err) => {
         console.error('Error al cargar carpetas:', err);

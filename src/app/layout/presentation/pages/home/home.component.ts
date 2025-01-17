@@ -28,6 +28,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { ScrollDispatcher, ScrollingModule } from '@angular/cdk/scrolling';
 import { PublicationDialogComponent } from '../../../../publications/presentation/components';
 import { AlertService } from '../../../../shared';
 import { routeAnimations } from '../../../../../slideInAnimation';
@@ -45,6 +46,7 @@ import { routeAnimations } from '../../../../../slideInAnimation';
     RouterModule,
     OverlayModule,
     MatButtonModule,
+    ScrollingModule,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
@@ -61,7 +63,6 @@ export default class HomeComponent {
 
   readonly dialogRef = inject(MatDialog);
 
-
   public detailsOpen = false;
   public isHandset$ = this.breakpointObserver.observe(Breakpoints.Handset).pipe(
     map((result) => result.matches),
@@ -70,9 +71,19 @@ export default class HomeComponent {
 
   contexts = inject(ChildrenOutletContexts);
 
-  constructor(protected route: ActivatedRoute) {
+  constructor(
+    protected route: ActivatedRoute,
+    private scrollDispatcher: ScrollDispatcher
+  ) {
     this.destroyRef.onDestroy(() => {
       this.socketService.disconnect();
+    });
+
+    this.scrollDispatcher.scrolled().subscribe((eve) => {
+      if (eve) {
+        const scrollElement = eve.getElementRef().nativeElement;
+        console.log(scrollElement.scrollTop);
+      }
     });
   }
 
