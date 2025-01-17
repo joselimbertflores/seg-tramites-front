@@ -24,7 +24,11 @@ export class ArchiveService {
     const params = new HttpParams({
       fromObject: { ...(folderId && { folder: folderId }) },
     });
-    return this.http.get<{ archives: any[]; lenght: number }>(this.url, {
+    return this.http.get<{
+      archives: any[];
+      lenght: number;
+      folderName: string;
+    }>(this.url, {
       params,
     });
   }

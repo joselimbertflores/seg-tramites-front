@@ -16,7 +16,6 @@ export const routeAnimations = trigger('routeAnimations', [
       })
     ),
   ]),
-
   transition('slide => *', [
     style({
       transform: 'translateX(-100%) scale(0.9)',
@@ -32,19 +31,8 @@ export const routeAnimations = trigger('routeAnimations', [
       })
     ),
   ]),
-
   transition('* => *', [
     style({ opacity: 0 }),
     animate('300ms ease-in', style({ opacity: 1 })),
   ]),
-
-  // Transición para navegar entre dos rutas con 'fadeIn'
-  // transition('fadeIn => *', [
-  //   style({ opacity: 0 }),
-  //   animate('300ms ease-in', style({ opacity: 1 })),
-  // ]),
-
-
-
-  
 ]);
