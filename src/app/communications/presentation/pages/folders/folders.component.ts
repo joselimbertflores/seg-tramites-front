@@ -18,7 +18,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { FolderDialogComponent } from './folder-dialog/folder-dialog.component';
 import { FolderService } from '../../services/folder.service';
-import { AlertService } from '../../../../shared';
+import {
+  AlertService,
+  CacheService,
+  RestoreScrollDirective,
+} from '../../../../shared';
 import { Router, RouterModule, Scroll } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs';
@@ -31,6 +35,7 @@ import { filter, map } from 'rxjs';
     MatIconModule,
     CommonModule,
     RouterModule,
+    RestoreScrollDirective,
   ],
   templateUrl: './folders.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -49,24 +54,23 @@ import { filter, map } from 'rxjs';
 export default class FoldersComponent implements OnInit {
   folders = signal<any[]>([]);
   private alertService = inject(AlertService);
+  private cacheService = inject(CacheService);
+  isLoading = signal<boolean>(false);
 
   constructor(
     private dialog: MatDialog,
     private archiveService: FolderService
   ) {}
-  
+
   ngOnInit(): void {
     this.loadFolders();
   }
 
   loadFolders() {
-    this.archiveService.getFolders().subscribe({
-      next: (data) => {
-        this.folders.set(data);
-      },
-      error: (err) => {
-        console.error('Error al cargar carpetas:', err);
-      },
+    this.isLoading.set(true);
+    this.archiveService.getFolders().subscribe((folders) => {
+      this.isLoading.set(false);
+      this.folders.set(folders);
     });
   }
 

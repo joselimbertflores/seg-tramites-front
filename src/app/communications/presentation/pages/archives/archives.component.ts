@@ -1,4 +1,4 @@
-import { CommonModule, Location } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -8,11 +8,13 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { ArchiveService } from '../../services';
+import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
+import { MatIconModule } from '@angular/material/icon';
+
+import { BackButtonDirective, SearchInputComponent } from '../../../../shared';
+import { ArchiveService } from '../../services';
 
 @Component({
   selector: 'app-archives',
@@ -22,12 +24,13 @@ import { MatTableModule } from '@angular/material/table';
     MatButtonModule,
     MatIconModule,
     MatTableModule,
+    BackButtonDirective,
+    SearchInputComponent,
   ],
   templateUrl: './archives.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class ArchivesComponent implements OnInit {
-  private location = inject(Location);
   private archiveService = inject(ArchiveService);
 
   datasource = signal<any[]>([]);
@@ -61,7 +64,5 @@ export default class ArchivesComponent implements OnInit {
     });
   }
 
-  back() {
-    this.location.back();
-  }
+  search(term: string) {}
 }

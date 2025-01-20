@@ -4,14 +4,20 @@
   <button (click)="openCreateFolderDialog()" mat-flat-button>Agregar</button>
 </mat-toolbar>
 
-<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4">
+<div
+  restoreScroll
+  scrollKey="folders-scroll"
+  [isLoading]="isLoading()"
+  class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 overflow-y-scroll"
+  style="height: calc(100vh - 140px)"
+>
   @for (folder of folders(); track $index) {
   <div
     class="relative group cursor-point p-4 flex flex-col items-center rounded-2xl mybox"
     [routerLink]="[folder._id]"
   >
     <div class="w-32 mb-4">
-      <img src="images/icons/folder.png" alt="" />
+      <img src="images/icons/folder.png" alt="Folder image" />
     </div>
 
     <div class="truncate w-full text-center font-medium">{{ folder.name }}</div>

@@ -11,6 +11,7 @@ export * from './services/alert.service';
 export * from './services/word-generator.service';
 
 export * from './directives/back-button.directive';
+export * from './directives/restore-scroll.directive';
 
 export * from './components/inputs/autocomplete/autocomplete.component';
 export * from './components/inputs/select-search/select-search.component';

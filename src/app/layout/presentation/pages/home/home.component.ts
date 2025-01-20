@@ -1,16 +1,21 @@
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
 import {
+  AfterViewChecked,
+  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
   inject,
+  ViewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   ActivatedRoute,
   ChildrenOutletContexts,
   Data,
+  NavigationEnd,
+  NavigationStart,
   Router,
   RouterModule,
   RouterOutlet,
@@ -28,9 +33,13 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { ScrollDispatcher, ScrollingModule } from '@angular/cdk/scrolling';
+import {
+  CdkScrollable,
+  ScrollDispatcher,
+  ScrollingModule,
+} from '@angular/cdk/scrolling';
 import { PublicationDialogComponent } from '../../../../publications/presentation/components';
-import { AlertService } from '../../../../shared';
+import { AlertService, CacheService } from '../../../../shared';
 import { routeAnimations } from '../../../../../slideInAnimation';
 
 @Component({
@@ -53,7 +62,7 @@ import { routeAnimations } from '../../../../../slideInAnimation';
   changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [routeAnimations],
 })
-export default class HomeComponent {
+export default class HomeComponent implements AfterViewInit, AfterViewChecked {
   private breakpointObserver = inject(BreakpointObserver);
   private socketService = inject(SocketService);
   private alertservice = inject(AlertService);
@@ -71,6 +80,9 @@ export default class HomeComponent {
 
   contexts = inject(ChildrenOutletContexts);
 
+  @ViewChild(CdkScrollable) matContent!: CdkScrollable;
+  private cacheService = inject(CacheService);
+
   constructor(
     protected route: ActivatedRoute,
     private scrollDispatcher: ScrollDispatcher
@@ -79,13 +91,43 @@ export default class HomeComponent {
       this.socketService.disconnect();
     });
 
-    this.scrollDispatcher.scrolled().subscribe((eve) => {
-      if (eve) {
-        const scrollElement = eve.getElementRef().nativeElement;
-        console.log(scrollElement.scrollTop);
-      }
-    });
+    // Escuchar eventos de navegación
+    // this.router.events.subscribe((event) => {
+    //   if (event instanceof NavigationStart) {
+    //     const currentRoute = this.getActiveChildRoute(this.route);
+    //     if (currentRoute === 'folders') {
+    //       // Guardar la posición actual del scroll
+    //       const scrollPosition =
+    //         this.matContent.getElementRef().nativeElement.scrollTop;
+    //       sessionStorage.setItem('scroll-app', scrollPosition.toString());
+    //     }
+    //   }
+
+    //   if (event instanceof NavigationEnd) {
+    //     const currentRoute = this.getActiveChildRoute(this.route);
+    //     if (currentRoute === 'folders') {
+    //       // Restablecer la posición del scroll después de un breve retraso
+    //       // setTimeout(() => {
+    //       //   this.matContent.getElementRef().nativeElement.scrollTo({
+    //       //     top: parseInt(position, 10),
+    //       //     behavior: 'smooth',
+    //       //   });
+    //       // }, 100); // Retraso de 100 ms para asegurar que el DOM esté listo
+    //     }
+    //   }
+    // });
+    // this.cacheService.scrollEvent$.subscribe(() => {
+    //   const position = sessionStorage.getItem('scroll-app') ?? '0';
+    //   setTimeout(() => {
+    //     this.matContent.getElementRef().nativeElement.scrollTo({
+    //       top: parseInt(position, 10),
+    //       behavior: 'smooth',
+    //     });
+    //   }, 10);
+    // });
   }
+  ngAfterViewChecked(): void {}
+  ngAfterViewInit(): void {}
 
   ngOnInit(): void {
     this.listenUserConnections();
@@ -152,5 +194,13 @@ export default class HomeComponent {
 
   get menu() {
     return this.authService.menu();
+  }
+
+  private getActiveChildRoute(route: ActivatedRoute): string {
+    let child = route;
+    while (child.firstChild) {
+      child = child.firstChild;
+    }
+    return child.snapshot.routeConfig?.path || '';
   }
 }

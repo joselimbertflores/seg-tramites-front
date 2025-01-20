@@ -1,5 +1,5 @@
 <div class="example-container" [class.example-is-mobile]="isHandset$ | async">
-  <!-- <mat-toolbar color="primary" class="tonal">
+  <mat-toolbar color="primary" class="tonal">
     <button mat-icon-button (click)="snav.toggle()">
       <mat-icon>menu</mat-icon>
     </button>
@@ -28,7 +28,7 @@
         <profile [(isOpen)]="detailsOpen" />
       </div>
     </ng-template>
-  </mat-toolbar> -->
+  </mat-toolbar>
 
   <mat-sidenav-container
     class="example-sidenav-container"
@@ -44,8 +44,8 @@
       <navigation-list [menu]="menu" />
     </mat-sidenav>
 
-    <mat-sidenav-content >
-      <div [@routeAnimations]="prepareRoute(outlet)" class="bg-green-500">
+    <mat-sidenav-content cdkScrollable>
+      <div [@routeAnimations]="prepareRoute(outlet)">
         <router-outlet #outlet="outlet"></router-outlet>
       </div>
     </mat-sidenav-content>
