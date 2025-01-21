@@ -1,6 +1,6 @@
 <h2 mat-dialog-title>{{ data ? "Editar" : "Crear" }} Dependencia</h2>
-<div mat-dialog-content>
-  <form [formGroup]="FormDependency">
+<mat-dialog-content>
+  <form [formGroup]="FormDependency" class="flex flex-col">
     @if(FormDependency.get('institucion')){
     <simple-select-search
       [placeholder]="'Seleccione una institucion'"
@@ -8,24 +8,51 @@
       (onSelect)="selectInstitution($event)"
     />
     }
-    <mat-form-field>
-      <mat-label>Nombre de la dependencia</mat-label>
-      <input formControlName="nombre" matInput />
-    </mat-form-field>
-    <div class="flex gap-x-2">
-      <mat-form-field>
-        <mat-label>Sigla</mat-label>
-        <input formControlName="sigla" matInput />
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>Codigo</mat-label>
-        <input formControlName="codigo" matInput />
-      </mat-form-field>
+    <div class="flex gap-x-2 py-2">
+      <div class="w-3/4">
+        <mat-form-field>
+          <mat-label>Nombre de la dependencia</mat-label>
+          <input formControlName="nombre" matInput />
+        </mat-form-field>
+      </div>
+      <div class="w-1/4">
+        <mat-form-field>
+          <mat-label>Codigo</mat-label>
+          <input formControlName="codigo" matInput />
+        </mat-form-field>
+      </div>
     </div>
-    <mat-checkbox formControlName="activo"> Habilitado </mat-checkbox>
+    <div class="flex justify-between py-2 px-3">
+      <span class="text-lg">Areas</span>
+      <button mat-icon-button (click)="addRequirement()">
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
 
+    <div formArrayName="areas" class="overflow-y-scroll max-h-64">
+      <div *ngFor="let control of requeriments.controls; let i = index">
+        <div class="flex gap-x-2 gap-y-1 items-center" [formGroupName]="i">
+          <div class="flex-1">
+            <mat-form-field>
+              <mat-label>Area {{ i + 1 }}</mat-label>
+              <input
+                matInput
+                placeholder="Ingrese el nombre del area"
+                formControlName="nombre"
+              />
+            </mat-form-field>
+          </div>
+          <div class="h-12">
+            <button mat-icon-button (click)="removeRequirement(i)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- <mat-checkbox formControlName="activo"> Habilitado </mat-checkbox> -->
   </form>
-</div>
+</mat-dialog-content>
 <div mat-dialog-actions align="end">
   <button mat-button color="warn" mat-dialog-close>Cancelar</button>
   <button

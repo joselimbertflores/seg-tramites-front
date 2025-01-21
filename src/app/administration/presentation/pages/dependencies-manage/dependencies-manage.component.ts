@@ -71,7 +71,8 @@ export default class DependenciesManageComponent {
 
   create() {
     const dialogRef = this.dialog.open(DependencyDialogComponent, {
-      width: '900px',
+      width: '800px',
+      maxWidth:'800px'
     });
     dialogRef.afterClosed().subscribe((result: dependency) => {
       if (!result) return;
