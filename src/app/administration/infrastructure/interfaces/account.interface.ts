@@ -9,4 +9,5 @@ export interface account {
   jobtitle: string;
   isVisible: boolean;
   user: user;
+  area?: number;
 }

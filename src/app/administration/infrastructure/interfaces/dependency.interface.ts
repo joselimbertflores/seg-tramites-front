@@ -1,10 +1,13 @@
-import { institution } from "./institution.interface";
+import { institution } from './institution.interface';
 
+export interface area {
+  name: string;
+  code: number;
+}
 export interface dependency {
   _id: string;
   nombre: string;
-  sigla: string;
   codigo: string;
-  activo: boolean;
   institucion: institution;
+  areas?: area[];
 }

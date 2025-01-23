@@ -88,6 +88,7 @@ export class DocDialogComponent {
       fullname: ['', Validators.required],
       jobtitle: ['', Validators.required],
     }),
+    isGeneralCode: [false],
   });
 
   constructor() {

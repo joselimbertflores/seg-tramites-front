@@ -170,7 +170,6 @@ export default class InternalsManageComponent {
   }
 
   generateTemplate() {
-    this.wordGeneratorService.generateWord();
   }
 
   private _saveCache(): void {

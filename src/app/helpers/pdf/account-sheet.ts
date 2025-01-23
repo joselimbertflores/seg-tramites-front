@@ -11,7 +11,7 @@ function createContent(
       text: [
         'NOMBRE: ',
         {
-          text: `${account.fullnameManager()}\n\n`.toUpperCase(),
+          text: `${account.fullnameManager}\n\n`.toUpperCase(),
           bold: false,
         },
         'CARGO: ',
@@ -60,7 +60,7 @@ function createContent(
       marginBottom: 50,
     },
     {
-      qr: `${account.fullnameManager()} Dni: ${account.officer?.dni}`,
+      qr: `${account.fullnameManager} Dni: ${account.officer?.dni}`,
       alignment: 'right',
       fit: 100,
     },

@@ -29,7 +29,6 @@ export default class DocsComponent implements OnInit {
   datasource = signal<any[]>([]);
 
   displayedColumns: string[] = [
-    'number',
     'cite',
     'reference',
     'sender',
@@ -65,6 +64,6 @@ export default class DocsComponent implements OnInit {
   }
 
   generateTemplate() {
-    this.wordGeneratorService.generateWord();
+    this.wordGeneratorService.generateDocument();
   }
 }

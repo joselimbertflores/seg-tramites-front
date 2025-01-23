@@ -1,4 +1,4 @@
-<h2 mat-dialog-title>{{ true ? "Edicion" : "Creacion" }} Documento</h2>
+<h2 mat-dialog-title>{{ data ? "Edicion" : "Creacion" }} Documento</h2>
 <mat-dialog-content>
   <form [formGroup]="formDoc" class="pt-2">
     <mat-form-field>
@@ -9,6 +9,15 @@
         }
       </mat-select>
     </mat-form-field>
+    <div class="mb-3">
+      <mat-checkbox #generalCode formControlName="isGeneralCode">
+        Cite General @if(generalCode.checked){
+        <span class="font-medium">
+          (El cite sera generado con la numeracion de la unidad)
+        </span>
+        }
+      </mat-checkbox>
+    </div>
     <mat-form-field>
       <mat-label>Referencia</mat-label>
       <textarea matInput formControlName="reference"></textarea>
@@ -75,7 +84,12 @@
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button mat-button mat-dialog-close color="warn">Cancelar</button>
-  <button mat-button color="primary" [disabled]="formDoc.invalid" (click)="save()">
+  <button
+    mat-button
+    color="primary"
+    [disabled]="formDoc.invalid"
+    (click)="save()"
+  >
     Guardar
   </button>
 </mat-dialog-actions>

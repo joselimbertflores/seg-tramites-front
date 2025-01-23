@@ -11,30 +11,33 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 
 import { DependencyDialogComponent } from './dependency-dialog/dependency-dialog.component';
 import { SearchInputComponent } from '../../../../shared';
 import { DependencyService } from '../../services';
 import { dependency } from '../../../infrastructure';
+import { PersonnelDialogComponent } from './personnel-dialog/personnel-dialog.component';
 
 @Component({
-    selector: 'app-dependencies-manage',
-    imports: [
-        FormsModule,
-        MatToolbarModule,
-        MatDialogModule,
-        MatInputModule,
-        MatTableModule,
-        MatIconModule,
-        MatButtonModule,
-        MatPaginatorModule,
-        SearchInputComponent,
-    ],
-    templateUrl: './dependencies-manage.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'app-dependencies-manage',
+  imports: [
+    FormsModule,
+    MatToolbarModule,
+    MatDialogModule,
+    MatInputModule,
+    MatTableModule,
+    MatMenuModule,
+    MatIconModule,
+    MatButtonModule,
+    MatPaginatorModule,
+    SearchInputComponent,
+  ],
+  templateUrl: './dependencies-manage.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class DependenciesManageComponent {
   private dialog = inject(MatDialog);
@@ -44,14 +47,7 @@ export default class DependenciesManageComponent {
   datasource = signal<dependency[]>([]);
   datasize = signal<number>(10);
 
-  readonly displayedColumns = [
-    'sigla',
-    'nombre',
-    'codigo',
-    'institucion',
-    'activo',
-    'menu',
-  ];
+  readonly displayedColumns = ['nombre', 'codigo', 'institucion', 'menu'];
   public limit = signal<number>(10);
   public index = signal<number>(0);
   public offset = computed<number>(() => this.limit() * this.index());
@@ -72,7 +68,7 @@ export default class DependenciesManageComponent {
   create() {
     const dialogRef = this.dialog.open(DependencyDialogComponent, {
       width: '800px',
-      maxWidth:'800px'
+      maxWidth: '800px',
     });
     dialogRef.afterClosed().subscribe((result: dependency) => {
       if (!result) return;
@@ -83,7 +79,8 @@ export default class DependenciesManageComponent {
 
   edit(data: dependency) {
     const dialogRef = this.dialog.open(DependencyDialogComponent, {
-      width: '900px',
+      width: '800px',
+      maxWidth: '800px',
       data,
     });
     dialogRef.afterClosed().subscribe((dependency: dependency) => {
@@ -93,6 +90,14 @@ export default class DependenciesManageComponent {
         values[index] = dependency;
         return [...values];
       });
+    });
+  }
+
+  viewPersonnel(data: dependency) {
+    const dialogRef = this.dialog.open(PersonnelDialogComponent, {
+      width: '900px',
+      maxWidth: '900px',
+      data,
     });
   }
 

@@ -90,16 +90,6 @@ export class AuthService {
   getMyAccount() {
     return this.http.get<account>(`${this.base_url}/auth/detail`).pipe(
       map((resp) => {
-        resp.dependencia = resp.dependencia
-          ? resp.dependencia
-          : {
-              _id: '',
-              nombre: '',
-              sigla: '',
-              codigo: '',
-              activo: true,
-              institucion: { _id: '', nombre: '', sigla: '', activo: true },
-            };
         return new Account({ ...(resp as any) });
       })
     );

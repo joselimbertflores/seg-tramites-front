@@ -10,12 +10,6 @@
 <div class="mat-elevation-z8">
   <div class="table-container">
     <table mat-table [dataSource]="datasource()">
-      <ng-container matColumnDef="number">
-        <th mat-header-cell *matHeaderCellDef>Nro.</th>
-        <td mat-cell *matCellDef="let row" class="w-8">
-          {{ row.correlative }}
-        </td>
-      </ng-container>
       <ng-container matColumnDef="cite">
         <th mat-header-cell *matHeaderCellDef>Cite</th>
         <td mat-cell *matCellDef="let row">

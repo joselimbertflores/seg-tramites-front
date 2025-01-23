@@ -20,7 +20,10 @@ import {
 } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormFieldModule } from '@angular/material/form-field';
+import {
+  MAT_FORM_FIELD_DEFAULT_OPTIONS,
+  MatFormFieldModule,
+} from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 
 import { SimpleSelectSearchComponent } from '../../../../../shared';
@@ -63,37 +66,30 @@ export class DependencyDialogComponent implements OnInit {
   public FormDependency: FormGroup = this._formBuilder.group({
     nombre: ['', Validators.required],
     codigo: ['', Validators.required],
-    sigla: ['', [Validators.required, Validators.maxLength(10)]],
     institucion: ['', Validators.required],
-    activo: [true],
     areas: this._formBuilder.array([]),
   });
 
   public institutions = signal<SelectOption[]>([]);
 
   ngOnInit(): void {
-    if (this.data) {
-      this.FormDependency.removeControl('institucion');
-      this.FormDependency.patchValue(this.data);
-    } else {
-      this._getInstitutions();
-    }
+    this._loadForm();
   }
 
   save() {
     const subscription = this.data
-      ? this.dependencyService.edit(this.data._id, this.FormDependency.value)
-      : this.dependencyService.add(this.FormDependency.value);
+      ? this.dependencyService.update(this.data._id, this.FormDependency.value)
+      : this.dependencyService.create(this.FormDependency.value);
     subscription.subscribe((resp) => {
       this.dialogRef.close(resp);
     });
   }
 
-  addRequirement(value?: string) {
+  addRequirement() {
     this.requeriments.push(
       this._formBuilder.group({
-        nombre: [value ?? '', Validators.required],
-        activo: true,
+        name: ['', Validators.required],
+        code: ['', Validators.required],
       })
     );
   }
@@ -116,5 +112,15 @@ export class DependencyDialogComponent implements OnInit {
         resp.map((el) => ({ value: el._id, text: el.nombre }))
       );
     });
+  }
+
+  private _loadForm() {
+    if (this.data) {
+      this.FormDependency.removeControl('institucion');
+      this.data.areas?.forEach(() => this.addRequirement());
+      this.FormDependency.patchValue(this.data);
+    } else {
+      this._getInstitutions();
+    }
   }
 }

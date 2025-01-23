@@ -7,6 +7,7 @@ interface AccountProps {
   dependencia: dependency;
   user: user;
   jobtitle: string;
+  area?: number;
 }
 
 interface dependency {
@@ -46,7 +47,7 @@ export class Account {
     this.user = user;
   }
 
-  fullnameManager(): string {
+  get fullnameManager(): string {
     return this.officer ? this.officer.fullname : 'DESVINCULADO';
   }
 }
