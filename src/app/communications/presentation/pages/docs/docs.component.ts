@@ -14,6 +14,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { DocDialogComponent } from './doc-dialog/doc-dialog.component';
 import { DocService } from '../../services';
 import { WordGeneratorService } from '../../../../shared';
+import { doc } from '../../../infrastructure';
 
 @Component({
   selector: 'app-docs',
@@ -26,7 +27,7 @@ export default class DocsComponent implements OnInit {
   private docService = inject(DocService);
   private wordGeneratorService = inject(WordGeneratorService);
 
-  datasource = signal<any[]>([]);
+  datasource = signal<doc[]>([]);
 
   displayedColumns: string[] = [
     'cite',
@@ -63,7 +64,7 @@ export default class DocsComponent implements OnInit {
     });
   }
 
-  generateTemplate() {
-    this.wordGeneratorService.generateDocument();
+  generateTemplate(item: doc) {
+    this.wordGeneratorService.generateDocument(item);
   }
 }

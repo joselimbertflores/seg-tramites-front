@@ -3,15 +3,24 @@ import {
   AlignmentType,
   BorderStyle,
   Document,
+  Footer,
+  Header,
   HeadingLevel,
+  ImageRun,
   Packer,
   Paragraph,
   Table,
+  TableBorders,
   TableCell,
+  TableLayoutType,
   TableRow,
   TextRun,
+  VerticalAlign,
   WidthType,
 } from 'docx';
+
+import { doc } from '../../communications/infrastructure';
+import { convertImageABase64 } from '../../helpers';
 
 @Injectable({
   providedIn: 'root',
@@ -19,73 +28,150 @@ import {
 export class WordGeneratorService {
   constructor() {}
 
-  generateDocument() {
-    const doc = new Document({
+  async generateDocument(item: doc) {
+    const leftImage = await convertImageABase64(
+      'images/institution/alcaldia.jpeg'
+    );
+    const rightImage = await convertImageABase64(
+      'images/institution/sacaba.jpeg'
+    );
+    const docx = new Document({
       sections: [
         {
+          headers: {
+            default: new Header({
+              children: [
+                // new Paragraph({
+                //   children: [
+                //     new ImageRun({
+                //       type: 'jpg',
+                //       data: image,
+                //       transformation: {
+                //         width: 100,
+                //         height: 100,
+                //       },
+                //     }),
+                //     new ImageRun({
+                //       type: 'jpg',
+                //       data: image,
+                //       transformation: {
+                //         width: 100,
+                //         height: 100,
+                //       },
+                //     }),
+                //   ],
+                // }),
+                new Table({
+                  margins: { left: 0, right: 0 },
+                  columnWidths: [4505, 4505],
+                  borders: TableBorders.NONE,
+                  rows: [
+                    new TableRow({
+                      children: [
+                        new TableCell({
+                          width: {
+                            size: 4505,
+                            type: WidthType.DXA,
+                          },
+                          children: [
+                            new Paragraph({
+                              children: [
+                                new ImageRun({
+                                  type: 'jpg',
+                                  data: leftImage,
+                                  transformation: {
+                                    width: 250,
+                                    height: 100,
+                                  },
+                                }),
+                              ],
+                              alignment: AlignmentType.LEFT,
+                            }),
+                          ],
+                        }),
+                        new TableCell({
+                          width: {
+                            size: 4505,
+                            type: WidthType.DXA,
+                          },
+                          children: [
+                            new Paragraph({
+                              children: [
+                                new ImageRun({
+                                  type: 'jpg',
+                                  data: rightImage,
+                                  transformation: {
+                                    width: 100,
+                                    height: 100,
+                                  },
+                                }),
+                              ],
+                              alignment: AlignmentType.RIGHT,
+                            }),
+                          ],
+                        }),
+                      ],
+                    }),
+                  ],
+                  width: {
+                    size: 100,
+                    type: WidthType.PERCENTAGE,
+                  },
+                }),
+              ],
+            }),
+          },
+          footers: {
+            default: new Footer({
+              children: [new Paragraph('Footer text')],
+            }),
+          },
           children: [
-            // Título principal centrado
             new Paragraph({
-              text: 'INSTRUCTIVO',
               heading: HeadingLevel.HEADING_1,
               alignment: AlignmentType.CENTER,
-            }),
-            new Paragraph({
-              text: 'Sacaba, 10 de diciembre de 2024',
-              alignment: AlignmentType.RIGHT,
-            }),
-            new Paragraph({
-              text: 'Nº CITE: INST/SF-DRH-25/248/2024',
-              alignment: AlignmentType.RIGHT,
-            }),
-
-            // // Tabla para los encabezados
-            new Table({
-              borders: {
-                top: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
-                bottom: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
-                left: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
-                right: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
-              },
-              rows: [
-                this.createTableRow(
-                  'A',
-                  'DIRECTORES, SUB ALCALDES, JEFES, RESPONSABLES DE UNIDADES'
-                ),
-                this.createTableRow(
-                  'VIA',
-                  'Lic. Griselda R. Rojas V.\nSECRETARIA MUNICIPAL DE FINANZAS Y ADMINISTRACION'
-                ),
-                this.createTableRow(
-                  'DE',
-                  'Abg. V. Nelson Sánchez L.\nDIRECTOR DE ORGANIZACIÓN ADMINISTRATIVA Y RECURSOS HUMANOS'
-                ),
-                this.createTableRow(
-                  'ASUNTO',
-                  'PRESENTACION DE INFORMES GESTION 2024'
-                ),
+              children: [
+                new TextRun({
+                  text: this._getTitleDocument(item.type),
+                  bold: true,
+                  color: '000000',
+                }),
               ],
-              width: {
-                size: 100,
-                type: WidthType.PERCENTAGE,
-              },
+            }),
+            new Paragraph({
+              text: `Nº CITE: ${item.cite}`,
+              alignment: AlignmentType.CENTER,
             }),
 
-            // Párrafo de contenido principal
-            new Paragraph({
-              text:
-                'De mi mayor consideración:\n\n' +
-                'Por intermedio de la presente se INSTRUYE a ustedes, remitir ante esta Dirección, los informes de trabajo de la gestión 2024, del personal bajo su dependencia, debiendo presentar el indicado informe hasta el 20 de diciembre de la presente gestión impostergablemente.\n\n' +
-                'Para su registro correspondiente deberá efectuar el informe de la gestión 2024 en el Formulario – SMFA/DRH/F-002 (descargar de intranet).\n\n' +
-                'Debiendo ser presentada ante la Dirección de Organización Administrativa y Recursos Humanos en medio digital (CD) e impreso (consolidado por cada Secretaría, Sub-Alcaldes y Despacho), posterior a ello se entregará sistematizada al Despacho de nuestra MAE.\n\n' +
-                'El incumplimiento al presente instructivo se sancionará de acuerdo al Reglamento Interno de Personal.',
-              alignment: AlignmentType.JUSTIFIED,
-            }),
-
-            // Firma
-            new Paragraph({
-              text: 'Atentamente,',
-              alignment: AlignmentType.LEFT,
+            new Table({
+              columnWidths: [2000, 4000, 4000],
+              borders: TableBorders.NONE,
+              rows: [
+                new TableRow({
+                  children: [
+                    new TableCell({
+                      width: { size: 2000, type: WidthType.DXA }, // 20%
+                      children: [new Paragraph('Hello')],
+                    }),
+                    new TableCell({
+                      width: { size: 4000, type: WidthType.DXA }, // 20%
+                      children: [
+                        new Paragraph(
+                          'Amet cillum consequat duis cupidatat aute ea consectetur duis aliquip mollit nisi Lorem mollit.'
+                        ),
+                      ],
+                    }),
+                    new TableCell({
+                      width: { size: 4000, type: WidthType.DXA }, // 20%
+                      children: [
+                        new Paragraph(
+                          'Amet cillum consequat duis cupidatat aute ea consectetur duis aliquip mollit nisi Lorem mollit.'
+                        ),
+                      ],
+                    }),
+                  ],
+                }),
+              ],
             }),
           ],
         },
@@ -93,7 +179,7 @@ export class WordGeneratorService {
     });
 
     // Generar el archivo y descargarlo
-    Packer.toBlob(doc).then((blob) => {
+    Packer.toBlob(docx).then((blob) => {
       const url = window.URL.createObjectURL(blob);
       const anchor = document.createElement('a');
       anchor.href = url;
@@ -119,5 +205,21 @@ export class WordGeneratorService {
         }),
       ],
     });
+  }
+
+  private _getTitleDocument(docType: string): string {
+    switch (docType) {
+      case 'CI':
+        return 'COMUNICACION INTERNA';
+      case 'CE':
+        return 'COMUNICACION EXTERNA';
+      case 'CIR':
+        return 'CIRCULAR';
+      case 'MEM':
+        return 'MEMORANDUM';
+
+      default:
+        return 'DESCONOCIDO';
+    }
   }
 }

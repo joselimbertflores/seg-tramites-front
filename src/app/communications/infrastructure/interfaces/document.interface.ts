@@ -20,4 +20,5 @@ interface recipient {
 }
 interface procedure {
   code: string;
+  group: string;
 }
