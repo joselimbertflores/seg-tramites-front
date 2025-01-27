@@ -6,6 +6,8 @@ import {
   Footer,
   Header,
   HeadingLevel,
+  HorizontalPositionAlign,
+  HorizontalPositionRelativeFrom,
   ImageRun,
   Packer,
   Paragraph,
@@ -16,6 +18,8 @@ import {
   TableRow,
   TextRun,
   VerticalAlign,
+  VerticalPositionAlign,
+  VerticalPositionRelativeFrom,
   WidthType,
 } from 'docx';
 
@@ -41,90 +45,57 @@ export class WordGeneratorService {
           headers: {
             default: new Header({
               children: [
-                // new Paragraph({
-                //   children: [
-                //     new ImageRun({
-                //       type: 'jpg',
-                //       data: image,
-                //       transformation: {
-                //         width: 100,
-                //         height: 100,
-                //       },
-                //     }),
-                //     new ImageRun({
-                //       type: 'jpg',
-                //       data: image,
-                //       transformation: {
-                //         width: 100,
-                //         height: 100,
-                //       },
-                //     }),
-                //   ],
-                // }),
-                new Table({
-                  margins: { left: 0, right: 0 },
-                  columnWidths: [4505, 4505],
-                  borders: TableBorders.NONE,
-                  rows: [
-                    new TableRow({
-                      children: [
-                        new TableCell({
-                          width: {
-                            size: 4505,
-                            type: WidthType.DXA,
-                          },
-                          children: [
-                            new Paragraph({
-                              children: [
-                                new ImageRun({
-                                  type: 'jpg',
-                                  data: leftImage,
-                                  transformation: {
-                                    width: 250,
-                                    height: 100,
-                                  },
-                                }),
-                              ],
-                              alignment: AlignmentType.LEFT,
-                            }),
-                          ],
-                        }),
-                        new TableCell({
-                          width: {
-                            size: 4505,
-                            type: WidthType.DXA,
-                          },
-                          children: [
-                            new Paragraph({
-                              children: [
-                                new ImageRun({
-                                  type: 'jpg',
-                                  data: rightImage,
-                                  transformation: {
-                                    width: 100,
-                                    height: 100,
-                                  },
-                                }),
-                              ],
-                              alignment: AlignmentType.RIGHT,
-                            }),
-                          ],
-                        }),
-                      ],
+                new Paragraph({
+                  children: [
+                    new ImageRun({
+                      type: 'jpg',
+                      data: leftImage,
+                      transformation: {
+                        width: 200,
+                        height: 80,
+                      },
+                      floating: {
+                        horizontalPosition: {
+                          relative: HorizontalPositionRelativeFrom.MARGIN,
+                          align: HorizontalPositionAlign.LEFT,
+                        },
+                        verticalPosition: {
+                          relative: VerticalPositionRelativeFrom.PARAGRAPH,
+                          align: VerticalPositionAlign.TOP,
+                        },
+                      },
+                    }),
+                    new ImageRun({
+                      type: 'jpg',
+                      data: rightImage,
+                      transformation: {
+                        width: 80,
+                        height: 80,
+                      },
+                      floating: {
+                        horizontalPosition: {
+                          relative:
+                            HorizontalPositionRelativeFrom.OUTSIDE_MARGIN,
+                          align: HorizontalPositionAlign.RIGHT,
+                        },
+                        verticalPosition: {
+                          relative: VerticalPositionRelativeFrom.PARAGRAPH,
+                          align: VerticalPositionAlign.TOP,
+                        },
+                      },
                     }),
                   ],
-                  width: {
-                    size: 100,
-                    type: WidthType.PERCENTAGE,
-                  },
                 }),
               ],
             }),
           },
-          footers: {
-            default: new Footer({
-              children: [new Paragraph('Footer text')],
-            }),
+          properties: {
+            page: {
+              size: {
+                width: 12240, // 8.5 pulgadas en 1/72 de pulgada
+                height: 15840, // 11 pulgadas en 1/72 de pulgada
+              },
+            },
           },
           children: [
             new Paragraph({
@@ -141,38 +112,92 @@ export class WordGeneratorService {
             new Paragraph({
               text: `Nº CITE: ${item.cite}`,
               alignment: AlignmentType.CENTER,
+              spacing: {
+                after: 400,
+              },
             }),
-
             new Table({
-              columnWidths: [2000, 4000, 4000],
+              columnWidths: [1000, 3500, 4500],
               borders: TableBorders.NONE,
               rows: [
                 new TableRow({
                   children: [
                     new TableCell({
-                      width: { size: 2000, type: WidthType.DXA }, // 20%
-                      children: [new Paragraph('Hello')],
+                      width: { size: 1000, type: WidthType.DXA }, // 20%
+                      children: [new Paragraph('A  :')],
                     }),
                     new TableCell({
-                      width: { size: 4000, type: WidthType.DXA }, // 20%
-                      children: [
-                        new Paragraph(
-                          'Amet cillum consequat duis cupidatat aute ea consectetur duis aliquip mollit nisi Lorem mollit.'
-                        ),
-                      ],
+                      width: { size: 3500, type: WidthType.DXA }, // 20%
+                      children: [new Paragraph(item.sender.fullname)],
                     }),
                     new TableCell({
-                      width: { size: 4000, type: WidthType.DXA }, // 20%
+                      width: { size: 4500, type: WidthType.DXA }, // 20%
+                      children: [new Paragraph(item.sender.jobtitle)],
+                    }),
+                  ],
+                }),
+                new TableRow({
+                  children: [
+                    new TableCell({
+                      width: { size: 1000, type: WidthType.DXA }, // 20%
+                      children: [new Paragraph('DE  :')],
+                    }),
+                    new TableCell({
+                      width: { size: 3500, type: WidthType.DXA }, // 20%
+                      children: [new Paragraph(item.sender.fullname)],
+                    }),
+                    new TableCell({
+                      width: { size: 4500, type: WidthType.DXA }, // 20%
+                      children: [new Paragraph(item.sender.jobtitle)],
+                    }),
+                  ],
+                }),
+                new TableRow({
+                  children: [
+                    new TableCell({
+                      width: { size: 1000, type: WidthType.DXA }, // 20%
+                      children: [new Paragraph('MOTIVO:')],
+                    }),
+                    new TableCell({
+                      width: { size: 8000, type: WidthType.DXA }, // 20%
                       children: [
-                        new Paragraph(
-                          'Amet cillum consequat duis cupidatat aute ea consectetur duis aliquip mollit nisi Lorem mollit.'
-                        ),
+                        new Paragraph({
+                          children: [
+                            new TextRun({ text: item.reference, bold: true }),
+                          ],
+                        }),
                       ],
+                      rowSpan: 2,
+                    }),
+                  ],
+                }),
+                new TableRow({
+                  children: [
+                    new TableCell({
+                      width: { size: 1000, type: WidthType.DXA }, // 20%
+                      children: [new Paragraph('FECHA :')],
+                    }),
+                    new TableCell({
+                      rowSpan: 2,
+                      width: { size: 8000, type: WidthType.DXA }, // 20%
+                      children: [new Paragraph(item.sender.fullname)],
                     }),
                   ],
                 }),
               ],
             }),
+            // Línea de división
+            new Paragraph({
+              border: {
+                bottom: {
+                  style: BorderStyle.SINGLE,
+                  size: 4, // Grosor de la línea
+                  space: 1, // Espacio entre la línea y el texto
+                },
+              },
+            }),
+
+            new Paragraph('Contenidno'),
           ],
         },
       ],
