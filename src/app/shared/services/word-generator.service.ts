@@ -117,10 +117,15 @@ export class WordGeneratorService {
               },
             }),
             new Table({
-              columnWidths: [1000, 3500, 4500],
               borders: TableBorders.NONE,
+              columnWidths: [20, 40, 40],
+              width: {
+                size: 100,
+                type: WidthType.PERCENTAGE,
+              },
               rows: [
                 new TableRow({
+                  height: { value: 400, rule: 'auto' },
                   children: [
                     new TableCell({
                       width: { size: 1000, type: WidthType.DXA }, // 20%
@@ -137,67 +142,66 @@ export class WordGeneratorService {
                   ],
                 }),
                 new TableRow({
+                  height: { value: 400, rule: 'auto' },
+
                   children: [
                     new TableCell({
-                      width: { size: 1000, type: WidthType.DXA }, // 20%
+                      width: { size: 20, type: WidthType.PERCENTAGE },
                       children: [new Paragraph('DE  :')],
                     }),
                     new TableCell({
-                      width: { size: 3500, type: WidthType.DXA }, // 20%
+                      width: { size: 40, type: WidthType.PERCENTAGE },
                       children: [new Paragraph(item.sender.fullname)],
                     }),
                     new TableCell({
-                      width: { size: 4500, type: WidthType.DXA }, // 20%
+                      width: { size: 40, type: WidthType.PERCENTAGE },
                       children: [new Paragraph(item.sender.jobtitle)],
                     }),
                   ],
                 }),
                 new TableRow({
+                  height: { value: 400, rule: 'auto' },
                   children: [
                     new TableCell({
-                      width: { size: 1000, type: WidthType.DXA }, // 20%
-                      children: [new Paragraph('MOTIVO:')],
+                      width: { size: 20, type: WidthType.PERCENTAGE }, // 20%
+                      children: [new Paragraph('MOTIVO :')],
                     }),
                     new TableCell({
-                      width: { size: 8000, type: WidthType.DXA }, // 20%
-                      children: [
-                        new Paragraph({
-                          children: [
-                            new TextRun({ text: item.reference, bold: true }),
-                          ],
-                        }),
-                      ],
-                      rowSpan: 2,
+                      columnSpan: 2,
+                      width: { size: 80, type: WidthType.PERCENTAGE }, // 20%
+                      children: [new Paragraph(item.reference)],
                     }),
                   ],
                 }),
                 new TableRow({
+                  height: { value: 400, rule: 'auto' },
                   children: [
                     new TableCell({
-                      width: { size: 1000, type: WidthType.DXA }, // 20%
                       children: [new Paragraph('FECHA :')],
                     }),
                     new TableCell({
-                      rowSpan: 2,
-                      width: { size: 8000, type: WidthType.DXA }, // 20%
-                      children: [new Paragraph(item.sender.fullname)],
+                      columnSpan: 2,
+                      children: [new Paragraph(item.createdAt)],
                     }),
                   ],
                 }),
               ],
             }),
-            // Línea de división
             new Paragraph({
               border: {
                 bottom: {
                   style: BorderStyle.SINGLE,
-                  size: 4, // Grosor de la línea
-                  space: 1, // Espacio entre la línea y el texto
+                  size: 4,
+                  space: 1,
                 },
               },
             }),
-
-            new Paragraph('Contenidno'),
+            new Paragraph({
+              spacing: {
+                before: 200,
+              },
+              text: 'Contenido',
+            }),
           ],
         },
       ],
@@ -215,23 +219,6 @@ export class WordGeneratorService {
       window.URL.revokeObjectURL(url);
     });
   }
-
-  // Función para crear filas de tabla
-  createTableRow(label: string, content: string): TableRow {
-    return new TableRow({
-      children: [
-        new TableCell({
-          children: [new Paragraph({ text: `${label} :` })],
-          borders: { top: { style: BorderStyle.NONE, size: 0 } },
-        }),
-        new TableCell({
-          children: [new Paragraph({ text: content })],
-          borders: { top: { style: BorderStyle.NONE, size: 0 } },
-        }),
-      ],
-    });
-  }
-
   private _getTitleDocument(docType: string): string {
     switch (docType) {
       case 'CI':

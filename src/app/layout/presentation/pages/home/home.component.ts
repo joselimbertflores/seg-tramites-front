@@ -185,6 +185,10 @@ export default class HomeComponent implements AfterViewInit, AfterViewChecked {
   }
 
   prepareRoute(outlet: RouterOutlet) {
+    if (outlet) {
+      console.log(outlet.activatedRouteData);
+    }
+    return true;
     return (
       outlet &&
       outlet.activatedRouteData &&
