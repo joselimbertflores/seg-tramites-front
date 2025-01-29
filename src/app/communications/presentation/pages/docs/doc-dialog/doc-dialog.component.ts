@@ -3,6 +3,7 @@ import {
   Component,
   effect,
   inject,
+  OnInit,
   signal,
 } from '@angular/core';
 import {
@@ -18,9 +19,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
 import {
-  MAT_DIALOG_DATA,
-  MatDialogModule,
   MatDialogRef,
+  MatDialogModule,
+  MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
 
 import {
@@ -29,6 +30,7 @@ import {
 } from '../../../../../shared';
 import { Account } from '../../../../../administration/domain';
 import { DocService } from '../../../services/doc.service';
+import { doc } from '../../../../infrastructure';
 
 type validFormfield = 'sender' | 'recipient' | 'via';
 type participantOptions = {
@@ -55,10 +57,10 @@ type participantOptions = {
     },
   ],
 })
-export class DocDialogComponent {
+export class DocDialogComponent implements OnInit {
   private _formBuilder = inject(FormBuilder);
-  private docService = inject(DocService);
   private dialogRef = inject(MatDialogRef);
+  private docService = inject(DocService);
 
   readonly types = [
     { value: 'CI', label: 'COMUNICACION INTERNA' },
@@ -67,11 +69,11 @@ export class DocDialogComponent {
     { value: 'MEM', label: 'MEMORANDUM' },
   ];
 
-  data: any = inject(MAT_DIALOG_DATA);
+  data?: doc = inject(MAT_DIALOG_DATA);
 
   participants = signal<participantOptions>({
-    sender: [],
     recipient: [],
+    sender: [],
     via: [],
   });
 
@@ -97,9 +99,13 @@ export class DocDialogComponent {
     });
   }
 
+  ngOnInit(): void {
+    this._loadForm();
+  }
+
   save() {
     const subscription = this.data
-      ? this.docService.update(this.data.id, this.formDoc.value)
+      ? this.docService.update(this.data._id, this.formDoc.value)
       : this.docService.create(this.formDoc.value);
     subscription.subscribe(() => this.dialogRef.close());
   }
@@ -135,5 +141,12 @@ export class DocDialogComponent {
     } else {
       this.formDoc.removeControl('via');
     }
+  }
+
+  private _loadForm() {
+    if (!this.data) return;
+    this.formDoc.removeControl('type');
+    this.formDoc.removeControl('isGeneralCode');
+    this.formDoc.patchValue(this.data);
   }
 }

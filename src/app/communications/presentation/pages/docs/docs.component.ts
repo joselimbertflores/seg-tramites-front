@@ -36,6 +36,9 @@ export default class DocsComponent implements OnInit {
     'procedure',
     'options',
   ];
+  ngOnInit(): void {
+    this.getData();
+  }
 
   create() {
     const dialogRef = this.dialogRef.open(DocDialogComponent, {
@@ -53,8 +56,12 @@ export default class DocsComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
-    this.getData();
+  update(element: doc) {
+    const dialogRef = this.dialogRef.open(DocDialogComponent, {
+      maxWidth: '1000px',
+      width: '1000px',
+      data: element,
+    });
   }
 
   getData() {

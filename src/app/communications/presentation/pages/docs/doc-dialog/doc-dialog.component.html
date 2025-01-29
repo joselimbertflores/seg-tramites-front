@@ -1,6 +1,7 @@
 <h2 mat-dialog-title>{{ data ? "Edicion" : "Creacion" }} Documento</h2>
 <mat-dialog-content>
   <form [formGroup]="formDoc" class="pt-2">
+    @if(!data){
     <mat-form-field>
       <mat-label>Tipo de documento</mat-label>
       <mat-select formControlName="type">
@@ -18,6 +19,7 @@
         }
       </mat-checkbox>
     </div>
+    }
     <mat-form-field>
       <mat-label>Referencia</mat-label>
       <textarea matInput formControlName="reference"></textarea>
