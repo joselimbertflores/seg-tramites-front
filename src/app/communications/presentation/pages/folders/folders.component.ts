@@ -40,13 +40,12 @@ import { filter, map } from 'rxjs';
   templateUrl: './folders.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
-    .mybox{
-   
-      box-shadow: var(--mat-sys-level2);
+    .box-folder{
+      background: var(--mat-sys-surface-container);
     }
 
-    .mybox:hover {
-      background:var(--mat-sys-primary-fixed);
+    .box-folder:hover {
+      background:var(--mat-sys-surface-dim);
     }
 
   `,

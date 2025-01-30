@@ -20,3 +20,7 @@ h1.example-app-name {
 .example-sidenav-container {
   flex: 1;
 }
+
+.sidenav {
+  background: var(--mat-sys-surface-container-low);
+}

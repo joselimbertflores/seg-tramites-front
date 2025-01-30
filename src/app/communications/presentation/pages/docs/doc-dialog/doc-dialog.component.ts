@@ -131,11 +131,12 @@ export class DocDialogComponent implements OnInit {
 
   private _toggleViaField() {
     if (this.showViaField()) {
+      const { fullname = '', jobtitle = '' } = this.data?.via ?? {};
       this.formDoc.addControl(
         'via',
         this._formBuilder.group({
-          fullname: ['', Validators.required],
-          jobtitle: ['', Validators.required],
+          fullname: [fullname, Validators.required],
+          jobtitle: [jobtitle, Validators.required],
         })
       );
     } else {
@@ -148,5 +149,6 @@ export class DocDialogComponent implements OnInit {
     this.formDoc.removeControl('type');
     this.formDoc.removeControl('isGeneralCode');
     this.formDoc.patchValue(this.data);
+    if (this.data.via) this.showViaField.set(true);
   }
 }

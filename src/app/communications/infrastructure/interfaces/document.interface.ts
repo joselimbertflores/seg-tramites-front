@@ -9,6 +9,7 @@ export interface doc {
   reference: string;
   sender: recipient;
   recipient: recipient;
+  via?: recipient;
   createdAt: string;
   updatedAt: string;
   procedure?: procedure;

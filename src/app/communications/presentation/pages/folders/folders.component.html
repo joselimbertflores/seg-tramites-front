@@ -8,15 +8,15 @@
   restoreScroll
   scrollKey="folders-scroll"
   [isLoading]="isLoading()"
-  class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 overflow-y-scroll"
+  class="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 overflow-y-scroll"
   style="height: calc(100vh - 140px)"
 >
   @for (folder of folders(); track $index) {
   <div
-    class="relative group cursor-point p-4 flex flex-col items-center rounded-2xl mybox"
+    class="relative group cursor-point p-4 flex flex-col items-center rounded-2xl box-folder"
     [routerLink]="[folder._id]"
   >
-    <div class="w-32 mb-4">
+    <div class="w-20 mb-4">
       <img src="images/icons/folder.png" alt="Folder image" />
     </div>
 

@@ -15,5 +15,6 @@ export * from './directives/restore-scroll.directive';
 
 export * from './components/inputs/autocomplete/autocomplete.component';
 export * from './components/inputs/select-search/select-search.component';
+export * from './components/inputs/year-picker/year-picker.component';
 
 export * from './components/alerts/alert-message/alert-message.component';

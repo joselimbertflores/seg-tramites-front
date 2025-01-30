@@ -39,6 +39,7 @@
       [mode]="(isHandset$ | async) ? 'over' : 'side'"
       [fixedInViewport]="isHandset$ | async"
       [opened]="(isHandset$ | async) === false"
+      class="sidenav"
       fixedTopGap="56"
     >
       <navigation-list [menu]="menu" />
