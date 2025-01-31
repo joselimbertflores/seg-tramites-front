@@ -11,15 +11,9 @@ import {
 } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCardModule } from '@angular/material/card';
-import {
-  Node,
-  Edge,
-  ClusterNode,
-  MiniMapPosition,
-  NgxGraphModule,
-} from '@swimlane/ngx-graph';
+
 import { Overlay, OverlayModule, OverlayRef } from '@angular/cdk/overlay';
-import * as shape from 'd3-shape';
+// import * as shape from 'd3-shape';
 import { StatusMail, Workflow } from '../../../../domain/models';
 import { ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
 import { PaginatorComponent } from '../../paginator/paginator.component';
@@ -27,7 +21,6 @@ import { PaginatorComponent } from '../../paginator/paginator.component';
     selector: 'workflow-graph',
     imports: [
         CommonModule,
-        NgxGraphModule,
         MatCardModule,
         MatTooltipModule,
         OverlayModule,
@@ -41,16 +34,16 @@ export class WorkflowGraphComponent {
   // @Input() data: Workflow[] = [];
   // public nodes: Node[] = [];
   // public links: Edge[] = [];
-  public curve = shape.curveLinear;
-  public clusters: ClusterNode[] = [];
-  public minimapPosition: MiniMapPosition = MiniMapPosition.UpperRight;
+  // public curve = shape.curveLinear;
+  public clusters: any[] = [];
+  public minimapPosition: any = "MiniMapPosition.UpperRight";
   @ViewChild('myTemplate') myTemplateRef!: TemplateRef<any>;
   @ViewChild('mybtn') btn!: ElementRef<any>;
   private overlayRef?: OverlayRef;
 
-  public graph = computed<{ nodes: Node[]; links: Edge[] }>(() => {
-    return this.createChar(this.workflow());
-  });
+  // public graph = computed<{ nodes: Node[]; links: any }>(() => {
+  //   return this.createChar(this.workflow());
+  // });
 
   constructor(
     private overlay: Overlay,
@@ -118,45 +111,45 @@ export class WorkflowGraphComponent {
   }
 
   createChar(workflow: Workflow[]) {
-    const nodes: Record<string, Node> = {};
-    const links: any[] = [];
-    workflow.forEach(({ emitter, dispatches }, index) => {
-      nodes[emitter.cuenta] = {
-        id: emitter.cuenta,
-        label: emitter.cuenta,
-        data: {
-          fullname: emitter.fullname,
-          jobtitle: emitter.jobtitle,
-        },
-      };
-      dispatches.forEach(({ receiver, status }, subindex) => {
-        nodes[receiver.cuenta] = {
-          id: receiver.cuenta,
-          label: 'ds',
-          data: {
-            fullname: receiver.fullname,
-            jobtitle: receiver.jobtitle,
-          },
-        };
-        const [label, classEdge, classLink] =
-          status === StatusMail.Rejected
-            ? ['Rechazado', 'circle-reject', 'line-reject']
-            : status === StatusMail.Pending
-            ? ['Pendiente', 'circle-pending', 'line-pending']
-            : ['Recibido', 'circle-success', 'line-success'];
-        links.push({
-          id: `a${subindex}-${index}`,
-          source: emitter.cuenta,
-          target: receiver.cuenta,
-          label: `${index + 1}`,
-          data: {
-            status,
-            classEdge,
-            classLink,
-          },
-        });
-      });
-    });
-    return { nodes: [...Object.values(nodes)], links: [...links] };
+    // const nodes: Record<string, Node> = {};
+    // const links: any[] = [];
+    // workflow.forEach(({ emitter, dispatches }, index) => {
+    //   nodes[emitter.cuenta] = {
+    //     id: emitter.cuenta,
+    //     label: emitter.cuenta,
+    //     data: {
+    //       fullname: emitter.fullname,
+    //       jobtitle: emitter.jobtitle,
+    //     },
+    //   };
+    //   dispatches.forEach(({ receiver, status }, subindex) => {
+    //     nodes[receiver.cuenta] = {
+    //       id: receiver.cuenta,
+    //       label: 'ds',
+    //       data: {
+    //         fullname: receiver.fullname,
+    //         jobtitle: receiver.jobtitle,
+    //       },
+    //     };
+    //     const [label, classEdge, classLink] =
+    //       status === StatusMail.Rejected
+    //         ? ['Rechazado', 'circle-reject', 'line-reject']
+    //         : status === StatusMail.Pending
+    //         ? ['Pendiente', 'circle-pending', 'line-pending']
+    //         : ['Recibido', 'circle-success', 'line-success'];
+    //     links.push({
+    //       id: `a${subindex}-${index}`,
+    //       source: emitter.cuenta,
+    //       target: receiver.cuenta,
+    //       label: `${index + 1}`,
+    //       data: {
+    //         status,
+    //         classEdge,
+    //         classLink,
+    //       },
+    //     });
+    //   });
+    // });
+    // return { nodes: [...Object.values(nodes)], links: [...links] };
   }
 }

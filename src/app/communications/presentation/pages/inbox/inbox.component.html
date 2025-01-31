@@ -84,7 +84,7 @@
 </ng-template>
 
 <div
-  class="flex flex-col sm:flex-row justify-between items-center py-2 gap-y-2"
+  class="flex flex-col sm:flex-row justify-between items-center p-2 gap-y-2"
 >
   <div>
     <mat-button-toggle-group [(ngModel)]="status" (change)="getData()">
@@ -102,7 +102,7 @@
   </div>
 </div>
 
-<div class="mat-elevation-z8">
+<div class="mat-elevation-z8 px-4">
   <table mat-table [dataSource]="datasource()">
     <ng-container matColumnDef="select">
       <th mat-header-cell *matHeaderCellDef>

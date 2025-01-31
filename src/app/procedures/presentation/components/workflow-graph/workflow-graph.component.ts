@@ -5,13 +5,13 @@ import {
   computed,
   input,
 } from '@angular/core';
-import { Edge, NgxGraphModule, Node } from '@swimlane/ngx-graph';
+// import { Edge, NgxGraphModule, Node } from '@swimlane/ngx-graph';
 import { communication } from '../../../../communications/infrastructure';
 @Component({
     selector: 'workflow-graph',
-    imports: [CommonModule, NgxGraphModule],
+    imports: [CommonModule],
     template: `
-    <div class="w-full h-[80vh] p-6">
+    <!-- <div class="w-full h-[80vh] p-6">
       <div class="graph-container h-full bg-gray-100">
         <ngx-graph
           class="chart-container"
@@ -91,7 +91,7 @@ import { communication } from '../../../../communications/infrastructure';
           </ng-template>
         </ngx-graph>
       </div>
-    </div>
+    </div> -->
   `,
     styles: `
     .graph-container {
@@ -116,34 +116,34 @@ export class WorkflowGraphComponent {
   graph = computed(() => this._createGraph(this.workflow()));
 
   private _createGraph(workflow: communication[]) {
-    const nodes: Record<string, Node> = {};
-    const links: Edge[] = [];
-    workflow.forEach(({ sender, recipient, status }, index) => {
-      nodes[sender.account] = {
-        id: sender.account,
-        label: sender.account,
-        data: {
-          fullname: sender.fullname,
-          jobtitle: sender.jobtitle,
-        },
-      };
-      nodes[recipient.account] = {
-        id: recipient.account,
-        label: recipient.account,
-        data: {
-          fullname: recipient.fullname,
-          jobtitle: recipient.jobtitle,
-        },
-      };
-      links.push({
-        id: `a-${index}`,
-        source: sender.account,
-        target: recipient.account,
-        data: {
-          class: status,
-        },
-      });
-    });
-    return { nodes: [...Object.values(nodes)], links: [...links] };
+    // const nodes: Record<string, Node> = {};
+    // const links: Edge[] = [];
+    // workflow.forEach(({ sender, recipient, status }, index) => {
+    //   nodes[sender.account] = {
+    //     id: sender.account,
+    //     label: sender.account,
+    //     data: {
+    //       fullname: sender.fullname,
+    //       jobtitle: sender.jobtitle,
+    //     },
+    //   };
+    //   nodes[recipient.account] = {
+    //     id: recipient.account,
+    //     label: recipient.account,
+    //     data: {
+    //       fullname: recipient.fullname,
+    //       jobtitle: recipient.jobtitle,
+    //     },
+    //   };
+    //   links.push({
+    //     id: `a-${index}`,
+    //     source: sender.account,
+    //     target: recipient.account,
+    //     data: {
+    //       class: status,
+    //     },
+    //   });
+    // });
+    // return { nodes: [...Object.values(nodes)], links: [...links] };
   }
 }

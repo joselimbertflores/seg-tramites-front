@@ -34,11 +34,12 @@ export default class InternalDetailComponent {
   procedure = signal<InternalProcedure | null>(null);
 
   ngOnInit(): void {
-    this._getProcedureData(this.procedureId).subscribe(
-      ([procedure, workflow]) => {
-        this.procedure.set(procedure as InternalProcedure);
-      }
-    );
+    // this._getProcedureData(this.procedureId).subscribe(
+    //   ([procedure, workflow]) => {
+    //     this.procedure.set(procedure as InternalProcedure);
+    //   }
+    // );
+    console.log(this.procedureId);
   }
 
   private _getProcedureData(procedureId: string) {
