@@ -11,7 +11,7 @@
   >
     <mat-icon>filter_alt</mat-icon>
   </button>
-  <button mat-icon-button (click)="create()">
+  <button mat-icon-button (click)="create()" matTooltip="Crear">
     <mat-icon>add</mat-icon>
   </button>
 </mat-toolbar>
@@ -21,7 +21,7 @@
   [cdkConnectedOverlayOrigin]="menuOverlay"
   [cdkConnectedOverlayOpen]="isFilterOpen"
 >
-  <div class="overlay p-3 sm:w-[400px]">
+  <div class="overlay p-3 w-full sm:w-[400px]">
     <div class="flex items-center justify-between px-2 mb-4">
       <div class="flex flex-col">
         <span class="text-lg font-medium">Filtro avanzado</span>
@@ -35,14 +35,6 @@
     </div>
     <form [formGroup]="filterForm">
       <div class="flex flex-col">
-        <!-- <mat-form-field appearance="outline">
-          <mat-label>Grupo de tramite</mat-label>
-          <mat-select formControlName="group">
-            @for (group of groups; track $index) {
-            <mat-option [value]="group.value">{{ group.label }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field> -->
         <mat-form-field appearance="outline">
           <mat-label>Tipo de documento</mat-label>
           <mat-select formControlName="type">
@@ -54,7 +46,10 @@
           </mat-select>
         </mat-form-field>
 
-        <year-picker [year]="filterForm.get('year')?.value" />
+        <year-picker
+          [year]="filterForm.get('year')?.value"
+          (onSelect)="filterForm.get('year')?.setValue($event)"
+        />
       </div>
     </form>
 

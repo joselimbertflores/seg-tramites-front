@@ -1,8 +1,8 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
   input,
+  OnInit,
   output,
 } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -15,7 +15,10 @@ import {
   MAT_DATE_FORMATS,
   MAT_DATE_LOCALE,
 } from '@angular/material/core';
-import { MatDatepickerModule } from '@angular/material/datepicker';
+import {
+  MatDatepicker,
+  MatDatepickerModule,
+} from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
@@ -47,16 +50,16 @@ export const MY_FORMATS = {
       <mat-label>Gestion</mat-label>
       <input
         matInput
-        [matDatepicker]="dp"
+        [matDatepicker]="picker"
         [formControl]="control"
         [min]="minDate"
-        [max]="maxDate()"
+        [max]="maxDate"
       />
-      <mat-datepicker-toggle matSuffix [for]="dp"></mat-datepicker-toggle>
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
       <mat-datepicker
-        #dp
+        #picker
         startView="multi-year"
-        (yearSelected)="chosenYearHandler($event, dp)"
+        (yearSelected)="chosenYearHandler($event, picker)"
         panelClass="example-month-picker"
       >
       </mat-datepicker>
@@ -73,20 +76,24 @@ export const MY_FORMATS = {
     { provide: MAT_DATE_FORMATS, useValue: MY_FORMATS },
   ],
 })
-export class YearPickerComponent {
-  year = input<number>(new Date().getFullYear());
-  control = new FormControl();
+export class YearPickerComponent implements OnInit {
+  private readonly _currentYear = new Date().getFullYear();
+
+  year = input<number>(this._currentYear);
+  control = new FormControl<null | _moment.Moment>(null);
 
   onSelect = output<number>();
 
-  maxDate = computed(() => new Date(this.year(), 11, 31));
   readonly minDate = new Date(2023, 0, 1);
+  readonly maxDate = new Date(this._currentYear, 11, 31);
 
-  chosenYearHandler(normalizedYear: Moment, dp: any) {
-    const ctrlValue = this.control.value;
-    ctrlValue?.year(normalizedYear.year());
-    this.control.setValue(ctrlValue);
-    dp.close();
+  ngOnInit(): void {
+    this.control.setValue(moment().year(this.year()));
+  }
+
+  chosenYearHandler(normalizedYear: Moment, picker: MatDatepicker<any>) {
+    this.control.setValue(moment().year(normalizedYear.year()));
+    picker.close();
     this.onSelect.emit(normalizedYear.year());
   }
 }

@@ -3,7 +3,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   input,
-  OnInit,
   output,
 } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -12,9 +11,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 @Component({
-    selector: 'search-input',
-    imports: [CommonModule, ReactiveFormsModule, MatInputModule, MatIconModule],
-    template: `
+  selector: 'search-input',
+  imports: [CommonModule, ReactiveFormsModule, MatInputModule, MatIconModule],
+  template: `
     <mat-form-field appearance="outline">
       <mat-icon matPrefix>search</mat-icon>
       <mat-label>Buscar</mat-label>
@@ -26,22 +25,17 @@ import { debounceTime, distinctUntilChanged } from 'rxjs';
       />
     </mat-form-field>
   `,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SearchInputComponent implements OnInit {
-  control = new FormControl();
-
+export class SearchInputComponent {
   placeholder = input<string>('');
   initValue = input<string>('');
   onSearch = output<string>();
+  control = new FormControl(this.initValue(), { nonNullable: true });
 
   constructor() {
     this.control.valueChanges
       .pipe(debounceTime(350), distinctUntilChanged())
       .subscribe((term) => this.onSearch.emit(term));
-  }
-
-  ngOnInit(): void {
-    this.control.patchValue(this.initValue());
   }
 }

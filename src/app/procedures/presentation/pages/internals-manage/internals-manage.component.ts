@@ -19,7 +19,7 @@ import { MatDialog } from '@angular/material/dialog';
 import {
   CacheService,
   SearchInputComponent,
-  WordGeneratorService,
+  DocxService,
 } from '../../../../shared';
 import { InternalProcedure, procedureState } from '../../../domain';
 import { InternalService } from '../../services';
@@ -53,7 +53,7 @@ interface cache {
 export default class InternalsManageComponent {
   private dialog = inject(MatDialog);
   private internalService = inject(InternalService);
-  private wordGeneratorService = inject(WordGeneratorService);
+  private wordGeneratorService = inject(DocxService);
   // private pdfService = inject(PdfService);
   private cacheService: CacheService<cache> = inject(CacheService);
 

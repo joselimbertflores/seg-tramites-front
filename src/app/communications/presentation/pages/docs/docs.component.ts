@@ -7,6 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
@@ -19,12 +20,11 @@ import { CommonModule } from '@angular/common';
 
 import { DocDialogComponent } from './doc-dialog/doc-dialog.component';
 import {
-  SearchInputComponent,
-  WordGeneratorService,
+  DocxService,
   YearPickerComponent,
+  SearchInputComponent,
 } from '../../../../shared';
 import { Doc, DOCUMENT_TYPES } from '../../../domain';
-import { doc } from '../../../infrastructure';
 import { DocService } from '../../services';
 
 @Component({
@@ -39,6 +39,7 @@ import { DocService } from '../../services';
     MatToolbarModule,
     OverlayModule,
     MatSelectModule,
+    MatTooltipModule,
     SearchInputComponent,
     YearPickerComponent,
   ],
@@ -48,8 +49,10 @@ import { DocService } from '../../services';
 export default class DocsComponent implements OnInit {
   private dialogRef = inject(MatDialog);
   private docService = inject(DocService);
-  private wordGeneratorService = inject(WordGeneratorService);
-  displayedColumns: string[] = [
+  private wordGeneratorService = inject(DocxService);
+
+  readonly documentTypes = [{ value: null, label: 'TODOS' }, ...DOCUMENT_TYPES];
+  readonly displayedColumns: string[] = [
     'cite',
     'reference',
     'sender',
@@ -60,18 +63,16 @@ export default class DocsComponent implements OnInit {
 
   datasource = signal<Doc[]>([]);
   datasize = signal<number>(0);
-  readonly documentTypes = [{ value: null, label: 'TODOS' }, ...DOCUMENT_TYPES];
 
   limit = signal<number>(10);
   index = signal<number>(0);
   offset = computed<number>(() => this.limit() * this.index());
   term = signal<string>('');
-  isOpen = false;
 
   isFilterOpen = false;
   filterForm: FormGroup = inject(FormBuilder).group({
-    year: [],
-    type: [],
+    year: [null],
+    type: [null],
   });
 
   ngOnInit(): void {
@@ -83,32 +84,48 @@ export default class DocsComponent implements OnInit {
       maxWidth: '1000px',
       width: '1000px',
     });
-    dialogRef.afterClosed().subscribe((result) => {
-      // if (!result) return;
-      // this.datasize.update((value) => (value += 1));
-      // this.datasource.update((values) => {
-      //   if (values.length === this.limit()) values.pop();
-      //   return [result, ...values];
-      // });
-      // this.send(result);
+    dialogRef.afterClosed().subscribe((result: Doc) => {
+      if (!result) return;
+      this.datasize.update((value) => (value += 1));
+      this.datasource.update((values) => {
+        if (values.length === this.limit()) values.pop();
+        return [result, ...values];
+      });
+      this.generateTemplate(result);
     });
   }
 
-  update(element: doc) {
+  update(element: Doc) {
     const dialogRef = this.dialogRef.open(DocDialogComponent, {
       maxWidth: '1000px',
       width: '1000px',
       data: element,
     });
-  }
-
-  getData() {
-    this.docService.findAll().subscribe(({ documents, length }) => {
-      this.datasource.set(documents);
+    dialogRef.afterClosed().subscribe((result: Doc) => {
+      if (!result) return;
+      this.datasource.update((values) => {
+        const indexFound = values.findIndex(({ id }) => id === result.id);
+        values[indexFound] = result;
+        return [...values];
+      });
     });
   }
 
-  generateTemplate(item: doc) {
+  getData() {
+    this.docService
+      .findAll({
+        limit: this.limit(),
+        offset: this.offset(),
+        term: this.term(),
+        ...this.filterForm.value,
+      })
+      .subscribe(({ documents, length }) => {
+        this.datasource.set(documents);
+        this.datasize.set(length);
+      });
+  }
+
+  generateTemplate(item: Doc) {
     this.wordGeneratorService.generateDocument(item);
   }
 
@@ -120,13 +137,13 @@ export default class DocsComponent implements OnInit {
 
   filter() {
     this.index.set(0);
-    this.isOpen = false;
+    this.isFilterOpen = false;
     this.getData();
   }
 
   reset() {
     this.filterForm.reset();
-    this.isOpen = false;
+    this.isFilterOpen = false;
     this.getData();
   }
 }

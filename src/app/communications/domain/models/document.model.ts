@@ -71,4 +71,20 @@ export class Doc implements docProps {
     this.updatedAt = updatedAt;
     this.procedure = procedure;
   }
+
+  get title(): string {
+    switch (this.type) {
+      case 'CI':
+        return 'COMUNICACION INTERNA';
+      case 'CE':
+        return 'COMUNICACION EXTERNA';
+      case 'CIR':
+        return 'CIRCULAR';
+      case 'MEM':
+        return 'MEMORANDUM';
+
+      default:
+        return 'DESCONOCIDO';
+    }
+  }
 }

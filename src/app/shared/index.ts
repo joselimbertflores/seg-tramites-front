@@ -8,7 +8,7 @@ export * from './components/dialogs/loader-dialog/loader-dialog.component';
 
 export * from './services/cache.service';
 export * from './services/alert.service';
-export * from './services/word-generator.service';
+export * from './services/docx.service';
 
 export * from './directives/back-button.directive';
 export * from './directives/restore-scroll.directive';

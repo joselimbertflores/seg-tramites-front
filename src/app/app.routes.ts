@@ -154,13 +154,14 @@ export const routes: Routes = [
           {
             path: 'documents',
             title: 'Documentos',
+            data: { animation: 'fadeIn' },
             loadComponent: () =>
               import('./communications/presentation/pages/docs/docs.component'),
           },
 
           {
             path: 'folders',
-            data: { animation: 'folders' }, 
+            data: { animation: 'folders' },
             loadComponent: () =>
               import(
                 './communications/presentation/pages/folders/folders.component'

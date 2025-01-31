@@ -30,7 +30,7 @@ import {
 } from '../../../../../shared';
 import { Account } from '../../../../../administration/domain';
 import { DocService } from '../../../services/doc.service';
-import { doc } from '../../../../infrastructure';
+import { Doc } from '../../../../domain';
 
 type validFormfield = 'sender' | 'recipient' | 'via';
 type participantOptions = {
@@ -69,7 +69,7 @@ export class DocDialogComponent implements OnInit {
     { value: 'MEM', label: 'MEMORANDUM' },
   ];
 
-  data?: doc = inject(MAT_DIALOG_DATA);
+  data?: Doc = inject(MAT_DIALOG_DATA);
 
   participants = signal<participantOptions>({
     recipient: [],
@@ -105,9 +105,9 @@ export class DocDialogComponent implements OnInit {
 
   save() {
     const subscription = this.data
-      ? this.docService.update(this.data._id, this.formDoc.value)
+      ? this.docService.update(this.data.id, this.formDoc.value)
       : this.docService.create(this.formDoc.value);
-    subscription.subscribe(() => this.dialogRef.close());
+    subscription.subscribe((document) => this.dialogRef.close(document));
   }
 
   searchAccounts(field: validFormfield, term: string) {
