@@ -87,6 +87,7 @@ export class Communication implements communicationProps {
     const groups = {
       [procedureGroup.External]: 'Externo',
       [procedureGroup.Internal]: 'Interno',
+      [procedureGroup.Procurement]: 'Contratacion',
     };
     return groups[this.procedure.group];
   }

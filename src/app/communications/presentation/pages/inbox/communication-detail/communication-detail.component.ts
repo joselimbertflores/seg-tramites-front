@@ -28,25 +28,27 @@ import {
 import {
   ExternalCommunicationComponent,
   InternalCommunicationComponent,
+  ProcurementCommunicationComponent,
 } from '../../../components';
 
 @Component({
-    selector: 'app-communication-detail',
-    imports: [
-        CommonModule,
-        MatIconModule,
-        MatCardModule,
-        MatTabsModule,
-        MatButtonModule,
-        MatToolbarModule,
-        BackButtonDirective,
-        WorkflowListComponent,
-        WorkflowGraphComponent,
-        InternalCommunicationComponent,
-        ExternalCommunicationComponent,
-    ],
-    templateUrl: './communication-detail.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'app-communication-detail',
+  imports: [
+    CommonModule,
+    MatIconModule,
+    MatCardModule,
+    MatTabsModule,
+    MatButtonModule,
+    MatToolbarModule,
+    BackButtonDirective,
+    WorkflowListComponent,
+    WorkflowGraphComponent,
+    InternalCommunicationComponent,
+    ExternalCommunicationComponent,
+    ProcurementCommunicationComponent,
+  ],
+  templateUrl: './communication-detail.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class CommunicationDetailComponent {
   @Input('id') communicationId: string;
@@ -54,7 +56,7 @@ export default class CommunicationDetailComponent {
   private procedureService = inject(ProcessService);
 
   communication = signal<communication | null>(null);
-  procedure = signal<Procedure | null>(null);
+  procedure = signal<Procedure | any | null>(null);
   workflow = signal<communication[]>([]);
 
   isLoading = signal<boolean>(false);
@@ -65,11 +67,14 @@ export default class CommunicationDetailComponent {
       .getOne(this.communicationId)
       .pipe(
         tap((comm) => this.communication.set(comm)),
-        switchMap((comm) => this._getProcedureData(comm.procedure.ref))
+        switchMap((comm) =>
+          this._getProcedureData(comm.procedure.ref, comm.procedure.group)
+        )
       )
-      .subscribe(([procedure, workflow]) => {
+      .subscribe(([procedure]) => {
         this.procedure.set(procedure);
-        this.workflow.set(workflow);
+        console.log('DATA LOADED', procedure);
+        // this.workflow.set(workflow);
         this.isLoading.set(false);
       });
   }
@@ -82,10 +87,10 @@ export default class CommunicationDetailComponent {
     return this.procedure() as InternalProcedure;
   }
 
-  private _getProcedureData(procedureId: string) {
+  private _getProcedureData(procedureId: string, group: string) {
     return forkJoin([
-      this.procedureService.getProcedure(procedureId),
-      this.procedureService.getWorkflow(procedureId),
+      this.procedureService.getProcedure(procedureId, group),
+      // this.procedureService.getWorkflow(procedureId),
     ]);
   }
 }

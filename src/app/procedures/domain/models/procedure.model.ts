@@ -20,6 +20,7 @@ export interface OriginDetails {
 export enum procedureGroup {
   External = 'ExternalProcedure',
   Internal = 'InternalProcedure',
+  Procurement = 'ProcurementProcedure',
 }
 
 export enum procedureState {

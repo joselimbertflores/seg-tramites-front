@@ -58,7 +58,7 @@ export default class ExternalDetailComponent implements OnInit {
 
   private _getProcedureData(procedureId: string) {
     return forkJoin([
-      this.processService.getProcedure(procedureId),
+      this.processService.getProcedure(procedureId, ""),
       this.processService.getWorkflow(procedureId),
     ]);
   }

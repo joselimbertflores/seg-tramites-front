@@ -135,7 +135,7 @@ export default class InboxComponent implements OnInit {
   readonly groups = [
     { value: procedureGroup.External, label: 'Externos' },
     { value: procedureGroup.Internal, label: 'Internos' },
-    { value: 'Contratacion', label: 'Contrataciones' },
+    { value: 'ProcurementProcedure', label: 'Contrataciones' },
   ];
 
   readonly documentTypes = [

@@ -141,6 +141,8 @@ export class SubmissionDialogComponent implements OnInit {
     return isValid && originals.length === 1;
   });
 
+  files = signal<File[]>([]);
+
   constructor() {
     effect(() => {
       this.filteredReceivers$.next(this.accounts());
@@ -242,6 +244,30 @@ export class SubmissionDialogComponent implements OnInit {
 
   onSelectDoc({ correlative }: doc) {
     this.formSubmission.patchValue({ internalNumber: correlative });
+  }
+
+  addFile(event: Event): void {
+    const files = this._onInputFileSelect(event);
+    if (!files) return;
+    this.files.update((values) => [...files, ...values]);
+  }
+
+  removeFile(index: number) {
+    this.files.update((values) => {
+      values.splice(index, 1);
+      return [...values];
+    });
+  }
+
+  private _onInputFileSelect(event: Event): File[] {
+    const inputElement = event.target as HTMLInputElement;
+    if (!inputElement.files || inputElement.files.length === 0) return [];
+    const list = inputElement.files;
+    const files: File[] = [];
+    for (let i = 0; i < list.length; i++) {
+      files.push(list[i]);
+    }
+    return files;
   }
 
   private _setFilterControl(): void {

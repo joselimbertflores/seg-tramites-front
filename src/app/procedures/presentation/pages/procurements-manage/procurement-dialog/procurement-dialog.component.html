@@ -1,0 +1,45 @@
+<h2 mat-dialog-title>{{ data ? "Edicion" : "Creacion" }} Contratacion</h2>
+<mat-dialog-content>
+  <form [formGroup]="formProcedure" class="pt-2">
+    @if (!data) {
+    <select-search
+      [items]="documents()"
+      (onTyped)="searchDocuments($event)"
+      (onSelect)="onSelectDoc($event)"
+      [autoFilter]="false"
+      title="Documento a adjuntar (CITE)"
+      placeholder="Selecciono un documento (Opcional)"
+      placeholderLabel="Referencia / Codigo"
+    />
+    }
+    <mat-form-field>
+      <mat-label>Tipo de documento</mat-label>
+      <mat-select formControlName="tipo">
+        @for (type of types; track $index) {
+        <mat-option [value]="type">{{ type }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Objeto de contratacion</mat-label>
+      <textarea formControlName="reference" matInput></textarea>
+    </mat-form-field>
+    <div class="sm:w-80">
+      <mat-form-field>
+        <mat-label>Cantidad: Hojas / Anexos</mat-label>
+        <input formControlName="numberOfDocuments" matInput />
+      </mat-form-field>
+    </div>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close color="warn">Cancelar</button>
+  <button
+    mat-button
+    color="primary"
+    [disabled]="formProcedure.invalid"
+    (click)="save()"
+  >
+    Guardar
+  </button>
+</mat-dialog-actions>

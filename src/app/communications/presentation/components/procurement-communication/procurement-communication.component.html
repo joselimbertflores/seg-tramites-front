@@ -1,0 +1,83 @@
+<div class="px-6 w-full">
+  <div
+    class="flex w-full flex-col sm:flex-row justify-between items-center p-2 gap-y-2"
+  >
+    <div class="flex-1">Datos de la contratacion</div>
+
+    <div class="px-2 h-12">
+      <button mat-mini-fab aria-label="Example icon button with a menu icon">
+        <mat-icon>save</mat-icon>
+      </button>
+    </div>
+  </div>
+  <form [formGroup]="formProcedure">
+    <div class="grid grid-cols-4 p-4 gap-x-4">
+      <div class="col-span-3">
+        <mat-form-field appearance="outline">
+          <mat-label>Objeto de contratacion</mat-label>
+          <input matInput required formControlName="reference" />
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field appearance="outline">
+          <mat-label>Cantidad: hojas / anexos</mat-label>
+          <input matInput formControlName="numberOfDocuments" />
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field appearance="outline">
+          <mat-label>Apertura</mat-label>
+          <input matInput formControlName="apertura" />
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field appearance="outline">
+          <mat-label>Precio</mat-label>
+          <input matInput formControlName="precio" />
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field appearance="outline">
+          <mat-label>Codigo del proyecto</mat-label>
+          <input matInput formControlName="codigoProyecto" />
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field appearance="outline">
+          <mat-label>Plazo de ejecucion</mat-label>
+          <input matInput formControlName="plazo" />
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field appearance="outline">
+          <mat-label>CUCE</mat-label>
+          <input matInput formControlName="cuce" />
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field appearance="outline">
+          <mat-label>Modalidad</mat-label>
+          <input matInput formControlName="modalidad" />
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field appearance="outline">
+          <mat-label>Precion adjudicado </mat-label>
+          <input matInput formControlName="precioAdjudicado" />
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field appearance="outline">
+          <mat-label>Tipo de resolucion </mat-label>
+          <input matInput formControlName="tipoResolucion" />
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field appearance="outline">
+          <mat-label>Empresa adjudicada </mat-label>
+          <input matInput formControlName="empreseAdjudicada" />
+        </mat-form-field>
+      </div>
+    </div>
+  </form>
+</div>

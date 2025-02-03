@@ -123,6 +123,22 @@ export const routes: Routes = [
               ),
           },
           {
+            path: 'procurement',
+            title: 'Contrataciones',
+            data: { animation: 'fadeIn' },
+            loadComponent: () =>
+              import(
+                './procedures/presentation/pages/procurements-manage/procurements-manage.component'
+              ),
+          },
+          {
+            path: 'procurement/:id',
+            loadComponent: () =>
+              import(
+                './procedures/presentation/pages/procurements-manage/procurement-detail/procurement-detail.component'
+              ),
+          },
+          {
             path: 'inbox',
             title: 'Bandeja - Entrada',
             // data: { resource: VALID_RESOURCES.communication },
