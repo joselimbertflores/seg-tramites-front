@@ -1,44 +1,46 @@
 import {
-  ChangeDetectionStrategy,
-  Component,
   inject,
   signal,
+  Component,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import {
-  FormBuilder,
   FormGroup,
-  ReactiveFormsModule,
   Validators,
+  FormBuilder,
+  ReactiveFormsModule,
 } from '@angular/forms';
 import {
-  MAT_DIALOG_DATA,
-  MatDialogModule,
   MatDialogRef,
+  MatDialogModule,
+  MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSelectModule } from '@angular/material/select';
+
 import {
-  MAT_FORM_FIELD_DEFAULT_OPTIONS,
   MatFormFieldModule,
+  MAT_FORM_FIELD_DEFAULT_OPTIONS,
 } from '@angular/material/form-field';
 
 import { selectOption, SelectSearchComponent } from '../../../../../shared';
 import { doc } from '../../../../../communications/infrastructure';
 
 import { DocService } from '../../../../../communications/presentation/services';
-import { MatButtonModule } from '@angular/material/button';
-import { MatSelectModule } from '@angular/material/select';
+
 import { ProcurementService } from '../../../services';
 
 @Component({
   selector: 'app-procurement-dialog',
   imports: [
-    MatDialogModule,
     ReactiveFormsModule,
-    SelectSearchComponent,
-    MatFormFieldModule,
+    MatDialogModule,
     MatInputModule,
     MatButtonModule,
     MatSelectModule,
+    MatFormFieldModule,
+    SelectSearchComponent,
   ],
   templateUrl: './procurement-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -60,23 +62,41 @@ export class ProcurementDialogComponent {
   selectedDocProps = signal<{ cite: string; docId: string } | null>(null);
   private dialogRef = inject(MatDialogRef);
 
-  readonly types = [
-    'Apoyo Nacional a la Produccion y Empleo',
-    'Orden de compra y/o servicio modalidad contratacion menor',
-    'Orden de compra y/o servicio modalidad contratacion menor (1 a 50 mil)',
-    'Orden de compra y/o servicio modalidad contratacion menor (1 a 20 mil / Bienes)',
-    'Orden de compra y/o servicio modalidad contratacion menor (1 a 20 mil / Servicios)',
-    'Contratacion directa de proyectos especiales',
-    'Contratacion por desastre o emergencias',
-    'Contratacion de consultores en linea',
-    'Excepcion, contratos en la modalidad de desastres y/o emegencias',
-    'Empresas externas y municipales',
+  readonly modes = [
+    'Menor a 20 mil',
+    '20 mil a 50 mil',
+    'Mayor a 50 mil',
+    'Mayor a 200 mil',
+    'Mayor a 1 millon',
   ];
 
+  readonly types = ['BIEN', 'SERVICIO'];
+
+  readonly metodosAdjudicacion = [
+    'Precio evaluado mas bajo',
+    'Calidad, propuesta técnica y costo',
+    'Calidad',
+    'Selección de menor costo',
+    'Selección de presupuesto fijo',
+  ];
+
+  readonly formasAdjudicacion = ['Por el total'];
+
   formProcedure: FormGroup = this.formBuilder.nonNullable.group({
-    numberOfDocuments: ['', Validators.required],
     reference: ['', Validators.required],
-    tipo: [''],
+    numberOfDocuments: ['', Validators.required],
+    mode: [''],
+    aperturaProg: [''],
+    items: [''],
+    type: [''],
+    descripcionAperturaProg: [''],
+    metodoAdjudicacion: [''],
+    formaAdjudicacion: [''],
+    price: [''],
+    deliveryTimeframe: [''],
+    deliveryLocation: [''],
+    warranty: [''],
+    reason: [''],
   });
 
   save() {

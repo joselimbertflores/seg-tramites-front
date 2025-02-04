@@ -140,9 +140,8 @@ export const routes: Routes = [
           },
           {
             path: 'inbox',
-            title: 'Bandeja - Entrada',
-            // data: { resource: VALID_RESOURCES.communication },
-            data: { animation: 'inbox' },
+            title: 'Bandeja de entrada',
+            data: { animation: 'fadeIn' },
             loadComponent: () =>
               import(
                 './communications/presentation/pages/inbox/inbox.component'
@@ -150,8 +149,8 @@ export const routes: Routes = [
           },
           {
             path: 'inbox/:id',
-            title: 'Detalle - Envio',
-            // data: { animation: 'slideLeft' },
+            title: 'Detalle',
+            data: { animation: 'slide' },
             loadComponent: () =>
               import(
                 './communications/presentation/pages/inbox/communication-detail/communication-detail.component'

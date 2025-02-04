@@ -73,8 +73,8 @@ export default class ProcurementsManageComponent implements OnInit {
 
   create() {
     const dialogRef = this.dialog.open(ProcurementDialogComponent, {
-      maxWidth: '800px',
-      width: '800px',
+      maxWidth: '1200px',
+      width: '1200px',
       autoFocus: false,
     });
     dialogRef.afterClosed().subscribe((procedure) => {
@@ -90,8 +90,8 @@ export default class ProcurementsManageComponent implements OnInit {
 
   update(procedure: InternalProcedure) {
     const dialogRef = this.dialog.open(ProcurementDialogComponent, {
-      maxWidth: '800px',
-      width: '800px',
+      maxWidth: '900px',
+      width: '900px',
       data: procedure,
     });
     dialogRef.afterClosed().subscribe((result) => {

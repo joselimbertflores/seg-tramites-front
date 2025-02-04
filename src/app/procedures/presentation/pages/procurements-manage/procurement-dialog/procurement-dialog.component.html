@@ -1,4 +1,4 @@
-<h2 mat-dialog-title>{{ data ? "Edicion" : "Creacion" }} Contratacion</h2>
+<h2 mat-dialog-title>{{ data ? "Edicion" : "Inicio" }} Proceso Contratacion</h2>
 <mat-dialog-content>
   <form [formGroup]="formProcedure" class="pt-2">
     @if (!data) {
@@ -7,23 +7,102 @@
       (onTyped)="searchDocuments($event)"
       (onSelect)="onSelectDoc($event)"
       [autoFilter]="false"
-      title="Documento a adjuntar (CITE)"
+      title="Numero de CITE"
       placeholder="Selecciono un documento (Opcional)"
       placeholderLabel="Referencia / Codigo"
     />
     }
-    <mat-form-field>
-      <mat-label>Tipo de documento</mat-label>
-      <mat-select formControlName="tipo">
-        @for (type of types; track $index) {
-        <mat-option [value]="type">{{ type }}</mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
-    <mat-form-field>
-      <mat-label>Objeto de contratacion</mat-label>
-      <textarea formControlName="reference" matInput></textarea>
-    </mat-form-field>
+    <div class="grid grid-cols-4 gap-x-4">
+      <div>
+        <mat-form-field>
+          <mat-label>Modalidad</mat-label>
+          <mat-select formControlName="mode">
+            @for (type of modes; track $index) {
+            <mat-option [value]="type">{{ type }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col-span-3">
+        <mat-form-field>
+          <mat-label>Nombre del proceso</mat-label>
+          <input formControlName="reference" matInput />
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field>
+          <mat-label>Apertura programatica</mat-label>
+          <input formControlName="aperturaProg" matInput />
+        </mat-form-field>
+      </div>
+      <div class="col-span-3">
+        <mat-form-field>
+          <mat-label>Descripcion apertura programatica</mat-label>
+          <input formControlName="descripcionAperturaProg" matInput />
+        </mat-form-field>
+      </div>
+      <div class="col-span-4 py-2">List objecto de gasto</div>
+      <div>
+        <mat-form-field>
+          <mat-label>Bien / Servicio</mat-label>
+          <mat-select formControlName="type">
+            @for (type of types; track $index) {
+            <mat-option [value]="type">{{ type }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field>
+          <mat-label>Metodo de adjudicacion</mat-label>
+          <mat-select formControlName="metodoAdjudicacion">
+            @for (type of metodosAdjudicacion; track $index) {
+            <mat-option [value]="type">{{ type }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field>
+          <mat-label>Forma de adjudicacion</mat-label>
+          <mat-select formControlName="formaAdjudicacion">
+            @for (type of formasAdjudicacion; track $index) {
+            <mat-option [value]="type">{{ type }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field>
+          <mat-label>Precio referencial</mat-label>
+          <input formControlName="price" matInput />
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field>
+          <mat-label>Plazo de entrega</mat-label>
+          <input formControlName="deliveryTimeframe" matInput />
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field>
+          <mat-label>Lugar de entrega</mat-label>
+          <input formControlName="deliveryLocation" matInput />
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field>
+          <mat-label>Garantia</mat-label>
+          <input formControlName="warranty" matInput />
+        </mat-form-field>
+      </div>
+      <div class="col-span-4">
+        <mat-form-field>
+          <mat-label>Justificacion</mat-label>
+          <textarea matInput formControlName="reason"></textarea>
+        </mat-form-field>
+      </div>
+    </div>
     <div class="sm:w-80">
       <mat-form-field>
         <mat-label>Cantidad: Hojas / Anexos</mat-label>
