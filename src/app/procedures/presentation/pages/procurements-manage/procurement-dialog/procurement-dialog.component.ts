@@ -3,44 +3,46 @@ import {
   signal,
   Component,
   ChangeDetectionStrategy,
+  OnInit,
 } from '@angular/core';
 import {
   FormGroup,
   Validators,
   FormBuilder,
   ReactiveFormsModule,
+  FormArray,
 } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import {
   MatDialogRef,
   MatDialogModule,
   MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
-
+import { MatStepperModule } from '@angular/material/stepper';
 import {
   MatFormFieldModule,
   MAT_FORM_FIELD_DEFAULT_OPTIONS,
 } from '@angular/material/form-field';
 
-import { selectOption, SelectSearchComponent } from '../../../../../shared';
-import { doc } from '../../../../../communications/infrastructure';
-
-import { DocService } from '../../../../../communications/presentation/services';
-
 import { ProcurementService } from '../../../services';
+import { ProcurementProcedure } from '../../../../domain';
 
 @Component({
   selector: 'app-procurement-dialog',
   imports: [
     ReactiveFormsModule,
+    CommonModule,
+    MatIconModule,
     MatDialogModule,
     MatInputModule,
     MatButtonModule,
     MatSelectModule,
+    MatStepperModule,
     MatFormFieldModule,
-    SelectSearchComponent,
   ],
   templateUrl: './procurement-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -51,13 +53,11 @@ import { ProcurementService } from '../../../services';
     },
   ],
 })
-export class ProcurementDialogComponent {
+export class ProcurementDialogComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
-  private documentService = inject(DocService);
   private precurementService = inject(ProcurementService);
-  documents = signal<selectOption<doc>[]>([]);
 
-  data: any = inject(MAT_DIALOG_DATA);
+  data: ProcurementProcedure = inject(MAT_DIALOG_DATA);
 
   selectedDocProps = signal<{ cite: string; docId: string } | null>(null);
   private dialogRef = inject(MatDialogRef);
@@ -80,6 +80,13 @@ export class ProcurementDialogComponent {
     'Selección de presupuesto fijo',
   ];
 
+  // TODO dinamic selection
+  readonly documents = [
+    { reference: 'SOLICITUD DE CERTIFICACION POA' },
+    { reference: 'SOLICITUD DE CERTIFICACION PRESUPUESTARIA' },
+    { reference: 'SOLICITUD DE INICIO DE CONTRATACION' },
+  ];
+
   readonly formasAdjudicacion = ['Por el total'];
 
   formProcedure: FormGroup = this.formBuilder.nonNullable.group({
@@ -87,7 +94,7 @@ export class ProcurementDialogComponent {
     numberOfDocuments: ['', Validators.required],
     mode: [''],
     aperturaProg: [''],
-    items: [''],
+    items: this.formBuilder.array([]),
     type: [''],
     descripcionAperturaProg: [''],
     metodoAdjudicacion: [''],
@@ -99,29 +106,44 @@ export class ProcurementDialogComponent {
     reason: [''],
   });
 
+  ngOnInit(): void {
+    this._loadForm()
+  }
+
   save() {
     const observable = this.data
       ? this.precurementService.update(this.data._id, this.formProcedure.value)
       : this.precurementService.create({
           ...this.formProcedure.value,
           ...this.selectedDocProps(),
+          documents: this.documents,
         });
     observable.subscribe((procedure) => this.dialogRef.close(procedure));
   }
 
-  searchDocuments(term: string) {
-    if (!term) return;
-    this.documentService.searchPendingDocs(term).subscribe((data) => {
-      const options: selectOption<doc>[] = data.map((item) => ({
-        label: `${item.cite} - ${item.reference}`,
-        value: item,
-      }));
-      this.documents.set(options);
-    });
+  addRequirement() {
+    this.requeriments.push(
+      this.formBuilder.group({
+        code: [''],
+        name: [''],
+        ff: [''],
+        of: [''],
+        amount: [''],
+      })
+    );
   }
 
-  onSelectDoc({ cite, _id, reference, sender, recipient }: doc) {
-    this.formProcedure.patchValue({ cite, reference, sender, recipient });
-    this.selectedDocProps.set({ docId: _id, cite });
+  removeRequirement(index: number) {
+    this.requeriments.removeAt(index);
+  }
+
+  get requeriments() {
+    return this.formProcedure.get('items') as FormArray;
+  }
+
+  private _loadForm(): void {
+    if (!this.data) return;
+    this.data.documents.forEach(() => this.addRequirement());
+    this.formProcedure.patchValue(this.data);
   }
 }

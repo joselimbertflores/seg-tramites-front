@@ -18,7 +18,7 @@
   </div>
 
   <div class="mat-elevation-z8">
-    <table mat-table [dataSource]="datasource()">
+    <table mat-table [dataSource]="datasource()" multiTemplateDataRows>
       <ng-container matColumnDef="code">
         <th mat-header-cell *matHeaderCellDef>Alterno</th>
         <td
@@ -41,16 +41,107 @@
           {{ element.reference }}
         </td>
       </ng-container>
-      <ng-container matColumnDef="type">
+      <ng-container matColumnDef="mode">
         <th mat-header-cell *matHeaderCellDef>Tipo</th>
-        <td mat-cell *matCellDef="let element" class="sm:max-w-80">
-          {{ element.tipo }}
+        <td mat-cell *matCellDef="let element">
+          {{ element.mode }}
         </td>
       </ng-container>
       <ng-container matColumnDef="createdAt">
         <th mat-header-cell *matHeaderCellDef>Fecha</th>
         <td mat-cell *matCellDef="let element">
           {{ element.createdAt | date : "short" }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="expand">
+        <th mat-header-cell *matHeaderCellDef aria-label="row actions">
+          &nbsp;
+        </th>
+        <td mat-cell *matCellDef="let element" class="w-8">
+          <button
+            mat-icon-button
+            aria-label="expand row"
+            (click)="
+              expandedElement = expandedElement === element ? null : element;
+              $event.stopPropagation()
+            "
+          >
+            @if (expandedElement === element) {
+            <mat-icon>keyboard_arrow_up</mat-icon>
+            } @else {
+            <mat-icon>keyboard_arrow_down</mat-icon>
+            }
+          </button>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="expandedDetail">
+        <td
+          mat-cell
+          *matCellDef="let element"
+          [attr.colspan]="displayedColumns.length"
+        >
+          <div
+            class="example-element-detail px-4"
+            [@detailExpand]="
+              element == expandedElement ? 'expanded' : 'collapsed'
+            "
+          >
+            <div class="pb-6">
+              <table class="min-w-full divide-y-2 divide-gray-200 text-sm">
+                <thead class="ltr:text-left rtl:text-right">
+                  <tr>
+                    <th class="whitespace-nowrap px-4 py-2">Cite</th>
+                    <th class="whitespace-nowrap px-4 py-2">Referencia</th>
+                    <th class="whitespace-nowrap px-4 py-2">Destinatario</th>
+                    <th class="whitespace-nowrap px-4 py-2">Fecha</th>
+                    <th class="whitespace-nowrap px-4 py-2"></th>
+                  </tr>
+                </thead>
+
+                <tbody class="divide-y divide-gray-200">
+                  @for (doc of element.documents; track $index) {
+                  <tr>
+                    <td class="whitespace-nowrap px-4 py-2 font-medium">
+                      {{ doc.cite }}
+                    </td>
+                    <td class="whitespace-nowrap px-4 py-2">
+                      {{ doc.reference }}
+                    </td>
+                    <td class="whitespace-nowrap px-4 py-2">
+                      {{ doc.recipient.fullname }}
+                    </td>
+                    <td class="whitespace-nowrap px-4 py-2">
+                      {{ doc.date | date : "shortDate" }}
+                    </td>
+                    <td>
+                      <button mat-icon-button [matMenuTriggerFor]="menu">
+                        <mat-icon>menu</mat-icon>
+                      </button>
+                      <mat-menu #menu="matMenu">
+                        <button
+                          mat-menu-item
+                          (click)="updateDocument(element._id, doc, $index)"
+                        >
+                          <mat-icon>edit</mat-icon>
+                          <span>Editar</span>
+                        </button>
+                        <button
+                          mat-menu-item
+                          [disabled]="!element.isPrintEnabled($index)"
+                          (click)="generateDoc(element, $index)"
+                        >
+                          <mat-icon>print</mat-icon>
+                          <span>Imprimir</span>
+                        </button>
+                      </mat-menu>
+                    </td>
+                  </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
         </td>
       </ng-container>
 
@@ -73,15 +164,11 @@
               <mat-icon>edit</mat-icon>
               <span>Editar</span>
             </button>
-            <button
-                mat-menu-item
-              
-                (click)="send(row)"
-              >
-                <mat-icon>send</mat-icon>
-                <span>Remitir</span>
-              </button>
-              <!-- <button mat-menu-item (click)="generateRouteMap(row)">
+            <button mat-menu-item (click)="send(row)">
+              <mat-icon>send</mat-icon>
+              <span>Remitir</span>
+            </button>
+            <!-- <button mat-menu-item (click)="generateRouteMap(row)">
                 <mat-icon>feed</mat-icon>
                 <span>Hoja de ruta</span>
               </button>
@@ -93,10 +180,20 @@
         </td>
       </ng-container>
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: displayedColumns"
+        class="example-element-row"
+        [class.example-expanded-row]="expandedElement === row"
+      ></tr>
       <tr class="mat-row" *matNoDataRow>
         <td class="p-3" colspan="6">Sin resultados resultados</td>
       </tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: ['expandedDetail']"
+        class="example-detail-row"
+      ></tr>
     </table>
     <mat-paginator
       aria-label="Select page of officers search results"

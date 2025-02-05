@@ -1,0 +1,27 @@
+import { procedureGroup, procedureState } from '../../domain';
+import { ProcurementProcedure } from '../../domain/models/procurement.model';
+import { procurement } from '../interfaces/procurement.interface';
+
+export class ProcurementMapper {
+  static fromResponse({
+    createdAt,
+    state,
+    group,
+    documents,
+    ...props
+  }: procurement): ProcurementProcedure {
+    return new ProcurementProcedure({
+      createdAt: new Date(createdAt),
+      state: state as procedureState,
+      group: group as procedureGroup,
+      documents: documents
+        ? documents.map(({ date, ...props }) => ({
+            date: new Date(date),
+            ...props,
+          }))
+        : [],
+      isSend: true,
+      ...props,
+    });
+  }
+}

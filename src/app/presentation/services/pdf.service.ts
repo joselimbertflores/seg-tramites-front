@@ -21,6 +21,7 @@ import {
   AccountSheet,
   ApprovedSheet,
   IndexCard,
+  PdfTemplates,
   convertImageABase64,
 } from '../../helpers';
 import { UnlinkSheet } from '../../helpers/pdf/unlink-form';
@@ -28,6 +29,7 @@ import { AuthService } from '../../auth/presentation/services/auth.service';
 import { createReportSheet } from '../../helpers/pdf/report-sheet';
 import { ReportSheetProps } from '../../domain/interfaces';
 import { Account } from '../../administration/domain';
+import { ProcurementProcedure } from '../../procedures/domain';
 
 @Injectable({
   providedIn: 'root',
@@ -215,6 +217,15 @@ export class PdfService {
   async GenerateReportSheet(props: ReportSheetProps) {
     const sheet = await createReportSheet(props, this.manager);
     pdfMake.createPdf(sheet).print();
+  }
+
+  async solicitudIniciContratacion(
+    procedure: ProcurementProcedure,
+    index: number
+  ) {
+    const documentDefinition =
+      await PdfTemplates.document_solicitudInicioContratacion(procedure, index);
+    pdfMake.createPdf(documentDefinition).print();
   }
 
   private get manager() {

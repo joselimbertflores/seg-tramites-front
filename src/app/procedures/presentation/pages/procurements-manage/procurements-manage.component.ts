@@ -13,7 +13,12 @@ import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { SearchInputComponent } from '../../../../shared';
 import { ProcurementService } from '../../services';
-import { InternalProcedure, procedureState } from '../../../domain';
+import {
+  InternalProcedure,
+  procedureState,
+  procurementDoc,
+  ProcurementProcedure,
+} from '../../../domain';
 import { InternalDialogComponent } from '../internals-manage/internal-dialog/internal-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { RouterModule } from '@angular/router';
@@ -21,6 +26,15 @@ import { MatMenuModule } from '@angular/material/menu';
 import { ProcurementDialogComponent } from './procurement-dialog/procurement-dialog.component';
 import { submissionDialogData } from '../../../../communications/domain';
 import { SubmissionDialogComponent } from '../../../../communications/presentation/pages/inbox/submission-dialog/submission-dialog.component';
+import {
+  animate,
+  state,
+  style,
+  transition,
+  trigger,
+} from '@angular/animations';
+import { DocProcurementDialogComponent } from './doc-procurement-dialog/doc-procurement-dialog.component';
+import { PdfService } from '../../../../presentation/services';
 
 @Component({
   selector: 'app-procurements-manage',
@@ -36,11 +50,30 @@ import { SubmissionDialogComponent } from '../../../../communications/presentati
   ],
   templateUrl: './procurements-manage.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [
+    trigger('detailExpand', [
+      state('collapsed,void', style({ height: '0px', minHeight: '0' })),
+      state('expanded', style({ height: '*' })),
+      transition(
+        'expanded <=> collapsed',
+        animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')
+      ),
+    ]),
+  ],
+  styles: `
+    tr.example-detail-row {
+      height: 0;
+    }
+    .example-element-row td {
+      border-bottom-width: 0;
+    }
+  `,
 })
 export default class ProcurementsManageComponent implements OnInit {
   private procurementService = inject(ProcurementService);
+  private pdfService = inject(PdfService);
 
-  datasource = signal<InternalProcedure[]>([]);
+  datasource = signal<ProcurementProcedure[]>([]);
   datasize = signal<number>(0);
 
   limit = signal<number>(10);
@@ -53,10 +86,12 @@ export default class ProcurementsManageComponent implements OnInit {
   displayedColumns: string[] = [
     'code',
     'reference',
-    'type',
+    'mode',
     'createdAt',
+    'expand',
     'options',
   ];
+  expandedElement: any | null;
 
   ngOnInit(): void {
     this.getData();
@@ -90,8 +125,8 @@ export default class ProcurementsManageComponent implements OnInit {
 
   update(procedure: InternalProcedure) {
     const dialogRef = this.dialog.open(ProcurementDialogComponent, {
-      maxWidth: '900px',
-      width: '900px',
+      maxWidth: '1200px',
+      width: '1200px',
       data: procedure,
     });
     dialogRef.afterClosed().subscribe((result) => {
@@ -127,6 +162,31 @@ export default class ProcurementsManageComponent implements OnInit {
         return [...values];
       });
     });
+  }
+
+  updateDocument(
+    procurementId: string,
+    document: procurementDoc,
+    docIndex: number
+  ) {
+    const dialogRef = this.dialog.open(DocProcurementDialogComponent, {
+      maxWidth: '800px',
+      width: '800px',
+      data: { procurementId: procurementId, index: docIndex, document },
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      if (!result) return;
+
+      this.datasource.update((values) => {
+        const index = values.findIndex(({ _id }) => _id === procurementId);
+        values[index].documents[docIndex] = result;
+        return [...values];
+      });
+    });
+  }
+
+  generateDoc(item: ProcurementProcedure, index: number) {
+    this.pdfService.solicitudIniciContratacion(item, index);
   }
 
   search(term: string) {

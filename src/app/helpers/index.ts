@@ -13,3 +13,4 @@ export * from './pdf/procedure-sheet';
 export * from './form-validators.helper';
 
 export * from './docx_templates.helper';
+export * from './pdf_templates.helper';
