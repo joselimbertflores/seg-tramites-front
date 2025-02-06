@@ -65,11 +65,11 @@ const handleHttpErrors = (error: HttpErrorResponse, service: AlertService) => {
       // });
       break;
     case 404:
-      // Alert.Alert({
-      //   icon: 'warning',
-      //   title: 'Recurso no econtrado',
-      //   text: error.error.message,
-      // });
+      service.showToast({
+        type: 'warning',
+        title: 'Solictud incorrecta',
+        message,
+      });
       break;
     default:
       break;

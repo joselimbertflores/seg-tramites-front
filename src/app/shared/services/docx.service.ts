@@ -3,6 +3,7 @@ import { Document, Packer } from 'docx';
 
 import { DocxTemplates } from '../../helpers';
 import { Doc } from '../../communications/domain';
+import { ProcurementProcedure } from '../../procedures/domain';
 
 @Injectable({
   providedIn: 'root',
@@ -25,7 +26,7 @@ export class DocxService {
               },
             },
           },
-          children: [...DocxTemplates.documentTitle(item)],
+          children: [],
         },
       ],
     });
@@ -43,5 +44,35 @@ export class DocxService {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     });
+  }
+
+  async solicitudIniciContratacion(
+    procedure: ProcurementProcedure,
+    index: number
+  ) {
+    const docx = await DocxTemplates.document_solicitudInicioContratacion(
+      procedure,
+      index
+    );
+
+    Packer.toBlob(docx).then((blob) => {
+      const fileName = `${
+        procedure.documents[index].cite ?? 'SIN-CITE'.trim().replace('/', '_')
+      }.docx`;
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    });
+  }
+
+  private get manager() {
+    return 'Desvinculado';
   }
 }

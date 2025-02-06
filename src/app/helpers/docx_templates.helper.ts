@@ -1,6 +1,7 @@
 import {
   AlignmentType,
   BorderStyle,
+  Document,
   FileChild,
   Header,
   HeadingLevel,
@@ -19,6 +20,21 @@ import {
 } from 'docx';
 import { convertImageABase64 } from './image_base64';
 import { Doc } from '../communications/domain';
+import { ProcurementProcedure } from '../procedures/domain';
+
+interface documentTitleProps {
+  cite: string;
+  title: string;
+  sender: officer;
+  recipient: officer;
+  via: officer;
+  reference: string;
+  date: Date;
+}
+interface officer {
+  fullname: string;
+  jobtitle: string;
+}
 
 export class DocxTemplates {
   static async documentHeader(): Promise<Header> {
@@ -74,7 +90,7 @@ export class DocxTemplates {
     });
   }
 
-  static documentTitle(item: Doc): FileChild[] {
+  static documentTitle(item: documentTitleProps): FileChild[] {
     return [
       new Paragraph({
         heading: HeadingLevel.HEADING_1,
@@ -161,7 +177,7 @@ export class DocxTemplates {
                 columnSpan: 2,
                 children: [
                   new Paragraph(
-                    `Sacaba, ${item.createdAt.toLocaleString('es-ES', {
+                    `Sacaba, ${item.date.toLocaleString('es-ES', {
                       day: 'numeric',
                       month: 'long',
                       year: 'numeric',
@@ -189,5 +205,64 @@ export class DocxTemplates {
         text: 'Contenido',
       }),
     ];
+  }
+
+  static content_solicitudInicioContratacion(): FileChild[] {
+    return [
+      new Paragraph({
+        text: 'De mi mayor consideracion:',
+      }),
+      new Paragraph({
+        text: `or medio de la presente tengo a bien solicitar a su autoridad se viabilice el inicio de proceso de contratación menor UNIDAD DE GOBIERNO ELECTRONICO Y SISTEMAS TECNOLOGICOS (ADQUISICION DE SERVIDOR DE DATOS, BATERIAS Y DISCOS PARA SERVIDOR DE ALMACENAMIENTO). `,
+        alignment: AlignmentType.JUSTIFIED,
+        // spacing: {
+        //   after: 400,
+        // },
+      }),
+    ];
+  }
+
+  static async document_solicitudInicioContratacion(
+    procedure: ProcurementProcedure,
+    index: number
+  ) {
+    const {
+      cite = '',
+      reference = '',
+      sender = { fullname: '', jobtitle: '' },
+      recipient = { fullname: '', jobtitle: '' },
+      via = { fullname: '', jobtitle: '' },
+      date = new Date(),
+    } = procedure.documents[index];
+    const docx = new Document({
+      sections: [
+        {
+          headers: {
+            default: await this.documentHeader(),
+          },
+          properties: {
+            page: {
+              size: {
+                width: 12240, // 8.5 pulgadas en 1/72 de pulgada
+                height: 15840, // 11 pulgadas en 1/72 de pulgada
+              },
+            },
+          },
+          children: [
+            ...this.documentTitle({
+              title: 'COMUNICACIÓN INTERNA',
+              cite,
+              reference,
+              sender,
+              recipient,
+              via,
+              date,
+            }),
+            ...this.content_solicitudInicioContratacion(),
+          ],
+        },
+      ],
+    });
+    return docx;
   }
 }

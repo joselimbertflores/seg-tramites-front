@@ -109,10 +109,10 @@
                       {{ doc.reference }}
                     </td>
                     <td class="whitespace-nowrap px-4 py-2">
-                      {{ doc.recipient.fullname }}
+                      {{ doc.recipient?.fullname }}
                     </td>
                     <td class="whitespace-nowrap px-4 py-2">
-                      {{ doc.date | date : "shortDate" }}
+                      {{ doc.date ? (doc.date | date : "shortDate") : "---" }}
                     </td>
                     <td>
                       <button mat-icon-button [matMenuTriggerFor]="menu">

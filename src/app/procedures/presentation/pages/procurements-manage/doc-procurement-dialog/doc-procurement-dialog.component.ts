@@ -75,20 +75,20 @@ export class DocProcurementDialogComponent implements OnInit {
   });
 
   formDoc: FormGroup = this._formBuilder.group({
-    reference: [''],
-    cite: [''],
+    reference: ['', Validators.required],
+    cite: ['', Validators.required],
     date: [new Date(), Validators.required],
     sender: this._formBuilder.group({
-      fullname: [''],
-      jobtitle: [''],
+      fullname: ['', Validators.required],
+      jobtitle: ['', Validators.required],
     }),
     recipient: this._formBuilder.group({
-      fullname: [''],
-      jobtitle: [''],
+      fullname: ['', Validators.required],
+      jobtitle: ['', Validators.required],
     }),
     via: this._formBuilder.group({
-      fullname: [''],
-      jobtitle: [''],
+      fullname: ['', Validators.required],
+      jobtitle: ['', Validators.required],
     }),
   });
 

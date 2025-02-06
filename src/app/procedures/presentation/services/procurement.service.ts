@@ -1,8 +1,13 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { environment } from '../../../../environments/environment';
-import { procurement, ProcurementMapper } from '../../infrastructure';
 import { map } from 'rxjs';
+
+import { environment } from '../../../../environments/environment';
+import {
+  docPropsProcurement,
+  procurement,
+  ProcurementMapper,
+} from '../../infrastructure';
 
 @Injectable({
   providedIn: 'root',
@@ -30,16 +35,21 @@ export class ProcurementService {
   }
 
   create(form: Object) {
-    return this.http.post<any>(`${this.url}`, form);
-    // .pipe(map((response) => ExternalMapper.fromResponse(response)));
+    return this.http
+      .post<any>(`${this.url}`, form)
+      .pipe(map((response) => ProcurementMapper.fromResponse(response)));
   }
 
   update(id: string, form: Object) {
-    return this.http.patch<any>(`${this.url}/${id}`, form);
+    return this.http
+      .patch<procurement>(`${this.url}/${id}`, form)
+      .pipe(map((resp) => ProcurementMapper.fromResponse(resp)));
   }
 
   updateDocuments(id: string, form: Object) {
-    return this.http.patch<any>(`${this.url}/documents/${id}`, form);
+    return this.http
+      .patch<docPropsProcurement>(`${this.url}/documents/${id}`, form)
+      .pipe(map(({ date, ...props }) => ({ ...props, date: new Date(date) })));
   }
 
   getDetail(procedureId: string) {

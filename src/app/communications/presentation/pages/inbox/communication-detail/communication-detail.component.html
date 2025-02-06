@@ -4,20 +4,6 @@
   </button>
   <span class="ml-4">Detalle</span>
   <span class="flex-1"></span>
-  <!-- <button
-    mat-icon-button
-    class="example-icon favorite-icon"
-    aria-label="Example icon-button with heart icon"
-  >
-    <mat-icon>favorite</mat-icon>
-  </button> -->
-  <button
-    mat-icon-button
-    class="example-icon"
-    aria-label="Example icon-button with share icon"
-  >
-    <mat-icon>share</mat-icon>
-  </button>
 </mat-toolbar>
 <div class="px-6 mb-4">
   @if (communication()) {
@@ -37,37 +23,28 @@
       </p>
       <p>Instruccion / Proveido: {{ communication()?.reference }}</p>
     </mat-card-content>
-    <!-- <mat-card-actions>
-      <button mat-button>LIKE</button>
-      <button mat-button>SHARE</button>
-    </mat-card-actions> -->
   </mat-card>
   }
-</div>
-
-@if(!isLoading()){
-<mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
-  <mat-tab label="Descripcion">
-    @switch (communication()?.procedure?.group) { 
-      @case ("ExternalProcedure") {
+  <div class="border border-slate-300 rounded-xl mt-2">
+    @if(!isLoading()){
+    <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+      <mat-tab label="Descripcion">
+        @switch (communication()?.procedure?.group) { @case
+        ("ExternalProcedure") {
         <external-communication [procedure]="external!" />
-      } 
-      @case ("InternalProcedure") {
+        } @case ("InternalProcedure") {
         <internal-communication [procedure]="internal" />
-      } 
-      @case ("ProcurementProcedure") {
-        <procurement-communication [procedure]="procedure()"/>
-      } 
-      @default {
+        } @case ("ProcurementProcedure") {
+        <procurement-communication [procedure]="procedure()" [isReveived]="true" />
+        } @default {
         <p>Type Procedure is not define</p>
-      }
-   }
-  </mat-tab>
-  <mat-tab label="Flujo de trabajo">
-    <!-- <worflow-list [workflow]="workflow()" /> -->
-  </mat-tab>
-  <mat-tab label="Flujo de trabajo grafico">
-    <workflow-graph [workflow]="workflow()" />
-  </mat-tab>
-</mat-tab-group>
-}
+        } }
+      </mat-tab>
+      <mat-tab label="Flujo de trabajo"> </mat-tab>
+      <mat-tab label="Flujo de trabajo grafico">
+        <workflow-graph [workflow]="workflow()" />
+      </mat-tab>
+    </mat-tab-group>
+    }
+  </div>
+</div>

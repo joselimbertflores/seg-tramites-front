@@ -41,7 +41,6 @@ import {
     MatButtonModule,
     MatToolbarModule,
     BackButtonDirective,
-    WorkflowListComponent,
     WorkflowGraphComponent,
     InternalCommunicationComponent,
     ExternalCommunicationComponent,
@@ -73,8 +72,6 @@ export default class CommunicationDetailComponent {
       )
       .subscribe(([procedure]) => {
         this.procedure.set(procedure);
-        console.log('DATA LOADED', procedure);
-        // this.workflow.set(workflow);
         this.isLoading.set(false);
       });
   }

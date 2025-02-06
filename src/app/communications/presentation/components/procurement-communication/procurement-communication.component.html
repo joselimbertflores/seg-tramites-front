@@ -1,83 +1,212 @@
-<div class="px-6 w-full">
-  <div
-    class="flex w-full flex-col sm:flex-row justify-between items-center p-2 gap-y-2"
-  >
-    <div class="flex-1">Datos de la contratacion</div>
+<div class="p-2">
+  <mat-accordion multi>
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title> Descripcion de la contratacion </mat-panel-title>
+        <mat-panel-description>
+          Datos generales por la unidad solicitante
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+      <ng-template matExpansionPanelContent>
+        <dl class="-my-3 divide-y divide-gray-200 text-sm">
+          <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-3 sm:gap-4">
+            <dt class="font-medium text-gray-900">Nombre del proceso</dt>
+            <dd class="text-gray-700 sm:col-span-2">
+              {{ procedure().reference }}
+            </dd>
+          </div>
 
-    <div class="px-2 h-12">
-      <button mat-mini-fab aria-label="Example icon button with a menu icon">
-        <mat-icon>save</mat-icon>
-      </button>
-    </div>
-  </div>
-  <form [formGroup]="formProcedure">
-    <div class="grid grid-cols-4 p-4 gap-x-4">
-      <div class="col-span-3">
-        <mat-form-field appearance="outline">
-          <mat-label>Objeto de contratacion</mat-label>
-          <input matInput required formControlName="reference" />
-        </mat-form-field>
-      </div>
-      <div>
-        <mat-form-field appearance="outline">
-          <mat-label>Cantidad: hojas / anexos</mat-label>
-          <input matInput formControlName="numberOfDocuments" />
-        </mat-form-field>
-      </div>
-      <div>
-        <mat-form-field appearance="outline">
-          <mat-label>Apertura</mat-label>
-          <input matInput formControlName="apertura" />
-        </mat-form-field>
-      </div>
-      <div>
-        <mat-form-field appearance="outline">
-          <mat-label>Precio</mat-label>
-          <input matInput formControlName="precio" />
-        </mat-form-field>
-      </div>
-      <div>
-        <mat-form-field appearance="outline">
-          <mat-label>Codigo del proyecto</mat-label>
-          <input matInput formControlName="codigoProyecto" />
-        </mat-form-field>
-      </div>
-      <div>
-        <mat-form-field appearance="outline">
-          <mat-label>Plazo de ejecucion</mat-label>
-          <input matInput formControlName="plazo" />
-        </mat-form-field>
-      </div>
-      <div>
-        <mat-form-field appearance="outline">
-          <mat-label>CUCE</mat-label>
-          <input matInput formControlName="cuce" />
-        </mat-form-field>
-      </div>
-      <div>
-        <mat-form-field appearance="outline">
-          <mat-label>Modalidad</mat-label>
-          <input matInput formControlName="modalidad" />
-        </mat-form-field>
-      </div>
-      <div>
-        <mat-form-field appearance="outline">
-          <mat-label>Precion adjudicado </mat-label>
-          <input matInput formControlName="precioAdjudicado" />
-        </mat-form-field>
-      </div>
-      <div>
-        <mat-form-field appearance="outline">
-          <mat-label>Tipo de resolucion </mat-label>
-          <input matInput formControlName="tipoResolucion" />
-        </mat-form-field>
-      </div>
-      <div>
-        <mat-form-field appearance="outline">
-          <mat-label>Empresa adjudicada </mat-label>
-          <input matInput formControlName="empreseAdjudicada" />
-        </mat-form-field>
-      </div>
-    </div>
-  </form>
+          <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-3 sm:gap-4">
+            <dt class="font-medium text-gray-900">Modalidad</dt>
+            <dd class="text-gray-700 sm:col-span-2">{{ procedure().mode }}</dd>
+          </div>
+
+          <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-3 sm:gap-4">
+            <dt class="font-medium text-gray-900">Apertura programatica</dt>
+            <dd class="text-gray-700 sm:col-span-2">
+              {{ procedure().aperturaProg }}
+            </dd>
+          </div>
+
+          <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-3 sm:gap-4">
+            <dt class="font-medium text-gray-900">
+              Descripcion apertura programatica
+            </dt>
+            <dd class="text-gray-700 sm:col-span-2">
+              {{ procedure().descripcionAperturaProg }}
+            </dd>
+          </div>
+
+          <div class="py-3">
+            <div class="text-sm/6 font-medium text-gray-900 mb-2">
+              Objeto de gasto
+            </div>
+            <div class="overflow-x-auto rounded-lg border border-gray-200">
+              <table class="min-w-full divide-y-2 divide-gray-200 text-sm">
+                <thead class="text-left">
+                  <tr>
+                    <th class="whitespace-nowrap px-4 py-2">Codigo</th>
+                    <th class="whitespace-nowrap px-4 py-2">Nombre</th>
+                    <th class="whitespace-nowrap px-4 py-2">FF</th>
+                    <th class="whitespace-nowrap px-4 py-2">OF</th>
+                    <th class="whitespace-nowrap px-4 py-2">Monto</th>
+                  </tr>
+                </thead>
+
+                <tbody class="divide-y divide-gray-200">
+                  @for (doc of procedure().items; track $index) {
+                  <tr>
+                    <td class="whitespace-nowrap px-4 py-2 font-medium">
+                      {{ doc.code }}
+                    </td>
+                    <td class="whitespace-nowrap px-4 py-2">
+                      {{ doc.name }}
+                    </td>
+                    <td class="whitespace-nowrap px-4 py-2">
+                      {{ doc.ff }}
+                    </td>
+                    <td class="whitespace-nowrap px-4 py-2">
+                      {{ doc.of }}
+                    </td>
+                    <td class="whitespace-nowrap px-4 py-2">
+                      {{ doc.amount | currency : "Bs. " }}
+                    </td>
+                  </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-3 sm:gap-4">
+            <dt class="font-medium text-gray-900">Bien / Servicio</dt>
+            <dd class="text-gray-700 sm:col-span-2">
+              {{ procedure().type }}
+            </dd>
+          </div>
+
+          <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-3 sm:gap-4">
+            <dt class="font-medium text-gray-900">
+              Metodo de seleccion y adjudicacion
+            </dt>
+            <dd class="text-gray-700 sm:col-span-2">
+              {{ procedure().metodoAdjudicacion }}
+            </dd>
+          </div>
+
+          <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-3 sm:gap-4">
+            <dt class="font-medium text-gray-900">Forma de adjudicacion</dt>
+            <dd class="text-gray-700 sm:col-span-2">
+              {{ procedure().formaAdjudicacion }}
+            </dd>
+          </div>
+
+          <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-3 sm:gap-4">
+            <dt class="font-medium text-gray-900">Precio referencial</dt>
+            <dd class="text-gray-700 sm:col-span-2">
+              {{ procedure().price }}
+            </dd>
+          </div>
+
+          <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-3 sm:gap-4">
+            <dt class="font-medium text-gray-900">Plazo de entrega</dt>
+            <dd class="text-gray-700 sm:col-span-2">
+              {{ procedure().deliveryTimeframe }}
+            </dd>
+          </div>
+
+          <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-3 sm:gap-4">
+            <dt class="font-medium text-gray-900">Lugar de entrega</dt>
+            <dd class="text-gray-700 sm:col-span-2">
+              {{ procedure().deliveryLocation }}
+            </dd>
+          </div>
+
+          <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-3 sm:gap-4">
+            <dt class="font-medium text-gray-900">Garantia</dt>
+            <dd class="text-gray-700 sm:col-span-2">
+              {{ procedure().warranty }}
+            </dd>
+          </div>
+
+          <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-3 sm:gap-4">
+            <dt class="font-medium text-gray-900">Justificacion</dt>
+            <dd class="text-gray-700 sm:col-span-2">
+              {{ procedure().reason }}
+            </dd>
+          </div>
+        </dl>
+      </ng-template>
+    </mat-expansion-panel>
+    <mat-expansion-panel [expanded]="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title> Formulario </mat-panel-title>
+        <mat-panel-description>
+          Campos a ser completados
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <form [formGroup]="formProcedure">
+        <div class="grid grid-cols-4 p-4 gap-x-4">
+          <div>
+            <mat-form-field appearance="outline">
+              <mat-label>Codigo del proyecto </mat-label>
+              <input matInput formControlName="codigoProyecto" />
+            </mat-form-field>
+          </div>
+          <div>
+            <mat-form-field appearance="outline">
+              <mat-label>CUCE</mat-label>
+              <input matInput formControlName="cuce" />
+            </mat-form-field>
+          </div>
+          <div>
+            <mat-form-field appearance="outline">
+              <mat-label>Precio adjudicado </mat-label>
+              <input matInput formControlName="precioAdjudicado" />
+            </mat-form-field>
+          </div>
+          <div>
+            <mat-form-field appearance="outline">
+              <mat-label>Tipo de resolucion </mat-label>
+              <input matInput formControlName="tipoResolucion" />
+            </mat-form-field>
+          </div>
+          <div>
+            <mat-form-field appearance="outline">
+              <mat-label>Empresa adjudicada </mat-label>
+              <input matInput formControlName="empreseAdjudicada" />
+            </mat-form-field>
+          </div>
+          <div>
+            <mat-form-field appearance="outline">
+              <mat-label>Representante legal </mat-label>
+              <input matInput formControlName="representanteLegal" />
+            </mat-form-field>
+          </div>
+          <div>
+            <mat-form-field appearance="outline">
+              <mat-label>Fecha apertura </mat-label>
+              <input matInput formControlName="fechaApertura" />
+            </mat-form-field>
+          </div>
+        </div>
+      </form>
+      @if(isAlertShowing()){
+      <alert-message
+        [life]="3000"
+        severity="success"
+        title="Cambios guardados correctamente"
+        (close)="isAlertShowing.set(false)"
+      />
+      }
+
+      <mat-action-row>
+        <button mat-fab extended [disabled]="!isReveived()" (click)="save()">
+          <mat-icon>save</mat-icon>
+          Guardar
+        </button>
+      </mat-action-row>
+    </mat-expansion-panel>
+  </mat-accordion>
 </div>

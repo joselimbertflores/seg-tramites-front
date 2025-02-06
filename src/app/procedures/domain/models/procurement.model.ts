@@ -4,8 +4,9 @@ export interface procurementDoc {
   reference: string;
   sender?: officer;
   recipient?: officer;
+  via?:officer
   cite?: string;
-  date: Date;
+  date?: Date;
 }
 
 interface officer {

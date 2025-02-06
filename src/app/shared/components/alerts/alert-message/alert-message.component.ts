@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { animate, style, transition, trigger } from '@angular/animations';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  input,
+  OnInit,
+  output,
+} from '@angular/core';
 
 @Component({
   selector: 'alert-message',
@@ -6,63 +15,219 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   template: `
     @switch (severity()) { @case ('success') {
     <div
-      class="bg-green-200 px-6 py-4 mx-2 my-4 rounded-md sm:text-lg flex items-center  "
+      class="flex items-center p-4 text-green-800 rounded-lg bg-green-100"
+      role="alert"
+      @fadeInSlide
     >
       <svg
-        viewBox="0 0 24 24"
-        class="text-green-600 w-5 h-5 sm:w-5 sm:h-5 mr-3"
+        class="shrink-0 w-4 h-4"
+        aria-hidden="true"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="currentColor"
+        viewBox="0 0 20 20"
       >
         <path
-          fill="currentColor"
-          d="M12,0A12,12,0,1,0,24,12,12.014,12.014,0,0,0,12,0Zm6.927,8.2-6.845,9.289a1.011,1.011,0,0,1-1.43.188L5.764,13.769a1,1,0,1,1,1.25-1.562l4.076,3.261,6.227-8.451A1,1,0,1,1,18.927,8.2Z"
-        ></path>
+          d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
+        />
       </svg>
-      <span class="text-green-800">{{ message() }}</span>
+      <span class="sr-only">Info</span>
+      <div class="ms-3 text-sm font-medium">
+        {{ title() }}
+      </div>
+      <button
+        type="button"
+        class="ms-auto -mx-1.5 -my-1.5 bg-green-100 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-200 inline-flex items-center justify-center h-8 w-8"
+        data-dismiss-target="#alert-3"
+        aria-label="Close"
+        (click)="close.emit()"
+      >
+        <span class="sr-only">Close</span>
+        <svg
+          class="w-3 h-3"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 14 14"
+        >
+          <path
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+          />
+        </svg>
+      </button>
     </div>
+
     } @case ('error') {
     <div
-      class="bg-red-200 px-6 py-4 mx-2 my-4 rounded-md sm:text-lg flex items-center  "
+      id="alert-additional-content-4"
+      class="p-4 mb-4 text-yellow-800 border border-yellow-300 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300 dark:border-yellow-800"
+      role="alert"
     >
-      <svg viewBox="0 0 24 24" class="text-red-600 w-5 h-5 sm:w-5 sm:h-5 mr-3">
-        <path
+      <div class="flex items-center">
+        <svg
+          class="shrink-0 w-4 h-4 me-2"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
           fill="currentColor"
-          d="M11.983,0a12.206,12.206,0,0,0-8.51,3.653A11.8,11.8,0,0,0,0,12.207,11.779,11.779,0,0,0,11.8,24h.214A12.111,12.111,0,0,0,24,11.791h0A11.766,11.766,0,0,0,11.983,0ZM10.5,16.542a1.476,1.476,0,0,1,1.449-1.53h.027a1.527,1.527,0,0,1,1.523,1.47,1.475,1.475,0,0,1-1.449,1.53h-.027A1.529,1.529,0,0,1,10.5,16.542ZM11,12.5v-6a1,1,0,0,1,2,0v6a1,1,0,1,1-2,0Z"
-        ></path>
-      </svg>
-      <span class="text-red-800"> {{ message() }} </span>
+          viewBox="0 0 20 20"
+        >
+          <path
+            d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
+          />
+        </svg>
+        <span class="sr-only">Info</span>
+        <h3 class="text-lg font-medium">This is a warning alert</h3>
+      </div>
+      <div class="mt-2 mb-4 text-sm">
+        More info about this info warning goes here. This example text is going
+        to run a bit longer so that you can see how spacing within an alert
+        works with this kind of content.
+      </div>
     </div>
+
     } @case ('warn') {
     <div
-      class="bg-orange-200 px-6 py-4 my-4 rounded-md sm:text-lg flex items-center  "
+      id="alert-additional-content-2"
+      class="p-4 mb-4 text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 dark:border-red-800"
+      role="alert"
+    >
+      <div class="flex items-center">
+        <svg
+          class="shrink-0 w-4 h-4 me-2"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+        >
+          <path
+            d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
+          />
+        </svg>
+        <span class="sr-only">Info</span>
+        <h3 class="text-lg font-medium">This is a danger alert</h3>
+      </div>
+      <div class="mt-2 mb-4 text-sm">
+        More info about this info danger goes here. This example text is going
+        to run a bit longer so that you can see how spacing within an alert
+        works with this kind of content.
+      </div>
+    </div>
+
+    } @case ("info") {
+    <div
+      id="alert-border-1"
+      class="flex items-center p-4 mb-4 text-blue-800 border-t-4 border-blue-300 bg-blue-50 dark:text-blue-400 dark:bg-gray-800 dark:border-blue-800"
+      role="alert"
     >
       <svg
-        viewBox="0 0 24 24"
-        class="text-yellow-600 w-5 h-5 sm:w-5 sm:h-5 mr-3"
+        class="shrink-0 w-4 h-4"
+        aria-hidden="true"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="currentColor"
+        viewBox="0 0 20 20"
       >
         <path
-          fill="currentColor"
-          d="M23.119,20,13.772,2.15h0a2,2,0,0,0-3.543,0L.881,20a2,2,0,0,0,1.772,2.928H21.347A2,2,0,0,0,23.119,20ZM11,8.423a1,1,0,0,1,2,0v6a1,1,0,1,1-2,0Zm1.05,11.51h-.028a1.528,1.528,0,0,1-1.522-1.47,1.476,1.476,0,0,1,1.448-1.53h.028A1.527,1.527,0,0,1,13.5,18.4,1.475,1.475,0,0,1,12.05,19.933Z"
-        ></path>
+          d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
+        />
       </svg>
-      <span class="text-yellow-800"> {{ message() }} </span>
+      <div class="ms-3 text-sm font-medium">
+        A simple info alert with an
+        <a href="#" class="font-semibold underline hover:no-underline"
+          >example link</a
+        >. Give it a click if you like.
+      </div>
+      <button
+        type="button"
+        class="ms-auto -mx-1.5 -my-1.5 bg-blue-50 text-blue-500 rounded-lg focus:ring-2 focus:ring-blue-400 p-1.5 hover:bg-blue-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-blue-400 dark:hover:bg-gray-700"
+        data-dismiss-target="#alert-border-1"
+        aria-label="Close"
+      >
+        <span class="sr-only">Dismiss</span>
+        <svg
+          class="w-3 h-3"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 14 14"
+        >
+          <path
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+          />
+        </svg>
+      </button>
     </div>
     } @default {
+
     <div
-      class="bg-blue-200 px-6 py-4 my-4 rounded-md sm:text-lg flex items-center  "
+      id="alert-additional-content-5"
+      class="p-4 border border-gray-300 rounded-lg bg-gray-50 dark:border-gray-600 dark:bg-gray-800"
+      role="alert"
     >
-      <svg viewBox="0 0 24 24" class="text-blue-600 w-5 h-5 sm:w-5 sm:h-5 mr-3">
-        <path
+      <div class="flex items-center">
+        <svg
+          class="shrink-0 w-4 h-4 me-2 dark:text-gray-300"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
           fill="currentColor"
-          d="M12,0A12,12,0,1,0,24,12,12.013,12.013,0,0,0,12,0Zm.25,5a1.5,1.5,0,1,1-1.5,1.5A1.5,1.5,0,0,1,12.25,5ZM14.5,18.5h-4a1,1,0,0,1,0-2h.75a.25.25,0,0,0,.25-.25v-4.5a.25.25,0,0,0-.25-.25H10.5a1,1,0,0,1,0-2h1a2,2,0,0,1,2,2v4.75a.25.25,0,0,0,.25.25h.75a1,1,0,1,1,0,2Z"
-        ></path>
-      </svg>
-      <span class="text-blue-800"> {{ message() }} </span>
+          viewBox="0 0 20 20"
+        >
+          <path
+            d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
+          />
+        </svg>
+        <span class="sr-only">Info</span>
+        <h3 class="text-lg font-medium text-gray-800 dark:text-gray-300">
+          This is a dark alert
+        </h3>
+      </div>
+      <div class="mt-2 mb-4 text-sm text-gray-800 dark:text-gray-300">
+        More info about this info dark goes here. This example text is going to
+        run a bit longer so that you can see how spacing within an alert works
+        with this kind of content.
+      </div>
     </div>
     } }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [
+    trigger('fadeInSlide', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(-20px)' }),
+        animate(
+          '300ms ease-out',
+          style({ opacity: 1, transform: 'translateY(0)' })
+        ),
+      ]),
+      transition(':leave', [
+        animate(
+          '300ms ease-in',
+          style({ opacity: 0, transform: 'translateY(-20px)' })
+        ),
+      ]),
+    ]),
+  ],
 })
-export class AlertMessageComponent {
+export class AlertMessageComponent implements OnInit {
   severity = input.required<'success' | 'warn' | 'error' | 'info'>();
-  message = input.required<string>();
+  title = input.required<string>();
+  life = input<number>();
+  close = output<void>();
+  timeoutID: NodeJS.Timeout;
+
+  destroyRef = inject(DestroyRef).onDestroy(() => {
+    clearInterval(this.timeoutID);
+  });
+
+  ngOnInit(): void {
+    if (this.life()) {
+      this.timeoutID = setTimeout(() => this.close.emit(), this.life());
+    }
+  }
 }

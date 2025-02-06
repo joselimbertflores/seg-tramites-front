@@ -11,7 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { SearchInputComponent } from '../../../../shared';
+import { DocxService, SearchInputComponent } from '../../../../shared';
 import { ProcurementService } from '../../services';
 import {
   InternalProcedure,
@@ -71,6 +71,7 @@ import { PdfService } from '../../../../presentation/services';
 })
 export default class ProcurementsManageComponent implements OnInit {
   private procurementService = inject(ProcurementService);
+  private docxService = inject(DocxService);
   private pdfService = inject(PdfService);
 
   datasource = signal<ProcurementProcedure[]>([]);
@@ -185,8 +186,8 @@ export default class ProcurementsManageComponent implements OnInit {
     });
   }
 
-  generateDoc(item: ProcurementProcedure, index: number) {
-    this.pdfService.solicitudIniciContratacion(item, index);
+  async generateDoc(item: ProcurementProcedure, index: number) {
+    await this.docxService.solicitudIniciContratacion(item, index);
   }
 
   search(term: string) {

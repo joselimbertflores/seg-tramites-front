@@ -1,4 +1,4 @@
-interface document {
+export interface docPropsProcurement {
   reference: string;
   sender?: officer;
   recipient?: officer;
@@ -33,7 +33,7 @@ export interface procurement {
   deliveryLocation: string;
   warranty: string;
   reason: string;
-  documents?: document[];
+  documents?: docPropsProcurement[];
   code: string;
   prefix: string;
   correlative: number;

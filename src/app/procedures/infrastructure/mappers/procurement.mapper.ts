@@ -16,7 +16,7 @@ export class ProcurementMapper {
       group: group as procedureGroup,
       documents: documents
         ? documents.map(({ date, ...props }) => ({
-            date: new Date(date),
+            ...(date && { date: new Date(date) }),
             ...props,
           }))
         : [],
