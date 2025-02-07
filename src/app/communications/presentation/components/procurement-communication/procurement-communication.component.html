@@ -196,13 +196,13 @@
       <alert-message
         [life]="3000"
         severity="success"
-        title="Cambios guardados correctamente"
+        title="Cambios guardados"
         (close)="isAlertShowing.set(false)"
       />
       }
 
       <mat-action-row>
-        <button mat-fab extended [disabled]="!isReveived()" (click)="save()">
+        <button mat-fab extended [disabled]="!isSaveEnabled" (click)="save()">
           <mat-icon>save</mat-icon>
           Guardar
         </button>

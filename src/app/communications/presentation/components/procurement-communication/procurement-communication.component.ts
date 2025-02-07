@@ -16,8 +16,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 
-import { ProcurementProcedure } from '../../../../procedures/domain';
 import { ProcurementService } from '../../../../procedures/presentation/services';
+import { ProcurementProcedure } from '../../../../procedures/domain';
 import { AlertMessageComponent } from '../../../../shared';
 @Component({
   selector: 'procurement-communication',
@@ -33,12 +33,11 @@ import { AlertMessageComponent } from '../../../../shared';
   ],
   templateUrl: './procurement-communication.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  
 })
 export class ProcurementCommunicationComponent implements OnInit {
   private procurementService = inject(ProcurementService);
   procedure = model.required<ProcurementProcedure>();
-  isReveived = input<boolean>(false);
+  isReceived = input<boolean>(false);
 
   formProcedure: FormGroup = inject(FormBuilder).group({
     cuce: [''],
@@ -68,6 +67,20 @@ export class ProcurementCommunicationComponent implements OnInit {
       .subscribe((procedure) => {
         this.procedure.set(procedure);
         this.isAlertShowing.set(true);
+        this._resetForm();
       });
+  }
+
+  get isSaveEnabled() {
+    return (
+      this.isReceived() &&
+      this.formProcedure.dirty &&
+      !this.formProcedure.pristine
+    );
+  }
+
+  private _resetForm() {
+    this.formProcedure.markAsPristine();
+    this.formProcedure.markAsUntouched();
   }
 }

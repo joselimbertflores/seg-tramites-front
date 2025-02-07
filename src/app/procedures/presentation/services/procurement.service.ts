@@ -4,9 +4,9 @@ import { map } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
 import {
-  docPropsProcurement,
   procurement,
   ProcurementMapper,
+  docPropsProcurement,
 } from '../../infrastructure';
 
 @Injectable({
@@ -36,7 +36,7 @@ export class ProcurementService {
 
   create(form: Object) {
     return this.http
-      .post<any>(`${this.url}`, form)
+      .post<procurement>(`${this.url}`, form)
       .pipe(map((response) => ProcurementMapper.fromResponse(response)));
   }
 

@@ -4,7 +4,7 @@ export interface procurementDoc {
   reference: string;
   sender?: officer;
   recipient?: officer;
-  via?:officer
+  via?: officer;
   cite?: string;
   date?: Date;
 }
@@ -47,7 +47,7 @@ export class ProcurementProcedure extends Procedure {
   descripcionAperturaProg: string;
   metodoAdjudicacion: string;
   formaAdjudicacion: string;
-  price: string;
+  price: number;
   deliveryTimeframe: string;
   deliveryLocation: string;
   warranty: string;
@@ -78,7 +78,7 @@ export class ProcurementProcedure extends Procedure {
     this.descripcionAperturaProg = descripcionAperturaProg;
     this.metodoAdjudicacion = metodoAdjudicacion;
     this.formaAdjudicacion = formaAdjudicacion;
-    this.price = price;
+    this.price = +price;
     this.deliveryTimeframe = deliveryTimeframe;
     this.deliveryLocation = deliveryLocation;
     this.warranty = warranty;

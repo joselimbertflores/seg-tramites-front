@@ -120,7 +120,7 @@ export default class ProcurementsManageComponent implements OnInit {
         return [procedure, ...values];
       });
       this.datasize.update((value) => (value += 1));
-      // this.send(procedure);
+      console.log(procedure);
     });
   }
 
@@ -177,7 +177,6 @@ export default class ProcurementsManageComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe((result) => {
       if (!result) return;
-
       this.datasource.update((values) => {
         const index = values.findIndex(({ _id }) => _id === procurementId);
         values[index].documents[docIndex] = result;
@@ -186,8 +185,19 @@ export default class ProcurementsManageComponent implements OnInit {
     });
   }
 
-  async generateDoc(item: ProcurementProcedure, index: number) {
-    await this.docxService.solicitudIniciContratacion(item, index);
+  async generateDocument(item: ProcurementProcedure, index: number) {
+    switch (index) {
+      case 0:
+        await this.docxService.solicitudCertificacionPoa(item, index);
+        break;
+      case 1:
+        break;
+      case 2:
+        await this.docxService.solicitudIniciContratacion(item, index);
+        break;
+      default:
+        break;
+    }
   }
 
   search(term: string) {

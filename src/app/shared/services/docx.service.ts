@@ -11,13 +11,37 @@ import { ProcurementProcedure } from '../../procedures/domain';
 export class DocxService {
   constructor() {}
 
+  async solicitudIniciContratacion(
+    procedure: ProcurementProcedure,
+    index: number
+  ) {
+    const fileName = procedure.documents[index].cite ?? 'SIN_CITE';
+    const docx = await DocxTemplates.document_solicitudInicioContratacion(
+      procedure,
+      index
+    );
+    this._dowloadDocument(docx, `Solicitud_Inicio_Contratacion_${fileName}`);
+  }
+
+  async solicitudCertificacionPoa(
+    procedure: ProcurementProcedure,
+    index: number
+  ) {
+    const fileName = procedure.documents[index].cite ?? 'SIN_CITE';
+    const docx = await DocxTemplates.document_solicitudCertificacionPoa(
+      procedure,
+      index
+    );
+    this._dowloadDocument(docx, `Solicitud_Certificacion_Poa_${fileName}`);
+  }
+
   async generateDocument(item: Doc) {
     const docx = new Document({
       sections: [
         {
-          headers: {
-            default: await DocxTemplates.documentHeader(),
-          },
+          // headers: {
+          //   default: await DocxTemplates.documentHeader(),
+          // },
           properties: {
             page: {
               size: {
@@ -30,49 +54,20 @@ export class DocxService {
         },
       ],
     });
+  }
 
+  private _dowloadDocument(docx: Document, fileName: string) {
     Packer.toBlob(docx).then((blob) => {
-      const fileName = `${item.cite.trim().replace('/', '_')}.docx`;
       const url = window.URL.createObjectURL(blob);
 
       const a = document.createElement('a');
       a.href = url;
-      a.download = fileName;
+      a.download = `${fileName.replace('/', '_').trim()}.docx`;
       document.body.appendChild(a);
       a.click();
 
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     });
-  }
-
-  async solicitudIniciContratacion(
-    procedure: ProcurementProcedure,
-    index: number
-  ) {
-    const docx = await DocxTemplates.document_solicitudInicioContratacion(
-      procedure,
-      index
-    );
-
-    Packer.toBlob(docx).then((blob) => {
-      const fileName = `${
-        procedure.documents[index].cite ?? 'SIN-CITE'.trim().replace('/', '_')
-      }.docx`;
-      const url = window.URL.createObjectURL(blob);
-
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    });
-  }
-
-  private get manager() {
-    return 'Desvinculado';
   }
 }

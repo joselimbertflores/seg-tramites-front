@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  effect,
   inject,
   OnInit,
   signal,
@@ -19,8 +20,10 @@ import {
 } from '@angular/material/dialog';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
+
 import {
   AutocompleteComponent,
   AutocompleteOption,
@@ -48,6 +51,7 @@ interface dialogData {
     MatInputModule,
     MatDialogModule,
     MatButtonModule,
+    MatCheckboxModule,
     MatDatepickerModule,
     AutocompleteComponent,
   ],
@@ -73,6 +77,7 @@ export class DocProcurementDialogComponent implements OnInit {
     sender: [],
     via: [],
   });
+  showViaField = signal(false);
 
   formDoc: FormGroup = this._formBuilder.group({
     reference: ['', Validators.required],
@@ -86,14 +91,16 @@ export class DocProcurementDialogComponent implements OnInit {
       fullname: ['', Validators.required],
       jobtitle: ['', Validators.required],
     }),
-    via: this._formBuilder.group({
-      fullname: ['', Validators.required],
-      jobtitle: ['', Validators.required],
-    }),
   });
 
+  constructor() {
+    effect(() => {
+      this._toggleViaField();
+    });
+  }
+
   ngOnInit(): void {
-    this.formDoc.patchValue(this.data.document);
+    this._loadForm();
   }
 
   save() {
@@ -124,5 +131,25 @@ export class DocProcurementDialogComponent implements OnInit {
       fullname: account.officer?.fullname,
       jobtitle: account.jobtitle,
     });
+  }
+
+  private _toggleViaField() {
+    if (this.showViaField()) {
+      const { fullname = '', jobtitle = '' } = this.data.document.via ?? {};
+      this.formDoc.addControl(
+        'via',
+        this._formBuilder.group({
+          fullname: [fullname, Validators.required],
+          jobtitle: [jobtitle, Validators.required],
+        })
+      );
+    } else {
+      this.formDoc.removeControl('via');
+    }
+  }
+
+  private _loadForm() {
+    if (this.data.document.via) this.showViaField.set(true);
+    this.formDoc.patchValue(this.data.document);
   }
 }

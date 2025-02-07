@@ -54,6 +54,15 @@
         </mat-form-field>
       </div>
     </div>
+    <div class="py-2">
+      <mat-checkbox
+        [checked]="showViaField()"
+        (change)="showViaField.set($event.checked)"
+      >
+        Habilitar (Via)
+      </mat-checkbox>
+    </div>
+    @if(formDoc.get('via')) {
     <div formGroupName="via" class="flex gap-x-2">
       <div class="w-full">
         <autocomplete
@@ -71,6 +80,7 @@
         </mat-form-field>
       </div>
     </div>
+    }
   </form>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
