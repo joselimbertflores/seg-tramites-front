@@ -35,6 +35,21 @@ export class DocxService {
     this._dowloadDocument(docx, `Solicitud_Certificacion_Poa_${fileName}`);
   }
 
+  async solicitudCertificacionPresupuestaria(
+    procedure: ProcurementProcedure,
+    index: number
+  ) {
+    const fileName = procedure.documents[index].cite ?? 'SIN_CITE';
+    const docx = await DocxTemplates.document_solicitudCertificacionPresupuestaria(
+      procedure,
+      index
+    );
+    this._dowloadDocument(
+      docx,
+      `Solicitud_Certificacion_Presupuestaria_${fileName}`
+    );
+  }
+
   async generateDocument(item: Doc) {
     const docx = new Document({
       sections: [

@@ -1,57 +1,9 @@
-.menu {
-    padding: 10px;
-}
+@use '@angular/material' as mat;
 
-// mat-list-item {
-//     &.is-active .text {
-//         font-weight: bold;
-//         color: #1565C0;
-//     }
-
-//     &.is-active .icon {
-//         color: #1565C0;
-//     }
-// }
-
-// .is-active {
-//     background-color: #BBDEFB;
-// }
-
-// mat-expansion-panel {
-//     box-shadow: none !important;
-// }
-
-// mat-expansion-panel-header {
-//     padding: 0 16px !important;
-// }
-
-// // .mat-mdc-list-item-icon {
-// //     color: rgba(0, 0, 0, 0.54);
-// // }
-
-// ::ng-deep .mat-mdc-nav-list .mat-icon {
-//     margin-right: 20px;
-//     vertical-align: middle;
-// }
-
-// .mat-mdc-expansion-panel-body {
-//     padding: 0 !important;
-//     background-color: rebeccapurple;
-// }
-
-// ::ng-deep .mat-expansion-panel-header {
-//     height: 52px !important;
-// }
-
-// ::ng-deep .mat-expansion-panel .ss {
-//     padding-left: 12px !important;
-// }
-
-// ::ng-deep .mat-expansion-panel .mat-mdc-list-item {
-//     padding-left: 15px !important;
-// }
-
-.sidebar-link {
-    --mdc-list-list-item-container-shape: 25px;
-    margin-top: 0.35rem;
+// Customize the entire app. Change :root to your selector if you want to scope the styles.
+.examp {
+  @include mat.expansion-overrides((
+    container-background-color: none,
+    // header-collapsed-state-height:12px
+  ));
 }

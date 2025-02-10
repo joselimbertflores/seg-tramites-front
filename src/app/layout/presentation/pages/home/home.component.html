@@ -3,7 +3,7 @@
     <button mat-icon-button (click)="snav.toggle()">
       <mat-icon>menu</mat-icon>
     </button>
-    <span class="toolbar-spacer"></span>
+    <span class="flex-1"></span>
     <button mat-icon-button matTooltip="Recursos" routerLink="posts/history">
       <mat-icon>forum</mat-icon>
     </button>
@@ -41,6 +41,7 @@
       [opened]="(isHandset$ | async) === false"
       class="sidenav"
       fixedTopGap="56"
+      style="padding: 15px;"
     >
       <navigation-list [menu]="menu" />
     </mat-sidenav>

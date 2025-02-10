@@ -30,7 +30,7 @@
               </mat-error>
             </mat-form-field>
           </div>
-          @if(data.isOriginal && data.allowAttachDocument){
+          <!-- @if(data.isOriginal && data.allowAttachDocument){
           <div class="col-span-3">
             <select-search
               [items]="documents()"
@@ -42,7 +42,7 @@
               placeholderLabel="Referencia / Codigo"
             />
           </div>
-          }
+          } -->
           <div>
             <mat-form-field>
               <mat-label>Cantidad: hojas / anexos</mat-label>
@@ -95,6 +95,7 @@
             <mat-select
               [formControl]="bankServerSideCtrl"
               placeholder="Buscar destinatarios"
+              (selectionChange)="add(true)"
             >
               <mat-option>
                 <ngx-mat-select-search
@@ -122,7 +123,7 @@
           </mat-form-field>
         </div>
       </div>
-      <div class="flex items-center py-2">
+      <!-- <div class="flex items-center py-2">
         <div class="flex-1 text-lg font-medium">
           DESTINATARIOS ({{ recipients().length }}):
         </div>
@@ -142,7 +143,7 @@
             Copia
           </button>
         </div>
-      </div>
+      </div> -->
       <div class="overflow-y-scroll max-h-64">
         <mat-list role="list">
           @for (item of recipients(); track $index) {
@@ -168,7 +169,7 @@
       </div>
     </mat-step>
 
-    <mat-step label="Archivos adjuntos" optional>
+    <!-- <mat-step label="Archivos adjuntos" optional>
       <div class="flex justify-between items-center p-2">
         <span>Archivos:</span>
         <button
@@ -213,7 +214,7 @@
       <div class="flex justify-end mt-2">
         <button mat-button matStepperPrevious>Atras</button>
       </div>
-    </mat-step>
+    </mat-step> -->
   </mat-stepper>
 </mat-dialog-content>
 <mat-dialog-actions align="end">

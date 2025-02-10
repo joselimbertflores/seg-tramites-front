@@ -191,6 +191,7 @@ export default class ProcurementsManageComponent implements OnInit {
         await this.docxService.solicitudCertificacionPoa(item, index);
         break;
       case 1:
+        await this.docxService.solicitudCertificacionPresupuestaria(item, index);
         break;
       case 2:
         await this.docxService.solicitudIniciContratacion(item, index);

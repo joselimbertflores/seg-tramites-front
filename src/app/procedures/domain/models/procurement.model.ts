@@ -89,6 +89,9 @@ export class ProcurementProcedure extends Procedure {
   isPrintEnabled(index: number) {
     const document = this.documents[index];
     if (!document) return false;
-    return Object.values(document).every((value) => value);
+    return (
+      Object.values(document).every((value) => value) &&
+      Object.keys(document).length > 5
+    );
   }
 }

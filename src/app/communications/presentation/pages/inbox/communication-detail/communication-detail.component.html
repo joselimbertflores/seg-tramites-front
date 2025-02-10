@@ -35,7 +35,10 @@
         } @case ("InternalProcedure") {
         <internal-communication [procedure]="internal" />
         } @case ("ProcurementProcedure") {
-        <procurement-communication [procedure]="procedure()" [isReceived]="false" />
+        <procurement-communication
+          [procedure]="procedure()"
+          [isReceived]="communication()?.status === 'received'"
+        />
         } @default {
         <p>Type Procedure is not define</p>
         } }

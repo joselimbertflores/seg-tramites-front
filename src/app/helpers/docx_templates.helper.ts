@@ -154,6 +154,64 @@ export class DocxTemplates {
     return docx;
   }
 
+  static async document_solicitudCertificacionPresupuestaria(
+    procedure: ProcurementProcedure,
+    documentIndex: number
+  ) {
+    const {
+      cite = '',
+      sender = { fullname: '', jobtitle: '' },
+      recipient = { fullname: '', jobtitle: '' },
+      via,
+      date,
+      reference,
+    } = procedure.documents[documentIndex];
+    const docx = new Document({
+      styles: {
+        paragraphStyles: [
+          {
+            id: 'defaultStyle',
+            name: 'Default Style',
+            basedOn: 'Normal',
+            run: {
+              size: 18,
+            },
+          },
+        ],
+      },
+      sections: [
+        {
+          headers: {
+            default: await this.heeader(),
+          },
+          footers: {
+            default: this.footer(),
+          },
+          properties: {
+            page: {
+              size: {
+                width: 12240, // 8.5 pulgadas en 1/72 de pulgada
+                height: 15840, // 11 pulgadas en 1/72 de pulgada
+              },
+            },
+          },
+          children: [
+            ...this._section_title('COMUNICACIÓN INTERNA', cite),
+            ...this._section_properties({
+              from: sender,
+              via: [...(via ? [via] : [])],
+              to: [recipient],
+              referenec: `SOLICITUD DE CERTIFICACION PRESUPUESTARIA PARA ${procedure.reference.toUpperCase()}`,
+              date: date,
+            }),
+            ...this._section_content_solicitudCertificacionPresupuestaria(procedure),
+          ],
+        },
+      ],
+    });
+    return docx;
+  }
+
   private static async heeader(): Promise<Header> {
     const leftImage = await convertImageABase64(
       'images/institution/alcaldia.jpeg'
@@ -363,6 +421,217 @@ export class DocxTemplates {
           new TextRun(
             `del proceso de contratación ${procedure.descripcionAperturaProg} (${procedure.reference}) con cargo a la apertura programática ${procedure.aperturaProg} ${procedure.descripcionAperturaProg}, por el monto de Bs. ${formattedPrice} (${textAmount} bolivianos), como se detalla a continuación:`
           ),
+        ],
+        alignment: AlignmentType.JUSTIFIED,
+        spacing: {
+          after: 200,
+        },
+      }),
+      new Table({
+        borders: TableBorders.NONE,
+        columnWidths: [5, 20, 30, 15, 5, 7, 18],
+        width: {
+          size: 100,
+          type: WidthType.PERCENTAGE,
+        },
+        rows: [
+          new TableRow({
+            tableHeader: true,
+            children: [
+              new TableCell({
+                width: { size: 5, type: WidthType.DXA },
+                children: [new Paragraph({ text: 'N°', alignment: 'center' })],
+              }),
+              new TableCell({
+                width: { size: 20, type: WidthType.DXA },
+                children: [
+                  new Paragraph({
+                    alignment: 'center',
+                    children: [
+                      new TextRun({
+                        text: 'APERTURA PROGRAMATICA',
+                        bold: true,
+                        size: 18,
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+              new TableCell({
+                width: { size: 30, type: WidthType.DXA },
+                children: [
+                  new Paragraph({
+                    alignment: 'center',
+                    children: [
+                      new TextRun({
+                        text: 'DESCRIPCION APERTURA PROGRAMATIC',
+                        bold: true,
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+              new TableCell({
+                width: { size: 15, type: WidthType.DXA },
+                children: [
+                  new Paragraph({
+                    alignment: 'center',
+                    children: [
+                      new TextRun({
+                        text: 'OBJETO DE GASTO',
+                        bold: true,
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+              new TableCell({
+                width: { size: 5, type: WidthType.DXA },
+                children: [
+                  new Paragraph({
+                    alignment: 'center',
+                    children: [
+                      new TextRun({
+                        text: 'FF',
+                        bold: true,
+                        size: 16,
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+              new TableCell({
+                width: { size: 7, type: WidthType.DXA },
+                children: [
+                  new Paragraph({
+                    alignment: 'center',
+                    children: [
+                      new TextRun({
+                        text: 'OF',
+                        bold: true,
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+              new TableCell({
+                width: { size: 18, type: WidthType.DXA },
+                children: [
+                  new Paragraph({
+                    alignment: 'center',
+                    children: [
+                      new TextRun({
+                        text: 'PRECIO REFERENCIAL (BS)',
+                        bold: true,
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+            ],
+          }),
+          ...procedure.items.map((item, index) => {
+            const formattedItemPrice = this._formatNumberToPrice(item.amount);
+            return new TableRow({
+              children: [
+                ...(index === 0
+                  ? [
+                      new TableCell({
+                        rowSpan: procedure.items.length,
+                        children: [new Paragraph({ text: '1' })],
+                      }),
+                      new TableCell({
+                        rowSpan: procedure.items.length,
+                        children: [
+                          new Paragraph({
+                            text: procedure.aperturaProg,
+                            alignment: 'center',
+                          }),
+                        ],
+                      }),
+                      new TableCell({
+                        rowSpan: procedure.items.length,
+                        children: [
+                          new Paragraph({
+                            text: procedure.descripcionAperturaProg,
+                          }),
+                        ],
+                      }),
+                    ]
+                  : []),
+                new TableCell({
+                  children: [new Paragraph({ text: item.code })],
+                }),
+                new TableCell({
+                  children: [new Paragraph({ text: item.ff })],
+                }),
+                new TableCell({
+                  children: [new Paragraph({ text: item.of })],
+                }),
+                new TableCell({
+                  children: [new Paragraph({ text: formattedItemPrice })],
+                }),
+              ],
+            });
+          }),
+          new TableRow({
+            children: [
+              new TableCell({
+                columnSpan: 6,
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.RIGHT,
+                    children: [
+                      new TextRun({
+                        text: 'TOTAL IMPORTE EN BOLIVIANOS',
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    text: formattedPrice,
+                  }),
+                ],
+              }),
+            ],
+          }),
+        ],
+      }),
+      new Paragraph({ spacing: { after: 200 } }),
+      new Paragraph({
+        text: 'Sin otro particular, me despido con las consideraciones más distinguidas.',
+        spacing: {
+          after: 400,
+        },
+      }),
+      new Paragraph({
+        text: 'Atentamente',
+      }),
+    ];
+  }
+
+  private static _section_content_solicitudCertificacionPresupuestaria(
+    procedure: ProcurementProcedure
+  ): FileChild[] {
+    const formattedPrice = this._formatNumberToPrice(procedure.price);
+    const textAmount = numberToText(procedure.price);
+    return [
+      new Paragraph({
+        text: 'De mi mayor consideración:',
+        spacing: { after: 200 },
+      }),
+      new Paragraph({
+        children: [
+          new TextRun(
+            `Por medio de la presente tengo a bien solicitar a su autoridad la certificación presupuestaria del proceso de contratación, ${procedure.descripcionAperturaProg} (${procedure.reference}) con cargo a la apertura programática ${procedure.aperturaProg} ${procedure.descripcionAperturaProg}, por el monto de Bs. `
+          ),
+          new TextRun({
+            text: `${formattedPrice} (${textAmount} bolivianos) como se detalla a continuación:`,
+            bold: true,
+          }),
         ],
         alignment: AlignmentType.JUSTIFIED,
         spacing: {

@@ -40,6 +40,8 @@ export class ProcurementCommunicationComponent implements OnInit {
   isReceived = input<boolean>(false);
 
   formProcedure: FormGroup = inject(FormBuilder).group({
+    certificacionPoa: [''],
+    certificacionPresupuestaria: [''],
     cuce: [''],
     precioAdjudicado: [''],
     fechaApertura: [''],
