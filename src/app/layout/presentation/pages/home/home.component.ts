@@ -1,21 +1,21 @@
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import {
+  BreakpointObserver,
+  Breakpoints,
+  MediaMatcher,
+} from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
 import {
-  AfterViewChecked,
-  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
   inject,
+  signal,
   ViewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   ActivatedRoute,
   ChildrenOutletContexts,
-  Data,
-  NavigationEnd,
-  NavigationStart,
   Router,
   RouterModule,
   RouterOutlet,
@@ -26,7 +26,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import {
   NavigationListComponent,
-  SidenavButtonComponent,
   ProfileComponent,
 } from '../../../../presentation/components';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -41,6 +40,7 @@ import {
 import { PublicationDialogComponent } from '../../../../publications/presentation/components';
 import { AlertService, CacheService } from '../../../../shared';
 import { routeAnimations } from '../../../../../slideInAnimation';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-home',
@@ -49,21 +49,20 @@ import { routeAnimations } from '../../../../../slideInAnimation';
     MatIconModule,
     MatToolbarModule,
     NavigationListComponent,
-    SidenavButtonComponent,
     ProfileComponent,
     MatSidenavModule,
     RouterModule,
     OverlayModule,
     MatButtonModule,
     ScrollingModule,
+    MatTooltipModule,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [routeAnimations],
 })
-export default class HomeComponent implements AfterViewInit, AfterViewChecked {
-  private breakpointObserver = inject(BreakpointObserver);
+export default class HomeComponent {
   private socketService = inject(SocketService);
   private alertservice = inject(AlertService);
   private authService = inject(AuthService);
@@ -72,62 +71,33 @@ export default class HomeComponent implements AfterViewInit, AfterViewChecked {
 
   readonly dialogRef = inject(MatDialog);
 
-  public detailsOpen = false;
-  public isHandset$ = this.breakpointObserver.observe(Breakpoints.Handset).pipe(
-    map((result) => result.matches),
-    shareReplay()
-  );
+  public isProfileOpen = false;
 
   contexts = inject(ChildrenOutletContexts);
 
   @ViewChild(CdkScrollable) matContent!: CdkScrollable;
-  private cacheService = inject(CacheService);
 
-  constructor(
-    protected route: ActivatedRoute,
-    private scrollDispatcher: ScrollDispatcher
-  ) {
+  protected readonly isMobile = signal(true);
+  private readonly _mobileQuery: MediaQueryList;
+  private readonly _mobileQueryListener: () => void;
+
+  constructor(protected route: ActivatedRoute) {
+    const media = inject(MediaMatcher);
+
+    this._mobileQuery = media.matchMedia('(max-width: 600px)');
+    this.isMobile.set(this._mobileQuery.matches);
+    this._mobileQueryListener = () =>
+      this.isMobile.set(this._mobileQuery.matches);
+    this._mobileQuery.addEventListener('change', this._mobileQueryListener);
+
     this.destroyRef.onDestroy(() => {
       this.socketService.disconnect();
+      this._mobileQuery.removeEventListener(
+        'change',
+        this._mobileQueryListener
+      );
     });
-
-    // Escuchar eventos de navegación
-    // this.router.events.subscribe((event) => {
-    //   if (event instanceof NavigationStart) {
-    //     const currentRoute = this.getActiveChildRoute(this.route);
-    //     if (currentRoute === 'folders') {
-    //       // Guardar la posición actual del scroll
-    //       const scrollPosition =
-    //         this.matContent.getElementRef().nativeElement.scrollTop;
-    //       sessionStorage.setItem('scroll-app', scrollPosition.toString());
-    //     }
-    //   }
-
-    //   if (event instanceof NavigationEnd) {
-    //     const currentRoute = this.getActiveChildRoute(this.route);
-    //     if (currentRoute === 'folders') {
-    //       // Restablecer la posición del scroll después de un breve retraso
-    //       // setTimeout(() => {
-    //       //   this.matContent.getElementRef().nativeElement.scrollTo({
-    //       //     top: parseInt(position, 10),
-    //       //     behavior: 'smooth',
-    //       //   });
-    //       // }, 100); // Retraso de 100 ms para asegurar que el DOM esté listo
-    //     }
-    //   }
-    // });
-    // this.cacheService.scrollEvent$.subscribe(() => {
-    //   const position = sessionStorage.getItem('scroll-app') ?? '0';
-    //   setTimeout(() => {
-    //     this.matContent.getElementRef().nativeElement.scrollTo({
-    //       top: parseInt(position, 10),
-    //       behavior: 'smooth',
-    //     });
-    //   }, 10);
-    // });
   }
-  ngAfterViewChecked(): void {}
-  ngAfterViewInit(): void {}
 
   ngOnInit(): void {
     this.listenUserConnections();
@@ -194,13 +164,5 @@ export default class HomeComponent implements AfterViewInit, AfterViewChecked {
 
   get menu() {
     return this.authService.menu();
-  }
-
-  private getActiveChildRoute(route: ActivatedRoute): string {
-    let child = route;
-    while (child.firstChild) {
-      child = child.firstChild;
-    }
-    return child.snapshot.routeConfig?.path || '';
   }
 }

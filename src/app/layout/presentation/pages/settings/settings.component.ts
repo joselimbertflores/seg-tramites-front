@@ -67,7 +67,6 @@ export default class SettingsComponent implements OnInit {
   private alertService = inject(AlertService);
   private appearanceService = inject(AppearanceService);
   private fb = inject(FormBuilder);
-  public account = toSignal<Account>(this.authService.getMyAccount());
   private router = inject(Router);
 
   form = this.fb.group(

@@ -1,4 +1,4 @@
-<div class="example-container" [class.example-is-mobile]="isHandset$ | async">
+<!-- <div class="example-container" [class.example-is-mobile]="isHandset$ | async">
   <mat-toolbar color="primary" class="tonal">
     <button mat-icon-button (click)="snav.toggle()">
       <mat-icon>menu</mat-icon>
@@ -47,6 +47,82 @@
     </mat-sidenav>
 
     <mat-sidenav-content cdkScrollable>
+      <div [@routeAnimations]="prepareRoute(outlet)">
+        <router-outlet #outlet="outlet"></router-outlet>
+      </div>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div> -->
+
+<div class="example-container" [class.example-is-mobile]="isMobile()">
+  <mat-toolbar class="example-toolbar">
+    <button mat-icon-button (click)="snav.toggle()">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <span class="flex-1"></span>
+    <!-- <button
+      mat-icon-button
+      cdkOverlayOrigin
+      #trigger="cdkOverlayOrigin"
+      matTooltip="Info about the action"
+      (click)="detailsOpen = !detailsOpen"
+    >
+      <mat-icon>account_circle</mat-icon>
+    </button> -->
+    <div class="relative ml-2">
+      <button
+        mat-icon-button
+        cdkOverlayOrigin
+        #trigger="cdkOverlayOrigin"
+        (click)="isProfileOpen = !isProfileOpen"
+      >
+        <img
+          src="images/icons/account.png"
+          alt="Profile image"
+          class="w-6 object-cover"
+        />
+      </button>
+    </div>
+  </mat-toolbar>
+
+  <!-- <ng-template
+    cdkConnectedOverlay
+    [cdkConnectedOverlayOrigin]="trigger"
+    [cdkConnectedOverlayOpen]="detailsOpen"
+    (overlayOutsideClick)="detailsOpen = false"
+  >
+    <div class="overlay-menu mat-elevation-z8 px-2 py-3 sm:w-[380px]">
+      <profile [(isOpen)]="detailsOpen" />
+    </div>
+  </ng-template> -->
+
+  <ng-template
+    cdkConnectedOverlay
+    [cdkConnectedOverlayOrigin]="trigger"
+    [cdkConnectedOverlayOpen]="isProfileOpen"
+    (overlayOutsideClick)="isProfileOpen = false"
+  >
+    <div class="overlay p-3 sm:w-[400px] rounded-xl">
+      <profile [(isOpen)]="isProfileOpen" />
+    </div>
+  </ng-template>
+
+  <mat-sidenav-container
+    class="example-sidenav-container"
+    [style.marginTop.px]="isMobile() ? 56 : 0"
+  >
+    <mat-sidenav
+      #snav
+      [mode]="isMobile() ? 'over' : 'side'"
+      [fixedInViewport]="isMobile()"
+      fixedTopGap="56"
+      [opened]="true"
+      class="sidenav"
+    >
+      <navigation-list [menu]="menu" />
+    </mat-sidenav>
+
+    <mat-sidenav-content>
       <div [@routeAnimations]="prepareRoute(outlet)">
         <router-outlet #outlet="outlet"></router-outlet>
       </div>

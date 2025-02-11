@@ -87,13 +87,6 @@ export class AuthService {
       );
   }
 
-  getMyAccount() {
-    return this.http.get<account>(`${this.base_url}/auth/detail`).pipe(
-      map((resp) => {
-        return new Account({ ...(resp as any) });
-      })
-    );
-  }
 
   updateMyAccount(password: string) {
     return this.http

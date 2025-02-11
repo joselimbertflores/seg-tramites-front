@@ -1,6 +1,10 @@
 @use "@angular/material" as mat;
 @import "ngx-toastr/toastr";
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 html {
   color-scheme: light;
   @include mat.theme(
@@ -16,10 +20,6 @@ html {
     box-shadow: var(--mat-sys-level2);
   }
 }
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 html,
 body {
@@ -44,143 +44,7 @@ body {
 mat-form-field {
   width: 100%;
 }
+
 .mdc-notched-outline__notch {
   border-right: none;
 }
-
-
-
-// .toolbar-spacer {
-//   flex: 1 1 auto;
-// }
-
-// ::-webkit-scrollbar {
-//   width: 18px;
-// }
-
-// ::-webkit-scrollbar-thumb {
-//   background-color: silver;
-//   border-radius: 20px;
-//   border: 6px solid transparent;
-//   background-clip: content-box;
-// }
-
-// ::-webkit-scrollbar-thumb:hover {
-//   background-color: #a8bbbf;
-// }
-
-// table {
-//   width: 100%;
-// }
-
-// @media screen and (max-width: 960px) {
-//   .mat-elevation-z8 {
-//     background: transparent;
-//     box-shadow: none;
-//   }
-
-//   .mat-mdc-header-row {
-//     display: none;
-//   }
-
-//   tbody {
-//     display: block;
-//     width: 100%;
-//   }
-
-//   .mat-mdc-table {
-//     background: transparent;
-
-//     * {
-//       box-sizing: border-box;
-//     }
-
-//     .mat-mdc-row {
-//       display: block;
-//       overflow: hidden;
-//       height: auto;
-//       position: relative;
-//       clear: both;
-//       box-shadow: 0 2px 1px -1px rgba(0, 0, 0, .2), 0 1px 1px 0 rgba(0, 0, 0, .14), 0 1px 3px 0 rgba(0, 0, 0, .12);
-//       // background-color: #fff;
-//       border-radius: 3px;
-
-//       +.mat-mdc-row {
-//         margin-top: 10px;
-//       }
-//     }
-
-//     .mat-mdc-cell {
-//       display: block;
-//       width: 100%;
-//       padding: 0 16px;
-//       margin: 16px 0;
-//       border: 0 none;
-
-//       &:first-child {
-//         padding: 0 48px 0 16px;
-
-//         a {
-//           font-size: 20px;
-//           font-weight: 400;
-//           color: inherit;
-//         }
-
-//         &:before {
-//           display: none;
-//         }
-//       }
-
-//       &.m-card-sub-title {
-//         font-size: 18px;
-//         // margin-top: -8px;
-//         padding: 0 48px 0 16px;
-//       }
-//     }
-
-//     .has_label_on_mobile {
-//       &:before {
-//         content: attr(data-label);
-//         display: inline;
-//         font-weight: normal;
-//       }
-//     }
-
-//     .mat-column-star {
-//       width: auto;
-//       padding: 8px 0 0 !important;
-//       margin: 0;
-//       position: absolute;
-//       top: 0;
-//       right: 0;
-
-//       &:before {
-//         display: none;
-//       }
-//     }
-
-//     .mat-column-options {
-//       width: auto;
-//       padding: 8px 0 0 !important;
-//       margin: 0;
-//       position: absolute;
-//       top: 0;
-//       right: 0;
-
-//       &:before {
-//         display: none;
-//       }
-//     }
-//   }
-
-//   .mat-mdc-paginator {
-//     margin-top: 24px;
-//   }
-
-// }
-// html, body { height: 100%; }
-// body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
-
-// *, ::before, ::after {
-//   border-style: none;
-// }
