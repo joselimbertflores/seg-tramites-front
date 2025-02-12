@@ -102,6 +102,7 @@ export default class OutboxComponent {
     'reference',
     'recipient',
     'sentDate',
+    'time',
     'expand',
     'options',
   ];

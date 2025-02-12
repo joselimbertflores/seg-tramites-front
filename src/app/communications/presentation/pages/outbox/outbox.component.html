@@ -1,190 +1,213 @@
-  <mat-toolbar>
-    <span>Bandeja de salida</span>
-    <span class="flex-1"></span>
-    @if (selection.selected.length>0) {
-    <button
-      mat-icon-button
-      aria-label="Cancel"
-      matTooltip="Cancelar"
-      (click)="cancelSelection()"
-    >
-      <mat-icon>delete</mat-icon>
-    </button>
-    }
-  </mat-toolbar>
+<mat-toolbar>
+  <span>Bandeja de salida</span>
+  <span class="flex-1"></span>
+  @if (selection.selected.length>0) {
+  <button
+    mat-icon-button
+    aria-label="Cancel"
+    matTooltip="Cancelar"
+    (click)="cancelSelection()"
+  >
+    <mat-icon>delete</mat-icon>
+  </button>
+  }
+</mat-toolbar>
 
-  <div class="flex justify-end py-2">
-    <div class="w-full px-2 sm:w-1/4 h-11">
-      <search-input
-        (onSearch)="search($event)"
-        placeholder="Alterno / Destinatario"
-      />
-    </div>
-  </div>
-
-  <div class="mat-elevation-z8">
-    <table mat-table [dataSource]="datasource()" multiTemplateDataRows>
-      <ng-container matColumnDef="select">
-        <th mat-header-cell *matHeaderCellDef class="w-8">
-          <mat-checkbox
-            (change)="$event ? toggleAllRows() : null"
-            [checked]="selection.hasValue() && isAllSelected()"
-            [indeterminate]="selection.hasValue() && !isAllSelected()"
-          />
-        </th>
-        <td mat-cell *matCellDef="let row">
-          <mat-checkbox
-            (click)="$event.stopPropagation()"
-            (change)="$event ? selection.toggle(row) : null"
-            [checked]="selection.isSelected(row)"
-          />
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="status">
-        <th mat-header-cell *matHeaderCellDef></th>
-        <td mat-cell *matCellDef="let element" class="w-8">
-          @switch (element.status) { @case ('pending') {
-          <mat-icon class="text-orange-400">outgoing_mail</mat-icon>
-          } @case ('rejected') {
-          <mat-icon class="text-red-500">warning</mat-icon>
-          } @default { (?) } }
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="code">
-        <th mat-header-cell *matHeaderCellDef>Alterno</th>
-        <td mat-cell *matCellDef="let element">{{ element.procedure.code }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="type">
-        <th mat-header-cell *matHeaderCellDef>Documento</th>
-        <td mat-cell *matCellDef="let element">
-          {{ element.groupLabel }} / {{ element.documentLabel }}
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="reference">
-        <th mat-header-cell *matHeaderCellDef>Proveido</th>
-        <td mat-cell *matCellDef="let element">{{ element.reference }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="sentDate">
-        <th mat-header-cell *matHeaderCellDef>Fecha</th>
-        <td mat-cell *matCellDef="let element" class="w-36">
-          {{ element.sentDate | date : "short" }}
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="recipient">
-        <th mat-header-cell *matHeaderCellDef>Destinatario</th>
-        <td mat-cell *matCellDef="let element" class="sm:max-w-80">
-          Para: {{ element.recipient.fullname | titlecase }}
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="expand">
-        <th mat-header-cell *matHeaderCellDef aria-label="row actions">
-          &nbsp;
-        </th>
-        <td mat-cell *matCellDef="let element" class="w-8">
-          <button
-            mat-icon-button
-            aria-label="expand row"
-            (click)="
-              expandedElement = expandedElement === element ? null : element;
-              $event.stopPropagation()
-            "
-          >
-            @if (expandedElement === element) {
-            <mat-icon>keyboard_arrow_up</mat-icon>
-            } @else {
-            <mat-icon>keyboard_arrow_down</mat-icon>
-            }
-          </button>
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="options">
-        <th mat-header-cell *matHeaderCellDef></th>
-        <td mat-cell *matCellDef="let element" class="w-8">
-          <button mat-icon-button [matMenuTriggerFor]="menu">
-            <mat-icon>more_vert</mat-icon>
-          </button>
-          <mat-menu #menu="matMenu">
-            <button
-              mat-menu-item
-              (click)="send(element)"
-              [disabled]="!element.isOriginal"
-            >
-              <mat-icon>reply</mat-icon>
-              <span>Reenviar</span>
-            </button>
-            <button
-              mat-menu-item
-              (click)="cancelOne(element)"
-              [disabled]="element.status !== 'pending'"
-            >
-              <mat-icon>delete</mat-icon>
-              <span>Cancelar</span>
-            </button>
-          </mat-menu>
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="expandedDetail">
-        <td
-          mat-cell
-          *matCellDef="let element"
-          [attr.colspan]="displayedColumns.length"
-        >
-          <div
-            [@detailExpand]="
-              element == expandedElement ? 'expanded' : 'collapsed'
-            "
-          >
-            <div class="flex flex-col px-2 pb-4 text-lg">
-              <div>
-                Para: {{ element.recipient.fullname | titlecase }} ({{
-                  element.recipient.jobtitle
-                }})
-              </div>
-              <div>Nro. Interno: {{ element.citeCode }}</div>
-              @if(element.actionLog){
-              <div class="text-red-600">
-                {{ element.actionLog.fullname | titlecase }}:
-                <span class="font-bold">
-                  {{ element.actionLog.description }}
-                </span>
-              </div>
-              <div>Fecha: {{ element.actionLog.date | date : "short" }}</div>
-              }
-            </div>
-          </div>
-        </td>
-      </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: displayedColumns"
-        class="element-row"
-      ></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: ['expandedDetail']"
-        class="detail-row"
-      ></tr>
-      <tr class="mat-row" *matNoDataRow>
-        <td class="mat-cell p-3" colspan="8">Sin resultados</td>
-      </tr>
-    </table>
-    <mat-paginator
-      aria-label="Select page of users search results"
-      showFirstLastButtons
-      [length]="datasize()"
-      [pageIndex]="index()"
-      [pageSize]="10"
-      (page)="onPageChange($event)"
+<div class="flex justify-end py-2">
+  <div class="w-full px-2 sm:w-1/4 h-11">
+    <search-input
+      (onSearch)="search($event)"
+      placeholder="Alterno / Destinatario"
     />
   </div>
+</div>
+
+<div class="mat-elevation-z8">
+  <table mat-table [dataSource]="datasource()" multiTemplateDataRows>
+    <ng-container matColumnDef="select">
+      <th mat-header-cell *matHeaderCellDef class="w-8">
+        <mat-checkbox
+          (change)="$event ? toggleAllRows() : null"
+          [checked]="selection.hasValue() && isAllSelected()"
+          [indeterminate]="selection.hasValue() && !isAllSelected()"
+        />
+      </th>
+      <td mat-cell *matCellDef="let row">
+        <mat-checkbox
+          (click)="$event.stopPropagation()"
+          (change)="$event ? selection.toggle(row) : null"
+          [checked]="selection.isSelected(row)"
+        />
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let element" class="w-8">
+        @switch (element.status) { @case ('pending') {
+        <mat-icon class="text-orange-400">outgoing_mail</mat-icon>
+        } @case ('rejected') {
+        <mat-icon class="text-red-500">warning</mat-icon>
+        } @default { (?) } }
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="code">
+      <th mat-header-cell *matHeaderCellDef>Alterno</th>
+      <td mat-cell *matCellDef="let element">{{ element.procedure.code }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="type">
+      <th mat-header-cell *matHeaderCellDef>Documento</th>
+      <td mat-cell *matCellDef="let element">
+        {{ element.groupLabel }} / {{ element.documentLabel }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="reference">
+      <th mat-header-cell *matHeaderCellDef>Proveido</th>
+      <td mat-cell *matCellDef="let element">{{ element.reference }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="sentDate">
+      <th mat-header-cell *matHeaderCellDef>Fecha</th>
+      <td mat-cell *matCellDef="let element" class="w-36">
+        {{ element.sentDate | date : "short" }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="recipient">
+      <th mat-header-cell *matHeaderCellDef>Destinatario</th>
+      <td mat-cell *matCellDef="let element" class="sm:max-w-80">
+        Para: {{ element.recipient.fullname | titlecase }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="time">
+      <th mat-header-cell *matHeaderCellDef>Destinatario</th>
+      <td mat-cell *matCellDef="let element" class="sm:max-w-80">
+        <span
+          class="inline-flex items-center justify-center rounded-full bg-red-100 px-2.5 py-0.5 text-red-700"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="-ms-1 me-1.5 size-4"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+            />
+          </svg>
+          <p class="whitespace-nowrap text-sm">2 dias, 4 horas, 2 min</p>
+        </span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="expand">
+      <th mat-header-cell *matHeaderCellDef aria-label="row actions">&nbsp;</th>
+      <td mat-cell *matCellDef="let element" class="w-8">
+        <button
+          mat-icon-button
+          aria-label="expand row"
+          (click)="
+            expandedElement = expandedElement === element ? null : element;
+            $event.stopPropagation()
+          "
+        >
+          @if (expandedElement === element) {
+          <mat-icon>keyboard_arrow_up</mat-icon>
+          } @else {
+          <mat-icon>keyboard_arrow_down</mat-icon>
+          }
+        </button>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="options">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let element" class="w-8">
+        <button mat-icon-button [matMenuTriggerFor]="menu">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+          <button
+            mat-menu-item
+            (click)="send(element)"
+            [disabled]="!element.isOriginal"
+          >
+            <mat-icon>reply</mat-icon>
+            <span>Reenviar</span>
+          </button>
+          <button
+            mat-menu-item
+            (click)="cancelOne(element)"
+            [disabled]="element.status !== 'pending'"
+          >
+            <mat-icon>delete</mat-icon>
+            <span>Cancelar</span>
+          </button>
+        </mat-menu>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="expandedDetail">
+      <td
+        mat-cell
+        *matCellDef="let element"
+        [attr.colspan]="displayedColumns.length"
+      >
+        <div
+          [@detailExpand]="
+            element == expandedElement ? 'expanded' : 'collapsed'
+          "
+        >
+          <div class="flex flex-col px-2 pb-4 text-lg">
+            <div>
+              Para: {{ element.recipient.fullname | titlecase }} ({{
+                element.recipient.jobtitle
+              }})
+            </div>
+            <div>Nro. Interno: {{ element.citeCode }}</div>
+            @if(element.actionLog){
+            <div class="text-red-600">
+              {{ element.actionLog.fullname | titlecase }}:
+              <span class="font-bold">
+                {{ element.actionLog.description }}
+              </span>
+            </div>
+            <div>Fecha: {{ element.actionLog.date | date : "short" }}</div>
+            }
+          </div>
+        </div>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr
+      mat-row
+      *matRowDef="let row; columns: displayedColumns"
+      class="element-row"
+    ></tr>
+    <tr
+      mat-row
+      *matRowDef="let row; columns: ['expandedDetail']"
+      class="detail-row"
+    ></tr>
+    <tr class="mat-row" *matNoDataRow>
+      <td class="mat-cell p-3" colspan="8">Sin resultados</td>
+    </tr>
+  </table>
+  <mat-paginator
+    aria-label="Select page of users search results"
+    showFirstLastButtons
+    [length]="datasize()"
+    [pageIndex]="index()"
+    [pageSize]="10"
+    (page)="onPageChange($event)"
+  />
+</div>

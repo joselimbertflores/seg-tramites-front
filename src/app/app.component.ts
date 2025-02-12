@@ -4,10 +4,10 @@ import { RouterOutlet } from '@angular/router';
 import { ThemeService } from './layout/presentation/services/theme.service';
 
 @Component({
-    selector: 'app-root',
-    imports: [CommonModule, RouterOutlet],
-    templateUrl: './app.component.html',
-    styleUrl: './app.component.scss'
+  selector: 'app-root',
+  imports: [CommonModule, RouterOutlet],
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.scss',
 })
 export class AppComponent implements OnInit {
   title = 'seg-tramites-front';
@@ -20,7 +20,7 @@ export class AppComponent implements OnInit {
       this.#renderer.setAttribute(
         this.#document.documentElement,
         'class',
-        this.#themeService.theme()
+        'dark-mode'
       );
     });
   }
