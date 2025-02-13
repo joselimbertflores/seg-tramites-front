@@ -18,3 +18,4 @@ export * from './components/inputs/select-search/select-search.component';
 export * from './components/inputs/year-picker/year-picker.component';
 
 export * from './components/alerts/alert-message/alert-message.component';
+export * from './components/badge/badge.component';

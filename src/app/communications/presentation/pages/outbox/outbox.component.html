@@ -41,17 +41,6 @@
       </td>
     </ng-container>
 
-    <ng-container matColumnDef="status">
-      <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let element" class="w-8">
-        @switch (element.status) { @case ('pending') {
-        <mat-icon class="text-orange-400">outgoing_mail</mat-icon>
-        } @case ('rejected') {
-        <mat-icon class="text-red-500">warning</mat-icon>
-        } @default { (?) } }
-      </td>
-    </ng-container>
-
     <ng-container matColumnDef="code">
       <th mat-header-cell *matHeaderCellDef>Alterno</th>
       <td mat-cell *matCellDef="let element">{{ element.procedure.code }}</td>
@@ -84,27 +73,17 @@
     </ng-container>
 
     <ng-container matColumnDef="time">
-      <th mat-header-cell *matHeaderCellDef>Destinatario</th>
+      <th mat-header-cell *matHeaderCellDef>Duracion</th>
       <td mat-cell *matCellDef="let element" class="sm:max-w-80">
-        <span
-          class="inline-flex items-center justify-center rounded-full bg-red-100 px-2.5 py-0.5 text-red-700"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="-ms-1 me-1.5 size-4"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
-            />
-          </svg>
-          <p class="whitespace-nowrap text-sm">2 dias, 4 horas, 2 min</p>
-        </span>
+        @if(element.status==="rejected"){
+        <badge icon="warning" severity="danger" message="Rechazado" />
+        } @else {
+        <badge
+          icon="schedule"
+          severity="warning"
+          [message]="element.getExpirationMessage()"
+        />
+        }
       </td>
     </ng-container>
 
@@ -135,11 +114,7 @@
           <mat-icon>more_vert</mat-icon>
         </button>
         <mat-menu #menu="matMenu">
-          <button
-            mat-menu-item
-            (click)="send(element)"
-            [disabled]="!element.isOriginal"
-          >
+          <button mat-menu-item (click)="send(element)">
             <mat-icon>reply</mat-icon>
             <span>Reenviar</span>
           </button>

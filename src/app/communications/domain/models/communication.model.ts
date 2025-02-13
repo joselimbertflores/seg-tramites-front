@@ -13,6 +13,7 @@ interface communicationProps {
   receivedDate?: Date;
   isOriginal: boolean;
   actionLog?: actionLog;
+  expirationDate: Date;
 }
 interface worker {
   account: string;
@@ -39,6 +40,7 @@ export enum communcationStatus {
   Pending = 'pending',
   Archived = 'archived',
   Forwarding = 'forwarding',
+  AutoRejected = 'auto-rejected',
 }
 
 export class Communication implements communicationProps {
@@ -54,6 +56,7 @@ export class Communication implements communicationProps {
   receivedDate?: Date;
   isOriginal: boolean;
   actionLog?: actionLog;
+  expirationDate: Date;
 
   constructor({
     id,
@@ -68,6 +71,7 @@ export class Communication implements communicationProps {
     actionLog,
     status,
     isOriginal,
+    expirationDate,
   }: communicationProps) {
     this.id = id;
     this.sender = sender;
@@ -81,6 +85,20 @@ export class Communication implements communicationProps {
     this.receivedDate = receivedDate;
     this.isOriginal = isOriginal;
     this.actionLog = actionLog;
+    this.expirationDate = expirationDate;
+  }
+
+  getExpirationMessage(): string {
+    const now = new Date().getTime();
+    const expiration = this.expirationDate.getTime();
+    const diff = expiration - now;
+    if (diff <= 0) return 'Expirado';
+
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+    if (hours === 0) return `Expira en ${minutes} min`;
+    return `Expira en ${hours}h ${minutes}m`;
   }
 
   get groupLabel(): string {

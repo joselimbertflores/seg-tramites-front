@@ -30,7 +30,11 @@ import {
 import { filter, switchMap } from 'rxjs';
 
 import { CommunicationService } from '../../../../presentation/services';
-import { AlertService, SearchInputComponent } from '../../../../shared';
+import {
+  AlertService,
+  BadgeComponent,
+  SearchInputComponent,
+} from '../../../../shared';
 import { SubmissionDialogComponent } from '../inbox/submission-dialog/submission-dialog.component';
 import {
   Communication,
@@ -54,6 +58,7 @@ import { submissionDialogData } from '../../../domain';
     MatCheckboxModule,
     MatPaginatorModule,
     SearchInputComponent,
+    BadgeComponent,
   ],
   templateUrl: './outbox.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -96,12 +101,11 @@ export default class OutboxComponent {
 
   readonly displayedColumns = [
     'select',
-    'status',
     'type',
     'code',
-    'reference',
+    // 'reference',
     'recipient',
-    'sentDate',
+    // 'sentDate',
     'time',
     'expand',
     'options',
