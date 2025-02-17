@@ -128,7 +128,7 @@ export class SubmissionDialogComponent implements OnInit {
   isOriginalButtonEnabled = computed<boolean>(() => {
     return (
       // this.data.isOriginal &&
-      !this.recipients().some(({ isOriginal }) => isOriginal) 
+      !this.recipients().some(({ isOriginal }) => isOriginal)
       // && (this.data.isResend ?? true)
     );
   });
@@ -315,5 +315,20 @@ export class SubmissionDialogComponent implements OnInit {
   private _getInternalNumber(): string {
     const correlativeNumber = this.data.cite?.split('/')[2] ?? '';
     return typeof correlativeNumber === 'number' ? correlativeNumber : '';
+  }
+
+  private testOriginalButton(): boolean {
+    const originals = this.recipients().filter(({ isOriginal }) => isOriginal);
+    switch (this.data.mode) {
+      case 'initial':
+        return originals.length === 1;
+      case 'forward':
+        return this.data.isOriginal
+          ? originals.length === 1
+          : originals.length === 0 && this.recipients().length === 1;
+
+      default:
+        return false;
+    }
   }
 }

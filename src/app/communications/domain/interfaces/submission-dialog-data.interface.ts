@@ -6,6 +6,7 @@ export interface submissionDialogData {
   cite?: string;
   isResend?: boolean; // * for sent from outbox and disable original button
   allowAttachDocument?: boolean; // * for display select attach document
+  mode: 'initial' | 'forward' | 'resend';
 }
 
 interface procedureProps {
