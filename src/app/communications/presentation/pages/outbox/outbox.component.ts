@@ -40,7 +40,7 @@ import {
   Communication,
   communcationStatus,
 } from '../../../domain/models/communication.model';
-import { submissionDialogData } from '../../../domain';
+import { submissionData } from '../../../domain';
 
 @Component({
   selector: 'outbox',
@@ -131,45 +131,40 @@ export default class OutboxComponent {
       });
   }
 
-  send({
-    id,
-    status,
-    procedure,
-    isOriginal,
-    attachmentsCount,
-  }: Communication): void {
-    const data: submissionDialogData = {
-      communicationId: id,
-      procedure: { id: procedure.ref, code: procedure.code },
-      isResend: status === communcationStatus.Rejected ? true : false,
-      attachmentsCount,
-      isOriginal,
+  send(item: Communication): void {
+    const data: submissionData = {
+      mode: 'resend',
+      communicationId: item.id,
+      isOriginal: item.isOriginal,
+      attachmentsCount: item.attachmentsCount,
+      procedure: { id: item.procedure.ref, code: item.procedure.code },
+      replace: item.status === 'rejected' || item.status === 'auto-rejected',
     };
     const dialogRef = this.dialogRef.open(SubmissionDialogComponent, {
       maxWidth: '1100px',
       width: '1100px',
-      data: data,
+      data,
     });
     dialogRef.afterClosed().subscribe((result: Communication[]) => {
       if (!result) return;
-      this.datasource.update((values) => {
-        values.unshift(...result);
-        if (status === communcationStatus.Rejected) {
-          values = values.filter((el) => el.id !== id);
-        }
-        if (values.length > this.limit()) {
-          values.splice(this.limit(), values.length - this.limit());
-        }
-        return [...values];
-      });
-      this.datasize.update((value) => {
-        value += result.length;
-        if (status === communcationStatus.Rejected) {
-          value -= 1;
-        }
-        return value;
-      });
-      this.selection.clear();
+      // this.datasource.update((values) => {
+      //   values.unshift(...result);
+      //   if (status === communcationStatus.Rejected) {
+      //     values = values.filter((el) => el.id !== id);
+      //   }
+      //   if (values.length > this.limit()) {
+      //     values.splice(this.limit(), values.length - this.limit());
+      //   }
+      //   return [...values];
+      // });
+      // this.datasize.update((value) => {
+      //   value += result.length;
+      //   if (status === communcationStatus.Rejected) {
+      //     value -= 1;
+      //   }
+      //   return value;
+      // });
+      // this.selection.clear();
     });
   }
 

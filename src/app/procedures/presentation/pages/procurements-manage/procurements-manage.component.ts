@@ -24,7 +24,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { RouterModule } from '@angular/router';
 import { MatMenuModule } from '@angular/material/menu';
 import { ProcurementDialogComponent } from './procurement-dialog/procurement-dialog.component';
-import { submissionDialogData } from '../../../../communications/domain';
+import { submissionData } from '../../../../communications/domain';
 import { SubmissionDialogComponent } from '../../../../communications/presentation/pages/inbox/submission-dialog/submission-dialog.component';
 import {
   animate,
@@ -141,7 +141,7 @@ export default class ProcurementsManageComponent implements OnInit {
   }
 
   send(procedure: any) {
-    const data: submissionDialogData = {
+    const data: submissionData = {
       procedure: {
         id: procedure._id,
         code: procedure.code,
@@ -149,6 +149,7 @@ export default class ProcurementsManageComponent implements OnInit {
       attachmentsCount: procedure.numberOfDocuments,
       cite: procedure.cite,
       isOriginal: true,
+      mode: "initiate",
     };
     const dialogRef = this.dialog.open(SubmissionDialogComponent, {
       maxWidth: '1100px',
@@ -191,7 +192,10 @@ export default class ProcurementsManageComponent implements OnInit {
         await this.docxService.solicitudCertificacionPoa(item, index);
         break;
       case 1:
-        await this.docxService.solicitudCertificacionPresupuestaria(item, index);
+        await this.docxService.solicitudCertificacionPresupuestaria(
+          item,
+          index
+        );
         break;
       case 2:
         await this.docxService.solicitudIniciContratacion(item, index);

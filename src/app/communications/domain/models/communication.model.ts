@@ -89,6 +89,7 @@ export class Communication implements communicationProps {
   }
 
   getExpirationMessage(): string {
+    console.log('eect model');
     const now = new Date().getTime();
     const expiration = this.expirationDate.getTime();
     const diff = expiration - now;

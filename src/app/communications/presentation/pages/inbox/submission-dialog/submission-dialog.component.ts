@@ -51,12 +51,8 @@ import {
   CommunicationService,
 } from '../../../../../presentation/services';
 import { doc } from '../../../../infrastructure';
-import { DocService } from '../../../services';
-import {
-  onlineAccount,
-  recipient,
-  submissionDialogData,
-} from '../../../../domain';
+import { DocService, OutboxService } from '../../../services';
+import { onlineAccount, recipient, submissionData } from '../../../../domain';
 @Component({
   selector: 'submission-dialog',
   imports: [
@@ -95,7 +91,9 @@ export class SubmissionDialogComponent implements OnInit {
   private alertService = inject(AlertService);
   private socketService = inject(SocketService);
 
-  data: submissionDialogData = inject(MAT_DIALOG_DATA);
+  private outboxService = inject(OutboxService);
+
+  data: submissionData = inject(MAT_DIALOG_DATA);
   accounts = signal<onlineAccount[]>([]);
   documents = signal<selectOption<doc>[]>([]);
   institutions = toSignal(this.inboxService.getInstitucions(), {
@@ -115,29 +113,48 @@ export class SubmissionDialogComponent implements OnInit {
   public bankServerSideCtrl = new FormControl<onlineAccount | null>(null);
   public filteredReceivers$ = new BehaviorSubject<onlineAccount[]>([]);
 
-  isCopyButtonEnabled = computed<boolean>(() => {
-    if (this.data.isOriginal) {
-      if (this.data.isResend === false) {
-        return true;
-      }
-      return this.recipients().some(({ isOriginal }) => isOriginal);
-    }
-    return this.recipients().length === 0;
+  isCopyEnabled = computed<boolean>(() => {
+    if (!this.data.isOriginal) return this.recipients().length === 0;
+    if (this.data.replace) return true;
+    return this.recipients().some(({ isOriginal }) => isOriginal);
   });
 
   isOriginalButtonEnabled = computed<boolean>(() => {
     return (
-      // this.data.isOriginal &&
-      !this.recipients().some(({ isOriginal }) => isOriginal)
-      // && (this.data.isResend ?? true)
+      this.data.isOriginal &&
+      !this.recipients().some(({ isOriginal }) => isOriginal) &&
+      (this.data.replace ?? true)
     );
+    // const hasOneOriginal =
+    //   this.recipients().filter(({ isOriginal }) => isOriginal).length === 1;
+    // const hasNoOriginals = this.recipients().every(
+    //   ({ isOriginal }) => !isOriginal
+    // );
+    // switch (this.data.mode) {
+    //   case 'initiate':
+    //     return hasNoOriginals;
+
+    //   case 'forward':
+    //     return this.data.isOriginal
+    //       ? hasOneOriginal
+    //       : hasNoOriginals && hasSingleRecipient;
+
+    //   case 'resend':
+    //     if (!this.data.replace) return false;
+    //     return this.data.isOriginal
+    //       ? hasOneOriginal
+    //       : hasNoOriginals && hasSingleRecipient;
+
+    //   default:
+    //     return false;
+    // }
   });
 
   isFormValid = computed<boolean>(() => {
     const isValid = this.formSubmission.valid && this.recipients().length > 0;
     const originals = this.recipients().filter(({ isOriginal }) => isOriginal);
     if (!this.data.isOriginal) return isValid && originals.length === 0;
-    if (this.data.isResend === false) return isValid;
+    if (this.data.replace === false) return isValid;
     return isValid && originals.length === 1;
   });
 
@@ -167,16 +184,20 @@ export class SubmissionDialogComponent implements OnInit {
   }
 
   send(): void {
-    this.inboxService
-      .create({
-        form: this.formSubmission.value,
-        communicationId: this.data.communicationId,
-        procedureId: this.data.procedure.id,
-        recipients: this.recipients(),
-      })
-      .subscribe((communications) => {
-        this.dialogRef.close(communications);
-      });
+    this.outboxService
+      .create(
+        {
+          communicationId: this.data.communicationId,
+          procedureId: this.data.procedure.id,
+          recipients: this.recipients().map(({ id, isOriginal }) => ({
+            accountId: id,
+            isOriginal,
+          })),
+          ...this.formSubmission.value,
+        },
+        this.data.mode
+      )
+      .subscribe({ next: () => {}, error: (err) => {} });
   }
 
   add(isOriginal: boolean): void {
@@ -314,21 +335,7 @@ export class SubmissionDialogComponent implements OnInit {
 
   private _getInternalNumber(): string {
     const correlativeNumber = this.data.cite?.split('/')[2] ?? '';
-    return typeof correlativeNumber === 'number' ? correlativeNumber : '';
-  }
-
-  private testOriginalButton(): boolean {
-    const originals = this.recipients().filter(({ isOriginal }) => isOriginal);
-    switch (this.data.mode) {
-      case 'initial':
-        return originals.length === 1;
-      case 'forward':
-        return this.data.isOriginal
-          ? originals.length === 1
-          : originals.length === 0 && this.recipients().length === 1;
-
-      default:
-        return false;
-    }
+    return '';
+    // return typeof correlativeNumber === 'number' ? correlativeNumber : '';
   }
 }

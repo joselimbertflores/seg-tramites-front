@@ -47,7 +47,7 @@ import { SubmissionDialogComponent } from './submission-dialog/submission-dialog
 import {
   communcationStatus,
   Communication,
-  submissionDialogData,
+  submissionData,
 } from '../../../domain';
 import { procedureGroup } from '../../../../procedures/domain';
 import { ArchiveDialogComponent } from './archive-dialog/archive-dialog.component';
@@ -172,10 +172,11 @@ export default class InboxComponent implements OnInit {
   }
 
   send({ id, procedure, isOriginal, attachmentsCount }: Communication) {
-    const data: submissionDialogData = {
+    const data: submissionData = {
+      mode: 'forward',
       communicationId: id,
       procedure: { id: procedure.ref, code: procedure.code },
-      allowAttachDocument: true,
+      // allowAttachDocument: true,
       attachmentsCount,
       isOriginal,
     };

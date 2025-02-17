@@ -26,7 +26,7 @@ import { InternalService } from '../../services';
 
 import { InternalDialogComponent } from './internal-dialog/internal-dialog.component';
 import { SubmissionDialogComponent } from '../../../../communications/presentation/pages/inbox/submission-dialog/submission-dialog.component';
-import { submissionDialogData } from '../../../../communications/domain';
+import { submissionData } from '../../../../communications/domain';
 interface cache {
   datasource: InternalProcedure[];
   datasize: number;
@@ -126,7 +126,7 @@ export default class InternalsManageComponent {
   }
 
   send(procedure: InternalProcedure) {
-    const data: submissionDialogData = {
+    const data: submissionData = {
       procedure: {
         id: procedure._id,
         code: procedure.code,
@@ -134,6 +134,7 @@ export default class InternalsManageComponent {
       attachmentsCount: procedure.numberOfDocuments,
       cite: procedure.cite,
       isOriginal: true,
+      mode: "initiate",
     };
     const dialogRef = this.dialog.open(SubmissionDialogComponent, {
       maxWidth: '1100px',
@@ -169,8 +170,7 @@ export default class InternalsManageComponent {
     // });
   }
 
-  generateTemplate() {
-  }
+  generateTemplate() {}
 
   private _saveCache(): void {
     this.cacheService.save('internals', {

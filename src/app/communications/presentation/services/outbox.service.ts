@@ -1,15 +1,27 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { map } from 'rxjs';
-import { environment } from '../../../../environments/environment';
-import { GroupedCommunication } from '../../../domain/models';
-import { groupedCommunicationResponse } from '../../../infraestructure/interfaces';
-import { communication } from '../../../communications/infrastructure';
 
-interface cancelCommunicationProps {
+import { map } from 'rxjs';
+
+import { communication } from '../../../communications/infrastructure';
+import { environment } from '../../../../environments/environment';
+
+interface createCommunicationProps {
   procedureId: string;
+  attachmentsCount: string;
+  reference: string;
+  internalNumber: string;
+  recipients: recipient[];
   communicationId: string;
+  documentId?: string;
 }
+
+interface recipient {
+  accountId: string;
+  isOriginal: boolean;
+}
+
+type communicationMode = 'initiate' | 'forward' | 'resend';
 @Injectable({
   providedIn: 'root',
 })
@@ -27,26 +39,15 @@ export class OutboxService {
     );
   }
 
-  cancel(selected: cancelCommunicationProps[]) {
+  cancel(selected: any[]) {
     return this.http.delete<{ message: string }>(`${this.url}/outbox`, {
       body: { selected },
     });
   }
 
-  search(limit: number, offset: number, term: string) {
-    const params = new HttpParams({ fromObject: { limit, offset } });
-    return this.http
-      .get<{ mails: groupedCommunicationResponse[]; length: number }>(
-        `${this.url}/outbox/search/${term}`,
-        { params }
-      )
-      .pipe(
-        map((resp) => ({
-          mails: resp.mails.map((el) =>
-            GroupedCommunication.responseToModel(el)
-          ),
-          length: resp.length,
-        }))
-      );
+  create(data: createCommunicationProps, mode: communicationMode) {
+    return this.http.post<communication[]>(`${this.url}/${mode}`, data, {
+      headers: { loader: 'true' },
+    });
   }
 }

@@ -16,7 +16,7 @@ import { CacheService, SearchInputComponent } from '../../../../shared';
 import { ExternalProcedure, procedureState } from '../../../domain';
 import { ExternalService } from '../../services';
 import { SubmissionDialogComponent } from '../../../../communications/presentation/pages/inbox/submission-dialog/submission-dialog.component';
-import { submissionDialogData } from '../../../../communications/domain';
+import { submissionData } from '../../../../communications/domain';
 
 interface cache {
   datasource: ExternalProcedure[];
@@ -114,10 +114,11 @@ export default class ExternalsManageComponent {
   }
 
   send(procedure: ExternalProcedure): void {
-    const transfer: submissionDialogData = {
+    const transfer: submissionData = {
       procedure: { id: procedure._id, code: procedure.code },
       attachmentsCount: procedure.numberOfDocuments,
       isOriginal: true,
+      mode:"initiate"
     };
     const dialogRef = this.dialog.open(SubmissionDialogComponent, {
       maxWidth: '1000px',

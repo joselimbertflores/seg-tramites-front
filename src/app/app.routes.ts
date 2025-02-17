@@ -159,7 +159,6 @@ export const routes: Routes = [
           {
             path: 'outbox',
             title: 'Bandeja - Salida',
-            // data: { animation: 'slideRight' },
             data: { animation: 'fadeIn' },
             loadComponent: () =>
               import(
