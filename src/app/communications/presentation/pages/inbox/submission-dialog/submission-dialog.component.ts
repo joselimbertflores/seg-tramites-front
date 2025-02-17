@@ -120,6 +120,7 @@ export class SubmissionDialogComponent implements OnInit {
   });
 
   isOriginalButtonEnabled = computed<boolean>(() => {
+    const hasOriginal = this.recipients().some(({ isOriginal }) => isOriginal);
     return (
       this.data.isOriginal &&
       !this.recipients().some(({ isOriginal }) => isOriginal) &&
