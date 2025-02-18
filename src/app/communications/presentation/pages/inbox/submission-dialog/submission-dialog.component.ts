@@ -168,6 +168,7 @@ export class SubmissionDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    console.log(this.data.mode);
     this._setFilterControl();
   }
 
