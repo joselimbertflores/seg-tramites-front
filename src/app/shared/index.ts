@@ -5,6 +5,7 @@ export * from './components/simple-select-search/simple-select-search.component'
 export * from './components/dialogs/description-dialog/description-dialog.component';
 export * from './components/dialogs/confirm-dialog/confirm-dialog.component';
 export * from './components/dialogs/loader-dialog/loader-dialog.component';
+export * from './components/dialogs/message-dialog/message-dialog.component';
 
 export * from './services/cache.service';
 export * from './services/alert.service';

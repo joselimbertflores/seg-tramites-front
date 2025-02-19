@@ -53,6 +53,7 @@ import {
 import { doc } from '../../../../infrastructure';
 import { DocService, OutboxService } from '../../../services';
 import { onlineAccount, recipient, submissionData } from '../../../../domain';
+import { HttpErrorResponse } from '@angular/common/http';
 @Component({
   selector: 'submission-dialog',
   imports: [
@@ -114,49 +115,20 @@ export class SubmissionDialogComponent implements OnInit {
   public filteredReceivers$ = new BehaviorSubject<onlineAccount[]>([]);
 
   isCopyEnabled = computed<boolean>(() => {
-    if (!this.data.isOriginal) return this.recipients().length === 0;
-    if (this.data.replace) return true;
-    return this.recipients().some(({ isOriginal }) => isOriginal);
+    return true;
   });
 
   isOriginalButtonEnabled = computed<boolean>(() => {
-    const hasOriginal = this.recipients().some(({ isOriginal }) => isOriginal);
-    return (
-      this.data.isOriginal &&
-      !this.recipients().some(({ isOriginal }) => isOriginal) &&
-      (this.data.replace ?? true)
-    );
-    // const hasOneOriginal =
-    //   this.recipients().filter(({ isOriginal }) => isOriginal).length === 1;
-    // const hasNoOriginals = this.recipients().every(
-    //   ({ isOriginal }) => !isOriginal
-    // );
-    // switch (this.data.mode) {
-    //   case 'initiate':
-    //     return hasNoOriginals;
-
-    //   case 'forward':
-    //     return this.data.isOriginal
-    //       ? hasOneOriginal
-    //       : hasNoOriginals && hasSingleRecipient;
-
-    //   case 'resend':
-    //     if (!this.data.replace) return false;
-    //     return this.data.isOriginal
-    //       ? hasOneOriginal
-    //       : hasNoOriginals && hasSingleRecipient;
-
-    //   default:
-    //     return false;
-    // }
+    return true;
   });
 
   isFormValid = computed<boolean>(() => {
-    const isValid = this.formSubmission.valid && this.recipients().length > 0;
-    const originals = this.recipients().filter(({ isOriginal }) => isOriginal);
-    if (!this.data.isOriginal) return isValid && originals.length === 0;
-    if (this.data.replace === false) return isValid;
-    return isValid && originals.length === 1;
+    return this.formSubmission.valid && this.recipients().length >= 1;
+    // const isValid = this.formSubmission.valid && this.recipients().length > 0;
+    // const originals = this.recipients().filter(({ isOriginal }) => isOriginal);
+    // if (!this.data.isOriginal) return isValid && originals.length === 0;
+    // if (this.data.replace === false) return isValid;
+    // return isValid && originals.length === 1;
   });
 
   files = signal<File[]>([]);
@@ -199,7 +171,23 @@ export class SubmissionDialogComponent implements OnInit {
         },
         this.data.mode
       )
-      .subscribe({ next: () => {}, error: (err) => {} });
+      .subscribe({
+        next: () => {},
+        error: (err) => {
+          console.log(err);
+          if (err instanceof HttpErrorResponse) {
+            console.log(err.status);
+            if (err.status === 410) {
+              this.alertService
+                .messageDialog({
+                  title: 'Error al enviar',
+                  description: err.message,
+                })
+                .subscribe();
+            }
+          }
+        },
+      });
   }
 
   add(isOriginal: boolean): void {
@@ -208,25 +196,26 @@ export class SubmissionDialogComponent implements OnInit {
 
     const newReceiver = { ...controlValue, isOriginal };
 
-    // * Si envio actual es es original
-    if (this.data.isOriginal) {
-      if (this.recipients().filter(({ isOriginal }) => isOriginal).length > 1) {
-        // * Si se quiere agregar un original
-        return;
-      }
-      const duplicante = this.recipients().some(
-        ({ id }) => id === newReceiver.id
-      );
-      if (duplicante) return;
-      this.recipients.update((values) => [...values, newReceiver]);
-    } else {
-      // * Si envio actual es copia
-      if (isOriginal || this.recipients().length >= 1) {
-        // * No se puede derivar el original como una copia y solo 1
-        return;
-      }
-      this.recipients.set([newReceiver]);
-    }
+    // // * Si envio actual es es original
+    // if (this.data.isOriginal) {
+    //   if (this.recipients().filter(({ isOriginal }) => isOriginal).length > 1) {
+    //     // * Si se quiere agregar un original
+    //     return;
+    //   }
+    //   const duplicante = this.recipients().some(
+    //     ({ id }) => id === newReceiver.id
+    //   );
+    //   if (duplicante) return;
+    //   this.recipients.update((values) => [...values, newReceiver]);
+    // } else {
+    //   // * Si envio actual es copia
+    //   if (isOriginal || this.recipients().length >= 1) {
+    //     // * No se puede derivar el original como una copia y solo 1
+    //     return;
+    //   }
+    //   this.recipients.set([newReceiver]);
+    // }
+    this.recipients.update((values) => [...values, newReceiver]);
     this.bankServerSideCtrl.setValue(null);
   }
 

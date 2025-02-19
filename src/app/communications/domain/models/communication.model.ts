@@ -89,18 +89,16 @@ export class Communication implements communicationProps {
   }
 
   getExpirationMessage(): string {
-    // console.log('eect model');
-    // const now = new Date().getTime();
-    // const expiration = this.expirationDate.getTime();
-    // const diff = expiration - now;
-    // if (diff <= 0) return 'Expirado';
+    const now = new Date().getTime();
+    const expiration = this.expirationDate.getTime();
+    const diff = expiration - now;
+    if (diff <= 0) return 'Expirado';
 
-    // const hours = Math.floor(diff / (1000 * 60 * 60));
-    // const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
 
-    // if (hours === 0) return `Expira en ${minutes} min`;
-    // return `Expira en ${hours}h ${minutes}m`;
-    return "----"
+    if (hours === 0) return `Expira en ${minutes} min`;
+    return `Expira en ${hours}h ${minutes}m`;
   }
 
   get groupLabel(): string {

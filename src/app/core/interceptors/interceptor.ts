@@ -41,6 +41,7 @@ export function loggingInterceptor(
 const handleHttpErrors = (error: HttpErrorResponse, service: AlertService) => {
   // const authService = inject(AuthService);
   // const router = inject(Router);
+  console.log(error.status);
   const message: string = error.error['message'] ?? 'Error no controlado';
   switch (error.status) {
     case 500:
@@ -72,6 +73,7 @@ const handleHttpErrors = (error: HttpErrorResponse, service: AlertService) => {
       });
       break;
     default:
+      throw error
       break;
   }
 };

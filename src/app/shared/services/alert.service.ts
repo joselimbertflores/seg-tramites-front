@@ -11,6 +11,8 @@ import {
   LoaderDialogComponent,
   DescriptionDialogComponent,
   descriptionDialogProps,
+  MessageDialogComponent,
+  messageDialogProps,
 } from '..';
 
 interface AlertOptions {
@@ -78,6 +80,15 @@ export class AlertService {
       .open(DescriptionDialogComponent, {
         data: data,
         disableClose: true,
+        width: '800px',
+      })
+      .afterClosed();
+  }
+
+  messageDialog(data: messageDialogProps): Observable<void> {
+    return this.dialogRef
+      .open(MessageDialogComponent, {
+        data: data,
         width: '800px',
       })
       .afterClosed();

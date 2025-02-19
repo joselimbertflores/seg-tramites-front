@@ -143,7 +143,7 @@
             <dl class="text-sm">
               <div class="grid grid-cols-1 sm:grid-cols-5 py-3 sm:py-1">
                 <dt class="font-medium">Destinatario:</dt>
-                <dd class="text-gray-700 sm:col-span-4">
+                <dd class="sm:col-span-4">
                   <span class="font-semibold text-base">
                     {{ element.recipient.fullname | titlecase }}
                   </span>
@@ -153,14 +153,14 @@
 
               <div class="grid grid-cols-1 sm:grid-cols-5 py-3 sm:py-1">
                 <dt class="font-medium">Fecha de envio:</dt>
-                <dd class="text-gray-700 sm:col-span-2">
+                <dd class="sm:col-span-2">
                   {{ element.sentDate | date : "short" }}
                 </dd>
               </div>
 
               <div class="grid grid-cols-1 sm:grid-cols-5 py-3 sm:py-1">
                 <dt class="font-medium">Instruccion / Proveido</dt>
-                <dd class="text-gray-700 sm:col-span-4">
+                <dd class="sm:col-span-4">
                   {{ element.reference }}
                 </dd>
               </div>
@@ -176,7 +176,7 @@
                     {{ element.actionLog.fullname | titlecase }}
                   </div>
                   <div class="block">
-                   Motivo: {{ element.actionLog.description }}
+                    Motivo: {{ element.actionLog.description }}
                   </div>
                 </dd>
               </div>
