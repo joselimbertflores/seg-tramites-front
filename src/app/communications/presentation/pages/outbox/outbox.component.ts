@@ -41,6 +41,7 @@ import {
   communcationStatus,
 } from '../../../domain/models/communication.model';
 import { submissionData } from '../../../domain';
+import { DateFormat } from '../../../../helpers/date_format.helper';
 
 @Component({
   selector: 'outbox',
@@ -138,7 +139,8 @@ export default class OutboxComponent {
       isOriginal: item.isOriginal,
       attachmentsCount: item.attachmentsCount,
       procedure: { id: item.procedure.ref, code: item.procedure.code },
-      replace: item.status === 'rejected' || item.status === 'auto-rejected',
+      isResend:
+        item.remainingTime > 0 && item.status === communcationStatus.Pending,
     };
     const dialogRef = this.dialogRef.open(SubmissionDialogComponent, {
       maxWidth: '1100px',
@@ -242,5 +244,9 @@ export default class OutboxComponent {
           this.getData();
         }
       });
+  }
+
+  format({ remainingTime }: Communication) {
+    return DateFormat.formatRemainingHours(remainingTime);
   }
 }

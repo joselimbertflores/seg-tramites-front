@@ -11,7 +11,7 @@ export interface communication {
   receivedDate?: string;
   actionLog?: actionLog;
   isOriginal: boolean;
-  expirationDate: string;
+  remainingTime: number;
 }
 
 interface officer {

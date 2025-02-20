@@ -85,6 +85,7 @@ export default class ProcurementsManageComponent implements OnInit {
   private dialog = inject(MatDialog);
 
   displayedColumns: string[] = [
+    'send',
     'code',
     'reference',
     'mode',

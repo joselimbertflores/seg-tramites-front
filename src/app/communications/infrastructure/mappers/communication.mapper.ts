@@ -24,7 +24,7 @@ export class CommunicationMapper {
       reference: response.reference,
       attachmentsCount: response.attachmentsCount,
       internalNumber: response.internalNumber,
-      expirationDate: new Date(response.expirationDate),
+      remainingTime: response.remainingTime,
     });
   }
 }

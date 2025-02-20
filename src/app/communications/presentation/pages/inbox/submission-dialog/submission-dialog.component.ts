@@ -54,6 +54,7 @@ import { doc } from '../../../../infrastructure';
 import { DocService, OutboxService } from '../../../services';
 import { onlineAccount, recipient, submissionData } from '../../../../domain';
 import { HttpErrorResponse } from '@angular/common/http';
+
 @Component({
   selector: 'submission-dialog',
   imports: [
@@ -115,11 +116,14 @@ export class SubmissionDialogComponent implements OnInit {
   public filteredReceivers$ = new BehaviorSubject<onlineAccount[]>([]);
 
   isCopyEnabled = computed<boolean>(() => {
-    return true;
+    if (this.data.isResend) return true;
+    if (this.data.isOriginal) return this.recipients().filter(({ isOriginal }) => isOriginal).length === 1;
+    return this.recipients().length === 0;
   });
 
   isOriginalButtonEnabled = computed<boolean>(() => {
-    return true;
+    if (this.data.isResend || !this.data.isOriginal) return false;
+    return this.recipients().every(({ isOriginal }) => !isOriginal);
   });
 
   isFormValid = computed<boolean>(() => {
@@ -129,7 +133,7 @@ export class SubmissionDialogComponent implements OnInit {
     // if (!this.data.isOriginal) return isValid && originals.length === 0;
     // if (this.data.replace === false) return isValid;
     // return isValid && originals.length === 1;
-  });
+  }); 
 
   files = signal<File[]>([]);
 
@@ -174,9 +178,7 @@ export class SubmissionDialogComponent implements OnInit {
       .subscribe({
         next: () => {},
         error: (err) => {
-          console.log(err);
           if (err instanceof HttpErrorResponse) {
-            console.log(err.status);
             if (err.status === 410) {
               this.alertService
                 .messageDialog({

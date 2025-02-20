@@ -14,7 +14,7 @@
 </mat-toolbar>
 
 <div class="flex justify-end py-2">
-  <div class="w-full px-2 sm:w-1/4 h-11">
+  <div class="w-full px-4 sm:w-1/4 h-11">
     <search-input
       (onSearch)="search($event)"
       placeholder="Alterno / Destinatario"
@@ -22,7 +22,7 @@
   </div>
 </div>
 
-<div class="mat-elevation-z8">
+<div class="mat-elevation-z8 sm:px-4">
   <table mat-table [dataSource]="datasource()" multiTemplateDataRows>
     <ng-container matColumnDef="select">
       <th mat-header-cell *matHeaderCellDef class="w-8">
@@ -78,10 +78,13 @@
         @switch (element.status){ @case ('rejected') {
         <badge severity="danger" message="Rechazado" />
         } @case ('pending') {
-        <badge severity="warning" [message]="element.getExpirationMessage()" />
+        {{ format(element) }}
+        <!-- <badge severity="warning" [message]="element.remainingTime.tosString()" /> -->
         } @case ('auto-rejected') {
         <badge severity="purple" message="Expirado" />
-        } @default () { Desconocido } }
+        } @default {
+        <span>Invalido</span>
+        } }
       </td>
     </ng-container>
 

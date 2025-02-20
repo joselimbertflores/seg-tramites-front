@@ -4,7 +4,7 @@ export interface submissionData {
   isOriginal: boolean;
   procedure: procedureProps;
   cite?: string;
-  replace?: boolean;
+  isResend?: boolean;
   mode: communicationMode;
 }
 interface procedureProps {
