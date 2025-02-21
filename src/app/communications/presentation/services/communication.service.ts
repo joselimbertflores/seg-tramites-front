@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable, map, tap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
   transferDetails,
@@ -117,6 +117,7 @@ export class CommunicationService {
         { params }
       )
       .pipe(
+        tap((resp) => console.log(resp)),
         map(({ communications, length }) => ({
           communications: communications.map((el) =>
             CommunicationMapper.fromResponse(el)

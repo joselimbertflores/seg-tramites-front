@@ -13,6 +13,7 @@ interface CommunicationProps {
   readonly inboundDate?: string;
   readonly eventLog?: eventLog;
   status: StatusMail;
+  
 }
 interface officer {
   cuenta: string;

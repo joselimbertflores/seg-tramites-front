@@ -43,43 +43,51 @@
 
     <ng-container matColumnDef="code">
       <th mat-header-cell *matHeaderCellDef>Alterno</th>
-      <td mat-cell *matCellDef="let element">{{ element.procedure.code }}</td>
+      <td mat-cell *matCellDef="let item">
+        {{ item.procedure.code }}
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="type">
       <th mat-header-cell *matHeaderCellDef>Documento</th>
-      <td mat-cell *matCellDef="let element">
-        {{ element.groupLabel }} / {{ element.documentLabel }}
+      <td mat-cell *matCellDef="let item">
+        {{ item.groupLabel }} / {{ item.documentLabel }}
       </td>
     </ng-container>
 
     <ng-container matColumnDef="reference">
       <th mat-header-cell *matHeaderCellDef>Proveido</th>
-      <td mat-cell *matCellDef="let element">{{ element.reference }}</td>
+      <td mat-cell *matCellDef="let item">
+        {{ item.reference }}
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="sentDate">
       <th mat-header-cell *matHeaderCellDef>Fecha</th>
-      <td mat-cell *matCellDef="let element" class="w-36">
-        {{ element.sentDate | date : "short" }}
+      <td mat-cell *matCellDef="let item" class="w-36">
+        {{ item.sentDate | date : "short" }}
       </td>
     </ng-container>
 
     <ng-container matColumnDef="recipient">
       <th mat-header-cell *matHeaderCellDef>Destinatario</th>
-      <td mat-cell *matCellDef="let element" class="sm:max-w-80">
-        Para: {{ element.recipient.fullname | titlecase }}
+      <td mat-cell *matCellDef="let item" class="sm:max-w-80">
+        Para: {{ item.recipient.fullname | titlecase }}
       </td>
     </ng-container>
 
     <ng-container matColumnDef="time">
       <th mat-header-cell *matHeaderCellDef>Duracion</th>
-      <td mat-cell *matCellDef="let element">
-        @switch (element.status){ @case ('rejected') {
+      <td mat-cell *matCellDef="let item">
+        @switch (item.status){ @case ('rejected') {
         <badge severity="danger" message="Rechazado" />
         } @case ('pending') {
-        {{ format(element) }}
-        <!-- <badge severity="warning" [message]="element.remainingTime.tosString()" /> -->
+        <badge
+          severity="warning"
+          [message]="item.remainingTime | humanizeDuration"
+        />
+        } @case ('approved') {
+        <!-- <badge severity="warning" [message]="item.remainingTime.tosString()" /> -->
         } @case ('auto-rejected') {
         <badge severity="purple" message="Expirado" />
         } @default {
@@ -90,16 +98,16 @@
 
     <ng-container matColumnDef="expand">
       <th mat-header-cell *matHeaderCellDef aria-label="row actions">&nbsp;</th>
-      <td mat-cell *matCellDef="let element" class="w-8">
+      <td mat-cell *matCellDef="let item" class="w-8">
         <button
           mat-icon-button
           aria-label="expand row"
           (click)="
-            expandedElement = expandedElement === element ? null : element;
+            expandedElement = expandedElement === item ? null : item;
             $event.stopPropagation()
           "
         >
-          @if (expandedElement === element) {
+          @if (expandedElement === item) {
           <mat-icon>keyboard_arrow_up</mat-icon>
           } @else {
           <mat-icon>keyboard_arrow_down</mat-icon>
@@ -110,19 +118,23 @@
 
     <ng-container matColumnDef="options">
       <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let element" class="w-8">
+      <td mat-cell *matCellDef="let item" class="w-8">
         <button mat-icon-button [matMenuTriggerFor]="menu">
           <mat-icon>more_vert</mat-icon>
         </button>
         <mat-menu #menu="matMenu">
-          <button mat-menu-item (click)="send(element)">
+          <button
+            mat-menu-item
+            (click)="send(item)"
+            [disabled]="item.status === 'pending' && !item.isOriginal"
+          >
             <mat-icon>reply</mat-icon>
             <span>Reenviar</span>
           </button>
           <button
             mat-menu-item
-            (click)="cancelOne(element)"
-            [disabled]="element.status !== 'pending'"
+            (click)="cancelOne(item)"
+            [disabled]="item.status !== 'pending'"
           >
             <mat-icon>delete</mat-icon>
             <span>Cancelar</span>
@@ -134,13 +146,11 @@
     <ng-container matColumnDef="expandedDetail">
       <td
         mat-cell
-        *matCellDef="let element"
+        *matCellDef="let item"
         [attr.colspan]="displayedColumns.length"
       >
         <div
-          [@detailExpand]="
-            element == expandedElement ? 'expanded' : 'collapsed'
-          "
+          [@detailExpand]="item == expandedElement ? 'expanded' : 'collapsed'"
         >
           <div class="sm:px-6 py-3">
             <dl class="text-sm">
@@ -148,38 +158,38 @@
                 <dt class="font-medium">Destinatario:</dt>
                 <dd class="sm:col-span-4">
                   <span class="font-semibold text-base">
-                    {{ element.recipient.fullname | titlecase }}
+                    {{ item.recipient.fullname | titlecase }}
                   </span>
-                  <span> ({{ element.recipient.jobtitle }}) </span>
+                  <span> ({{ item.recipient.jobtitle }}) </span>
                 </dd>
               </div>
 
               <div class="grid grid-cols-1 sm:grid-cols-5 py-3 sm:py-1">
                 <dt class="font-medium">Fecha de envio:</dt>
                 <dd class="sm:col-span-2">
-                  {{ element.sentDate | date : "short" }}
+                  {{ item.sentDate | date : "short" }}
                 </dd>
               </div>
 
               <div class="grid grid-cols-1 sm:grid-cols-5 py-3 sm:py-1">
                 <dt class="font-medium">Instruccion / Proveido</dt>
                 <dd class="sm:col-span-4">
-                  {{ element.reference }}
+                  {{ item.reference }}
                 </dd>
               </div>
 
-              @if(element.actionLog){
+              @if(item.actionLog){
               <div class="grid grid-cols-1 py-3 sm:grid-cols-5 text-red-600">
                 <dt class="font-medium">Descripcion rechazo:</dt>
                 <dd class="sm:col-span-2">
                   <div class="block">
-                    [{{ element.actionLog.date | date : "short" }}]
+                    [{{ item.actionLog.date | date : "short" }}]
                   </div>
                   <div class="block">
-                    {{ element.actionLog.fullname | titlecase }}
+                    {{ item.actionLog.fullname | titlecase }}
                   </div>
                   <div class="block">
-                    Motivo: {{ element.actionLog.description }}
+                    Motivo: {{ item.actionLog.description }}
                   </div>
                 </dd>
               </div>
@@ -194,7 +204,7 @@
     <tr
       mat-row
       *matRowDef="let row; columns: displayedColumns"
-      class="element-row"
+      class="item-row"
     ></tr>
     <tr
       mat-row

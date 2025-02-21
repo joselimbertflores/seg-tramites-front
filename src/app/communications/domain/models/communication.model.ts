@@ -13,7 +13,7 @@ interface communicationProps {
   receivedDate?: Date;
   isOriginal: boolean;
   actionLog?: actionLog;
-  remainingTime: number;
+  remainingTime?: number;
 }
 interface worker {
   account: string;
@@ -56,7 +56,7 @@ export class Communication implements communicationProps {
   receivedDate?: Date;
   isOriginal: boolean;
   actionLog?: actionLog;
-  remainingTime: number;
+  remainingTime?: number;
 
   constructor({
     id,

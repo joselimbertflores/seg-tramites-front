@@ -41,7 +41,8 @@ import {
   communcationStatus,
 } from '../../../domain/models/communication.model';
 import { submissionData } from '../../../domain';
-import { DateFormat } from '../../../../helpers/date_format.helper';
+import { HumanizeDurationPipe } from '../../pipes/humanize-duration.pipe';
+import { OutboxService } from '../../services';
 
 @Component({
   selector: 'outbox',
@@ -60,6 +61,7 @@ import { DateFormat } from '../../../../helpers/date_format.helper';
     MatPaginatorModule,
     SearchInputComponent,
     BadgeComponent,
+    HumanizeDurationPipe,
   ],
   templateUrl: './outbox.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -84,7 +86,7 @@ import { DateFormat } from '../../../../helpers/date_format.helper';
 })
 export default class OutboxComponent {
   private alertService = inject(AlertService);
-  private communicationService = inject(CommunicationService);
+  private outboxService = inject(OutboxService);
   // private pdfService = inject(PdfService);
 
   private dialogRef = inject(MatDialog);
@@ -119,14 +121,14 @@ export default class OutboxComponent {
   }
 
   getData(): void {
-    this.communicationService
-      .getOutbox({
+    this.outboxService
+      .findAll({
         limit: this.limit(),
         offset: this.offset(),
         term: this.term(),
       })
       .subscribe(({ communications, length }) => {
-        this.datasource.set(communications);
+        this.datasource.set(communications.map((item) => item));
         this.datasize.set(length);
         this.selection.clear();
       });
@@ -139,8 +141,7 @@ export default class OutboxComponent {
       isOriginal: item.isOriginal,
       attachmentsCount: item.attachmentsCount,
       procedure: { id: item.procedure.ref, code: item.procedure.code },
-      isResend:
-        item.remainingTime > 0 && item.status === communcationStatus.Pending,
+      isResend: item.status === 'pending' && item.isOriginal,
     };
     const dialogRef = this.dialogRef.open(SubmissionDialogComponent, {
       maxWidth: '1100px',
@@ -211,7 +212,7 @@ export default class OutboxComponent {
       this.selection.clear();
       return;
     }
-    this.selection.select(...this.datasource());
+    this.selection.select(...this.datasource().map((el) => el));
   }
 
   private _cancel(communicationIds: string[], code?: string): void {
@@ -231,7 +232,7 @@ export default class OutboxComponent {
       )
       .pipe(
         filter((result) => !!result),
-        switchMap(() => this.communicationService.cancel(communicationIds))
+        switchMap(() => this.outboxService.cancel(communicationIds))
       )
       .subscribe(() => {
         this.datasource.update((values) =>
@@ -244,9 +245,5 @@ export default class OutboxComponent {
           this.getData();
         }
       });
-  }
-
-  format({ remainingTime }: Communication) {
-    return DateFormat.formatRemainingHours(remainingTime);
   }
 }

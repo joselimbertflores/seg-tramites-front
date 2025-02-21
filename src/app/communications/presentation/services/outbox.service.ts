@@ -1,19 +1,21 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-
 import { map } from 'rxjs';
 
-import { communication } from '../../../communications/infrastructure';
+import {
+  communication,
+  CommunicationMapper,
+} from '../../../communications/infrastructure';
 import { environment } from '../../../../environments/environment';
 
 interface createCommunicationProps {
-  procedureId: string;
   attachmentsCount: string;
-  reference: string;
-  internalNumber: string;
-  recipients: recipient[];
   communicationId: string;
+  internalNumber: string;
+  procedureId: string;
   documentId?: string;
+  reference: string;
+  recipients: recipient[];
 }
 
 interface recipient {
@@ -21,22 +23,34 @@ interface recipient {
   isOriginal: boolean;
 }
 
+interface filterParams {
+  limit: number;
+  offset: number;
+  term: string;
+}
+
 type communicationMode = 'initiate' | 'forward' | 'resend';
 @Injectable({
   providedIn: 'root',
 })
 export class OutboxService {
-  private readonly url = `${environment.base_url}/communication`;
+  private readonly url = `${environment.base_url}/outbox`;
   constructor(private http: HttpClient) {}
 
-  findAll(limit: number, offset: number) {
+  findAll({ limit, offset }: filterParams) {
     const params = new HttpParams({ fromObject: { limit, offset } });
-    return this.http.get<{ mails: communication[]; length: number }>(
-      `${this.url}/outbox`,
-      {
+    return this.http
+      .get<{ communications: communication[]; length: number }>(this.url, {
         params,
-      }
-    );
+      })
+      .pipe(
+        map(({ communications, length }) => ({
+          communications: communications.map((item) =>
+            CommunicationMapper.fromResponse(item)
+          ),
+          length,
+        }))
+      );
   }
 
   cancel(selected: any[]) {

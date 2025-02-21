@@ -1,4 +1,6 @@
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
+
 import {
   OnInit,
   inject,
@@ -9,6 +11,7 @@ import {
   DestroyRef,
   ChangeDetectionStrategy,
 } from '@angular/core';
+
 import {
   Validators,
   FormGroup,
@@ -16,11 +19,13 @@ import {
   FormControl,
   ReactiveFormsModule,
 } from '@angular/forms';
+
 import {
   MatDialogRef,
   MatDialogModule,
   MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
+
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
@@ -53,7 +58,6 @@ import {
 import { doc } from '../../../../infrastructure';
 import { DocService, OutboxService } from '../../../services';
 import { onlineAccount, recipient, submissionData } from '../../../../domain';
-import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'submission-dialog',
@@ -117,23 +121,23 @@ export class SubmissionDialogComponent implements OnInit {
 
   isCopyEnabled = computed<boolean>(() => {
     if (this.data.isResend) return true;
-    if (this.data.isOriginal) return this.recipients().filter(({ isOriginal }) => isOriginal).length === 1;
-    return this.recipients().length === 0;
+    if (!this.data.isOriginal) return this.recipients().length === 0;
+    return this.recipients().some(({ isOriginal }) => isOriginal);
   });
 
-  isOriginalButtonEnabled = computed<boolean>(() => {
+  isOriginalEnabled = computed<boolean>(() => {
     if (this.data.isResend || !this.data.isOriginal) return false;
     return this.recipients().every(({ isOriginal }) => !isOriginal);
   });
 
   isFormValid = computed<boolean>(() => {
-    return this.formSubmission.valid && this.recipients().length >= 1;
-    // const isValid = this.formSubmission.valid && this.recipients().length > 0;
-    // const originals = this.recipients().filter(({ isOriginal }) => isOriginal);
-    // if (!this.data.isOriginal) return isValid && originals.length === 0;
-    // if (this.data.replace === false) return isValid;
-    // return isValid && originals.length === 1;
-  }); 
+    if (this.data.isResend) {
+      return this.formSubmission.valid && this.recipients().length >= 1;
+    }
+    return this.formSubmission.valid && this.data.isOriginal
+      ? this.recipients().some(({ isOriginal }) => isOriginal)
+      : this.recipients().length === 1;
+  });
 
   files = signal<File[]>([]);
 
@@ -144,7 +148,6 @@ export class SubmissionDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log(this.data.mode);
     this._setFilterControl();
   }
 
@@ -165,13 +168,10 @@ export class SubmissionDialogComponent implements OnInit {
     this.outboxService
       .create(
         {
+          ...this.formSubmission.value,
           communicationId: this.data.communicationId,
           procedureId: this.data.procedure.id,
-          recipients: this.recipients().map(({ id, isOriginal }) => ({
-            accountId: id,
-            isOriginal,
-          })),
-          ...this.formSubmission.value,
+          recipients: this.recipients().map(({ id, isOriginal }) => ({ accountId: id, isOriginal  })),
         },
         this.data.mode
       )
