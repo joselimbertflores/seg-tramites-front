@@ -15,7 +15,7 @@ import {
 import { MaterialModule } from '../../../../material.module';
 import {
   ArchiveService,
-  CommunicationService,
+  InboxService,
   PdfService,
 } from '../../../services';
 import { transferDetails } from '../../../../infraestructure/interfaces';
@@ -38,7 +38,7 @@ const ActionMap = {
 export class MailComponent {
   private archiveService = inject(ArchiveService);
   private alertService = inject(AlertService);
-  private inboxService = inject(CommunicationService);
+  private inboxService = inject(InboxService);
   private pdfService = inject(PdfService);
   private dialog = inject(MatDialog);
 

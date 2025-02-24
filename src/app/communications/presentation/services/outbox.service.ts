@@ -53,15 +53,21 @@ export class OutboxService {
       );
   }
 
-  cancel(selected: any[]) {
-    return this.http.delete<{ message: string }>(`${this.url}/outbox`, {
-      body: { selected },
+  cancel(selected: string[]) {
+    return this.http.delete<{ message: string }>(this.url, {
+      body: { communicationIds: selected },
     });
   }
 
   create(data: createCommunicationProps, mode: communicationMode) {
-    return this.http.post<communication[]>(`${this.url}/${mode}`, data, {
-      headers: { loader: 'true' },
-    });
+    return this.http
+      .post<communication[]>(`${this.url}/${mode}`, data, {
+        headers: { loader: 'true' },
+      })
+      .pipe(
+        map((resp) =>
+          resp.map((item) => CommunicationMapper.fromResponse(item))
+        )
+      );
   }
 }

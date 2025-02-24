@@ -5,6 +5,5 @@ export function humanize(miliseconds: number): string {
     language: 'es',
     round: true,
     units: ['d', 'h', 'm'],
-    largest: 2,
   });
 }

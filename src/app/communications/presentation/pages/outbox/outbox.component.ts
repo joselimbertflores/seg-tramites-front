@@ -6,8 +6,6 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -15,11 +13,12 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
-import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog } from '@angular/material/dialog';
+
 import { SelectionModel } from '@angular/cdk/collections';
+
 import {
   animate,
   state,
@@ -29,18 +28,21 @@ import {
 } from '@angular/animations';
 import { filter, switchMap } from 'rxjs';
 
-import { CommunicationService } from '../../../../presentation/services';
 import {
   AlertService,
   BadgeComponent,
   SearchInputComponent,
 } from '../../../../shared';
-import { SubmissionDialogComponent } from '../inbox/submission-dialog/submission-dialog.component';
+
+import {
+  submissionData,
+  submissionResult,
+  SubmissionDialogComponent,
+} from '../inbox/submission-dialog/submission-dialog.component';
 import {
   Communication,
   communcationStatus,
 } from '../../../domain/models/communication.model';
-import { submissionData } from '../../../domain';
 import { HumanizeDurationPipe } from '../../pipes/humanize-duration.pipe';
 import { OutboxService } from '../../services';
 
@@ -48,20 +50,19 @@ import { OutboxService } from '../../services';
   selector: 'outbox',
   imports: [
     CommonModule,
-    FormsModule,
-    RouterModule,
     MatIconModule,
     MatMenuModule,
     MatTableModule,
-    MatInputModule,
     MatButtonModule,
     MatTooltipModule,
     MatToolbarModule,
     MatCheckboxModule,
     MatPaginatorModule,
+
+    HumanizeDurationPipe,
+
     SearchInputComponent,
     BadgeComponent,
-    HumanizeDurationPipe,
   ],
   templateUrl: './outbox.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -114,8 +115,6 @@ export default class OutboxComponent {
     'options',
   ];
 
-  constructor() {}
-
   ngOnInit(): void {
     this.getData();
   }
@@ -134,61 +133,6 @@ export default class OutboxComponent {
       });
   }
 
-  send(item: Communication): void {
-    const data: submissionData = {
-      mode: 'resend',
-      communicationId: item.id,
-      isOriginal: item.isOriginal,
-      attachmentsCount: item.attachmentsCount,
-      procedure: { id: item.procedure.ref, code: item.procedure.code },
-      isResend: item.status === 'pending' && item.isOriginal,
-    };
-    const dialogRef = this.dialogRef.open(SubmissionDialogComponent, {
-      maxWidth: '1100px',
-      width: '1100px',
-      data,
-    });
-    dialogRef.afterClosed().subscribe((result: Communication[]) => {
-      if (!result) return;
-      // this.datasource.update((values) => {
-      //   values.unshift(...result);
-      //   if (status === communcationStatus.Rejected) {
-      //     values = values.filter((el) => el.id !== id);
-      //   }
-      //   if (values.length > this.limit()) {
-      //     values.splice(this.limit(), values.length - this.limit());
-      //   }
-      //   return [...values];
-      // });
-      // this.datasize.update((value) => {
-      //   value += result.length;
-      //   if (status === communcationStatus.Rejected) {
-      //     value -= 1;
-      //   }
-      //   return value;
-      // });
-      // this.selection.clear();
-    });
-  }
-
-  cancelSelection(): void {
-    this._cancel(this.selection.selected.map((el) => el.id));
-  }
-
-  cancelOne(communication: Communication): void {
-    this._cancel([communication.id], communication.procedure.code);
-  }
-
-  generateRouteMap({ procedure }: Communication) {
-    // TODO generate router map
-    // forkJoin([
-    //   this.procedureService.getDetail(procedure._id, procedure.group),
-    //   this.procedureService.getWorkflow(procedure._id),
-    // ]).subscribe((resp) => {
-    //   this.pdfService.generateRouteSheet(resp[0], resp[1]);
-    // });
-  }
-
   search(term: string) {
     this.index.set(0);
     this.term.set(term);
@@ -199,6 +143,48 @@ export default class OutboxComponent {
     this.limit.set(pageSize);
     this.index.set(pageIndex);
     this.getData();
+  }
+
+  send(item: Communication): void {
+    const data: submissionData = {
+      mode: 'resend',
+      communicationId: item.id,
+      isOriginal: item.isOriginal,
+      attachmentsCount: item.attachmentsCount,
+      procedure: { id: item.procedure.ref, code: item.procedure.code },
+      isResend: item.status === 'pending' && item.isOriginal,
+    };
+    const dialogRef = this.dialogRef.open<
+      SubmissionDialogComponent,
+      submissionData,
+      submissionResult
+    >(SubmissionDialogComponent, {
+      maxWidth: '1100px',
+      width: '1100px',
+      data,
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      if (!result) return;
+      this.handleSubmisionDialogResult(result, item);
+    });
+  }
+
+  cancelSelection(): void {
+    this.cancel(this.selection.selected);
+  }
+
+  cancelOne(communication: Communication): void {
+    this.cancel([communication]);
+  }
+
+  generateRouteMap({ procedure }: Communication) {
+    // TODO generate router map
+    // forkJoin([
+    //   this.procedureService.getDetail(procedure._id, procedure.group),
+    //   this.procedureService.getWorkflow(procedure._id),
+    // ]).subscribe((resp) => {
+    //   this.pdfService.generateRouteSheet(resp[0], resp[1]);
+    // });
   }
 
   isAllSelected() {
@@ -215,15 +201,14 @@ export default class OutboxComponent {
     this.selection.select(...this.datasource().map((el) => el));
   }
 
-  private _cancel(communicationIds: string[], code?: string): void {
+  private cancel(items: Communication[]): void {
+    const ids = items.map(({ id }) => id);
     this.alertService
       .confirmDialog(
-        communicationIds.length === 1
+        items.length === 1
           ? {
               title: '¿Cancelar envio?',
-              description: `Se cancelara el envio del tramite ${
-                code ?? 'seleccionado'
-              }`,
+              description: `Se cancelara el envio del tramite ${items[0].procedure.code}`,
             }
           : {
               title: '¿Cancelar envios seleccionados?',
@@ -232,18 +217,52 @@ export default class OutboxComponent {
       )
       .pipe(
         filter((result) => !!result),
-        switchMap(() => this.outboxService.cancel(communicationIds))
+        switchMap(() => this.outboxService.cancel(ids))
       )
       .subscribe(() => {
         this.datasource.update((values) =>
-          values.filter(({ id }) => !communicationIds.includes(id))
+          values.filter(({ id }) => !ids.includes(id))
         );
-        this.datasize.update((value) => (value -= communicationIds.length));
+        this.datasize.update((value) => (value -= ids.length));
         this.selection.clear();
         if (this.datasource().length === 0 && this.datasize() > 0) {
           this.index.set(0);
           this.getData();
         }
       });
+  }
+
+  private handleSubmisionDialogResult(
+    result: submissionResult,
+    item: Communication
+  ) {
+    if (result.error) {
+      this.datasource.update((values) => {
+        const index = values.findIndex(({ id }) => id === item.id);
+        values[index].status = communcationStatus.AutoRejected;
+        return [...values];
+      });
+      return;
+    }
+    const newItems = result.data ?? [];
+
+    switch (item.status) {
+      case communcationStatus.Pending:
+        this.datasize.update((value) => (value += newItems.length));
+        this.datasource.update((values) =>
+          [...newItems, ...values].splice(0, this.limit())
+        );
+        break;
+
+      default:
+        this.datasize.update((value) => (value += newItems.length - 1));
+        this.datasource.update((values) =>
+          [...newItems, ...values.filter(({ id }) => id !== item.id)].slice(
+            0,
+            this.limit()
+          )
+        );
+        break;
+    }
   }
 }

@@ -36,21 +36,21 @@ import { filter, switchMap } from 'rxjs';
 import {
   PdfService,
   SocketService,
-  CommunicationService,
+  InboxService,
 } from '../../../../presentation/services';
 import {
   AlertService,
   CacheService,
   SearchInputComponent,
 } from '../../../../shared';
-import { SubmissionDialogComponent } from './submission-dialog/submission-dialog.component';
 import {
-  communcationStatus,
-  Communication,
   submissionData,
-} from '../../../domain';
+  SubmissionDialogComponent,
+} from './submission-dialog/submission-dialog.component';
+import { communcationStatus, Communication } from '../../../domain';
 import { procedureGroup } from '../../../../procedures/domain';
 import { ArchiveDialogComponent } from './archive-dialog/archive-dialog.component';
+import { HttpErrorResponse } from '@angular/common/http';
 
 interface cache {
   datasource: Communication[];
@@ -59,6 +59,8 @@ interface cache {
   limit: number;
   form: Object;
 }
+
+// interface;
 @Component({
   selector: 'app-inbox',
   imports: [
@@ -99,7 +101,7 @@ export default class InboxComponent implements OnInit {
   private dialogRef = inject(MatDialog);
   private formBuilder = inject(FormBuilder);
 
-  private inboxService = inject(CommunicationService);
+  private inboxService = inject(InboxService);
   private socketService = inject(SocketService);
   private alertService = inject(AlertService);
   private pdfService = inject(PdfService);
@@ -191,13 +193,13 @@ export default class InboxComponent implements OnInit {
     });
   }
 
-  accept(communications: Communication[]): void {
-    const selection = communications.map(({ id }) => id);
+  accept(items: Communication[]): void {
+    const selection = items.map(({ id }) => id);
     this.alertService
       .confirmDialog({
         title:
-          communications.length === 1
-            ? `¿Aceptar tramite ${communications[0].procedure.code}?`
+          items.length === 1
+            ? `¿Aceptar tramite ${items[0].procedure.code}?`
             : `¿Aceptar los tramites seleccionados?`,
         description:
           'IMPORTANTE: Solo debe aceptar tramites que haya recibido en fisico',
@@ -206,16 +208,27 @@ export default class InboxComponent implements OnInit {
         filter((result) => result),
         switchMap(() => this.inboxService.accept(selection))
       )
-      .subscribe(() => {
-        this.datasource.update((values) => {
-          values.map((item, index) => {
-            if (selection.includes(item.id)) {
-              values[index].status = communcationStatus.Received;
-            }
-            return item;
-          });
-          return [...values];
-        });
+      .subscribe({
+        next: (ids) => {
+          this.datasource.update((values) =>
+            values.map((item) => {
+              if (ids.includes(item.id)) {
+                item.status = communcationStatus.Received;
+              }
+              return item;
+            })
+          );
+        },
+        error: (error) => {
+          if (error instanceof HttpErrorResponse && error.status === 409) {
+            const erroData: { toUpdated: string[]; toRemove: string[] } =
+              error.error ?? { toUpdated: [], toRemove: [] };
+            this.datasource.update((values) => {
+              // values.filter((el) => toRemove.includes);
+              return [...values];
+            });
+          }
+        },
       });
   }
 

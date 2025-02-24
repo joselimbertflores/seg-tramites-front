@@ -13,7 +13,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { forkJoin, switchMap, tap } from 'rxjs';
 
-import { CommunicationService, ProcessService } from '../../../services';
+import { InboxService, ProcessService } from '../../../services';
 import { communication } from '../../../../infrastructure';
 import { BackButtonDirective } from '../../../../../shared';
 import {
@@ -51,7 +51,7 @@ import {
 })
 export default class CommunicationDetailComponent {
   @Input('id') communicationId: string;
-  private communicationService = inject(CommunicationService);
+  private communicationService = inject(InboxService);
   private procedureService = inject(ProcessService);
 
   communication = signal<communication | null>(null);

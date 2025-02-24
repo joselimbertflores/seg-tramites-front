@@ -42,8 +42,8 @@ interface filterInboxProps {
 @Injectable({
   providedIn: 'root',
 })
-export class CommunicationService {
-  private readonly url = `${environment.base_url}/communication`;
+export class InboxService {
+  private readonly url = `${environment.base_url}/inbox`;
   private http = inject(HttpClient);
 
   constructor() {}
@@ -103,51 +103,27 @@ export class CommunicationService {
       );
   }
 
-  getOutbox({ limit, offset, term }: filterOutboxProps) {
-    const params = new HttpParams({
-      fromObject: {
-        limit,
-        offset,
-        ...(term && { term }),
-      },
-    });
-    return this.http
-      .get<{ communications: communication[]; length: number }>(
-        `${this.url}/outbox`,
-        { params }
-      )
-      .pipe(
-        tap((resp) => console.log(resp)),
-        map(({ communications, length }) => ({
-          communications: communications.map((el) =>
-            CommunicationMapper.fromResponse(el)
-          ),
-          length,
-        }))
-      );
-  }
-
   getOne(id: string) {
     return this.http.get<communication>(`${this.url}/${id}`);
   }
 
-  create({ recipients, form, ...props }: createCommunicationProps) {
-    return this.http.post<communication[]>(
-      `${this.url}`,
-      {
-        ...form,
-        ...props,
-        recipients: recipients.map(({ id, isOriginal }) => ({
-          accountId: id,
-          isOriginal,
-        })),
-      },
-      { headers: { loader: 'true' } }
-    );
-  }
+  // create({ recipients, form, ...props }: createCommunicationProps) {
+  //   return this.http.post<communication[]>(
+  //     `${this.url}`,
+  //     {
+  //       ...form,
+  //       ...props,
+  //       recipients: recipients.map(({ id, isOriginal }) => ({
+  //         accountId: id,
+  //         isOriginal,
+  //       })),
+  //     },
+  //     { headers: { loader: 'true' } }
+  //   );
+  // }
 
   accept(communicationIds: string[]) {
-    return this.http.put<{ message: string }>(`${this.url}/accept`, {
+    return this.http.put<string[]>(`${this.url}/accept`, {
       communicationIds,
     });
   }
@@ -156,12 +132,6 @@ export class CommunicationService {
     return this.http.put<{ message: string }>(`${this.url}/reject`, {
       description,
       communicationIds,
-    });
-  }
-
-  cancel(communicationIds: string[]) {
-    return this.http.delete<{ message: string }>(`${this.url}/outbox`, {
-      body: { communicationIds },
     });
   }
 }

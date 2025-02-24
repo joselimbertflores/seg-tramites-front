@@ -22,7 +22,7 @@
   </div>
 </div>
 
-<div class="mat-elevation-z8 sm:px-4">
+<div class="mat-elevation-z8 px-2 sm:px-4">
   <table mat-table [dataSource]="datasource()" multiTemplateDataRows>
     <ng-container matColumnDef="select">
       <th mat-header-cell *matHeaderCellDef class="w-8">
@@ -204,7 +204,7 @@
     <tr
       mat-row
       *matRowDef="let row; columns: displayedColumns"
-      class="item-row"
+      class="element-row"
     ></tr>
     <tr
       mat-row

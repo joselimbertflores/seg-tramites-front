@@ -53,17 +53,36 @@ import {
 } from '../../../../../shared';
 import {
   SocketService,
-  CommunicationService,
+  InboxService,
 } from '../../../../../presentation/services';
 import { doc } from '../../../../infrastructure';
 import { DocService, OutboxService } from '../../../services';
-import { onlineAccount, recipient, submissionData } from '../../../../domain';
+import { Communication, onlineAccount, recipient } from '../../../../domain';
 
+export interface submissionData {
+  communicationId?: string;
+  attachmentsCount: string;
+  isOriginal: boolean;
+  procedure: procedureProps;
+  cite?: string;
+  isResend?: boolean;
+  mode: communicationMode;
+}
+interface procedureProps {
+  id: string;
+  code: string;
+}
+export interface submissionResult {
+  error?: string;
+  data?: Communication[];
+}
+
+export type communicationMode = 'initiate' | 'forward' | 'resend';
 @Component({
   selector: 'submission-dialog',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
+    CommonModule,
     MatIconModule,
     MatListModule,
     MatInputModule,
@@ -90,13 +109,12 @@ import { onlineAccount, recipient, submissionData } from '../../../../domain';
 export class SubmissionDialogComponent implements OnInit {
   private _formBuilder = inject(FormBuilder);
   private destroyRef = inject(DestroyRef);
-  private dialogRef = inject(MatDialogRef);
-
-  private inboxService = inject(CommunicationService);
+  private dialogRef: MatDialogRef<SubmissionDialogComponent, submissionResult> =
+    inject(MatDialogRef);
+  private inboxService = inject(InboxService);
   private docService = inject(DocService);
   private alertService = inject(AlertService);
   private socketService = inject(SocketService);
-
   private outboxService = inject(OutboxService);
 
   data: submissionData = inject(MAT_DIALOG_DATA);
@@ -171,22 +189,27 @@ export class SubmissionDialogComponent implements OnInit {
           ...this.formSubmission.value,
           communicationId: this.data.communicationId,
           procedureId: this.data.procedure.id,
-          recipients: this.recipients().map(({ id, isOriginal }) => ({ accountId: id, isOriginal  })),
+          recipients: this.recipients().map(({ id, isOriginal }) => ({
+            accountId: id,
+            isOriginal,
+          })),
         },
         this.data.mode
       )
       .subscribe({
-        next: () => {},
+        next: (result) => {
+          this.dialogRef.close({ data: result });
+        },
         error: (err) => {
-          if (err instanceof HttpErrorResponse) {
-            if (err.status === 410) {
-              this.alertService
-                .messageDialog({
-                  title: 'Error al enviar',
-                  description: err.message,
-                })
-                .subscribe();
-            }
+          if (err instanceof HttpErrorResponse && err.status === 410) {
+            this.alertService
+              .messageDialog({
+                title: 'Envio actual expirado',
+                description:
+                  'La comunicacion actual ha expirado. Vuelva a remitir el tramite',
+              })
+              .subscribe();
+            this.dialogRef.close({ error: 'expired' });
           }
         },
       });
@@ -195,29 +218,10 @@ export class SubmissionDialogComponent implements OnInit {
   add(isOriginal: boolean): void {
     const controlValue = this.bankServerSideCtrl.value;
     if (!controlValue) return;
-
-    const newReceiver = { ...controlValue, isOriginal };
-
-    // // * Si envio actual es es original
-    // if (this.data.isOriginal) {
-    //   if (this.recipients().filter(({ isOriginal }) => isOriginal).length > 1) {
-    //     // * Si se quiere agregar un original
-    //     return;
-    //   }
-    //   const duplicante = this.recipients().some(
-    //     ({ id }) => id === newReceiver.id
-    //   );
-    //   if (duplicante) return;
-    //   this.recipients.update((values) => [...values, newReceiver]);
-    // } else {
-    //   // * Si envio actual es copia
-    //   if (isOriginal || this.recipients().length >= 1) {
-    //     // * No se puede derivar el original como una copia y solo 1
-    //     return;
-    //   }
-    //   this.recipients.set([newReceiver]);
-    // }
-    this.recipients.update((values) => [...values, newReceiver]);
+    this.recipients.update((values) => [
+      ...values,
+      { ...controlValue, isOriginal },
+    ]);
     this.bankServerSideCtrl.setValue(null);
   }
 

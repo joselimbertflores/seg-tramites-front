@@ -1,19 +1,3 @@
-export interface submissionData {
-  communicationId?: string;
-  attachmentsCount: string;
-  isOriginal: boolean;
-  procedure: procedureProps;
-  cite?: string;
-  isResend?: boolean;
-  mode: communicationMode;
-}
-interface procedureProps {
-  id: string;
-  code: string;
-}
-
-export type communicationMode = 'initiate' | 'forward' | 'resend';
-
 export interface onlineAccount {
   id: string;
   userId: string;

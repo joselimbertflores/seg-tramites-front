@@ -63,7 +63,10 @@
         </div>
       </form>
       <div class="flex justify-end mt-2">
-        <button mat-button matStepperNext>Siguiente</button>
+        <button mat-button matStepperNext>
+          Siguiente
+          <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+        </button>
       </div>
     </mat-step>
     <mat-step
@@ -163,8 +166,14 @@
         </mat-list>
       </div>
       <div class="flex justify-end mt-2">
-        <button mat-button matStepperPrevious>Atras</button>
-        <button mat-button matStepperNext>Siguiente</button>
+        <button mat-button matStepperPrevious>
+          <mat-icon>arrow_back</mat-icon>
+          Atras
+        </button>
+        <button mat-button matStepperNext>
+          Siguiente
+          <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+        </button>
       </div>
     </mat-step>
 

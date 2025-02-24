@@ -24,8 +24,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { RouterModule } from '@angular/router';
 import { MatMenuModule } from '@angular/material/menu';
 import { ProcurementDialogComponent } from './procurement-dialog/procurement-dialog.component';
-import { submissionData } from '../../../../communications/domain';
-import { SubmissionDialogComponent } from '../../../../communications/presentation/pages/inbox/submission-dialog/submission-dialog.component';
+import {
+  submissionData,
+  SubmissionDialogComponent,
+} from '../../../../communications/presentation/pages/inbox/submission-dialog/submission-dialog.component';
 import {
   animate,
   state,
@@ -150,7 +152,7 @@ export default class ProcurementsManageComponent implements OnInit {
       attachmentsCount: procedure.numberOfDocuments,
       cite: procedure.cite,
       isOriginal: true,
-      mode: "initiate",
+      mode: 'initiate',
     };
     const dialogRef = this.dialog.open(SubmissionDialogComponent, {
       maxWidth: '1100px',

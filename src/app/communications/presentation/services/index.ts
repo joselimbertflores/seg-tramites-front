@@ -1,4 +1,4 @@
-export * from './communication.service';
+export * from './inbox.service';
 export * from './outbox.service';
 export * from './process.service';
 export * from './doc.service';

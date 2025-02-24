@@ -11,7 +11,7 @@ export * from '../../procedures/presentation/services/external.service';
 export * from '../../procedures/presentation/services/internal.service';
 export * from '../../procedures/presentation/services/procedure.service';
 
-export * from '../../communications/presentation/services/communication.service';
+export * from '../../communications/presentation/services/inbox.service';
 export * from './communications/outbox.service';
 export * from './communications/archive.service';
 

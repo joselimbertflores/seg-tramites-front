@@ -25,8 +25,10 @@ import { InternalProcedure, procedureState } from '../../../domain';
 import { InternalService } from '../../services';
 
 import { InternalDialogComponent } from './internal-dialog/internal-dialog.component';
-import { SubmissionDialogComponent } from '../../../../communications/presentation/pages/inbox/submission-dialog/submission-dialog.component';
-import { submissionData } from '../../../../communications/domain';
+import {
+  submissionData,
+  SubmissionDialogComponent,
+} from '../../../../communications/presentation/pages/inbox/submission-dialog/submission-dialog.component';
 interface cache {
   datasource: InternalProcedure[];
   datasize: number;
@@ -134,7 +136,7 @@ export default class InternalsManageComponent {
       attachmentsCount: procedure.numberOfDocuments,
       cite: procedure.cite,
       isOriginal: true,
-      mode: "initiate",
+      mode: 'initiate',
     };
     const dialogRef = this.dialog.open(SubmissionDialogComponent, {
       maxWidth: '1100px',
