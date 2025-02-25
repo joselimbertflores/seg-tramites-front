@@ -1,12 +1,12 @@
 import { CommonModule } from '@angular/common';
 import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
   OnInit,
-  computed,
   inject,
   signal,
+  computed,
+  Component,
+  DestroyRef,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -15,6 +15,7 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { HttpErrorResponse } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -29,8 +30,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
+
 import { SelectionModel } from '@angular/cdk/collections';
 import { OverlayModule } from '@angular/cdk/overlay';
+
 import { filter, switchMap } from 'rxjs';
 
 import {
@@ -50,7 +53,6 @@ import {
 import { communcationStatus, Communication } from '../../../domain';
 import { procedureGroup } from '../../../../procedures/domain';
 import { ArchiveDialogComponent } from './archive-dialog/archive-dialog.component';
-import { HttpErrorResponse } from '@angular/common/http';
 
 interface cache {
   datasource: Communication[];
@@ -173,28 +175,26 @@ export default class InboxComponent implements OnInit {
       });
   }
 
-  send({ id, procedure, isOriginal, attachmentsCount }: Communication) {
+  send(item: Communication) {
     const data: submissionData = {
       mode: 'forward',
-      communicationId: id,
-      procedure: { id: procedure.ref, code: procedure.code },
-      // allowAttachDocument: true,
-      attachmentsCount,
-      isOriginal,
+      communicationId: item.id,
+      procedure: { id: item.procedure.ref, code: item.procedure.code },
+      attachmentsCount: item.attachmentsCount,
+      isOriginal: item.isOriginal,
     };
     const dialogRef = this.dialogRef.open(SubmissionDialogComponent, {
-      maxWidth: '900px',
-      width: '900px',
+      maxWidth: '1100px',
+      width: '1100px',
       data,
     });
     dialogRef.afterClosed().subscribe((message: string) => {
       if (!message) return;
-      this._removeItemsDatasource([id]);
+      this.removeItems([item.id]);
     });
   }
 
   accept(items: Communication[]): void {
-    const selection = items.map(({ id }) => id);
     this.alertService
       .confirmDialog({
         title:
@@ -206,41 +206,29 @@ export default class InboxComponent implements OnInit {
       })
       .pipe(
         filter((result) => result),
-        switchMap(() => this.inboxService.accept(selection))
+        switchMap(() => this.inboxService.accept(items.map(({ id }) => id)))
       )
       .subscribe({
-        next: (ids) => {
-          this.datasource.update((values) =>
-            values.map((item) => {
-              if (ids.includes(item.id)) {
-                item.status = communcationStatus.Received;
-              }
-              return item;
-            })
-          );
-        },
+        next: (ids) => this.setStatusItems(ids, communcationStatus.Received),
         error: (error) => {
           if (error instanceof HttpErrorResponse && error.status === 409) {
-            const erroData: { toUpdated: string[]; toRemove: string[] } =
-              error.error ?? { toUpdated: [], toRemove: [] };
-            this.datasource.update((values) => {
-              // values.filter((el) => toRemove.includes);
-              return [...values];
-            });
+            const { toRemove = [], toUpdated = [] } = error.error;
+            this.removeItems(toRemove);
+            this.setStatusItems(toUpdated, communcationStatus.Received);
           }
         },
       });
   }
 
-  reject(communications: Communication[]): void {
-    const selection = communications.map(({ id }) => id);
+  reject(items: Communication[]): void {
+    const selection = items.map(({ id }) => id);
     this.alertService
       .descriptionDialog({
         title:
-          communications.length === 1
-            ? `¿Rechazar tramite ${communications[0].procedure.code}?`
+          items.length === 1
+            ? `¿Rechazar tramite ${items[0].procedure.code}?`
             : `¿Rechazar los tramites seleccionados?`,
-        placeholder: 'Ingrese el motivo del rechazo',
+        placeholder: 'Ingrese una descripcion clara ',
       })
       .pipe(
         filter((description) => !!description),
@@ -249,7 +237,7 @@ export default class InboxComponent implements OnInit {
         )
       )
       .subscribe(() => {
-        this._removeItemsDatasource(selection);
+        this.removeItems(selection);
       });
   }
 
@@ -260,7 +248,7 @@ export default class InboxComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe((result: string[]) => {
       if (!result) return;
-      this._removeItemsDatasource(result);
+      this.removeItems(result);
     });
   }
 
@@ -336,19 +324,30 @@ export default class InboxComponent implements OnInit {
       .listenCancelCommunications()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((id) => {
-        this._removeItemsDatasource([id]);
+        this.removeItems([id]);
       });
   }
 
-  private _removeItemsDatasource(ids: string[]): void {
+  private removeItems(ids: string[]): void {
     this.datasource.update((values) =>
-      values.filter((el) => !ids.includes(el.id))
+      values.filter(({ id }) => !ids.includes(id))
     );
     this.datasize.update((length) => (length -= ids.length));
     this.selection.clear();
     if (this.datasource().length === 0 && this.datasize() > 0) {
       this.getData();
     }
+  }
+
+  private setStatusItems(ids: string[], status: communcationStatus) {
+    this.datasource.update((values) =>
+      values.map((item) => {
+        if (ids.includes(item.id)) {
+          item.status = status;
+        }
+        return item;
+      })
+    );
   }
 
   private _saveCache(): void {

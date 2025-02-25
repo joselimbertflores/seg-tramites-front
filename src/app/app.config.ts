@@ -18,11 +18,7 @@ registerLocaleData(localeEs, 'es');
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideRouter(
-      routes,
-      withInMemoryScrolling({ scrollPositionRestoration: 'enabled' }),
-      withComponentInputBinding()
-    ),
+    provideRouter(routes, withComponentInputBinding()),
     provideHttpClient(withInterceptors([loggingInterceptor])),
     provideAnimations(),
     provideToastr(),

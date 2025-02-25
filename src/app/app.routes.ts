@@ -13,7 +13,7 @@ import { VALID_RESOURCES } from './infraestructure/interfaces';
 import { ReportsComponent } from './presentation/pages/reports/reports.component';
 import { ReportUnitComponent } from './presentation/pages/reports/report-unit/report-unit.component';
 import { InfoComponent } from './layout/presentation/pages/info/info.component';
-import { accountGuard } from './procedures/presentation/guards/account.guard';
+import { accountGuard } from './administration/presentation/guards/account.guard';
 
 export const routes: Routes = [
   {

@@ -104,7 +104,9 @@ export class InboxService {
   }
 
   getOne(id: string) {
-    return this.http.get<communication>(`${this.url}/${id}`);
+    return this.http
+      .get<communication>(`${this.url}/${id}`)
+      .pipe(map((resp) => CommunicationMapper.fromResponse(resp)));
   }
 
   // create({ recipients, form, ...props }: createCommunicationProps) {
@@ -122,16 +124,14 @@ export class InboxService {
   //   );
   // }
 
-  accept(communicationIds: string[]) {
-    return this.http.put<string[]>(`${this.url}/accept`, {
-      communicationIds,
-    });
+  accept(ids: string[]) {
+    return this.http.put<string[]>(`${this.url}/accept`, { ids });
   }
 
-  reject(communicationIds: string[], description: string) {
+  reject(ids: string[], description: string) {
     return this.http.put<{ message: string }>(`${this.url}/reject`, {
       description,
-      communicationIds,
+      ids,
     });
   }
 }

@@ -7,7 +7,6 @@ import {
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, catchError, finalize, throwError } from 'rxjs';
-import { AuthService } from '../../presentation/services';
 import { AlertService } from '../../shared';
 
 export function loggingInterceptor(

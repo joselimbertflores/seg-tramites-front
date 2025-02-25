@@ -30,6 +30,7 @@ import {
   InternalCommunicationComponent,
   ProcurementCommunicationComponent,
 } from '../../../components';
+import { Communication } from '../../../../domain';
 
 @Component({
   selector: 'app-communication-detail',
@@ -51,10 +52,10 @@ import {
 })
 export default class CommunicationDetailComponent {
   @Input('id') communicationId: string;
-  private communicationService = inject(InboxService);
+  private inboxService = inject(InboxService);
   private procedureService = inject(ProcessService);
 
-  communication = signal<communication | null>(null);
+  communication = signal<Communication | null>(null);
   procedure = signal<Procedure | any | null>(null);
   workflow = signal<communication[]>([]);
 
@@ -62,12 +63,12 @@ export default class CommunicationDetailComponent {
 
   ngOnInit(): void {
     this.isLoading.set(true);
-    this.communicationService
+    this.inboxService
       .getOne(this.communicationId)
       .pipe(
-        tap((comm) => this.communication.set(comm)),
-        switchMap((comm) =>
-          this._getProcedureData(comm.procedure.ref, comm.procedure.group)
+        tap((data) => this.communication.set(data)),
+        switchMap(({ procedure }) =>
+          this.getProcedure(procedure.ref, procedure.group)
         )
       )
       .subscribe(([procedure]) => {
@@ -84,7 +85,7 @@ export default class CommunicationDetailComponent {
     return this.procedure() as InternalProcedure;
   }
 
-  private _getProcedureData(procedureId: string, group: string) {
+  private getProcedure(procedureId: string, group: string) {
     return forkJoin([
       this.procedureService.getProcedure(procedureId, group),
       // this.procedureService.getWorkflow(procedureId),
