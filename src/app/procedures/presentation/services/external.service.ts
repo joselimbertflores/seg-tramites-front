@@ -1,6 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map } from 'rxjs';
+
 import { environment } from '../../../../environments/environment';
 import { typeProcedure } from '../../../administration/infrastructure';
 import { external, ExternalMapper } from '../../infrastructure';
@@ -15,16 +16,17 @@ interface manageExternalProps {
   providedIn: 'root',
 })
 export class ExternalService {
-  private readonly base_url = `${environment.base_url}/external`;
+  private readonly url = `${environment.base_url}/external`;
+
   constructor(private http: HttpClient) {}
 
   getSegments() {
-    return this.http.get<string[]>(`${this.base_url}/segments`);
+    return this.http.get<string[]>(`${this.url}/segments`);
   }
 
   getTypesProceduresBySegment(segment: string) {
     return this.http.get<typeProcedure[]>(
-      `${this.base_url}/types-procedures/${segment}`
+      `${this.url}/types-procedures/${segment}`
     );
   }
 
@@ -33,7 +35,7 @@ export class ExternalService {
       fromObject: { limit, offset, ...(term && { term }) },
     });
     return this.http
-      .get<{ procedures: external[]; length: number }>(`${this.base_url}`, {
+      .get<{ procedures: external[]; length: number }>(`${this.url}`, {
         params,
       })
       .pipe(
@@ -53,7 +55,7 @@ export class ExternalService {
     requirements,
   }: manageExternalProps) {
     return this.http
-      .post<external>(`${this.base_url}`, {
+      .post<external>(`${this.url}`, {
         ...formProcedure,
         requirements,
         applicant: formApplicant,
@@ -70,7 +72,7 @@ export class ExternalService {
     { formProcedure, formApplicant, formRepresentative }: manageExternalProps
   ) {
     return this.http
-      .patch<external>(`${this.base_url}/${id}`, {
+      .patch<external>(`${this.url}/${id}`, {
         ...formProcedure,
         applicant: formApplicant,
         representative:
@@ -79,5 +81,11 @@ export class ExternalService {
             : null,
       })
       .pipe(map((response) => ExternalMapper.fromResponse(response)));
+  }
+
+  getDetail(id: string) {
+    return this.http
+      .get<external>(`${this.url}/${id}`)
+      .pipe(map((resp) => ExternalMapper.fromResponse(resp)));
   }
 }

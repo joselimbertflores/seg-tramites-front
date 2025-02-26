@@ -7,13 +7,14 @@ import {
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, catchError, finalize, throwError } from 'rxjs';
-import { AlertService } from '../../shared';
+import { AlertService, AppearanceService } from '../../shared';
 
 export function loggingInterceptor(
   req: HttpRequest<unknown>,
   next: HttpHandlerFn
 ): Observable<HttpEvent<unknown>> {
   const alertService = inject(AlertService);
+  const isAppLoading = inject(AppearanceService).isAppLoading;
 
   const reqWithHeader = req.clone({
     headers: req.headers.append(
@@ -25,7 +26,7 @@ export function loggingInterceptor(
   if (req.headers.has('loader')) {
     alertService.showAppLoader();
   }
-
+  isAppLoading.set(true);
   return next(reqWithHeader).pipe(
     catchError((error) => {
       handleHttpErrors(error, alertService);
@@ -33,6 +34,7 @@ export function loggingInterceptor(
     }),
     finalize(() => {
       alertService.closeAppLoader();
+      isAppLoading.set(false);
     })
   );
 }

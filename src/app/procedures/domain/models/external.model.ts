@@ -1,7 +1,7 @@
 import { Procedure, ProcedureProps } from './procedure.model';
 
 interface ExternalProps extends ProcedureProps {
-  type: any;
+  type: string;
   applicant: applicant;
   representative?: representative;
   requirements: string[];
@@ -9,24 +9,20 @@ interface ExternalProps extends ProcedureProps {
 }
 
 interface applicant {
-  firstname: string;
+  fullname: string;
   phone: string;
-  type: 'NATURAL' | 'JURIDICO';
-  middlename?: string;
-  lastname?: string;
   dni?: string;
+  type: 'NATURAL' | 'JURIDICO';
 }
 
 interface representative {
-  firstname: string;
-  middlename: string;
-  lastname: string;
+  fullname: string;
   phone: string;
   dni: string;
 }
 
 export class ExternalProcedure extends Procedure implements ExternalProps {
-  type: any;
+  type: string;
   applicant: applicant;
   representative?: representative;
   requirements: string[];
@@ -37,12 +33,14 @@ export class ExternalProcedure extends Procedure implements ExternalProps {
     representative,
     requirements,
     pin,
+    type,
     ...procedureProps
   }: ExternalProps) {
     super(procedureProps);
     this.applicant = applicant;
     this.representative = representative;
     this.requirements = requirements;
+    this.type = type;
     this.pin = pin;
   }
 
@@ -53,21 +51,5 @@ export class ExternalProcedure extends Procedure implements ExternalProps {
       ...this,
       ...modifyObject,
     });
-  }
-
-  get fullnameApplicant() {
-    return [
-      this.applicant.firstname,
-      this.applicant.middlename,
-      this.applicant.lastname,
-    ]
-      .filter((term) => term)
-      .join(' ');
-  }
-
-  get fullnameRepresentative() {
-    return this.representative
-      ? `${this.representative.firstname} ${this.representative.middlename} ${this.representative.lastname}`
-      : 'Sin representante';
   }
 }

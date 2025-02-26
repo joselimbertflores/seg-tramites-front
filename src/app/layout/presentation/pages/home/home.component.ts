@@ -21,7 +21,11 @@ import {
   RouterOutlet,
 } from '@angular/router';
 import { map, shareReplay } from 'rxjs';
-import { SocketService, AuthService } from '../../../../presentation/services';
+import {
+  SocketService,
+  AuthService,
+  AppearanceService,
+} from '../../../../presentation/services';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import {
@@ -38,7 +42,11 @@ import {
   ScrollingModule,
 } from '@angular/cdk/scrolling';
 import { PublicationDialogComponent } from '../../../../publications/presentation/components';
-import { AlertService, CacheService } from '../../../../shared';
+import {
+  AlertService,
+  CacheService,
+  ProgressBarComponent,
+} from '../../../../shared';
 import { routeAnimations } from '../../../../../slideInAnimation';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
@@ -56,6 +64,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatButtonModule,
     ScrollingModule,
     MatTooltipModule,
+    ProgressBarComponent,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
@@ -68,6 +77,8 @@ export default class HomeComponent {
   private authService = inject(AuthService);
   private destroyRef = inject(DestroyRef);
   private router = inject(Router);
+
+  isAppLoading = inject(AppearanceService).isAppLoading;
 
   readonly dialogRef = inject(MatDialog);
 

@@ -80,8 +80,7 @@ export abstract class Procedure {
   }
 
   get citeCode() {
-    if (this.cite === '') return 'S/C';
-    return this.cite;
+    return this.cite === '' ? 'S/C' : this.cite;
   }
 
   get isActionable(): boolean {

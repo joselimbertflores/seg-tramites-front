@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, tap } from 'rxjs';
+
 import { environment } from '../../../../environments/environment';
 import {
   external,
@@ -32,7 +33,7 @@ export class ProcessService {
               return InternalMapper.fromResponse(resp as internal);
 
             case 'ProcurementProcedure':
-              return resp
+              return resp;
 
             default:
               throw Error('Procedure is not defined');
@@ -41,7 +42,7 @@ export class ProcessService {
       );
   }
 
-  getWorkflow(id: string) {
-    return this.http.get<communication[]>(`${this.url}/workflow/${id}`);
+  getWorkflow(id: string, group: string) {
+    return this.http.get<communication[]>(`${this.url}/${group}/${id}`);
   }
 }

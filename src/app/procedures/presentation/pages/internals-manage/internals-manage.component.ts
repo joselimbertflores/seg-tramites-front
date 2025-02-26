@@ -18,8 +18,8 @@ import { MatDialog } from '@angular/material/dialog';
 
 import {
   CacheService,
-  SearchInputComponent,
   DocxService,
+  SearchInputComponent,
 } from '../../../../shared';
 import { InternalProcedure, procedureState } from '../../../domain';
 import { InternalService } from '../../services';
@@ -171,8 +171,6 @@ export default class InternalsManageComponent {
     //   this.pdfService.generateRouteSheet(procedure, workflow);
     // });
   }
-
-  generateTemplate() {}
 
   private _saveCache(): void {
     this.cacheService.save('internals', {

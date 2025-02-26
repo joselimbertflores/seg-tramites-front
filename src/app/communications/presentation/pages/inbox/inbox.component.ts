@@ -44,6 +44,7 @@ import {
 import {
   AlertService,
   CacheService,
+  EmptyMessageComponent,
   SearchInputComponent,
 } from '../../../../shared';
 import {
@@ -83,6 +84,7 @@ interface cache {
     MatButtonToggleModule,
     SearchInputComponent,
     FormsModule,
+    EmptyMessageComponent,
   ],
   templateUrl: './inbox.component.html',
   styles: `
@@ -125,6 +127,8 @@ export default class InboxComponent implements OnInit {
   });
 
   status = signal<communcationStatus | 'all'>('all');
+
+  isLoading = signal(true);
 
   readonly displayedColumns: string[] = [
     'select',
@@ -172,6 +176,7 @@ export default class InboxComponent implements OnInit {
         this.datasource.set(communications);
         this.datasize.set(length);
         this.selection.clear();
+        this.isLoading.set(false);
       });
   }
 

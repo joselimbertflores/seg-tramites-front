@@ -43,7 +43,7 @@ interface cache {
   templateUrl: './externals-manage.component.html',
 })
 export default class ExternalsManageComponent {
-  private dialog = inject(MatDialog);
+  private dialogRef = inject(MatDialog);
   private externalService = inject(ExternalService);
   private cacheService: CacheService<cache> = inject(CacheService);
   // private pdfService = inject(PdfService);
@@ -55,7 +55,7 @@ export default class ExternalsManageComponent {
     'code',
     'reference',
     'applicant',
-    'createdAt',
+    'date',
     'options',
   ];
 
@@ -84,7 +84,7 @@ export default class ExternalsManageComponent {
   }
 
   create(): void {
-    const dialogRef = this.dialog.open(ExternalDialogComponent, {
+    const dialogRef = this.dialogRef.open(ExternalDialogComponent, {
       maxWidth: '1000px',
       width: '1000px',
     });
@@ -100,7 +100,7 @@ export default class ExternalsManageComponent {
   }
 
   update(procedure: ExternalProcedure): void {
-    const dialogRef = this.dialog.open(ExternalDialogComponent, {
+    const dialogRef = this.dialogRef.open(ExternalDialogComponent, {
       maxWidth: '1000px',
       width: '1000px',
       data: procedure,
@@ -122,7 +122,7 @@ export default class ExternalsManageComponent {
       isOriginal: true,
       mode: 'initiate',
     };
-    const dialogRef = this.dialog.open(SubmissionDialogComponent, {
+    const dialogRef = this.dialogRef.open(SubmissionDialogComponent, {
       maxWidth: '1000px',
       width: '1000px',
       data: transfer,

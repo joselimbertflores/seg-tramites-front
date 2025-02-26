@@ -94,7 +94,7 @@ export const routes: Routes = [
         children: [
           {
             path: 'external',
-            title: 'Externos',
+            data: { animation: 'fadeIn' },
             loadComponent: () =>
               import(
                 './procedures/presentation/pages/externals-manage/externals-manage.component'
@@ -102,14 +102,15 @@ export const routes: Routes = [
           },
           {
             path: 'external/:id',
+            data: { animation: 'slide' },
             loadComponent: () =>
               import(
-                './procedures/presentation/pages/externals-manage/external-detail/external-detail.component'
+                './procedures/presentation/pages/external-detail/external-detail.component'
               ),
           },
           {
             path: 'internal',
-            title: 'Internos',
+            data: { animation: 'fadeIn' },
             loadComponent: () =>
               import(
                 './procedures/presentation/pages/internals-manage/internals-manage.component'
@@ -117,9 +118,10 @@ export const routes: Routes = [
           },
           {
             path: 'internal/:id',
+            data: { animation: 'slide' },
             loadComponent: () =>
               import(
-                './procedures/presentation/pages/internals-manage/internal-detail/internal-detail.component'
+                './procedures/presentation/pages/internal-detail/internal-detail.component'
               ),
           },
           {

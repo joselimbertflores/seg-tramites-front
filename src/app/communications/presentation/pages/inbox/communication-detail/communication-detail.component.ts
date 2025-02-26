@@ -24,6 +24,7 @@ import {
   ExternalProcedure,
   InternalProcedure,
   Procedure,
+  procedureGroup,
 } from '../../../../../procedures/domain';
 import {
   ExternalCommunicationComponent,
@@ -85,7 +86,7 @@ export default class CommunicationDetailComponent {
     return this.procedure() as InternalProcedure;
   }
 
-  private getProcedure(procedureId: string, group: string) {
+  private getProcedure(procedureId: string, group: procedureGroup) {
     return forkJoin([
       this.procedureService.getProcedure(procedureId, group),
       // this.procedureService.getWorkflow(procedureId),

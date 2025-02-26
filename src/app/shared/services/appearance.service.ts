@@ -3,42 +3,21 @@ import { Overlay } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 import { Inject, Injectable, effect, signal } from '@angular/core';
 import { Subject } from 'rxjs';
-import { LoaderComponent } from '../components/loader/loader.component';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AppearanceService {
-  public isLoading = new Subject<boolean>();
+  public isAppLoading = signal<boolean>(false);
   public isDarkTheme = signal<boolean>(false);
   public isSidenavToggle = signal(true);
-
-  private readonly overlayRef = this.overlay.create({
-    hasBackdrop: true,
-    positionStrategy: this.overlay
-      .position()
-      .global()
-      .centerHorizontally()
-      .centerVertically(),
-  });
 
   constructor(
     @Inject(DOCUMENT) private document: Document,
     private overlay: Overlay
-  ) {
-  
-  }
+  ) {}
 
   toggleTheme() {
     this.isDarkTheme.update((value) => !value);
-  }
-
-  public showLoading(): void {
-    if (this.overlayRef.hasAttached()) return;
-    this.overlayRef.attach(new ComponentPortal(LoaderComponent));
-  }
-
-  public hideLoading(): void {
-    this.overlayRef.detach();
   }
 }

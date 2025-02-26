@@ -83,7 +83,9 @@
   </div>
 </ng-template>
 
-<div class="flex flex-col sm:flex-row justify-between items-center py-2 sm:px-4 gap-y-2">
+<div
+  class="flex flex-col sm:flex-row justify-between items-center py-2 sm:px-4 gap-y-2"
+>
   <div>
     <mat-button-toggle-group [(ngModel)]="status" (change)="getData()">
       <mat-button-toggle value="all">Todo</mat-button-toggle>
@@ -99,7 +101,6 @@
     />
   </div>
 </div>
-
 <div class="mat-elevation-z8 sm:px-4">
   <table mat-table [dataSource]="datasource()">
     <ng-container matColumnDef="select">
@@ -183,14 +184,6 @@
             <mat-icon>archive</mat-icon>
             Archivar
           </button>
-          <!-- <button mat-menu-item (click)="archive()">
-              <mat-icon>domain_verification</mat-icon>
-              Concluir
-            </button>
-            <button mat-menu-item (click)="archive()">
-              <mat-icon>pause_presentation</mat-icon>
-              Suspender
-            </button> -->
           <button (click)="generateRouteMap(row)" mat-menu-item>
             <mat-icon>description</mat-icon>
             <span>Hoja de ruta</span>
@@ -206,7 +199,9 @@
       [class.mail-pending]="row.status === 'pending'"
     ></tr>
     <tr class="mat-row" *matNoDataRow>
-      <td class="mat-cell p-3" colspan="7">Sin resultados</td>
+      <td class="mat-cell p-3" [attr.colspan]="displayedColumns.length">
+        <span class="p-3">Sin resultados</span>
+      </td>
     </tr>
   </table>
   <mat-paginator

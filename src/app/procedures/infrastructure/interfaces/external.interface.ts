@@ -1,6 +1,7 @@
 export interface external {
   _id: string;
   applicant: applicant;
+  representative?: representative;
   requirements: string[];
   pin: number;
   code: string;
@@ -26,6 +27,15 @@ interface applicant {
   type: 'NATURAL' | 'JURIDICO';
 }
 
+interface representative {
+  firstname: string;
+  middlename: string;
+  lastname: string;
+  phone: string;
+  dni: string;
+}
+
 interface type {
+  _id: string;
   nombre: string;
 }
