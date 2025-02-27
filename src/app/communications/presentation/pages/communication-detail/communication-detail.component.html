@@ -44,7 +44,9 @@
         <p>Type Procedure is not define</p>
         } }
       </mat-tab>
-      <mat-tab label="Flujo de trabajo"> </mat-tab>
+      <mat-tab label="Flujo de trabajo">
+        <workflow-list  [workflow]="workflow()"/>
+      </mat-tab>
       <mat-tab label="Flujo de trabajo grafico">
         <workflow-graph [workflow]="workflow()" />
       </mat-tab>

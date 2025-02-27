@@ -42,7 +42,7 @@ export default class InternalDetailComponent {
 
   private getProcedureData(procedureId: string) {
     return forkJoin([
-      this.processService.getWorkflow(procedureId, "InternalProcedure"),
+      this.processService.getWorkflow(procedureId),
       // this.processService.getProcedure(procedureId, procedureGroup.Internal),
     ]);
   }

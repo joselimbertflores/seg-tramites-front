@@ -1,17 +1,17 @@
 import { CommonModule } from '@angular/common';
 import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
   input,
+  computed,
+  Component,
+  ChangeDetectionStrategy,
 } from '@angular/core';
-// import { Edge, NgxGraphModule, Node } from '@swimlane/ngx-graph';
+import { Edge, NgxGraphModule, Node } from '@swimlane/ngx-graph';
 import { communication } from '../../../../communications/infrastructure';
 @Component({
-    selector: 'workflow-graph',
-    imports: [CommonModule],
-    template: `
-    <!-- <div class="w-full h-[80vh] p-6">
+  selector: 'workflow-graph',
+  imports: [CommonModule, NgxGraphModule],
+  template: `
+    <div class="w-full h-[80vh] p-6">
       <div class="graph-container h-full bg-gray-100">
         <ngx-graph
           class="chart-container"
@@ -54,7 +54,7 @@ import { communication } from '../../../../communications/infrastructure';
             <svg:g class="node" width="500" height="150">
               <svg:foreignObject width="500" height="150">
                 <xhtml:div class="cardContainer bg-blue-50">
-                  <div class="rounded-lg p-4  shadow-lg">
+                  <!-- <div class="rounded-lg p-4  shadow-lg">
                     <img
                       class="mx-auto h-auto rounded-full w-12"
                       src="assets/images/account.png"
@@ -65,7 +65,94 @@ import { communication } from '../../../../communications/infrastructure';
                     <p class="text-sm text-center truncate leading-6">
                       {{ node.data.jobtitle }}
                     </p>
-                  </div>
+                  </div> -->
+                  <article class="rounded-xl border-2 border-gray-400 ">
+                    <div class="flex items-start gap-4 p-4 sm:p-6 lg:p-8">
+                      <a href="#" class="block shrink-0">
+                        <img
+                          alt=""
+                          src="images/icons/account.png"
+                          class="size-10 rounded-full object-cover"
+                        />
+                      </a>
+
+                      <div>
+                        <h3 class="font-medium sm:text-lg">
+                          <a href="#" class="hover:underline">
+                            Question about Livewire Rendering-3 and Alpine JS
+                          </a>
+                        </h3>
+
+                        <p class="line-clamp-2 text-sm text-gray-700">
+                          Lorem ipsum dolor, sit amet consectetur adipisicing
+                          elit. Accusamus, accusantium temporibus iure delectus
+                          ut totam natus nesciunt ex? Ducimus, enim.
+                        </p>
+
+                        <div class="mt-2 sm:flex sm:items-center sm:gap-2">
+                          <div class="flex items-center gap-1 text-gray-500">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              class="size-4"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              stroke-width="2"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"
+                              />
+                            </svg>
+
+                            <p class="text-xs">14 comments</p>
+                          </div>
+
+                          <span class="hidden sm:block" aria-hidden="true"
+                            >&middot;</span
+                          >
+
+                          <p
+                            class="hidden sm:block sm:text-xs sm:text-gray-500"
+                          >
+                            Posted by
+                            <a
+                              href="#"
+                              class="font-medium underline hover:text-gray-700"
+                            >
+                              John
+                            </a>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="flex justify-end">
+                      <strong
+                        class="-me-[2px] -mb-[2px] inline-flex items-center gap-1 rounded-ss-xl rounded-ee-xl bg-green-600 px-3 py-1.5 text-white"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          class="size-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
+                          />
+                        </svg>
+
+                        <span class="text-[10px] font-medium sm:text-xs"
+                          >Solved!</span
+                        >
+                      </strong>
+                    </div>
+                  </article>
                 </xhtml:div>
               </svg:foreignObject>
             </svg:g>
@@ -91,9 +178,9 @@ import { communication } from '../../../../communications/infrastructure';
           </ng-template>
         </ngx-graph>
       </div>
-    </div> -->
+    </div>
   `,
-    styles: `
+  styles: `
     .graph-container {
       border: 1px solid #000;
     }
@@ -109,41 +196,41 @@ import { communication } from '../../../../communications/infrastructure';
       stroke-dasharray: 4 4;
     }
   `,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkflowGraphComponent {
   workflow = input.required<communication[]>();
-  graph = computed(() => this._createGraph(this.workflow()));
+  graph = computed(() => this.createGraph(this.workflow()));
 
-  private _createGraph(workflow: communication[]) {
-    // const nodes: Record<string, Node> = {};
-    // const links: Edge[] = [];
-    // workflow.forEach(({ sender, recipient, status }, index) => {
-    //   nodes[sender.account] = {
-    //     id: sender.account,
-    //     label: sender.account,
-    //     data: {
-    //       fullname: sender.fullname,
-    //       jobtitle: sender.jobtitle,
-    //     },
-    //   };
-    //   nodes[recipient.account] = {
-    //     id: recipient.account,
-    //     label: recipient.account,
-    //     data: {
-    //       fullname: recipient.fullname,
-    //       jobtitle: recipient.jobtitle,
-    //     },
-    //   };
-    //   links.push({
-    //     id: `a-${index}`,
-    //     source: sender.account,
-    //     target: recipient.account,
-    //     data: {
-    //       class: status,
-    //     },
-    //   });
-    // });
-    // return { nodes: [...Object.values(nodes)], links: [...links] };
+  private createGraph(workflow: communication[]) {
+    const nodes: Record<string, Node> = {};
+    const links: Edge[] = [];
+    workflow.forEach(({ sender, recipient, status }, index) => {
+      nodes[sender.account] = {
+        id: sender.account,
+        label: sender.account,
+        data: {
+          fullname: sender.fullname,
+          jobtitle: sender.jobtitle,
+        },
+      };
+      nodes[recipient.account] = {
+        id: recipient.account,
+        label: recipient.account,
+        data: {
+          fullname: recipient.fullname,
+          jobtitle: recipient.jobtitle,
+        },
+      };
+      links.push({
+        id: `a-${index}`,
+        source: sender.account,
+        target: recipient.account,
+        data: {
+          class: status,
+        },
+      });
+    });
+    return { nodes: [...Object.values(nodes)], links: [...links] };
   }
 }

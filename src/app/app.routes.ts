@@ -155,7 +155,7 @@ export const routes: Routes = [
             data: { animation: 'slide' },
             loadComponent: () =>
               import(
-                './communications/presentation/pages/inbox/communication-detail/communication-detail.component'
+                './communications/presentation/pages/communication-detail/communication-detail.component'
               ),
           },
           {

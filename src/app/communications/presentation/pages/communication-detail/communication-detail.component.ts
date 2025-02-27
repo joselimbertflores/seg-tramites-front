@@ -13,25 +13,25 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { forkJoin, switchMap, tap } from 'rxjs';
 
-import { InboxService, ProcessService } from '../../../services';
-import { communication } from '../../../../infrastructure';
-import { BackButtonDirective } from '../../../../../shared';
+import { InboxService, ProcessService } from '../../services';
+import { communication } from '../../../infrastructure';
+import { BackButtonDirective } from '../../../../shared';
 import {
   WorkflowGraphComponent,
   WorkflowListComponent,
-} from '../../../../../procedures/presentation/components';
+} from '../../../../procedures/presentation/components';
 import {
   ExternalProcedure,
   InternalProcedure,
   Procedure,
   procedureGroup,
-} from '../../../../../procedures/domain';
+} from '../../../../procedures/domain';
 import {
   ExternalCommunicationComponent,
   InternalCommunicationComponent,
   ProcurementCommunicationComponent,
-} from '../../../components';
-import { Communication } from '../../../../domain';
+} from '../../components';
+import { Communication } from '../../../domain';
 
 @Component({
   selector: 'app-communication-detail',
@@ -47,6 +47,7 @@ import { Communication } from '../../../../domain';
     InternalCommunicationComponent,
     ExternalCommunicationComponent,
     ProcurementCommunicationComponent,
+    WorkflowListComponent,
   ],
   templateUrl: './communication-detail.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -54,7 +55,7 @@ import { Communication } from '../../../../domain';
 export default class CommunicationDetailComponent {
   @Input('id') communicationId: string;
   private inboxService = inject(InboxService);
-  private procedureService = inject(ProcessService);
+  private processService = inject(ProcessService);
 
   communication = signal<Communication | null>(null);
   procedure = signal<Procedure | any | null>(null);
@@ -72,8 +73,9 @@ export default class CommunicationDetailComponent {
           this.getProcedure(procedure.ref, procedure.group)
         )
       )
-      .subscribe(([procedure]) => {
+      .subscribe(([procedure, workflow]) => {
         this.procedure.set(procedure);
+        this.workflow.set(workflow);
         this.isLoading.set(false);
       });
   }
@@ -88,8 +90,8 @@ export default class CommunicationDetailComponent {
 
   private getProcedure(procedureId: string, group: procedureGroup) {
     return forkJoin([
-      this.procedureService.getProcedure(procedureId, group),
-      // this.procedureService.getWorkflow(procedureId),
+      this.processService.getProcedure(procedureId, group),
+      this.processService.getWorkflow(procedureId),
     ]);
   }
 }

@@ -4,12 +4,9 @@ export * from './server-select-search/server-select-search.component';
 export * from './simple-select-search/simple-select-search.component';
 export * from './paginator/paginator.component';
 
-export * from './procedures/external-detail/external-detail.component';
-export * from './procedures/internal-detail/internal-detail.component';
 export * from './procedures/location/location.component';
 export * from './procedures/observations/observations.component';
 export * from './procedures/workflow-graph/workflow-graph.component';
-export * from './procedures/workflow-list/workflow-list.component';
 export * from './procedures/search-input/search-input.component';
 export * from './procedures/dispatcher/dispatcher.component';
 export * from './procedures/mail/mail.component';

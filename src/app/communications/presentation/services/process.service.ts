@@ -42,7 +42,7 @@ export class ProcessService {
       );
   }
 
-  getWorkflow(id: string, group: string) {
-    return this.http.get<communication[]>(`${this.url}/${group}/${id}`);
+  getWorkflow(id: string) {
+    return this.http.get<communication[]>(`${this.url}/workflow/${id}`);
   }
 }
