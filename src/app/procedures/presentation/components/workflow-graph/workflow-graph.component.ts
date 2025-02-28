@@ -4,12 +4,18 @@ import {
   computed,
   Component,
   ChangeDetectionStrategy,
+  inject,
+  ViewChild,
+  ElementRef,
 } from '@angular/core';
 import { Edge, NgxGraphModule, Node } from '@swimlane/ngx-graph';
 import { communication } from '../../../../communications/infrastructure';
+import { communcationStatus } from '../../../../communications/domain';
+import { CdkPortal, PortalModule } from '@angular/cdk/portal';
+import { Overlay, OverlayConfig, OverlayRef } from '@angular/cdk/overlay';
 @Component({
   selector: 'workflow-graph',
-  imports: [CommonModule, NgxGraphModule],
+  imports: [CommonModule, NgxGraphModule, PortalModule],
   template: `
     <div class="w-full h-[80vh] p-6">
       <div class="graph-container h-full bg-gray-100">
@@ -21,7 +27,7 @@ import { communication } from '../../../../communications/infrastructure';
           [showMiniMap]="true"
           [autoCenter]="true"
           [nodeWidth]="500"
-          [nodeHeight]="150"
+          [nodeHeight]="500"
           layout="dagreCluster"
         >
           <ng-template #defsTemplate>
@@ -51,8 +57,8 @@ import { communication } from '../../../../communications/infrastructure';
           </ng-template>
 
           <ng-template #nodeTemplate let-node>
-            <svg:g class="node" width="500" height="150">
-              <svg:foreignObject width="500" height="150">
+            <svg:g class="node" width="500" height="500">
+              <svg:foreignObject width="500" height="500">
                 <xhtml:div class="cardContainer bg-blue-50">
                   <!-- <div class="rounded-lg p-4  shadow-lg">
                     <img
@@ -66,7 +72,7 @@ import { communication } from '../../../../communications/infrastructure';
                       {{ node.data.jobtitle }}
                     </p>
                   </div> -->
-                  <article class="rounded-xl border-2 border-gray-400 ">
+                  <!-- <article class="rounded-xl border-2 border-gray-400 ">
                     <div class="flex items-start gap-4 p-4 sm:p-6 lg:p-8">
                       <a href="#" class="block shrink-0">
                         <img
@@ -152,7 +158,35 @@ import { communication } from '../../../../communications/infrastructure';
                         >
                       </strong>
                     </div>
-                  </article>
+                  </article> -->
+
+                  <div
+                    class="w-full max-w-sm border border-gray-200 rounded-lg shadow-sm"
+                  >
+                    <div class="flex justify-end px-4 pt-4">
+                      @if( node.data.icon ){
+                      <img
+                        class="w-12 mb-3 "
+                        src="images/icons/archive.png"
+                        alt="Bonnie image"
+                      />
+                      }
+                    </div>
+                    <div class="flex flex-col items-center pb-10">
+                      <img
+                        class="w-12 mb-3 rounded-full"
+                        src="images/icons/account.png"
+                        alt="Bonnie image"
+                      />
+                      <h5 class="mb-1 text-xl font-medium text-gray-900 ">
+                        Bonnie Green
+                      </h5>
+                      <span class="text-sm text-gray-500 "
+                        >Visual Designer</span
+                      >
+                    </div>
+                    <button (click)="openModal()">Abrir</button>
+                  </div>
                 </xhtml:div>
               </svg:foreignObject>
             </svg:g>
@@ -179,6 +213,12 @@ import { communication } from '../../../../communications/infrastructure';
         </ngx-graph>
       </div>
     </div>
+
+    <ng-template cdkPortal>
+      <div class="overlay w-[200px]">
+        <p>Hola</p>
+      </div>
+    </ng-template>
   `,
   styles: `
     .graph-container {
@@ -202,16 +242,33 @@ export class WorkflowGraphComponent {
   workflow = input.required<communication[]>();
   graph = computed(() => this.createGraph(this.workflow()));
 
+  @ViewChild('openButton', { read: ElementRef }) openButton!: ElementRef;
+
+  @ViewChild(CdkPortal) portal!: CdkPortal;
+
+  private overlay = inject(Overlay);
+
+  private overlayRef: OverlayRef;
+
+  private errorStates: string[] = [
+    communcationStatus.Rejected,
+    communcationStatus.AutoRejected,
+  ];
+
   private createGraph(workflow: communication[]) {
     const nodes: Record<string, Node> = {};
     const links: Edge[] = [];
-    workflow.forEach(({ sender, recipient, status }, index) => {
+    workflow.forEach(({ sender, recipient, status, isOriginal }, index) => {
+      const icon = isOriginal ? 'images/copy.png' : 'images/copy-black.png';
       nodes[sender.account] = {
         id: sender.account,
         label: sender.account,
         data: {
           fullname: sender.fullname,
           jobtitle: sender.jobtitle,
+          ...(this.errorStates.includes(status) && {
+            icon: this.buildIcon(status, isOriginal),
+          }),
         },
       };
       nodes[recipient.account] = {
@@ -220,6 +277,9 @@ export class WorkflowGraphComponent {
         data: {
           fullname: recipient.fullname,
           jobtitle: recipient.jobtitle,
+          ...(!this.errorStates.includes(status) && {
+            icon: this.buildIcon(status, isOriginal),
+          }),
         },
       };
       links.push({
@@ -232,5 +292,45 @@ export class WorkflowGraphComponent {
       });
     });
     return { nodes: [...Object.values(nodes)], links: [...links] };
+  }
+
+  private buildIcon(status: string, isOriginal: boolean) {
+    if (!isOriginal) {
+      return status === communcationStatus.Archived
+        ? 'images/archive-black.png'
+        : 'images/copy-.png';
+    }
+    return status === communcationStatus.Archived
+      ? 'images/archive.png'
+      : 'images/copy.png';
+  }
+
+  protected openModal() {
+    if (this.overlayRef.hasAttached()) {
+      return;
+    }
+
+    const config = new OverlayConfig({
+      positionStrategy: this.overlay
+        .position()
+        .global()
+        .centerHorizontally()
+        .centerVertically(),
+      hasBackdrop: true,
+    });
+
+    this.overlayRef = this.overlay.create(config);
+    this.overlayRef.attach(this.portal);
+
+    // Cuando se haga clic fuera del modal, se cerrará
+    this.overlayRef.backdropClick().subscribe(() => this.closeModal());
+  }
+
+  protected closeModal(): void {
+    if (this.overlayRef) {
+      this.overlayRef.detach();
+      this.overlayRef.dispose(); // ✅ Eliminar recursos
+      // this.overlayRef = null; // ✅ Permitir futuras aperturas
+    }
   }
 }

@@ -138,16 +138,20 @@
     </ng-container>
     <ng-container matColumnDef="reference">
       <th mat-header-cell *matHeaderCellDef>Referencia</th>
-      <td mat-cell *matCellDef="let row" class="w-full sm:w-96">
-        {{ row.procedure.reference }}
+      <td mat-cell *matCellDef="let row" class="sm:max-w-72">
+        <p class="truncate">{{ row.procedure.reference }}</p>
       </td>
     </ng-container>
 
     <ng-container matColumnDef="emitter">
       <th mat-header-cell *matHeaderCellDef>Remitente</th>
       <td mat-cell *matCellDef="let row">
-        <p>{{ row.sender.fullname | titlecase }}</p>
-        <small>{{ row.sender.jobtitle }}</small>
+        <div class="rounded-full flex items-center p-1 border">
+          <div class="h-6 w-6 mr-2">
+            <img src="images/icons/account.png" class="rounded-full" />
+          </div>
+          {{ row.sender.fullname | titlecase }}
+        </div>
       </td>
     </ng-container>
 
