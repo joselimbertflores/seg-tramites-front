@@ -28,7 +28,7 @@ export class BadgeComponent {
   severityClass = computed<string>(() => {
     switch (this.severity()) {
       case 'success':
-        return 'bg-emerald-100 text-emerald-700';
+        return 'bg-emerald-100 text-emerald-700 border border-emerald-400';
       case 'danger':
         return 'bg-red-100 text-red-700 border border-red-400';
       case 'warning':
@@ -36,7 +36,7 @@ export class BadgeComponent {
       case 'purple':
         return 'bg-purple-100 text-purple-700 border border-purple-400';
       default:
-        return 'bg-gray-100 text-gray-200';
+        return 'bg-gray-200 border border-gray-400';
     }
   });
 }

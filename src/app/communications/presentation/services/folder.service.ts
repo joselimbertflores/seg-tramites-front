@@ -12,7 +12,7 @@ export class FolderService {
   private http = inject(HttpClient);
   constructor() {}
 
-  createFolder(name: string) {
+  create(name: string) {
     return this.http.post<folder>(this.url, { name });
   }
 
@@ -20,7 +20,7 @@ export class FolderService {
     return this.http.get<folder[]>(this.url);
   }
 
-  deleteFolder(id: string): Observable<void> {
+  delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.url}/${id}`);
   }
 }

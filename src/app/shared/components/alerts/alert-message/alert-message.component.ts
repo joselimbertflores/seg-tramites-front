@@ -89,31 +89,28 @@ import {
     </div>
 
     } @case ('warn') {
-    <div
-      id="alert-additional-content-2"
-      class="p-4 mb-4 text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 dark:border-red-800"
-      role="alert"
-    >
-      <div class="flex items-center">
+    <div role="alert" class="p-2 border border-red-300 rounded-lg bg-red-50">
+      <div class="flex items-center gap-2 text-red-600">
         <svg
-          class="shrink-0 w-4 h-4 me-2"
-          aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
           fill="currentColor"
-          viewBox="0 0 20 20"
+          class="size-5"
         >
           <path
-            d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
+            fill-rule="evenodd"
+            d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
+            clip-rule="evenodd"
           />
         </svg>
-        <span class="sr-only">Info</span>
-        <h3 class="text-lg font-medium">This is a danger alert</h3>
+
+        <p class="block font-medium">{{ title() }}</p>
       </div>
-      <div class="mt-2 mb-4 text-sm">
-        More info about this info danger goes here. This example text is going
-        to run a bit longer so that you can see how spacing within an alert
-        works with this kind of content.
+      @if(description()){
+      <div class="mt-2 text-red-700 text-sm">
+        {{ description() }}
       </div>
+      }
     </div>
 
     } @case ("info") {
@@ -217,6 +214,7 @@ import {
 export class AlertMessageComponent implements OnInit {
   severity = input.required<'success' | 'warn' | 'error' | 'info'>();
   title = input.required<string>();
+  description = input<string>('');
   life = input<number>();
   close = output<void>();
   timeoutID: NodeJS.Timeout;

@@ -4,27 +4,19 @@
   </button>
   <span class="ml-4">Detalle</span>
   <span class="flex-1"></span>
+  @if (communication()?.status==='pending') {
+  <button mat-icon-button matTooltip="Aceptar" (click)="accept()">
+    <mat-icon>done</mat-icon>
+  </button>
+  <button mat-icon-button matTooltip="Rechazar">
+    <mat-icon>block</mat-icon>
+  </button>
+  } @else { }
 </mat-toolbar>
 
 <div class="px-6 mb-4">
   @if (communication()) {
-  <mat-card appearance="outlined">
-    <mat-card-header>
-      <img mat-card-avatar src="images/icons/account.png" />
-      <mat-card-title>
-        {{ communication()?.sender?.fullname | titlecase }}
-      </mat-card-title>
-      <mat-card-subtitle>
-        {{ communication()?.sender?.jobtitle }}
-      </mat-card-subtitle>
-    </mat-card-header>
-    <mat-card-content>
-      <p class="py-4 text-sm">
-        Enviado el {{ communication()?.sentDate | date : "short" }}
-      </p>
-      <p>Instruccion / Proveido: {{ communication()?.reference }}</p>
-    </mat-card-content>
-  </mat-card>
+  <inbox-card [data]="communication()!" />
   }
   <div class="border border-slate-300 rounded-xl mt-2">
     @if(!isLoading()){
@@ -45,7 +37,7 @@
         } }
       </mat-tab>
       <mat-tab label="Flujo de trabajo">
-        <workflow-list  [workflow]="workflow()"/>
+        <workflow-list [workflow]="workflow()" />
       </mat-tab>
       <mat-tab label="Flujo de trabajo grafico">
         <workflow-graph [workflow]="workflow()" />

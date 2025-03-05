@@ -1,32 +1,46 @@
 <mat-toolbar>
   <span>Archivos</span>
   <span class="flex-1"></span>
-  <button (click)="openCreateFolderDialog()" mat-flat-button>Agregar</button>
+  <button (click)="create()" mat-flat-button>Agregar</button>
 </mat-toolbar>
 
 <div
   restoreScroll
   scrollKey="folders-scroll"
   [isLoading]="isLoading()"
-  class="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 overflow-y-scroll"
-  style="height: calc(100vh - 140px)"
+  class="overflow-y-scroll"
+  style="height: calc(100vh - 120px)"
 >
-  @for (folder of folders(); track $index) {
-  <div
-    class="relative group cursor-point p-4 flex flex-col items-center rounded-2xl box-folder h-[200px]"
-    [routerLink]="[folder._id]"
-  >
-    <div class="w-20 mb-4">
-      <img src="images/icons/folder.png" alt="Folder image" />
-    </div>
-
-    <div class="truncate w-full text-center font-medium">{{ folder.name }}</div>
-    <button
-      class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-      (click)="deleteFolder(folder._id, $event)"
+  <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4">
+    <div
+      class="relative group cursor-point p-2 flex flex-col items-center rounded-2xl box-folder h-[180px]"
+      [routerLink]="'no-folder'"
     >
-      <mat-icon>delete</mat-icon>
-    </button>
+      <div class="w-24 mb-4">
+        <img src="images/icons/alert-folder.png" alt="Folder image" />
+      </div>
+
+      <div class="truncate w-full text-center font-medium">Sin carpeta</div>
+    </div>
+    @for (folder of folders(); track $index) {
+    <div
+      class="relative group cursor-point p-2 flex flex-col items-center rounded-2xl box-folder h-[180px]"
+      [routerLink]="[folder._id]"
+    >
+      <div class="w-24 mb-4">
+        <img src="images/icons/folder.png" alt="Folder image" />
+      </div>
+
+      <div class="truncate w-full text-center font-medium">
+        {{ folder.name }}
+      </div>
+      <button
+        class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+        (click)="delete(folder._id, $event)"
+      >
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+    }
   </div>
-  }
 </div>

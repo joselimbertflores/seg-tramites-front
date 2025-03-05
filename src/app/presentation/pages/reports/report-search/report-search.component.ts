@@ -19,7 +19,7 @@ import {
   ReportProcedureTableComponent,
   ServerSelectSearchComponent,
 } from '../../../components';
-import { CacheService, PdfService, ReportService } from '../../../services';
+import { PdfService, ReportService } from '../../../services';
 import { StateProcedure } from '../../../../domain/models';
 import {
   TableProcedureColums,
@@ -43,23 +43,23 @@ interface SelectOptiom {
 }
 
 @Component({
-    selector: 'app-report-search',
-    imports: [
-        ReactiveFormsModule,
-        CommonModule,
-        MaterialModule,
-        PaginatorComponent,
-        ReportProcedureTableComponent,
-        ServerSelectSearchComponent,
-    ],
-    templateUrl: './report-search.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'app-report-search',
+  imports: [
+    ReactiveFormsModule,
+    CommonModule,
+    MaterialModule,
+    PaginatorComponent,
+    ReportProcedureTableComponent,
+    ServerSelectSearchComponent,
+  ],
+  templateUrl: './report-search.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReportSearchComponent {
   private fb = inject(FormBuilder);
   private reportService = inject(ReportService);
   private pdfService = inject(PdfService);
-  private cacheService: CacheService<CacheData> = inject(CacheService);
+  // private cacheService: CacheService<CacheData> = inject(CacheService);
 
   public searchMode = signal<SearchMode>('simple');
   public typeProcedures = signal<SelectOptiom[]>([]);
@@ -104,7 +104,7 @@ export class ReportSearchComponent {
     const { end, group, ...props } = this.FormProcedure().value;
     const isFormEmpty = Object.values(props).every((val) => val === '' || !val);
     if (isFormEmpty) return;
-    this.cacheService.pageIndex.set(0);
+    // this.cacheService.pageIndex.set(0);
     this.getData();
   }
 
@@ -138,8 +138,8 @@ export class ReportSearchComponent {
   }
 
   changePage(params: { limit: number; index: number }) {
-    this.cacheService.pageSize.set(params.limit);
-    this.cacheService.pageIndex.set(params.index);
+    // this.cacheService.pageSize.set(params.limit);
+    // this.cacheService.pageIndex.set(params.index);
     this.getData();
   }
 
@@ -153,7 +153,7 @@ export class ReportSearchComponent {
   }
 
   private savePaginationData() {
-    this.cacheService.resetPagination();
+    // this.cacheService.resetPagination();
     const cache: CacheData = {
       form: this.FormProcedure().value,
       types: this.typeProcedures(),
@@ -161,17 +161,17 @@ export class ReportSearchComponent {
       size: this.datasize(),
       searchMode: this.searchMode(),
     };
-    this.cacheService.save('report-search', cache);
+    // this.cacheService.save('report-search', cache);
   }
 
   private loadPaginationData() {
-    const cacheData = this.cacheService.load('report-search');
-    if (!this.cacheService.keepAliveData() || !cacheData) return;
-    this.searchMode.set(cacheData.searchMode);
-    this.typeProcedures.set(cacheData.types);
-    this.datasource.set(cacheData.data);
-    this.datasize.set(cacheData.size);
-    this.FormProcedure().patchValue(cacheData.form);
+    // const cacheData = this.cacheService.load('report-search');
+    // if (!this.cacheService.keepAliveData() || !cacheData) return;
+    // this.searchMode.set(cacheData.searchMode);
+    // this.typeProcedures.set(cacheData.types);
+    // this.datasource.set(cacheData.data);
+    // this.datasize.set(cacheData.size);
+    // this.FormProcedure().patchValue(cacheData.form);
   }
 
   private createSimpleForm(): FormGroup {
@@ -200,12 +200,12 @@ export class ReportSearchComponent {
   }
 
   get limit() {
-    return this.cacheService.pageSize();
+    return 0
   }
   get offset() {
-    return this.cacheService.pageOffset();
+    return 0
   }
   get index() {
-    return this.cacheService.pageIndex();
+    return 0
   }
 }

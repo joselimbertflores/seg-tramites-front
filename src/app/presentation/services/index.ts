@@ -1,6 +1,5 @@
 export * from '../../layout/presentation/services/socket.service';
 export * from './pdf.service';
-export * from './cache.service';
 export * from '../../shared/services/appearance.service';
 
 export * from '../../auth/presentation/services/auth.service';

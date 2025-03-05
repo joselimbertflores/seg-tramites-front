@@ -1,21 +1,17 @@
-import { CommonModule, ViewportScroller } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
-  effect,
-  ElementRef,
   inject,
   OnInit,
-  Signal,
   signal,
-  ViewChild,
-  viewChild,
 } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
-import { MatIconModule } from '@angular/material/icon';
+import { RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDialog } from '@angular/material/dialog';
+
 import { FolderDialogComponent } from './folder-dialog/folder-dialog.component';
 import { FolderService } from '../../services/folder.service';
 import {
@@ -23,9 +19,7 @@ import {
   CacheService,
   RestoreScrollDirective,
 } from '../../../../shared';
-import { Router, RouterModule, Scroll } from '@angular/router';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { filter, map } from 'rxjs';
+import { folder } from '../../../infrastructure';
 
 @Component({
   selector: 'app-folders',
@@ -43,15 +37,13 @@ import { filter, map } from 'rxjs';
     .box-folder{
       background: var(--mat-sys-surface-container);
     }
-
     .box-folder:hover {
       background:var(--mat-sys-surface-dim);
     }
-
   `,
 })
 export default class FoldersComponent implements OnInit {
-  folders = signal<any[]>([]);
+  folders = signal<folder[]>([]);
   private alertService = inject(AlertService);
   private cacheService = inject(CacheService);
   isLoading = signal<boolean>(false);
@@ -68,49 +60,35 @@ export default class FoldersComponent implements OnInit {
   loadFolders() {
     this.isLoading.set(true);
     this.archiveService.getFolders().subscribe((folders) => {
-      this.isLoading.set(false);
       this.folders.set(folders);
+      this.isLoading.set(false);
     });
   }
 
-  openCreateFolderDialog() {
-    const dialogRef = this.dialog.open(FolderDialogComponent);
-
-    dialogRef.afterClosed().subscribe((folderName) => {
-      if (folderName) {
-        this.archiveService.createFolder(folderName).subscribe({
-          next: (newFolder) => {
-            this.folders.update((values) => [...values, newFolder]); // Agregar la nueva carpeta a la lista
-            console.log('Carpeta creada:', newFolder);
-          },
-          error: (err) => {
-            console.error('Error al crear carpeta:', err);
-          },
-        });
-      }
+  create() {
+    const dialogRef = this.dialog.open(FolderDialogComponent, {
+      width: '500px',
+      maxWidth: '500px',
+    });
+    dialogRef.afterClosed().subscribe((folder) => {
+      if (!folder) return;
+      this.folders.update((values) => [folder, ...values]);
     });
   }
 
-  deleteFolder(id: string, event: Event) {
+  delete(id: string, event: Event) {
     event.stopPropagation();
     this.alertService
       .confirmDialog({
-        title: 'Eliminar carpeta?',
+        title: '¿Eliminar carpeta?',
         description: 'Se borrara la carpeta seleccionada',
       })
       .subscribe((result) => {
         if (!result) return;
-
-        this.archiveService.deleteFolder(id).subscribe({
-          next: () => {
-            this.folders.set(
-              this.folders().filter((folder) => folder._id !== id)
-            );
-            console.log('Carpeta eliminada:', id);
-          },
-          error: (err) => {
-            console.error('Error al eliminar carpeta:', err);
-          },
+        this.archiveService.delete(id).subscribe(() => {
+          this.folders.update((values) =>
+            values.filter((item) => item._id !== id)
+          );
         });
       });
   }

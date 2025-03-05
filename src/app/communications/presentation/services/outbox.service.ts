@@ -55,7 +55,7 @@ export class OutboxService {
 
   cancel(selected: string[]) {
     return this.http.delete<{ message: string }>(this.url, {
-      body: { communicationIds: selected },
+      body: { ids: selected },
     });
   }
 

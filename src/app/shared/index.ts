@@ -23,4 +23,3 @@ export * from './components/alerts/alert-message/alert-message.component';
 export * from './components/badge/badge.component';
 export * from './components/progress-bar/progress-bar.component';
 
-export * from './components/messages/empty-message/empty-message.component';

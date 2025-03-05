@@ -14,7 +14,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { CacheService, PdfService, ReportService } from '../../../services';
+import { PdfService, ReportService } from '../../../services';
 import {
   PaginatorComponent,
   ReportProcedureTableComponent,
@@ -37,21 +37,21 @@ interface CacheData {
 }
 
 @Component({
-    selector: 'app-report-applicant',
-    imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MaterialModule,
-        ReportProcedureTableComponent,
-        PaginatorComponent,
-    ],
-    templateUrl: './report-applicant.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'app-report-applicant',
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MaterialModule,
+    ReportProcedureTableComponent,
+    PaginatorComponent,
+  ],
+  templateUrl: './report-applicant.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReportApplicantComponent {
   private fb = inject(FormBuilder);
-  private cacheService: CacheService<CacheData> = inject(CacheService);
+  // private cacheService: CacheService<CacheData> = inject(CacheService);
   private reportService = inject(ReportService);
   private pdfService = inject(PdfService);
 
@@ -90,12 +90,12 @@ export class ReportApplicantComponent {
       (val) => val === ''
     );
     if (isFormEmpty) return;
-    this.cacheService.resetPagination();
+    // this.cacheService.resetPagination();
     this.getData();
   }
 
   clear() {
-    this.cacheService.resetPagination();
+    // this.cacheService.resetPagination();
     this.datasize.set(0);
     this.datasource.set([]);
     this.FormApplicant().reset({});
@@ -121,8 +121,8 @@ export class ReportApplicantComponent {
   }
 
   changePage(params: { limit: number; index: number }) {
-    this.cacheService.pageSize.set(params.limit);
-    this.cacheService.pageIndex.set(params.index);
+    // this.cacheService.pageSize.set(params.limit);
+    // this.cacheService.pageIndex.set(params.index);
     this.getData();
   }
 
@@ -170,7 +170,7 @@ export class ReportApplicantComponent {
   }
 
   private savePaginationData(): void {
-    this.cacheService.resetPagination();
+    // this.cacheService.resetPagination();
     const cache = {
       form: this.FormApplicant().value,
       typeSearch: this.typeSearch(),
@@ -178,26 +178,26 @@ export class ReportApplicantComponent {
       data: this.datasource(),
       size: this.datasize(),
     };
-    this.cacheService.save('report-applicant', cache);
+    // this.cacheService.save('report-applicant', cache);
   }
 
   private loadPaginationData(): void {
-    const cacheData = this.cacheService.load('report-applicant');
-    if (!this.cacheService.keepAliveData() || !cacheData) return;
-    this.datasource.set(cacheData.data);
-    this.datasize.set(cacheData.size);
-    this.typeApplicant.set(cacheData.typeApplicant);
-    this.typeSearch.set(cacheData.typeSearch);
-    this.FormApplicant().patchValue(cacheData.form);
+    // const cacheData = this.cacheService.load('report-applicant');
+    // if (!this.cacheService.keepAliveData() || !cacheData) return;
+    // this.datasource.set(cacheData.data);
+    // this.datasize.set(cacheData.size);
+    // this.typeApplicant.set(cacheData.typeApplicant);
+    // this.typeSearch.set(cacheData.typeSearch);
+    // this.FormApplicant().patchValue(cacheData.form);
   }
 
   get limit() {
-    return this.cacheService.pageSize();
+    return 0;
   }
   get offset() {
-    return this.cacheService.pageOffset();
+    return 0;
   }
   get index() {
-    return this.cacheService.pageIndex();
+    return 0;
   }
 }

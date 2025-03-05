@@ -96,6 +96,7 @@
 
   <div class="w-full px-2 sm:w-1/4 h-12">
     <search-input
+      [initValue]="term()"
       (onSearch)="search($event)"
       placeholder="Alterno / Referencia"
     />
@@ -145,13 +146,8 @@
 
     <ng-container matColumnDef="emitter">
       <th mat-header-cell *matHeaderCellDef>Remitente</th>
-      <td mat-cell *matCellDef="let row">
-        <div class="rounded-full flex items-center p-1 border">
-          <div class="h-6 w-6 mr-2">
-            <img src="images/icons/account.png" class="rounded-full" />
-          </div>
-          {{ row.sender.fullname | titlecase }}
-        </div>
+      <td mat-cell *matCellDef="let row" class="font-medium">
+        {{ row.sender.fullname | titlecase }}
       </td>
     </ng-container>
 

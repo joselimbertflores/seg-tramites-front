@@ -1,32 +1,49 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
+import { FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
+import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
+
+import { FolderService } from '../../../services';
 
 @Component({
   selector: 'app-folder-dialog',
   standalone: true,
-  imports: [MatInputModule, ReactiveFormsModule, MatDialogModule, MatButtonModule,CommonModule],
+  imports: [
+    CommonModule,
+    MatInputModule,
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatButtonModule,
+  ],
+  providers: [
+    {
+      provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
+      useValue: { appearance: 'outline' },
+    },
+  ],
   template: `
-    <h2 mat-dialog-title>Crear nueva carpeta</h2>
+    <h2 mat-dialog-title>Crear carpeta</h2>
     <mat-dialog-content>
-      <mat-form-field class="w-full">
-        <mat-label>Nombre de la carpeta</mat-label>
-        <input matInput [formControl]="name" />
-        <mat-error *ngIf="name.hasError('required')">
-          El nombre es obligatorio.
-        </mat-error>
-        <mat-error *ngIf="name.hasError('minlength')">
-          Debe tener al menos 3 caracteres.
-        </mat-error>
-      </mat-form-field>
+      <div class="pt-2">
+        <mat-form-field class="w-full">
+          <mat-label>Nombre de la carpeta</mat-label>
+          <input matInput [formControl]="name" />
+          <mat-error *ngIf="name.hasError('required')">
+            El nombre es obligatorio.
+          </mat-error>
+          <mat-error *ngIf="name.hasError('minlength')">
+            Debe tener al menos 3 caracteres.
+          </mat-error>
+        </mat-form-field>
+      </div>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button mat-button (click)="cancel()">Cancelar</button>
+      <button mat-button color="warn" mat-dialog-close>Cancelar</button>
       <button
-        mat-raised-button
+        mat-button
         color="primary"
         (click)="create()"
         [disabled]="name.invalid"
@@ -38,19 +55,18 @@ import { MatInputModule } from '@angular/material/input';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FolderDialogComponent {
-  name = new FormControl('', [Validators.required, Validators.minLength(3)]);
-  constructor(
-    private dialogRef: MatDialogRef<FolderDialogComponent>,
-    private fb: FormBuilder
-  ) {}
+  private dialogRef = inject(MatDialogRef);
+  private folderService = inject(FolderService);
 
-  cancel() {
-    this.dialogRef.close();
-  }
+  name = new FormControl('', {
+    nonNullable: true,
+    validators: [Validators.required, Validators.minLength(3)],
+  });
+  constructor() {}
 
   create() {
-    if (this.name.valid) {
-      this.dialogRef.close(this.name.value);
-    }
+    this.folderService.create(this.name.value).subscribe((folder) => {
+      this.dialogRef.close(folder);
+    });
   }
 }

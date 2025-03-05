@@ -58,7 +58,8 @@ export default class ArchivesComponent implements OnInit {
   }
 
   getData() {
-    this.archiveService.findAll(this.folderId).subscribe((data) => {
+    const id = this.folderId === 'no-folder' ? null : this.folderId;
+    this.archiveService.findAll(id).subscribe((data) => {
       this.datasource.set(data.archives);
       this.folderName.set(data.folderName);
     });

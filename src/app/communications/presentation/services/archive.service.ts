@@ -20,7 +20,7 @@ export class ArchiveService {
     return this.http.post<{ message: string }>(this.url, form);
   }
 
-  findAll(folderId?: string) {
+  findAll(folderId: string | null) {
     const params = new HttpParams({
       fromObject: { ...(folderId && { folder: folderId }) },
     });

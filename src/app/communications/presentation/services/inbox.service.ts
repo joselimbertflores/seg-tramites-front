@@ -129,7 +129,7 @@ export class InboxService {
   }
 
   reject(ids: string[], description: string) {
-    return this.http.put<{ message: string }>(`${this.url}/reject`, {
+    return this.http.put<string[]>(`${this.url}/reject`, {
       description,
       ids,
     });

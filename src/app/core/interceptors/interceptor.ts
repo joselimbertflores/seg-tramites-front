@@ -74,7 +74,6 @@ const handleHttpErrors = (error: HttpErrorResponse, service: AlertService) => {
       });
       break;
     default:
-      service.showToast({ type: 'error', title: 'Ha ocurrido un error' });
       break;
   }
   throw error;

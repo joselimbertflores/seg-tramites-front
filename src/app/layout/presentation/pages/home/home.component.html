@@ -123,11 +123,11 @@
     </mat-sidenav>
 
     <mat-sidenav-content>
-      @if(isAppLoading()){
+      <!-- @if(isAppLoading()){
         <div class="px-2">
           <progress-bar />
         </div>
-      }
+      } -->
       <div [@routeAnimations]="prepareRoute(outlet)">
         <router-outlet #outlet="outlet"></router-outlet>
       </div>

@@ -88,6 +88,15 @@ export class Communication implements communicationProps {
     this.remainingTime = remainingTime;
   }
 
+  public copyWith(modifyObject: {
+    [P in keyof this]?: this[P];
+  }): Communication {
+    return Object.assign(Object.create(Communication.prototype), {
+      ...this,
+      ...modifyObject,
+    });
+  }
+
   get groupLabel(): string {
     const groups = {
       [procedureGroup.External]: 'Externo',

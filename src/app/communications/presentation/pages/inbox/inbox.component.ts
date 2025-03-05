@@ -44,7 +44,6 @@ import {
 import {
   AlertService,
   CacheService,
-  EmptyMessageComponent,
   SearchInputComponent,
 } from '../../../../shared';
 import {
@@ -61,14 +60,16 @@ interface cache {
   index: number;
   limit: number;
   form: Object;
+  term: string;
+  status: communcationStatus | 'all';
 }
 
-// interface;
 @Component({
   selector: 'app-inbox',
   imports: [
     CommonModule,
     RouterModule,
+    FormsModule,
     ReactiveFormsModule,
     OverlayModule,
     MatMenuModule,
@@ -83,8 +84,6 @@ interface cache {
     MatPaginatorModule,
     MatButtonToggleModule,
     SearchInputComponent,
-    FormsModule,
-    EmptyMessageComponent,
   ],
   templateUrl: './inbox.component.html',
   styles: `
@@ -152,15 +151,15 @@ export default class InboxComponent implements OnInit {
   ];
 
   constructor() {
-    this._listenNewCommunications();
-    this._listenCancelCommunications();
+    this.listenNewCommunications();
+    this.listenCancelCommunications();
     this.destroyRef.onDestroy(() => {
-      this._saveCache();
+      this.saveCache();
     });
   }
 
   ngOnInit(): void {
-    this._loadCache();
+    this.loadCache();
   }
 
   getData(): void {
@@ -215,13 +214,7 @@ export default class InboxComponent implements OnInit {
       )
       .subscribe({
         next: (ids) => this.setStatusItems(ids, communcationStatus.Received),
-        error: (error) => {
-          if (error instanceof HttpErrorResponse && error.status === 409) {
-            const { toRemove = [], toUpdated = [] } = error.error;
-            this.removeItems(toRemove);
-            this.setStatusItems(toUpdated, communcationStatus.Received);
-          }
-        },
+        error: (error) => this.hadleHttpErrors(error),
       });
   }
 
@@ -241,15 +234,16 @@ export default class InboxComponent implements OnInit {
           this.inboxService.reject(selection, description!)
         )
       )
-      .subscribe(() => {
-        this.removeItems(selection);
+      .subscribe({
+        next: (ids) => this.removeItems(ids),
+        error: (error) => this.hadleHttpErrors(error),
       });
   }
 
-  archive(communications: Communication[]) {
+  archive(items: Communication[]) {
     const dialogRef = this.dialogRef.open(ArchiveDialogComponent, {
       width: '600px',
-      data: communications,
+      data: items,
     });
     dialogRef.afterClosed().subscribe((result: string[]) => {
       if (!result) return;
@@ -311,20 +305,19 @@ export default class InboxComponent implements OnInit {
     );
   }
 
-  private _listenNewCommunications(): void {
+  private listenNewCommunications(): void {
     this.socketService
       .listenNewCommunications()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((communication) => {
-        this.datasource.update((values) => {
-          if (values.length === this.limit()) values.pop();
-          return [communication, ...values];
-        });
+      .subscribe((item) => {
+        this.datasource.update((values) =>
+          [item, ...values].slice(0, this.limit())
+        );
         this.datasize.update((length) => (length += 1));
       });
   }
 
-  private _listenCancelCommunications() {
+  private listenCancelCommunications() {
     this.socketService
       .listenCancelCommunications()
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -334,8 +327,8 @@ export default class InboxComponent implements OnInit {
   }
 
   private removeItems(ids: string[]): void {
-    this.datasource.update((values) =>
-      values.filter(({ id }) => !ids.includes(id))
+    this.datasource.update((items) =>
+      items.filter(({ id }) => !ids.includes(id))
     );
     this.datasize.update((length) => (length -= ids.length));
     this.selection.clear();
@@ -355,23 +348,34 @@ export default class InboxComponent implements OnInit {
     );
   }
 
-  private _saveCache(): void {
+  private hadleHttpErrors(error: any) {
+    if (error instanceof HttpErrorResponse && error.status === 409) {
+      const { toRemove = [] } = error.error;
+      this.removeItems(toRemove);
+    }
+  }
+
+  private saveCache(): void {
     this.cacheService.save('inbox', {
       datasource: this.datasource(),
       datasize: this.datasize(),
       limit: this.limit(),
       index: this.index(),
       form: this.filterForm.value,
+      term: this.term(),
+      status: this.status(),
     });
   }
 
-  private _loadCache(): void {
+  private loadCache(): void {
     const cache = this.cacheService.load('inbox');
-    if (!cache) return this.getData();
+    if (!cache || !this.cacheService.keepAlive()) return this.getData();
     this.datasource.set(cache.datasource);
     this.datasize.set(cache.datasize);
     this.limit.set(cache.limit);
     this.index.set(cache.index);
     this.filterForm.patchValue(cache.form);
+    this.term.set(cache.term);
+    this.status.set(cache.status);
   }
 }
