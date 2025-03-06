@@ -122,12 +122,12 @@
       <navigation-list [menu]="menu" />
     </mat-sidenav>
 
-    <mat-sidenav-content>
-      <!-- @if(isAppLoading()){
-        <div class="px-2">
-          <progress-bar />
+    <mat-sidenav-content style="position: relative;">
+      @if(loading$ | async) { 
+        <div class="absolute inset-0 flex items-center justify-center backdrop-blur-[2px] bg-gray-500 bg-opacity-30 z-50">
+          <mat-spinner />
         </div>
-      } -->
+      }
       <div [@routeAnimations]="prepareRoute(outlet)">
         <router-outlet #outlet="outlet"></router-outlet>
       </div>

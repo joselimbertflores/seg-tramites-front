@@ -215,6 +215,7 @@ export class ExternalDialogComponent {
     this.formProcedure.removeControl('type');
     this.formProcedure.removeControl('segment');
     this.formProcedure.patchValue(props);
+    console.log(props);
 
     this.applicantType.set(applicant.type);
     this.formApplicant().patchValue(applicant);

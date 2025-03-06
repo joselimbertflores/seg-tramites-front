@@ -45,10 +45,12 @@ import { PublicationDialogComponent } from '../../../../publications/presentatio
 import {
   AlertService,
   CacheService,
+  LoadingService,
   ProgressBarComponent,
 } from '../../../../shared';
 import { routeAnimations } from '../../../../../slideInAnimation';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-home',
@@ -64,7 +66,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatButtonModule,
     ScrollingModule,
     MatTooltipModule,
-    ProgressBarComponent,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
@@ -78,9 +80,8 @@ export default class HomeComponent {
   private destroyRef = inject(DestroyRef);
   private router = inject(Router);
 
-  isAppLoading = inject(AppearanceService).isAppLoading;
-
   readonly dialogRef = inject(MatDialog);
+  loading$ = inject(LoadingService).isLoading$;
 
   public isProfileOpen = false;
 

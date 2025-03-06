@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
@@ -37,6 +38,7 @@ interface cache {
     MatIconModule,
     MatButtonModule,
     MatToolbarModule,
+    MatTooltipModule,
     MatPaginatorModule,
     SearchInputComponent,
   ],
@@ -66,18 +68,19 @@ export default class ExternalsManageComponent {
 
   constructor() {
     inject(DestroyRef).onDestroy(() => {
-      this._saveCache();
+      this.saveCache();
     });
   }
 
   ngOnInit(): void {
-    this._loadCache();
+    this.loadCache();
   }
 
   getData(): void {
     this.externalService
       .findAll(this.limit(), this.offset(), this.term())
       .subscribe(({ procedures, length }) => {
+        console.log('load data form server');
         this.datasource.set(procedures);
         this.datasize.set(length);
       });
@@ -157,7 +160,7 @@ export default class ExternalsManageComponent {
     this.getData();
   }
 
-  private _saveCache(): void {
+  private saveCache(): void {
     this.cacheService.save('externals', {
       datasource: this.datasource(),
       datasize: this.datasize(),
@@ -167,7 +170,7 @@ export default class ExternalsManageComponent {
     });
   }
 
-  private _loadCache(): void {
+  private loadCache(): void {
     const cache = this.cacheService.load('externals');
     if (!cache) return this.getData();
     this.datasource.set(cache.datasource);

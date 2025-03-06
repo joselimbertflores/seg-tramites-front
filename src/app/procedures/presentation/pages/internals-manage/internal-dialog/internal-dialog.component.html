@@ -1,18 +1,13 @@
 <h2 mat-dialog-title>{{ data ? "Edicion" : "Creacion" }} Tramite Interno</h2>
 <mat-dialog-content>
   <form [formGroup]="formProcedure" class="pt-2">
-    @if (!data) { @if(!selectedDocProps()){
-    <alert-message
-      severity="info"
-      title="Esta hoja de ruta se creara sin cite"
-    />
-    }
+    @if (!data) {
     <select-search
       [items]="documents()"
       (onTyped)="searchDocuments($event)"
       (onSelect)="onSelectDoc($event)"
       [autoFilter]="false"
-      title="Documento a adjuntar (CITE)"
+      title="OPCIONAL - Documento a adjuntar (CITE)"
       placeholder="Selecciono un documento (Opcional)"
       placeholderLabel="Referencia / Codigo"
     />

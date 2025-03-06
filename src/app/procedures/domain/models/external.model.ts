@@ -9,14 +9,18 @@ interface ExternalProps extends ProcedureProps {
 }
 
 interface applicant {
-  fullname: string;
+  firstname: string;
+  middlename?: string;
+  lastname?: string;
   phone: string;
   dni?: string;
   type: 'NATURAL' | 'JURIDICO';
 }
 
 interface representative {
-  fullname: string;
+  firstname: string;
+  middlename: string;
+  lastname?: string;
   phone: string;
   dni: string;
 }
@@ -42,6 +46,28 @@ export class ExternalProcedure extends Procedure implements ExternalProps {
     this.requirements = requirements;
     this.type = type;
     this.pin = pin;
+  }
+
+  get fullnameApplicant() {
+    return [
+      this.applicant.firstname,
+      this.applicant.middlename,
+      this.applicant.lastname,
+    ]
+      .filter((term) => term)
+      .join(' ');
+  }
+
+  get fullnameRepresentative() {
+    return this.representative
+      ? [
+          this.representative.firstname,
+          this.representative.middlename,
+          this.representative.lastname,
+        ]
+          .filter((term) => term)
+          .join(' ')
+      : 'Sin representante';
   }
 
   public copyWith(modifyObject: {

@@ -33,7 +33,7 @@
       <ng-container matColumnDef="code">
         <th mat-header-cell *matHeaderCellDef>Alterno</th>
         <td mat-cell *matCellDef="let row" [id]="row._id" class="sm:w-[200px]">
-          <a [routerLink]="['../external', row._id]" class="text-blue-600">
+          <a [routerLink]="['../external', 'detail',row._id]" class="text-blue-600">
             {{ row.code }}
           </a>
         </td>
@@ -47,13 +47,13 @@
       <ng-container matColumnDef="applicant">
         <th mat-header-cell *matHeaderCellDef>Solicitante</th>
         <td mat-cell *matCellDef="let row">
-          {{ row.applicant.fullname | titlecase }}
+          {{ row.fullnameApplicant | titlecase }}
         </td>
       </ng-container>
       <ng-container matColumnDef="date">
         <th mat-header-cell *matHeaderCellDef>Fecha</th>
         <td mat-cell *matCellDef="let row">
-          {{ row.createdAt | date : "short" : "-400" }}
+          {{ row.createdAt | date : "shortDate" : "-400" }}
         </td>
       </ng-container>
       <ng-container matColumnDef="options">

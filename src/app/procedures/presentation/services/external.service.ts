@@ -1,10 +1,14 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { map } from 'rxjs';
+import { map, tap } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
 import { typeProcedure } from '../../../administration/infrastructure';
 import { external, ExternalMapper } from '../../infrastructure';
+import {
+  LOAD_INDICATOR,
+  UPLOAD_INDICATOR,
+} from '../../../core/interceptors/interceptor';
 
 interface manageExternalProps {
   formProcedure: Object;
@@ -55,15 +59,19 @@ export class ExternalService {
     requirements,
   }: manageExternalProps) {
     return this.http
-      .post<external>(`${this.url}`, {
-        ...formProcedure,
-        requirements,
-        applicant: formApplicant,
-        representative:
-          Object.keys(formRepresentative).length > 0
-            ? formRepresentative
-            : null,
-      })
+      .post<external>(
+        `${this.url}`,
+        {
+          ...formProcedure,
+          requirements,
+          applicant: formApplicant,
+          representative:
+            Object.keys(formRepresentative).length > 0
+              ? formRepresentative
+              : null,
+        },
+        { context: new HttpContext().set(UPLOAD_INDICATOR, true) }
+      )
       .pipe(map((response) => ExternalMapper.fromResponse(response)));
   }
 
@@ -72,20 +80,18 @@ export class ExternalService {
     { formProcedure, formApplicant, formRepresentative }: manageExternalProps
   ) {
     return this.http
-      .patch<external>(`${this.url}/${id}`, {
-        ...formProcedure,
-        applicant: formApplicant,
-        representative:
-          Object.keys(formRepresentative).length > 0
-            ? formRepresentative
-            : null,
-      })
+      .patch<external>(
+        `${this.url}/${id}`,
+        {
+          ...formProcedure,
+          applicant: formApplicant,
+          representative:
+            Object.keys(formRepresentative).length > 0
+              ? formRepresentative
+              : null,
+        },
+        { context: new HttpContext().set(UPLOAD_INDICATOR, true) }
+      )
       .pipe(map((response) => ExternalMapper.fromResponse(response)));
-  }
-
-  getDetail(id: string) {
-    return this.http
-      .get<external>(`${this.url}/${id}`)
-      .pipe(map((resp) => ExternalMapper.fromResponse(resp)));
   }
 }

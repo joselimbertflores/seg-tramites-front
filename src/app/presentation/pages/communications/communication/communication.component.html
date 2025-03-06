@@ -12,10 +12,10 @@
   <div class="content">
     @switch (mail()!.procedure.group) { 
       @case ('ExternalDetail') {
-        <external-detail [id]="mail()!.procedure._id" [enableOptions]="true" (onStateChange)="handleState($event)"/>
+        <!-- <external-detail [id]="mail()!.procedure._id" [enableOptions]="true" (onStateChange)="handleState($event)"/> -->
       } 
       @case ('InternalDetail') {
-        <internal-detail [id]="mail()!.procedure._id" />
+        <!-- <internal-detail [id]="mail()!.procedure._id" /> -->
       } 
       @default {
         <p>Type procedure is note defined</p>

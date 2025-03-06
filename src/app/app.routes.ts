@@ -101,44 +101,25 @@ export const routes: Routes = [
               ),
           },
           {
-            path: 'external/:id',
-            data: { animation: 'slide' },
-            loadComponent: () =>
-              import(
-                './procedures/presentation/pages/external-detail/external-detail.component'
-              ),
-          },
-          {
             path: 'internal',
-            data: { animation: 'fadeIn' },
             loadComponent: () =>
               import(
                 './procedures/presentation/pages/internals-manage/internals-manage.component'
               ),
           },
           {
-            path: 'internal/:id',
-            data: { animation: 'slide' },
-            loadComponent: () =>
-              import(
-                './procedures/presentation/pages/internal-detail/internal-detail.component'
-              ),
-          },
-          {
             path: 'procurement',
-            title: 'Contrataciones',
-            data: { animation: 'fadeIn' },
             loadComponent: () =>
               import(
                 './procedures/presentation/pages/procurements-manage/procurements-manage.component'
               ),
           },
           {
-            path: 'procurement/:id',
+            path: ':from/detail/:id',
+            title: 'Detalle',
+            data: { animation: 'slide' },
             loadComponent: () =>
-              import(
-                './procedures/presentation/pages/procurements-manage/procurement-detail/procurement-detail.component'
-              ),
+              import('./procedures/presentation/pages/detail/detail.component'),
           },
           {
             path: 'inbox',

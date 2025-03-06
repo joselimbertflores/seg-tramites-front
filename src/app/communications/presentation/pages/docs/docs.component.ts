@@ -7,6 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -42,6 +43,7 @@ import { DocService } from '../../services';
     MatTooltipModule,
     SearchInputComponent,
     YearPickerComponent,
+    MatPaginatorModule,
   ],
   templateUrl: './docs.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -144,6 +146,12 @@ export default class DocsComponent implements OnInit {
   reset() {
     this.filterForm.reset();
     this.isFilterOpen = false;
+    this.getData();
+  }
+
+  onPageChange({ pageIndex, pageSize }: PageEvent) {
+    this.limit.set(pageSize);
+    this.index.set(pageIndex);
     this.getData();
   }
 }

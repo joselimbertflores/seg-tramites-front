@@ -22,11 +22,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 
 import {
-  AlertMessageComponent,
   AutocompleteComponent,
+  SelectSearchComponent,
   AutocompleteOption,
   selectOption,
-  SelectSearchComponent,
 } from '../../../../../shared';
 
 import { DocService } from '../../../../../communications/presentation/services';
@@ -51,7 +50,6 @@ type participantOptions = {
     MatDialogModule,
     AutocompleteComponent,
     SelectSearchComponent,
-    AlertMessageComponent,
   ],
   templateUrl: './internal-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

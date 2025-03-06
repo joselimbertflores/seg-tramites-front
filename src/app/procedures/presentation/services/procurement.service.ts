@@ -51,8 +51,4 @@ export class ProcurementService {
       .patch<docPropsProcurement>(`${this.url}/documents/${id}`, form)
       .pipe(map(({ date, ...props }) => ({ ...props, date: new Date(date) })));
   }
-
-  getDetail(procedureId: string) {
-    return this.http.get<any>(`${this.url}/${procedureId}`);
-  }
 }

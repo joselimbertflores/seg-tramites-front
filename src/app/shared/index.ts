@@ -11,6 +11,7 @@ export * from './services/cache.service';
 export * from './services/alert.service';
 export * from './services/docx.service';
 export * from './services/appearance.service';
+export * from './services/loading.service';
 
 export * from './directives/back-button.directive';
 export * from './directives/restore-scroll.directive';
@@ -22,4 +23,3 @@ export * from './components/inputs/year-picker/year-picker.component';
 export * from './components/alerts/alert-message/alert-message.component';
 export * from './components/badge/badge.component';
 export * from './components/progress-bar/progress-bar.component';
-

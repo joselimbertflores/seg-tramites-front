@@ -3,18 +3,24 @@ import {
   HttpRequest,
   HttpHandlerFn,
   HttpErrorResponse,
+  HttpContextToken,
 } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { Router } from '@angular/router';
 import { Observable, catchError, finalize, throwError } from 'rxjs';
-import { AlertService, AppearanceService } from '../../shared';
+import { AlertService, LoadingService } from '../../shared';
+
+export const LOAD_INDICATOR = new HttpContextToken<boolean>(() => true);
+export const UPLOAD_INDICATOR = new HttpContextToken<boolean>(() => false);
 
 export function loggingInterceptor(
   req: HttpRequest<unknown>,
   next: HttpHandlerFn
 ): Observable<HttpEvent<unknown>> {
   const alertService = inject(AlertService);
-  const isAppLoading = inject(AppearanceService).isAppLoading;
+  const loadingService = inject(LoadingService);
+
+  const showLoadIndicator = req.context.get(LOAD_INDICATOR);
+  const showUploadIndicator = req.context.get(UPLOAD_INDICATOR);
 
   const reqWithHeader = req.clone({
     headers: req.headers.append(
@@ -22,19 +28,17 @@ export function loggingInterceptor(
       `Bearer ${localStorage.getItem('token') || ''}`
     ),
   });
+  if (showLoadIndicator) loadingService.loadingOff();
+  if (showUploadIndicator) loadingService.uploadingOn();
 
-  if (req.headers.has('loader')) {
-    alertService.showAppLoader();
-  }
-  isAppLoading.set(true);
   return next(reqWithHeader).pipe(
     catchError((error) => {
       handleHttpErrors(error, alertService);
       return throwError(() => Error);
     }),
     finalize(() => {
-      alertService.closeAppLoader();
-      isAppLoading.set(false);
+      if (showLoadIndicator) loadingService.loadingOff();
+      if (showUploadIndicator) loadingService.uploadingOff();
     })
   );
 }

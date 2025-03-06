@@ -17,8 +17,8 @@ import { communcationStatus } from '../../../../communications/domain';
     <div class="w-full h-[80vh] p-4">
       <div class="border border-black container h-full bg-gray-100">
         <ngx-graph
-          [links]="graph().links"
           [nodes]="graph().nodes"
+          [links]="graph().links"
           [draggingEnabled]="false"
           [showMiniMap]="true"
           [autoCenter]="true"
@@ -160,6 +160,8 @@ export class WorkflowGraphComponent {
         },
       });
     });
+    console.log('NODES', [...Object.values(nodes)]);
+    console.log('LINKS', [...links]);
     return { nodes: [...Object.values(nodes)], links: [...links] };
   }
 }

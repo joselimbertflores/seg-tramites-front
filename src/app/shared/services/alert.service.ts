@@ -55,8 +55,6 @@ export class AlertService {
 
   private dialogRef = inject(MatDialog);
 
-  private loadingDialogRef?: MatDialogRef<LoaderDialogComponent, void>;
-
   Alert({ icon = 'info', title, text }: AlertOptions) {
     Swal.fire({
       icon,
@@ -153,15 +151,5 @@ export class AlertService {
 
   Snackbar({ message, duration = 3000, action }: SnackbarOptions) {
     return this.snackBar.open(message, action, { duration });
-  }
-
-  showAppLoader(): void {
-    this.loadingDialogRef = this.dialogRef.open(LoaderDialogComponent, {
-      disableClose: true,
-    });
-  }
-
-  closeAppLoader(): void {
-    this.loadingDialogRef?.close();
   }
 }

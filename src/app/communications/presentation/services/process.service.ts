@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map, tap } from 'rxjs';
+import { map } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
 import {
@@ -8,9 +8,13 @@ import {
   ExternalMapper,
   internal,
   InternalMapper,
+  procurement,
+  ProcurementMapper,
 } from '../../../procedures/infrastructure';
 import { communication } from '../../infrastructure';
+import { procedureGroup } from '../../../procedures/domain';
 
+type procedureResponses = internal | external | procurement;
 @Injectable({
   providedIn: 'root',
 })
@@ -21,19 +25,18 @@ export class ProcessService {
 
   getProcedure(id: string, group: string) {
     return this.http
-      .get<internal | external>(`${this.url}/detail/${group}/${id}`)
+      .get<procedureResponses>(`${this.url}/detail/${group}/${id}`)
       .pipe(
-        tap((resp) => console.log(resp)),
         map((resp) => {
           switch (resp.group) {
-            case 'ExternalProcedure':
+            case procedureGroup.External:
               return ExternalMapper.fromResponse(resp as external);
 
-            case 'InternalProcedure':
+            case procedureGroup.Internal:
               return InternalMapper.fromResponse(resp as internal);
 
-            case 'ProcurementProcedure':
-              return resp;
+            case procedureGroup.Procurement:
+              return ProcurementMapper.fromResponse(resp as procurement);
 
             default:
               throw Error('Procedure is not defined');
