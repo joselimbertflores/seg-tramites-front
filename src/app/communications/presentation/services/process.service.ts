@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map } from 'rxjs';
+import { map, tap } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
 import {
@@ -36,6 +36,7 @@ export class ProcessService {
               return InternalMapper.fromResponse(resp as internal);
 
             case procedureGroup.Procurement:
+              console.log('RESPONSE', resp);
               return ProcurementMapper.fromResponse(resp as procurement);
 
             default:

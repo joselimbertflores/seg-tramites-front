@@ -3,7 +3,6 @@ export interface ProcedureProps {
   code: string;
   cite: string;
   numberOfDocuments: string;
-  isSend: boolean;
   reference: string;
   account: string;
   group: procedureGroup;
@@ -62,7 +61,6 @@ export abstract class Procedure {
     state,
     reference,
     numberOfDocuments,
-    isSend,
     createdAt,
     group,
   }: ProcedureProps) {
@@ -73,7 +71,6 @@ export abstract class Procedure {
     this.state = state;
     this.reference = reference;
     this.numberOfDocuments = numberOfDocuments;
-    this.isSend = isSend;
     this.group = group;
     this.createdAt = createdAt;
     // if (endDate) this.endDate = new Date(endDate);

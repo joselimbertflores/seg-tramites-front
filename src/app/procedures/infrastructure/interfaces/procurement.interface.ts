@@ -33,12 +33,12 @@ export interface procurement {
   deliveryLocation: string;
   warranty: string;
   reason: string;
+  account: string;
   documents?: docPropsProcurement[];
   code: string;
   prefix: string;
   correlative: number;
   cite: string;
-  account: string;
   institution: string;
   dependency: string;
   state: string;
@@ -48,4 +48,13 @@ export interface procurement {
   status: string;
   createdAt: string;
   updatedAt: string;
+  codigoProyecto: string;
+  cuce: string;
+  empreseAdjudicada: string;
+  fechaApertura: string;
+  precioAdjudicado: string;
+  representanteLegal: string;
+  tipoResolucion: string;
+  certificacionPoa: string;
+  certificacionPresupuestaria: string;
 }

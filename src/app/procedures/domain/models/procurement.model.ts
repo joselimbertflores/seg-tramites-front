@@ -23,7 +23,6 @@ interface item {
 }
 
 interface procurementProps extends ProcedureProps {
-  _id: string;
   mode: string;
   aperturaProg: string;
   items: item[];
@@ -31,12 +30,22 @@ interface procurementProps extends ProcedureProps {
   descripcionAperturaProg: string;
   metodoAdjudicacion: string;
   formaAdjudicacion: string;
-  price: string;
+  price: number;
   deliveryTimeframe: string;
   deliveryLocation: string;
   warranty: string;
   reason: string;
   documents: procurementDoc[];
+  certificacionPresupuestaria: string;
+  certificacionPoa: string;
+  account: string;
+  codigoProyecto: string;
+  cuce: string;
+  empreseAdjudicada: string;
+  fechaApertura: string;
+  precioAdjudicado: string;
+  representanteLegal: string;
+  tipoResolucion: string;
 }
 
 export class ProcurementProcedure extends Procedure {
@@ -53,6 +62,15 @@ export class ProcurementProcedure extends Procedure {
   warranty: string;
   reason: string;
   documents: procurementDoc[];
+  certificacionPresupuestaria: string;
+  certificacionPoa: string;
+  codigoProyecto: string;
+  cuce: string;
+  empreseAdjudicada: string;
+  fechaApertura: string;
+  precioAdjudicado: string;
+  representanteLegal: string;
+  tipoResolucion: string;
 
   constructor({
     mode,
@@ -68,6 +86,15 @@ export class ProcurementProcedure extends Procedure {
     warranty,
     reason,
     documents,
+    certificacionPresupuestaria,
+    certificacionPoa,
+    codigoProyecto,
+    cuce,
+    empreseAdjudicada,
+    fechaApertura,
+    precioAdjudicado,
+    representanteLegal,
+    tipoResolucion,
     ...procedureProps
   }: procurementProps) {
     super(procedureProps);
@@ -78,12 +105,21 @@ export class ProcurementProcedure extends Procedure {
     this.descripcionAperturaProg = descripcionAperturaProg;
     this.metodoAdjudicacion = metodoAdjudicacion;
     this.formaAdjudicacion = formaAdjudicacion;
-    this.price = +price;
+    this.price = price;
     this.deliveryTimeframe = deliveryTimeframe;
     this.deliveryLocation = deliveryLocation;
     this.warranty = warranty;
     this.reason = reason;
     this.documents = documents;
+    this.certificacionPresupuestaria = certificacionPresupuestaria;
+    this.certificacionPoa = certificacionPoa;
+    this.codigoProyecto = codigoProyecto;
+    this.cuce = cuce;
+    this.empreseAdjudicada = empreseAdjudicada;
+    this.fechaApertura = fechaApertura;
+    this.precioAdjudicado = precioAdjudicado;
+    this.representanteLegal = representanteLegal;
+    this.tipoResolucion = tipoResolucion;
   }
 
   isPrintEnabled(index: number) {

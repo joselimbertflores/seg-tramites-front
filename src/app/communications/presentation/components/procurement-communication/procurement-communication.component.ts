@@ -55,6 +55,7 @@ export class ProcurementCommunicationComponent implements OnInit {
 
   constructor() {
     effect(() => {
+      console.log(this.procedure());
       this.formProcedure.patchValue(this.procedure());
     });
   }

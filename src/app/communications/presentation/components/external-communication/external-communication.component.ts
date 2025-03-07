@@ -55,7 +55,7 @@ import { ExternalProcedure } from '../../../../procedures/domain';
                 <div class="flex flex-row">
                   <dt class="text-sm font-medium w-20">Nombre:</dt>
                   <dd class="text-sm sm:mt-0">
-                    {{ procedure().applicant.fullname| titlecase }}
+                    {{ procedure().fullnameApplicant| titlecase }}
                   </dd>
                 </div>
                 <div class="flex flex-row">
@@ -74,7 +74,7 @@ import { ExternalProcedure } from '../../../../procedures/domain';
                 <div class="flex flex-row">
                   <dt class="text-sm font-medium w-20">Nombre:</dt>
                   <dd class="text-sm sm:mt-0">
-                    {{ procedure().applicant.fullname }}
+                    {{ procedure().fullnameApplicant }}
                   </dd>
                 </div>
                 <div class="flex flex-row">

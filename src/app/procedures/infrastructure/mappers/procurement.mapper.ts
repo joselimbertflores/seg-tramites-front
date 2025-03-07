@@ -8,19 +8,20 @@ export class ProcurementMapper {
     state,
     group,
     documents,
+    price,
     ...props
   }: procurement): ProcurementProcedure {
     return new ProcurementProcedure({
       createdAt: new Date(createdAt),
       state: state as procedureState,
       group: group as procedureGroup,
+      price: +price,
       documents: documents
         ? documents.map(({ date, ...props }) => ({
             ...(date && { date: new Date(date) }),
             ...props,
           }))
         : [],
-      isSend: true,
       ...props,
     });
   }

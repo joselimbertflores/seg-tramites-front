@@ -23,3 +23,5 @@ export * from './components/inputs/year-picker/year-picker.component';
 export * from './components/alerts/alert-message/alert-message.component';
 export * from './components/badge/badge.component';
 export * from './components/progress-bar/progress-bar.component';
+
+export * from './pipes/form-error-messages.pipe';

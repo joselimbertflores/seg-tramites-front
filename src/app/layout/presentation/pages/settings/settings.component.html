@@ -1,207 +1,71 @@
-<!-- <mat-toolbar>
-  <span>Configuraciones</span>
-</mat-toolbar>
-<div class="container-fluid">
-  <mat-accordion>
-    <ng-container>
-      <mat-expansion-panel>
-        <mat-expansion-panel-header>
-          <mat-panel-title> INFORMACION FUNCIONARIO </mat-panel-title>
-          <mat-panel-description> Datos personales </mat-panel-description>
-        </mat-expansion-panel-header>
-        @if(account()){ @if(account()?.funcionario){
-        <form class="row g-3">
-          <div class="col-md-5">
-            <label for="txtOfficer" class="form-label">Nombre completo</label>
-            <input
-              type="text"
-              class="form-control"
-              id="txtOfficer"
-              [value]="account()?.fullnameManager()"
-              readonly
-            />
-          </div>
-          <div class="col-md-7">
-            <label for="txtCargo" class="form-label">Cargo</label>
-            <input
-              type="text"
-              class="form-control"
-              id="txtCargo"
-              [value]="account()!.funcionario?.cargo?.nombre ?? 'Sin cargo'"
-              readonly
-            />
-          </div>
-          <div class="col-md-2">
-            <label for="txtDni" class="form-label">Dni</label>
-            <input
-              type="text"
-              class="form-control"
-              id="txtDni"
-              [value]="account()!.funcionario?.dni"
-              readonly
-            />
-          </div>
-          <div class="col-md-2">
-            <label for="txtTel" class="form-label">Telefono</label>
-            <input
-              type="text"
-              class="form-control"
-              id="txtTel"
-              [value]="account()!.funcionario?.telefono"
-              readonly
-            />
-          </div>
-          <div class="col-md-8">
-            <label for="txtInst" class="form-label">Dependencia</label>
-            <input
-              type="text"
-              class="form-control"
-              id="txtInst"
-              [value]="account()!.dependencia.nombre"
-              readonly
-            />
-          </div>
-        </form>
-        } @else {
-        <div class="row">
-          <div class="col-md-12 p-3">
-            <div class="alert alert-success" role="alert">
-              <h4 class="alert-heading">ADMINISTRADOR</h4>
-              <p>Esta cuenta no pertenece a ningun funcionario</p>
-              <hr />
-              <p class="mb-0">
-                Como administrador/a, usted posee privilegios y acceso especial
-                a recursos críticos para el funcionamiento del sistema.
-              </p>
-            </div>
-          </div>
-        </div>
-        } }
-      </mat-expansion-panel>
-      <mat-expansion-panel [expanded]="true">
-        <mat-expansion-panel-header>
-          <mat-panel-title> CONFIGURACION CUENTA </mat-panel-title>
-          <mat-panel-description>
-            Configuracion de inicio de sesion
-          </mat-panel-description>
-        </mat-expansion-panel-header>
-
-        <div
-          class="d-flex flex-column justify-content-center align-items-center"
-        >
-          <form [formGroup]="form">
-            <mat-form-field class="mb-3">
-              <mat-label>Nombre de usuario</mat-label>
-              <input matInput [value]="account()?.login" readonly />
-              <mat-hint>Este campo no se puede editar</mat-hint>
-            </mat-form-field>
-            <mat-form-field class="mb-3">
-              <mat-label>Nueva Contraseña</mat-label>
-              <input
-                matInput
-                placeholder="Ingresa su nueva contraseña"
-                formControlName="password"
-                [type]="hide() ? 'password' : 'text'"
-              />
-              <button
-                mat-icon-button
-                matSuffix
-                (click)="clickEvent($event)"
-                [attr.aria-label]="'Hide password'"
-                [attr.aria-pressed]="hide()"
-              >
-                <mat-icon>{{
-                  hide() ? "visibility_off" : "visibility"
-                }}</mat-icon>
-              </button>
-              <mat-error>{{
-                handleFormErrorMessages(form.get("password")!)
-              }}</mat-error>
-            </mat-form-field>
-            <mat-form-field class="mb-3">
-              <mat-label>Confirmar Contraseña</mat-label>
-              <input
-                matInput
-                placeholder="Cofirme su contraseña"
-                formControlName="confirmPassword"
-                [type]="hide() ? 'password' : 'text'"
-              />
-              <mat-error>{{
-                handleFormErrorMessages(form.get("confirmPassword")!)
-              }}</mat-error>
-            </mat-form-field>
-          </form>
-        </div>
-
-        <mat-action-row>
-          <button
-            mat-button
-            color="primary"
-            (click)="updatePassword()"
-            [disabled]="form.invalid"
-          >
-            Actualizar
-          </button>
-        </mat-action-row>
-      </mat-expansion-panel>
-    </ng-container>
-    <mat-button-toggle-group
-      aria-label="Theme color"
-      [(ngModel)]="background"
-      (valueChange)="changeTheme()"
-    >
-      <mat-button-toggle value="light">
-        <mat-icon>light_mode</mat-icon>
-      </mat-button-toggle>
-      <mat-button-toggle value="dark">
-        <mat-icon>dark_mode</mat-icon>
-      </mat-button-toggle>
-    </mat-button-toggle-group>
-
-    <mat-form-field>
-      <mat-label>Favorite food</mat-label>
-      <mat-select [(ngModel)]="color" (selectionChange)="changeTheme()" >
-        @for (food of colors; track food) {
-        <mat-option [value]="food">{{ food }}</mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
-  </mat-accordion>
-</div> -->
 <mat-toolbar>
   <span>Configuraciones</span>
 </mat-toolbar>
-<div class="sm:px-4">
-  <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
-    <mat-tab label="Usuario"></mat-tab>
-    <mat-tab label="Personalizacion">
-      <div class="sm:p-2 py-3">
-        <theme-switcher />
+<mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+  <mat-tab label="Usuario">
+    <div class="max-w-4xl mx-auto">
+      <div class="px-4 sm:px-0">
+        <h3 class="text-base/7 font-semibold text-gray-900">
+          Applicant Information
+        </h3>
+        <p class="mt-1 max-w-2xl text-sm/6 text-gray-500">
+          Personal details and application.
+        </p>
       </div>
-      <div>
-        <div class="px-4 sm:px-0">
-          <h3 class="text-base/7 font-semibold text-gray-900">
-            Applicant Information
-          </h3>
-          <p class="mt-1 max-w-2xl text-sm/6 text-gray-500">
-            Personal details and application.
-          </p>
-        </div>
-        <div class="mt-6 border-t border-gray-100">
+      <div class="mt-6 border-t border-gray-100">
+        <form [formGroup]="formUser">
           <dl class="divide-y divide-gray-100">
             <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-              <dt class="text-sm/6 font-medium text-gray-900">Full name</dt>
+              <dt class="text-sm/6 font-medium text-gray-900">Contraseña</dt>
               <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">
-                Margot Foster
+                <mat-form-field class="example-full-width">
+                  <mat-label>Nueva contraseña</mat-label>
+                  <input
+                    matInput
+                    formControlName="password"
+                    value="Ingrese su nueva contraseña"
+                  />
+                  <mat-error>
+                    {{ formUser.get("password")?.errors | formErrorMessages }}
+                  </mat-error>
+                </mat-form-field>
               </dd>
             </div>
+
             <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
               <dt class="text-sm/6 font-medium text-gray-900">
-                Application for
+                Confirmar contraseña
               </dt>
               <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">
-                Backend Developer
+                <mat-form-field class="example-full-width">
+                  <mat-label>Confirmar contraseña</mat-label>
+                  <input
+                    matInput
+                    formControlName="confirmPassword"
+                    value="Ingrese su nueva contraseña"
+                  />
+                  <mat-error>
+                    {{
+                      formUser.get("confirmPassword")?.errors
+                        | formErrorMessages
+                    }}
+                  </mat-error>
+                </mat-form-field>
               </dd>
+              <button mat-button [disabled]="formUser.invalid">Guardar</button>
+              <mat-form-field class="example-full-width">
+                <mat-label>TEst</mat-label>
+                <input
+                  matInput
+                  formControlName="example"
+                  value="Ingrese su nueva contraseña"
+                />
+               
+              </mat-form-field>
+              <pre>
+              {{ formUser.errors | json }}
+
+              </pre>
             </div>
             <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
               <dt class="text-sm/6 font-medium text-gray-900">Email address</dt>
@@ -302,8 +166,137 @@
               </dd>
             </div>
           </dl>
-        </div>
+        </form>
       </div>
-    </mat-tab>
-  </mat-tab-group>
-</div>
+    </div>
+  </mat-tab>
+  <mat-tab label="Personalizacion">
+    <div class="sm:p-2 py-3">
+      <theme-switcher />
+    </div>
+    <div>
+      <div class="px-4 sm:px-0">
+        <h3 class="text-base/7 font-semibold text-gray-900">
+          Applicant Information
+        </h3>
+        <p class="mt-1 max-w-2xl text-sm/6 text-gray-500">
+          Personal details and application.
+        </p>
+      </div>
+      <div class="mt-6 border-t border-gray-100">
+        <dl class="divide-y divide-gray-100">
+          <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+            <dt class="text-sm/6 font-medium text-gray-900">Full name</dt>
+            <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">
+              Margot Foster
+            </dd>
+          </div>
+          <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+            <dt class="text-sm/6 font-medium text-gray-900">Application for</dt>
+            <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">
+              Backend Developer
+            </dd>
+          </div>
+          <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+            <dt class="text-sm/6 font-medium text-gray-900">Email address</dt>
+            <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">
+              margotfosterexample.com
+            </dd>
+          </div>
+          <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+            <dt class="text-sm/6 font-medium text-gray-900">
+              Salary expectation
+            </dt>
+            <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">
+              $120,000
+            </dd>
+          </div>
+          <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+            <dt class="text-sm/6 font-medium text-gray-900">About</dt>
+            <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">
+              Fugiat ipsum ipsum deserunt culpa aute sint do nostrud anim
+              incididunt cillum culpa consequat. Excepteur qui ipsum aliquip
+              consequat sint. Sit id mollit nulla mollit nostrud in ea officia
+              proident. Irure nostrud pariatur mollit ad adipisicing
+              reprehenderit deserunt qui eu.
+            </dd>
+          </div>
+          <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+            <dt class="text-sm/6 font-medium text-gray-900">Attachments</dt>
+            <dd class="mt-2 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+              <ul
+                role="list"
+                class="divide-y divide-gray-100 rounded-md border border-gray-200"
+              >
+                <li
+                  class="flex items-center justify-between py-4 pr-5 pl-4 text-sm/6"
+                >
+                  <div class="flex w-0 flex-1 items-center">
+                    <svg
+                      class="size-5 shrink-0 text-gray-400"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      aria-hidden="true"
+                      data-slot="icon"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M15.621 4.379a3 3 0 0 0-4.242 0l-7 7a3 3 0 0 0 4.241 4.243h.001l.497-.5a.75.75 0 0 1 1.064 1.057l-.498.501-.002.002a4.5 4.5 0 0 1-6.364-6.364l7-7a4.5 4.5 0 0 1 6.368 6.36l-3.455 3.553A2.625 2.625 0 1 1 9.52 9.52l3.45-3.451a.75.75 0 1 1 1.061 1.06l-3.45 3.451a1.125 1.125 0 0 0 1.587 1.595l3.454-3.553a3 3 0 0 0 0-4.242Z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                    <div class="ml-4 flex min-w-0 flex-1 gap-2">
+                      <span class="truncate font-medium"
+                        >resume_back_end_developer.pdf</span
+                      >
+                      <span class="shrink-0 text-gray-400">2.4mb</span>
+                    </div>
+                  </div>
+                  <div class="ml-4 shrink-0">
+                    <a
+                      href="#"
+                      class="font-medium text-indigo-600 hover:text-indigo-500"
+                      >Download</a
+                    >
+                  </div>
+                </li>
+                <li
+                  class="flex items-center justify-between py-4 pr-5 pl-4 text-sm/6"
+                >
+                  <div class="flex w-0 flex-1 items-center">
+                    <svg
+                      class="size-5 shrink-0 text-gray-400"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      aria-hidden="true"
+                      data-slot="icon"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M15.621 4.379a3 3 0 0 0-4.242 0l-7 7a3 3 0 0 0 4.241 4.243h.001l.497-.5a.75.75 0 0 1 1.064 1.057l-.498.501-.002.002a4.5 4.5 0 0 1-6.364-6.364l7-7a4.5 4.5 0 0 1 6.368 6.36l-3.455 3.553A2.625 2.625 0 1 1 9.52 9.52l3.45-3.451a.75.75 0 1 1 1.061 1.06l-3.45 3.451a1.125 1.125 0 0 0 1.587 1.595l3.454-3.553a3 3 0 0 0 0-4.242Z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                    <div class="ml-4 flex min-w-0 flex-1 gap-2">
+                      <span class="truncate font-medium"
+                        >coverletter_back_end_developer.pdf</span
+                      >
+                      <span class="shrink-0 text-gray-400">4.5mb</span>
+                    </div>
+                  </div>
+                  <div class="ml-4 shrink-0">
+                    <a
+                      href="#"
+                      class="font-medium text-indigo-600 hover:text-indigo-500"
+                      >Download</a
+                    >
+                  </div>
+                </li>
+              </ul>
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </mat-tab>
+</mat-tab-group>

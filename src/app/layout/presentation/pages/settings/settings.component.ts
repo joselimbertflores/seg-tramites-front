@@ -11,6 +11,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatExpansionModule } from '@angular/material/expansion';
 import {
   AbstractControl,
+  AbstractControlOptions,
   FormBuilder,
   FormControl,
   FormGroup,
@@ -29,8 +30,7 @@ import { Router } from '@angular/router';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTabsModule } from '@angular/material/tabs';
-import { Account } from '../../../../domain/models';
-import { FormValidators } from '../../../../helpers';
+import { CustomFormValidators } from '../../../../helpers';
 import { SidenavButtonComponent } from '../../../../presentation/components';
 import { NotificationComponent } from '../../../../presentation/components/notification/notification.component';
 import {
@@ -38,29 +38,30 @@ import {
   AppearanceService,
 } from '../../../../presentation/services';
 import { ThemeSwitcherComponent } from '../../components';
-import { AlertService } from '../../../../shared';
+import { AlertService, FormErrorMessagesPipe } from '../../../../shared';
 
 @Component({
-    selector: 'app-settings',
-    imports: [
-        CommonModule,
-        MatToolbarModule,
-        SidenavButtonComponent,
-        MatExpansionModule,
-        ReactiveFormsModule,
-        MatIconModule,
-        FormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatButtonModule,
-        MatButtonToggleModule,
-        MatSelectModule,
-        MatTabsModule,
-        ThemeSwitcherComponent,
-    ],
-    templateUrl: './settings.component.html',
-    styleUrl: './settings.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'app-settings',
+  imports: [
+    CommonModule,
+    MatToolbarModule,
+    SidenavButtonComponent,
+    MatExpansionModule,
+    ReactiveFormsModule,
+    MatIconModule,
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatButtonToggleModule,
+    MatSelectModule,
+    MatTabsModule,
+    ThemeSwitcherComponent,
+    FormErrorMessagesPipe,
+  ],
+  templateUrl: './settings.component.html',
+  styleUrl: './settings.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class SettingsComponent implements OnInit {
   private authService = inject(AuthService);
@@ -69,8 +70,9 @@ export default class SettingsComponent implements OnInit {
   private fb = inject(FormBuilder);
   private router = inject(Router);
 
-  form = this.fb.group(
+  formUser = this.fb.group(
     {
+      example: ['', Validators.required],
       password: [
         '',
         [
@@ -81,7 +83,12 @@ export default class SettingsComponent implements OnInit {
       ],
       confirmPassword: ['', [Validators.required]],
     },
-    { validator: FormValidators.MatchingPasswords }
+    {
+      validators: CustomFormValidators.matchFields(
+        'password',
+        'confirmPassword'
+      ),
+    }
   );
 
   dialogRef = inject(MatDialog);
@@ -96,15 +103,15 @@ export default class SettingsComponent implements OnInit {
   }
 
   updatePassword() {
-    if (this.form.invalid) return;
+    if (this.formUser.invalid) return;
     this.authService
-      .updateMyAccount(this.form.get('password')?.value!)
+      .updateMyAccount(this.formUser.get('password')?.value!)
       .subscribe((resp) => {
         this.hide.set(true);
-        this.form.reset({});
-        Object.keys(this.form.controls).forEach((key) => {
-          this.form.get(key)?.setErrors(null);
-          this.form.get(key)?.setErrors(null);
+        this.formUser.reset({});
+        Object.keys(this.formUser.controls).forEach((key) => {
+          this.formUser.get(key)?.setErrors(null);
+          this.formUser.get(key)?.setErrors(null);
         });
         this.router.navigateByUrl('/home');
       });
@@ -122,19 +129,4 @@ export default class SettingsComponent implements OnInit {
     if (this.authService.updatedPassword()) return;
     this.dialogRef.open(NotificationComponent);
   }
-
-  handleFormErrorMessages = (control: AbstractControl) => {
-    if (control.hasError('required')) return 'Este campo es requerido';
-    if (control.hasError('minlength')) {
-      const minLengthRequired = control.getError('minlength').requiredLength;
-      return `Ingrese al menos ${minLengthRequired} caracteres`;
-    }
-    if (control.hasError('pattern'))
-      return 'Ingrese al menos: 1 letra mayúscula, 1 letra minúscula, 1 número';
-
-    if (control.hasError('not_match')) {
-      return `Las contraseñas no coinciden`;
-    }
-    return '';
-  };
 }
