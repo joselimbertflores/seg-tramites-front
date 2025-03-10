@@ -38,7 +38,11 @@ import {
   AppearanceService,
 } from '../../../../presentation/services';
 import { ThemeSwitcherComponent } from '../../components';
-import { AlertService, FormErrorMessagesPipe } from '../../../../shared';
+import {
+  AlertService,
+  FieldValidationErrorMessages,
+  FormErrorMessagesPipe,
+} from '../../../../shared';
 
 @Component({
   selector: 'app-settings',
@@ -70,18 +74,28 @@ export default class SettingsComponent implements OnInit {
   private fb = inject(FormBuilder);
   private router = inject(Router);
 
+  protected errorMessages: FieldValidationErrorMessages = {
+    password: {
+      pattern:
+        'Ingrese al menos una letra minúscula, una mayúscula y un número',
+    },
+    confirmPassword: {
+      not_match: 'Las contraseñas no coinciden',
+    },
+  };
+
+  protected user = this.authService.user;
+
   formUser = this.fb.group(
     {
-      example: ['', Validators.required],
       password: [
         '',
         [
-          Validators.required,
           Validators.minLength(8),
           Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$'),
         ],
       ],
-      confirmPassword: ['', [Validators.required]],
+      confirmPassword: ['', Validators.required],
     },
     {
       validators: CustomFormValidators.matchFields(
@@ -92,12 +106,9 @@ export default class SettingsComponent implements OnInit {
   );
 
   dialogRef = inject(MatDialog);
-  hide = signal(true);
+  hidePassword = signal(true);
+  hideConfirmPassword = signal(true);
 
-  clickEvent(event: MouseEvent) {
-    this.hide.set(!this.hide());
-    event.stopPropagation();
-  }
   ngOnInit(): void {
     this.showNotification();
   }
@@ -107,7 +118,7 @@ export default class SettingsComponent implements OnInit {
     this.authService
       .updateMyAccount(this.formUser.get('password')?.value!)
       .subscribe((resp) => {
-        this.hide.set(true);
+        this.hidePassword.set(true);
         this.formUser.reset({});
         Object.keys(this.formUser.controls).forEach((key) => {
           this.formUser.get(key)?.setErrors(null);
@@ -115,6 +126,14 @@ export default class SettingsComponent implements OnInit {
         });
         this.router.navigateByUrl('/home');
       });
+  }
+
+  toggleHidePassword() {
+    this.hidePassword.update((value) => !value);
+  }
+
+  toggleHideConfirmPassword() {
+    this.hideConfirmPassword.update((value) => !value);
   }
 
   get isDarkTheme() {

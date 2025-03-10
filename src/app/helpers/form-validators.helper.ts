@@ -12,7 +12,7 @@ export class CustomFormValidators {
 
       if (compare(control1.value, control2.value)) {
         control2.setErrors({ ...currentErrors, not_match: true });
-        return null; // Aplica el error al FormGroup también
+        return { not_match: true };
       } else {
         control2?.setErrors(currentErrors);
       }
