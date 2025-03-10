@@ -25,3 +25,6 @@ export * from './components/badge/badge.component';
 export * from './components/progress-bar/progress-bar.component';
 
 export * from './pipes/form-error-messages.pipe';
+
+export * from './animations/route-animations';
+export * from './animations/overlay-animations';

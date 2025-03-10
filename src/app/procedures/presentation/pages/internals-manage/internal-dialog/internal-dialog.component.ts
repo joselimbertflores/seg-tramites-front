@@ -33,7 +33,7 @@ import { InternalService } from '../../../services';
 import { doc } from '../../../../../communications/infrastructure';
 import { Account } from '../../../../../administration/domain';
 import { InternalProcedure } from '../../../../domain';
-import { AssignmentService } from '../../../../../administration/presentation/services/assignment.service';
+import { ProfileService } from '../../../services/profile.service';
 
 type validFormfield = 'sender' | 'recipient';
 type participantOptions = {
@@ -61,7 +61,7 @@ type participantOptions = {
   ],
 })
 export class InternalDialogComponent {
-  private account = inject(AssignmentService).account();
+  private account = inject(ProfileService).account();
   private internalService = inject(InternalService);
   private documentService = inject(DocService);
   private formBuilder = inject(FormBuilder);

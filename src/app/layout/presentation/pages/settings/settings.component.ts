@@ -3,26 +3,20 @@ import {
   ChangeDetectionStrategy,
   Component,
   OnInit,
-  computed,
   inject,
   signal,
 } from '@angular/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatExpansionModule } from '@angular/material/expansion';
 import {
-  AbstractControl,
-  AbstractControlOptions,
   FormBuilder,
-  FormControl,
-  FormGroup,
   FormsModule,
-  ReactiveFormsModule,
   Validators,
+  ReactiveFormsModule,
 } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -31,7 +25,6 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTabsModule } from '@angular/material/tabs';
 import { CustomFormValidators } from '../../../../helpers';
-import { SidenavButtonComponent } from '../../../../presentation/components';
 import { NotificationComponent } from '../../../../presentation/components/notification/notification.component';
 import {
   AuthService,
@@ -39,17 +32,19 @@ import {
 } from '../../../../presentation/services';
 import { ThemeSwitcherComponent } from '../../components';
 import {
+  AlertMessageComponent,
   AlertService,
   FieldValidationErrorMessages,
   FormErrorMessagesPipe,
 } from '../../../../shared';
+import { ThemeService } from '../../services/theme.service';
+import { MatMenuModule } from '@angular/material/menu';
 
 @Component({
   selector: 'app-settings',
   imports: [
     CommonModule,
     MatToolbarModule,
-    SidenavButtonComponent,
     MatExpansionModule,
     ReactiveFormsModule,
     MatIconModule,
@@ -62,9 +57,10 @@ import {
     MatTabsModule,
     ThemeSwitcherComponent,
     FormErrorMessagesPipe,
+    AlertMessageComponent,
+    MatMenuModule,
   ],
   templateUrl: './settings.component.html',
-  styleUrl: './settings.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class SettingsComponent implements OnInit {
@@ -73,6 +69,7 @@ export default class SettingsComponent implements OnInit {
   private appearanceService = inject(AppearanceService);
   private fb = inject(FormBuilder);
   private router = inject(Router);
+  themeService = inject(ThemeService);
 
   protected errorMessages: FieldValidationErrorMessages = {
     password: {
@@ -86,7 +83,7 @@ export default class SettingsComponent implements OnInit {
 
   protected user = this.authService.user;
 
-  formUser = this.fb.group(
+  formUser = this.fb.nonNullable.group(
     {
       password: [
         '',
@@ -105,9 +102,17 @@ export default class SettingsComponent implements OnInit {
     }
   );
 
-  dialogRef = inject(MatDialog);
   hidePassword = signal(true);
   hideConfirmPassword = signal(true);
+  isAlertShowing = signal(false);
+
+  themes = [
+    { value: 'red-light', label: 'Rojo', code: '#ef9a9a' },
+    { value: 'yellow-light', label: 'Amarillo', code: '#fff59d' },
+    { value: 'green', label: 'Verde', code: '#a5d6a7' },
+    { value: 'rose', label: 'Rosado', code: '#f48fb1' },
+    { value: null, label: 'Celeste', code: '#90caf9' },
+  ];
 
   ngOnInit(): void {
     this.showNotification();
@@ -116,15 +121,12 @@ export default class SettingsComponent implements OnInit {
   updatePassword() {
     if (this.formUser.invalid) return;
     this.authService
-      .updateMyAccount(this.formUser.get('password')?.value!)
-      .subscribe((resp) => {
+      .updateMyUser(this.formUser.get('password')?.value!)
+      .subscribe(() => {
+        this.isAlertShowing.set(true);
         this.hidePassword.set(true);
+        this.hideConfirmPassword.set(true);
         this.formUser.reset({});
-        Object.keys(this.formUser.controls).forEach((key) => {
-          this.formUser.get(key)?.setErrors(null);
-          this.formUser.get(key)?.setErrors(null);
-        });
-        this.router.navigateByUrl('/home');
       });
   }
 
@@ -146,6 +148,15 @@ export default class SettingsComponent implements OnInit {
 
   showNotification() {
     if (this.authService.updatedPassword()) return;
-    this.dialogRef.open(NotificationComponent);
+    this.alertService.messageDialog({
+      title: 'Cambio Obligatorio de Contraseña',
+      description:
+        'Por razones de seguridad, es necesario que introduzca una nueva contraseña',
+    });
+  }
+
+  changeTheme(value:string) {
+    // this.themeService.changeTheme(`${this.color()}-${this.backgroud()}`);
+    this.themeService.setTheme(value);
   }
 }

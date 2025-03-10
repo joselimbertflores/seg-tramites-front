@@ -1,3 +1,4 @@
+@use "./theme.scss";
 @use "@angular/material" as mat;
 @import "ngx-toastr/toastr";
 
@@ -6,31 +7,16 @@
 @tailwind utilities;
 
 html {
-  color-scheme: light;
-  @include mat.theme(
-    (
-      color: mat.$azure-palette,
-      typography: Roboto,
-      density: -1,
-    )
-  );
   .overlay {
     background: var(--mat-sys-surface-container-low);
-    color: var(--mat-sys-on-surface);
     box-shadow: var(--mat-sys-level2);
+    color: var(--mat-sys-on-surface);
+    border-radius: 8px;
   }
 }
 
-body.dark-mode {
-  color-scheme: dark;
-}
-
-html,
 body {
   height: 100%;
-}
-
-body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
   background: var(--mat-sys-surface);

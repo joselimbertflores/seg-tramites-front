@@ -7,6 +7,7 @@ import {
   input,
   OnInit,
   output,
+  signal,
 } from '@angular/core';
 
 @Component({
@@ -34,6 +35,7 @@ import {
       <div class="ms-3 text-sm font-medium">
         {{ title() }}
       </div>
+      @if(closable()){
       <button
         type="button"
         class="ms-auto -mx-1.5 -my-1.5 bg-green-100 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-200 inline-flex items-center justify-center h-8 w-8"
@@ -58,6 +60,7 @@ import {
           />
         </svg>
       </button>
+      }
     </div>
 
     } @case ('error') {
@@ -215,8 +218,11 @@ export class AlertMessageComponent implements OnInit {
   severity = input.required<'success' | 'warn' | 'error' | 'info'>();
   title = input.required<string>();
   description = input<string>('');
+
   life = input<number>();
   close = output<void>();
+  closable = input(false);
+
   timeoutID: NodeJS.Timeout;
 
   destroyRef = inject(DestroyRef).onDestroy(() => {

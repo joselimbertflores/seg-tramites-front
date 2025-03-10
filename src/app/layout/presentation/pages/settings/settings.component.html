@@ -3,7 +3,7 @@
 </mat-toolbar>
 <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
   <mat-tab label="Usuario">
-    <div class="max-w-4xl mx-auto py-4">
+    <div class="mx-auto max-w-4xl py-4">
       <div class="px-4 sm:px-0">
         <h3 class="text-base/7 font-semibold">Configuracion del usuario</h3>
         <p class="mt-1 max-w-2xl text-sm/6 text-gray-500">
@@ -81,28 +81,55 @@
           </dl>
         </form>
       </div>
-      <button mat-flat-button [disabled]="formUser.invalid">Guardar</button>
+      @if(isAlertShowing()){
+      <div class="py-4">
+        <alert-message
+          severity="success"
+          title="Cambios guardados"
+          [life]="3000"
+          (close)="isAlertShowing.set(false)"
+        />
+      </div>
+
+      }
+      <button
+        mat-flat-button
+        [disabled]="formUser.invalid"
+        (click)="updatePassword()"
+      >
+        Guardar
+      </button>
     </div>
   </mat-tab>
   <mat-tab label="Personalizacion">
-    <div class="sm:p-2 py-3">
-      <theme-switcher />
-    </div>
-    <div>
+    <div class="mx-auto max-w-4xl py-4">
       <div class="px-4 sm:px-0">
         <h3 class="text-base/7 font-semibold text-gray-900">
           Applicant Information
         </h3>
-        <p class="mt-1 max-w-2xl text-sm/6 text-gray-500">
-          Personal details and application.
-        </p>
+        <div class="mt-1 max-w-2xl text-sm/6 text-gray-500"></div>
       </div>
       <div class="mt-6 border-t border-gray-100">
         <dl class="divide-y divide-gray-100">
           <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
             <dt class="text-sm/6 font-medium text-gray-900">Full name</dt>
             <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">
-              Margot Foster
+              <mat-form-field class="max-w-92">
+                <mat-label>Seleccione el color </mat-label>
+                <mat-select (selectionChange)="changeTheme($event.value)">
+                  @for (theme of themes; track $index) {
+                  <mat-option [value]="theme.value">
+                    <div class="flex items-center gap-x-4">
+                      <span
+                        class="inline-block rounded-full h-[24px] w-[24px]"
+                        [style.background-color]="theme.code"
+                      ></span>
+                      <span>{{ theme.label }}</span>
+                    </div>
+                  </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
             </dd>
           </div>
           <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">

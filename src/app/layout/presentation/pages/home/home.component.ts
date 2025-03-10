@@ -46,11 +46,19 @@ import {
   AlertService,
   CacheService,
   LoadingService,
+  overlayAnimation,
   ProgressBarComponent,
 } from '../../../../shared';
-import { routeAnimations } from '../../../../../slideInAnimation';
+import { routeAnimations } from '../../../../shared/animations/route-animations';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {
+  animate,
+  state,
+  style,
+  transition,
+  trigger,
+} from '@angular/animations';
 
 @Component({
   selector: 'app-home',
@@ -71,7 +79,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  animations: [routeAnimations],
+  animations: [routeAnimations, overlayAnimation],
 })
 export default class HomeComponent {
   private socketService = inject(SocketService);

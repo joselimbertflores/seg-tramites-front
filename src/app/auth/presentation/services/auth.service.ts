@@ -87,8 +87,7 @@ export class AuthService {
       );
   }
 
-
-  updateMyAccount(password: string) {
+  updateMyUser(password: string) {
     return this.http
       .put<{ message: string }>(`${this.base_url}/auth`, {
         password,

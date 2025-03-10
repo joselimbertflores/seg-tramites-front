@@ -1,0 +1,20 @@
+@use "@angular/material" as mat;
+
+.red-light {
+  color-scheme: light;
+  @include mat.theme((
+    color: mat.$red-palette,
+  ));
+}
+
+.yellow-light {
+  color-scheme: light;
+  @include mat.theme((
+    color: mat.$yellow-palette,
+  ));
+}
+
+
+.red-dark {
+  color-scheme: dark;
+}

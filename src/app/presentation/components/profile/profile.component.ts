@@ -5,7 +5,7 @@ import {
   inject,
   model,
 } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { AuthService } from '../../services';
@@ -32,27 +32,39 @@ import { AuthService } from '../../services';
       </div>
 
       <mat-action-list>
-        <button mat-list-item routerLink="/home/settings">
+        <button mat-list-item (click)="settings()">
           <mat-icon matListItemIcon>manage_accounts</mat-icon>
           <div matListItemTitle>Configuracciones</div>
         </button>
         <mat-divider />
-        <button mat-list-item routerLink="home" (click)="logout()">
+        <button mat-list-item (click)="logout()">
           <mat-icon matListItemIcon>logout</mat-icon>
           <div matListItemTitle>Cerrar sesion</div>
         </button>
       </mat-action-list>
+      <div class="flex justify-end">
+        <a href="#" class=" text-xs hover:text-indigo-500">
+          Notas de la version
+        </a>
+      </div>
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfileComponent {
   private authService = inject(AuthService);
+  private router = inject(Router);
   isOpen = model.required<boolean>();
 
-  logout() {
-    this.authService.logout();
+  settings() {
     this.isOpen.set(false);
+    this.router.navigateByUrl('/home/settings');
+  }
+
+  logout() {
+    this.isOpen.set(false);
+    this.authService.logout();
+    this.router.navigateByUrl('login');
   }
 
   get user() {
