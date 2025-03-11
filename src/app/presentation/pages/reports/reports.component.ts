@@ -7,9 +7,9 @@ import {
   signal,
 } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { AuthService } from '../../services';
 import { MaterialModule } from '../../../material.module';
-import { VALID_RESOURCES } from '../../../infraestructure/interfaces';
+import { AuthService } from '../../../auth/presentation/services/auth.service';
+
 
 interface menu {
   label: string;
@@ -56,10 +56,10 @@ export class ReportsComponent implements OnInit {
   }
 
   private _loadMenu() {
-    const menu = this.authService
-      .permissions()
-      [VALID_RESOURCES.reports].map((action) => this.permissionMappings[action])
-      .filter((item) => item);
-    this.menu.set(menu);
+    // const menu = this.authService
+    //   .permissions()
+    //   [VALID_RESOURCES.reports].map((action) => this.permissionMappings[action])
+    //   .filter((item) => item);
+    // this.menu.set(menu);
   }
 }

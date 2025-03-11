@@ -9,9 +9,7 @@ import {
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Observable, map, startWith, switchMap } from 'rxjs';
 import { MaterialModule } from '../../../../material.module';
-import { SidenavButtonComponent } from '../../../components';
-import { SocketClient } from '../../../../infraestructure/interfaces';
-import { SocketService } from '../../../services';
+
 import { AlertService } from '../../../../shared';
 
 @Component({
@@ -21,30 +19,29 @@ import { AlertService } from '../../../../shared';
         FormsModule,
         ReactiveFormsModule,
         MaterialModule,
-        SidenavButtonComponent,
     ],
     templateUrl: './clients.component.html',
     styleUrl: './clients.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ClientsComponent implements OnInit {
-  private socketService = inject(SocketService);
+  // private socketService = inject(SocketService);
   private alertService = inject(AlertService);
   private destroyRef = inject(DestroyRef);
 
   filterCtrl = new FormControl('');
-  filteredClients: Observable<SocketClient[]>;
+  filteredClients: Observable<any[]>;
 
   constructor() {}
 
   ngOnInit(): void {
-    this.filteredClients = this.filterCtrl.valueChanges.pipe(
-      startWith(''),
-      switchMap((term) => this._filter(term))
-    );
+    // this.filteredClients = this.filterCtrl.valueChanges.pipe(
+    //   startWith(''),
+    //   switchMap((term) => this._filter(term))
+    // );
   }
 
-  confirmRemove(client: SocketClient) {
+  confirmRemove(client: any) {
     this.alertService.ConfirmAlert({
       title: `¿Expulsar al funcionario ${client.fullname}?`,
       text: `SESIONES ABIERTAS: ${client.socketIds.length}`,
@@ -54,18 +51,18 @@ export class ClientsComponent implements OnInit {
     });
   }
 
-  private _remove(client: SocketClient, message: string) {
-    this.socketService.expelClient(client.userId, message);
+  private _remove(client: any, message: string) {
+    // this.socketService.expelClient(client.userId, message);
   }
 
   private _filter(term: string | null) {
-    return this.socketService.onlineClients$.pipe(
-      map((clients) => {
-        if (!term) return clients;
-        return clients.filter(({ fullname }) =>
-          fullname.toLowerCase().includes(term.toLowerCase())
-        );
-      })
-    );
+    // return this.socketService.onlineClients$.pipe(
+    //   map((clients) => {
+    //     if (!term) return clients;
+    //     return clients.filter(({ fullname }) =>
+    //       fullname.toLowerCase().includes(term.toLowerCase())
+    //     );
+    //   })
+    // );
   }
 }

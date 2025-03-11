@@ -5,7 +5,7 @@ import { environment } from '../../../../environments/environment';
 interface createArchiveProps {
   communicationIds: string[];
   status: string;
-  folderI: string;
+  folderId?: string;
   description: string;
 }
 @Injectable({

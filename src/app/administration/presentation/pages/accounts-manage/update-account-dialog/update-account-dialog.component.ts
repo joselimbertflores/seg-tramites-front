@@ -33,13 +33,10 @@ import {
   AlertService,
 } from '../../../../../shared';
 
-import {
-  AccountService,
-  PdfService,
-  ReportService,
-} from '../../../../../presentation/services';
+
 import { Account, Officer } from '../../../../domain';
 import { CustomValidators } from '../../../../../../helpers';
+import { AccountService } from '../../../services';
 
 @Component({
   selector: 'app-update-account-dialog',
@@ -64,8 +61,8 @@ export class UpdateAccountDialogComponent {
   private dialogRef = inject(MatDialogRef<UpdateAccountDialogComponent>);
   private alertService = inject(AlertService);
   private accountService = inject(AccountService);
-  private reportService = inject(ReportService);
-  private pdfService = inject(PdfService);
+  // private reportService = inject(ReportService);
+  // private pdfService = inject(PdfService);
 
   data = signal(inject<Account>(MAT_DIALOG_DATA));
   officers = signal<ServerSelectOption<Officer>[]>([]);

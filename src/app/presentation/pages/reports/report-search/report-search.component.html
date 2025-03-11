@@ -60,9 +60,9 @@
               <mat-select formControlName="state">
                 <mat-option> ---- </mat-option>
 
-                @for (state of states; track $index) {
+                <!-- @for (state of states; track $index) {
                 <mat-option [value]="state">{{ state }}</mat-option>
-                }
+                } -->
               </mat-select>
             </mat-form-field>
           </div>
@@ -153,12 +153,12 @@
 </mat-accordion>
 
 <div class="mat-elevation-z8 mt-2">
-  <report-procedure-table
+  <!-- <report-procedure-table
     [pageSize]="limit"
     [pageIndex]="index"
     [datasource]="datasource"
     [colums]="displaycolums"
-  />
+  /> -->
   <paginator
     [pageSizeOptions]="[10, 20, 30, 50]"
     [limit]="limit"

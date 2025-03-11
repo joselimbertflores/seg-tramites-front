@@ -15,14 +15,14 @@ import {
   Validators,
 } from '@angular/forms';
 
-import { observationResponse } from '../../../../infraestructure/interfaces';
+// import { observationResponse } from '../../../../infraestructure/interfaces';
 import { MaterialModule } from '../../../../material.module';
-import {
-  ExternalProcedure,
-  Procedure,
-  StateProcedure,
-} from '../../../../domain/models';
-import { AuthService, ProcedureService } from '../../../services';
+// import {
+//   ExternalProcedure,
+//   Procedure,
+//   StateProcedure,
+// } from '../../../../domain/models';
+// import { AuthService, ProcedureService } from '../../../services';
 
 @Component({
     selector: 'observations',
@@ -31,12 +31,12 @@ import { AuthService, ProcedureService } from '../../../services';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ObservationsComponent {
-  private readonly procedureService = inject(ProcedureService);
-  private readonly authService = inject(AuthService);
+  // private readonly procedureService = inject(ProcedureService);
+  // private readonly authService = inject(AuthService);
 
   enableOptions = input(false);
-  procedure = model<ExternalProcedure | null>();
-  observations = model.required<observationResponse[]>();
+  // procedure = model<ExternalProcedure | null>();
+  // observations = model.required<observationResponse[]>();
 
   public isFocused: boolean = false;
   public descripcion = new FormControl('', {
@@ -47,15 +47,15 @@ export class ObservationsComponent {
   ngOnInit(): void {}
 
   add() {
-    this.procedureService
-      .addObservation(this.procedure()?._id!, this.descripcion.value)
-      .subscribe((obs) => {
-        this.observations.update((values) => [obs, ...values]);
-        this.procedure.set(
-          this.procedure()?.copyWith({ state: StateProcedure.Observado })
-        );
-        this.removeFocus();
-      });
+    // this.procedureService
+    //   .addObservation(this.procedure()?._id!, this.descripcion.value)
+    //   .subscribe((obs) => {
+    //     this.observations.update((values) => [obs, ...values]);
+    //     this.procedure.set(
+    //       this.procedure()?.copyWith({ state: StateProcedure.Observado })
+    //     );
+    //     this.removeFocus();
+    //   });
   }
 
   removeFocus() {
@@ -64,14 +64,14 @@ export class ObservationsComponent {
   }
 
   solve(id: string) {
-    this.procedureService.solveObservation(id).subscribe((resp) => {
-      this.observations.update((values) => {
-        const index = values.findIndex((el) => el._id === id);
-        values[index].isSolved = true;
-        return [...values];
-      });
-      this.procedure.set(this.procedure()?.copyWith({ state: resp.state }));
-    });
+    // this.procedureService.solveObservation(id).subscribe((resp) => {
+    //   this.observations.update((values) => {
+    //     const index = values.findIndex((el) => el._id === id);
+    //     values[index].isSolved = true;
+    //     return [...values];
+    //   });
+    //   this.procedure.set(this.procedure()?.copyWith({ state: resp.state }));
+    // });
   }
 
   get manager() {

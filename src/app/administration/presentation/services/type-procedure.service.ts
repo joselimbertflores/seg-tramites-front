@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
-import { typeProcedureResponse } from '../../../infraestructure/interfaces';
+import { typeProcedure } from '../../infrastructure';
 
 @Injectable({
   providedIn: 'root',
@@ -16,7 +16,7 @@ export class TypeProcedureService {
 
   search(term: string, limit: number, offset: number) {
     const params = new HttpParams({ fromObject: { limit, offset } });
-    return this.http.get<{ types: typeProcedureResponse[]; length: number }>(
+    return this.http.get<{ types: typeProcedure[]; length: number }>(
       `${this.url}/search/${term}`,
       {
         params,
@@ -28,7 +28,7 @@ export class TypeProcedureService {
     const params = new HttpParams({
       fromObject: { limit, offset, ...(term && { term }) },
     });
-    return this.http.get<{ types: typeProcedureResponse[]; length: number }>(
+    return this.http.get<{ types: typeProcedure[]; length: number }>(
       `${this.url}`,
       {
         params,
@@ -37,10 +37,10 @@ export class TypeProcedureService {
   }
 
   create(form: Object) {
-    return this.http.post<typeProcedureResponse>(`${this.url}`, form);
+    return this.http.post<typeProcedure>(`${this.url}`, form);
   }
 
   update(id: string, form: Object) {
-    return this.http.put<typeProcedureResponse>(`${this.url}/${id}`, form);
+    return this.http.put<typeProcedure>(`${this.url}/${id}`, form);
   }
 }

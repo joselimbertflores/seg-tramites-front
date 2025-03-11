@@ -23,7 +23,6 @@ import { MatIconModule } from '@angular/material/icon';
 
 import { forkJoin } from 'rxjs';
 
-import { PdfService } from '../../../../../presentation/services';
 
 import {
   ServerSelectOption,
@@ -56,7 +55,7 @@ import { Officer } from '../../../../domain';
 export class CreateAccountDialogComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
   private accountService = inject(AccountService);
-  private pdfService = inject(PdfService);
+  // private pdfService = inject(PdfService);
   private dialogRef = inject(MatDialogRef<CreateAccountDialogComponent>);
 
   institutions = signal<SimpleSelectOption<string>[]>([]);

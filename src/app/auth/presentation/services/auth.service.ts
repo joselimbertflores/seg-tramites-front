@@ -2,16 +2,10 @@ import { Injectable, computed, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, map, tap } from 'rxjs/operators';
 import { jwtDecode } from 'jwt-decode';
-import { Observable, of } from 'rxjs';
+import { of } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
-import {
-  JwtPayload,
-  VALID_RESOURCES,
-  account,
-  menu,
-} from '../../../infraestructure/interfaces';
-import { Account } from '../../../domain/models';
+import { jwtPayload, menu, validResource } from '../../infrastructure';
 
 interface loginProps {
   login: string;
@@ -23,15 +17,13 @@ interface loginProps {
 })
 export class AuthService {
   private readonly base_url: string = environment.base_url;
-  private _account = signal<JwtPayload | null>(null);
+  private _user = signal<jwtPayload | null>(null);
   private _menu = signal<menu[]>([]);
-  private _code = signal<string>('');
-  private _permissions = signal<Record<VALID_RESOURCES, string[]> | null>(null);
+  private _permissions = signal<Record<validResource, string[]> | null>(null);
   private _updatedPassword = signal<boolean>(false);
 
-  public user = computed(() => this._account());
+  public user = computed(() => this._user());
   public menu = computed(() => this._menu());
-  public code = computed(() => this._code());
   public permissions = computed(() => this._permissions()!);
   public updatedPassword = computed(() => this._updatedPassword());
 
@@ -53,7 +45,7 @@ export class AuthService {
 
   logout() {
     localStorage.removeItem('token');
-    this._account.set(null);
+    this._user.set(null);
     this._permissions.set(null);
   }
 
@@ -68,14 +60,13 @@ export class AuthService {
         token: string;
         code: string;
         menu: menu[];
-        permissions: Record<VALID_RESOURCES, string[]>;
+        permissions: Record<validResource, string[]>;
         updatedPassword: boolean;
       }>(`${this.base_url}/auth`)
       .pipe(
         tap((resp) => console.log(resp)),
         map(({ menu, token, code, permissions, updatedPassword }) => {
           this._menu.set(menu);
-          this._code.set(code);
           this._permissions.set(permissions);
           this._updatedPassword.set(updatedPassword);
           return this._setAuthentication(token);
@@ -96,7 +87,7 @@ export class AuthService {
   }
 
   private _setAuthentication(token: string): boolean {
-    this._account.set(jwtDecode(token));
+    this._user.set(jwtDecode(token));
     localStorage.setItem('token', token);
     return true;
   }

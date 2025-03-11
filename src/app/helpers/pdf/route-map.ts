@@ -1,6 +1,5 @@
 import { Content, ContentTable } from 'pdfmake/interfaces';
 import { convertImageABase64, TimeManager, toOrdinal } from '../';
-import { GroupProcedure, Procedure, Workflow } from '../../domain/models';
 
 interface RouteMapProps {
   index: number;
@@ -19,7 +18,7 @@ interface detail {
 
 interface originDetails {
   code: string;
-  group: GroupProcedure;
+  group: any;
   reference: string;
   cite: string;
   emitter: participant;
@@ -35,8 +34,8 @@ interface participant {
   jobtitle: string;
 }
 export async function CreateRouteMap(
-  procedure: Procedure,
-  workflow: Workflow[]
+  procedure: any,
+  workflow: any[]
 ): Promise<Content[]> {
   return [
     await createHeaderContainer(),
@@ -45,7 +44,7 @@ export async function CreateRouteMap(
   ];
 }
 
-function firstSection(procedure: Procedure, workflow: Workflow | undefined) {
+function firstSection(procedure: any, workflow: any | undefined) {
   const { emitter, receiver, phone } = procedure.originDetails();
   const sectionReceiver = receiver
     ? {
@@ -85,12 +84,13 @@ function firstSection(procedure: Procedure, workflow: Workflow | undefined) {
   });
 }
 
-function secondSection(workflow: Workflow[]) {
+function secondSection(workflow: any[]) {
   const containers: ContentTable[] = [];
   for (const [index, { dispatches }] of workflow.entries()) {
-    const officers = dispatches.map(
-      ({ receiver: { fullname, jobtitle } }) => `${fullname} (${jobtitle})`
-    );
+    // const officers = dispatches.map(
+    //   ({ receiver: { fullname, jobtitle } }) => `${fullname} (${jobtitle})`
+    // );
+    const officers: any[] = [];
     if (dispatches.length > 1) {
       const container = createStageContainer({
         index: index,
@@ -229,7 +229,7 @@ function createDetailContainer({
                         border: [false, false, false, false],
                       },
                       {
-                        text: group === GroupProcedure.Internal ? 'X' : '',
+                        text: group ===" GroupProcedure.Internal" ? 'X' : '',
                         style: 'header',
                       },
                     ],
@@ -247,7 +247,7 @@ function createDetailContainer({
                         border: [false, false, false, false],
                       },
                       {
-                        text: group === GroupProcedure.External ? 'X' : '',
+                        text: group === "GroupProcedure.External" ? 'X' : '',
                         style: 'header',
                       },
                     ],

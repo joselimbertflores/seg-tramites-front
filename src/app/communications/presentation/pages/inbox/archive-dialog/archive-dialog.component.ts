@@ -43,18 +43,22 @@ import { Communication } from '../../../../domain';
     SelectSearchComponent,
   ],
   template: `
-    <h2 mat-dialog-title>Archivado de tramite</h2>
+    <h2 mat-dialog-title>
+      Archivado de {{ data.length > 1 ? 'tramites' : 'tramite' }}
+    </h2>
     <mat-dialog-content>
-      <form [formGroup]="archiveForm" class="pt-2">
+      <form [formGroup]="archiveForm">
         <div class="flex flex-col">
-          <div class="mb-4 text-lg">
-            {{ procedureLabel() }}
+          <div class="text-md mb-6">
+            @if(data.length>1){ Se archivaran un total de
+            {{ data.length }} tramites. } @else { El tramite
+            {{ data[0].procedure.code }} sera archivado. }
           </div>
           <select-search
             [items]="folders()"
-            title="Carpeta"
+            title="Carpeta (Opcional)"
             placeholder="Seleccione una carpeta"
-            placeholderLabel="Nombre"
+            placeholderLabel="Nombre de la carpeta a buscar"
             (onSelect)="archiveForm.get('folderId')?.setValue($event)"
           />
           <mat-form-field appearance="outline">
@@ -99,7 +103,8 @@ export class ArchiveDialogComponent {
   private alertService = inject(AlertService);
 
   data: Communication[] = inject(MAT_DIALOG_DATA);
-  folders = toSignal(this._getFolders(), { initialValue: [] });
+  folders = toSignal(this.getFolders(), { initialValue: [] });
+
   readonly statusOptions = [
     {
       value: procedureState.Concluido,
@@ -114,12 +119,6 @@ export class ArchiveDialogComponent {
       label: 'Anulado: Tramite incorrecto',
     },
   ];
-
-  procedureLabel = computed(() =>
-    this.data.length === 1
-      ? `Tramite a archivar: ${this.data[0].procedure.code}}`
-      : `Total tramites a archivar: ${this.data.length}`
-  );
 
   archiveForm: FormGroup = this._formBuilder.nonNullable.group({
     description: ['', [Validators.required, Validators.minLength(4)]],
@@ -136,7 +135,7 @@ export class ArchiveDialogComponent {
         title: `¿Confirmar archivado?`,
         description:
           this.data.length === 1
-            ? `Se archivara el tramite ${this.data[0].procedure.code}`
+            ? `El tramite ${this.data[0].procedure.code} pasara a su seccion de archivos`
             : `Los tramites seleccionados pasaran a su seccion de archivos`,
       })
       .pipe(
@@ -153,7 +152,7 @@ export class ArchiveDialogComponent {
       });
   }
 
-  private _getFolders(): Observable<selectOption<string>[]> {
+  private getFolders(): Observable<selectOption<string>[]> {
     return this.folderService
       .getFolders()
       .pipe(

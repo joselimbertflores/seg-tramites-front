@@ -51,13 +51,11 @@ import {
   selectOption,
   SelectSearchComponent,
 } from '../../../../../shared';
-import {
-  SocketService,
-  InboxService,
-} from '../../../../../presentation/services';
+
 import { doc } from '../../../../infrastructure';
-import { DocService, OutboxService } from '../../../services';
+import { DocService, InboxService, OutboxService } from '../../../services';
 import { Communication, onlineAccount, recipient } from '../../../../domain';
+import { SocketService } from '../../../../../layout/presentation/services';
 
 export interface submissionData {
   communicationId?: string;

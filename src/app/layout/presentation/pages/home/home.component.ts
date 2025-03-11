@@ -1,8 +1,4 @@
-import {
-  BreakpointObserver,
-  Breakpoints,
-  MediaMatcher,
-} from '@angular/cdk/layout';
+import { MediaMatcher } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -21,11 +17,6 @@ import {
   RouterOutlet,
 } from '@angular/router';
 import { map, shareReplay } from 'rxjs';
-import {
-  SocketService,
-  AuthService,
-  AppearanceService,
-} from '../../../../presentation/services';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import {
@@ -59,6 +50,8 @@ import {
   transition,
   trigger,
 } from '@angular/animations';
+import { SocketService } from '../../services';
+import { AuthService } from '../../../../auth/presentation/services/auth.service';
 
 @Component({
   selector: 'app-home',

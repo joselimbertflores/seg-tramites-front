@@ -14,15 +14,11 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { PdfService, ReportService } from '../../../services';
 import {
   PaginatorComponent,
   ReportProcedureTableComponent,
 } from '../../../components';
-import {
-  TableProcedureColums,
-  TableProcedureData,
-} from '../../../../infraestructure/interfaces';
+
 import { MaterialModule } from '../../../../material.module';
 
 type validReportType = 'solicitante' | 'representante';
@@ -32,7 +28,7 @@ interface CacheData {
   form: Object;
   typeSearch: validReportType;
   typeApplicant: typeApplicant;
-  data: TableProcedureData[];
+  data: any[];
   size: number;
 }
 
@@ -52,8 +48,8 @@ interface CacheData {
 export class ReportApplicantComponent {
   private fb = inject(FormBuilder);
   // private cacheService: CacheService<CacheData> = inject(CacheService);
-  private reportService = inject(ReportService);
-  private pdfService = inject(PdfService);
+  // private reportService = inject(ReportService);
+  // private pdfService = inject(PdfService);
 
   public typeSearch = signal<validReportType>('solicitante');
   public typeApplicant = signal<typeApplicant>('NATURAL');
@@ -65,9 +61,9 @@ export class ReportApplicantComponent {
       ? this.FormByApplicatNatural()
       : this.FormByApplicatJuridico();
   });
-  public datasource = signal<TableProcedureData[]>([]);
+  public datasource = signal<any[]>([]);
   public datasize = signal<number>(0);
-  public displaycolums: TableProcedureColums[] = [
+  public displaycolums: any[] = [
     { columnDef: 'code', header: 'Alterno' },
     { columnDef: 'reference', header: 'Referencia' },
     { columnDef: 'state', header: 'Estado' },
@@ -102,22 +98,22 @@ export class ReportApplicantComponent {
   }
 
   getData() {
-    this.reportService
-      .searchProcedureByApplicant({
-        limit: this.limit,
-        offset: this.offset,
-        by: this.typeSearch(),
-        form: {
-          ...(this.typeSearch() === 'solicitante' && {
-            tipo: this.typeApplicant(),
-          }),
-          ...this.FormApplicant().value,
-        },
-      })
-      .subscribe((resp) => {
-        this.datasource.set(resp.procedures);
-        this.datasize.set(resp.length);
-      });
+    // this.reportService
+    //   .searchProcedureByApplicant({
+    //     limit: this.limit,
+    //     offset: this.offset,
+    //     by: this.typeSearch(),
+    //     form: {
+    //       ...(this.typeSearch() === 'solicitante' && {
+    //         tipo: this.typeApplicant(),
+    //       }),
+    //       ...this.FormApplicant().value,
+    //     },
+    //   })
+    //   .subscribe((resp) => {
+    //     this.datasource.set(resp.procedures);
+    //     this.datasize.set(resp.length);
+    //   });
   }
 
   changePage(params: { limit: number; index: number }) {
@@ -134,12 +130,12 @@ export class ReportApplicantComponent {
   }
 
   print() {
-    this.pdfService.GenerateReportSheet({
-      title: 'Reporte solicitante',
-      results: this.datasource(),
-      columns: this.displaycolums,
-      parameters: this.FormApplicant().value,
-    });
+    // this.pdfService.GenerateReportSheet({
+    //   title: 'Reporte solicitante',
+    //   results: this.datasource(),
+    //   columns: this.displaycolums,
+    //   parameters: this.FormApplicant().value,
+    // });
   }
 
   private FormByApplicatNatural(): FormGroup {

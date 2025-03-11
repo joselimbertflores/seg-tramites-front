@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { RouterModule } from '@angular/router';
-import { TableProcedureData } from '../../../../infraestructure/interfaces';
+// import { TableProcedureData } from '../../../../infraestructure/interfaces';
 import { StateLabelPipe } from '../../../pipes';
 
 export interface ProcedureTableColumns {
@@ -36,7 +36,7 @@ export class ReportProcedureTableComponent {
   public columns: ProcedureTableColumns[] = [];
   @Input({ required: true }) pageIndex!: number;
   @Input({ required: true }) pageSize!: number;
-  @Input() datasource = signal<TableProcedureData[]>([]);
+  // @Input() datasource = signal<TableProcedureData[]>([]);
   @Input() set colums(values: ProcedureTableColumns[]) {
     this.columns = values;
     this.displayedColumns = values.map(({ columnDef }) => columnDef);

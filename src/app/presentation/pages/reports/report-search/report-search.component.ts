@@ -19,12 +19,12 @@ import {
   ReportProcedureTableComponent,
   ServerSelectSearchComponent,
 } from '../../../components';
-import { PdfService, ReportService } from '../../../services';
-import { StateProcedure } from '../../../../domain/models';
-import {
-  TableProcedureColums,
-  TableProcedureData,
-} from '../../../../infraestructure/interfaces';
+// import { PdfService, ReportService } from '../../../services';
+// import { StateProcedure } from '../../../../domain/models';
+// import {
+//   TableProcedureColums,
+//   TableProcedureData,
+// } from '../../../../infraestructure/interfaces';
 import { MaterialModule } from '../../../../material.module';
 
 type SearchMode = 'simple' | 'advanced';
@@ -32,7 +32,7 @@ type SearchMode = 'simple' | 'advanced';
 interface CacheData {
   form: Object;
   types: SelectOptiom[];
-  data: TableProcedureData[];
+  data: any[];
   size: number;
   searchMode: SearchMode;
 }
@@ -57,8 +57,8 @@ interface SelectOptiom {
 })
 export class ReportSearchComponent {
   private fb = inject(FormBuilder);
-  private reportService = inject(ReportService);
-  private pdfService = inject(PdfService);
+  // private reportService = inject(ReportService);
+  // private pdfService = inject(PdfService);
   // private cacheService: CacheService<CacheData> = inject(CacheService);
 
   public searchMode = signal<SearchMode>('simple');
@@ -68,14 +68,14 @@ export class ReportSearchComponent {
       ? this.createSimpleForm()
       : this.createAdvancedForm();
   });
-  public datasource = signal<TableProcedureData[]>([]);
+  // public datasource = signal<TableProcedureData[]>([]);
   public datasize = signal<number>(0);
-  public displaycolums: TableProcedureColums[] = [
-    { columnDef: 'code', header: 'Alterno' },
-    { columnDef: 'reference', header: 'Referencia' },
-    { columnDef: 'state', header: 'Estado' },
-    { columnDef: 'startDate', header: 'Fecha' },
-  ];
+  // public displaycolums: TableProcedureColums[] = [
+  //   { columnDef: 'code', header: 'Alterno' },
+  //   { columnDef: 'reference', header: 'Referencia' },
+  //   { columnDef: 'state', header: 'Estado' },
+  //   { columnDef: 'startDate', header: 'Fecha' },
+  // ];
 
   constructor() {
     inject(DestroyRef).onDestroy(() => {
@@ -88,16 +88,16 @@ export class ReportSearchComponent {
   }
 
   getData() {
-    this.reportService
-      .searchProcedureByProperties(
-        this.limit,
-        this.offset,
-        this.FormProcedure().value
-      )
-      .subscribe((resp) => {
-        this.datasource.set(resp.procedures);
-        this.datasize.set(resp.length);
-      });
+    // this.reportService
+    //   .searchProcedureByProperties(
+    //     this.limit,
+    //     this.offset,
+    //     this.FormProcedure().value
+    //   )
+    //   .subscribe((resp) => {
+    //     this.datasource.set(resp.procedures);
+    //     this.datasize.set(resp.length);
+    //   });
   }
 
   generate() {
@@ -110,27 +110,27 @@ export class ReportSearchComponent {
 
   clear() {
     this.FormProcedure().reset({});
-    this.datasource.set([]);
+    // this.datasource.set([]);
     this.datasize.set(0);
     this.typeProcedures.set([]);
   }
 
   print() {
-    this.pdfService.GenerateReportSheet({
-      title: 'Reporte busqueda',
-      results: this.datasource(),
-      columns: this.displaycolums,
-    });
+    // this.pdfService.GenerateReportSheet({
+    //   title: 'Reporte busqueda',
+    //   results: this.datasource(),
+    //   columns: this.displaycolums,
+    // });
   }
 
   searchTypesProcedures(term: string) {
-    this.reportService
-      .getTypeProceduresByText(term, this.FormProcedure().get('group')?.value)
-      .subscribe((types) => {
-        this.typeProcedures.set(
-          types.map((el) => ({ value: el._id, text: el.nombre }))
-        );
-      });
+    // this.reportService
+    //   .getTypeProceduresByText(term, this.FormProcedure().get('group')?.value)
+    //   .subscribe((types) => {
+    //     this.typeProcedures.set(
+    //       types.map((el) => ({ value: el._id, text: el.nombre }))
+    //     );
+    //   });
   }
 
   setTypeProcedure(id_type: string = '') {
@@ -154,13 +154,13 @@ export class ReportSearchComponent {
 
   private savePaginationData() {
     // this.cacheService.resetPagination();
-    const cache: CacheData = {
-      form: this.FormProcedure().value,
-      types: this.typeProcedures(),
-      data: this.datasource(),
-      size: this.datasize(),
-      searchMode: this.searchMode(),
-    };
+    // const cache: CacheData = {
+    //   form: this.FormProcedure().value,
+    //   types: this.typeProcedures(),
+    //   data: this.datasource(),
+    //   size: this.datasize(),
+    //   searchMode: this.searchMode(),
+    // };
     // this.cacheService.save('report-search', cache);
   }
 
@@ -193,10 +193,6 @@ export class ReportSearchComponent {
       group: [''],
       cite: [''],
     });
-  }
-
-  get states() {
-    return Object.values(StateProcedure);
   }
 
   get limit() {

@@ -10,37 +10,33 @@
       <ng-template matExpansionPanelContent>
         <dl class="-my-3 divide-y divide-gray-200 text-sm">
           <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-3 sm:gap-4">
-            <dt class="font-medium text-gray-900">Nombre del proceso</dt>
-            <dd class="text-gray-700 sm:col-span-2">
+            <dt class="font-medium">Nombre del proceso</dt>
+            <dd class="sm:col-span-2">
               {{ procedure().reference }}
             </dd>
           </div>
 
           <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-3 sm:gap-4">
-            <dt class="font-medium text-gray-900">Modalidad</dt>
-            <dd class="text-gray-700 sm:col-span-2">{{ procedure().mode }}</dd>
+            <dt class="font-medium">Modalidad</dt>
+            <dd class="sm:col-span-2">{{ procedure().mode }}</dd>
           </div>
 
           <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-3 sm:gap-4">
-            <dt class="font-medium text-gray-900">Apertura programatica</dt>
-            <dd class="text-gray-700 sm:col-span-2">
+            <dt class="font-medium">Apertura programatica</dt>
+            <dd class="sm:col-span-2">
               {{ procedure().aperturaProg }}
             </dd>
           </div>
 
           <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-3 sm:gap-4">
-            <dt class="font-medium text-gray-900">
-              Descripcion apertura programatica
-            </dt>
-            <dd class="text-gray-700 sm:col-span-2">
+            <dt class="font-medium">Descripcion apertura programatica</dt>
+            <dd class="sm:col-span-2">
               {{ procedure().descripcionAperturaProg }}
             </dd>
           </div>
 
           <div class="py-3">
-            <div class="text-sm/6 font-medium text-gray-900 mb-2">
-              Objeto de gasto
-            </div>
+            <div class="text-sm/6 font-medium mb-2">Objeto de gasto</div>
             <div class="overflow-x-auto rounded-lg border border-gray-200">
               <table class="min-w-full divide-y-2 divide-gray-200 text-sm">
                 <thead class="text-left">
@@ -79,59 +75,57 @@
           </div>
 
           <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-3 sm:gap-4">
-            <dt class="font-medium text-gray-900">Bien / Servicio</dt>
-            <dd class="text-gray-700 sm:col-span-2">
+            <dt class="font-medium">Bien / Servicio</dt>
+            <dd class="sm:col-span-2">
               {{ procedure().type }}
             </dd>
           </div>
 
           <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-3 sm:gap-4">
-            <dt class="font-medium text-gray-900">
-              Metodo de seleccion y adjudicacion
-            </dt>
-            <dd class="text-gray-700 sm:col-span-2">
+            <dt class="font-medium">Metodo de seleccion y adjudicacion</dt>
+            <dd class="sm:col-span-2">
               {{ procedure().metodoAdjudicacion }}
             </dd>
           </div>
 
           <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-3 sm:gap-4">
-            <dt class="font-medium text-gray-900">Forma de adjudicacion</dt>
-            <dd class="text-gray-700 sm:col-span-2">
+            <dt class="font-medium">Forma de adjudicacion</dt>
+            <dd class="sm:col-span-2">
               {{ procedure().formaAdjudicacion }}
             </dd>
           </div>
 
           <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-3 sm:gap-4">
-            <dt class="font-medium text-gray-900">Precio referencial</dt>
-            <dd class="text-gray-700 sm:col-span-2">
+            <dt class="font-medium">Precio referencial</dt>
+            <dd class="sm:col-span-2">
               {{ procedure().price }}
             </dd>
           </div>
 
           <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-3 sm:gap-4">
-            <dt class="font-medium text-gray-900">Plazo de entrega</dt>
-            <dd class="text-gray-700 sm:col-span-2">
+            <dt class="font-medium">Plazo de entrega</dt>
+            <dd class="sm:col-span-2">
               {{ procedure().deliveryTimeframe }}
             </dd>
           </div>
 
           <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-3 sm:gap-4">
-            <dt class="font-medium text-gray-900">Lugar de entrega</dt>
-            <dd class="text-gray-700 sm:col-span-2">
+            <dt class="font-medium">Lugar de entrega</dt>
+            <dd class="sm:col-span-2">
               {{ procedure().deliveryLocation }}
             </dd>
           </div>
 
           <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-3 sm:gap-4">
-            <dt class="font-medium text-gray-900">Garantia</dt>
-            <dd class="text-gray-700 sm:col-span-2">
+            <dt class="font-medium">Garantia</dt>
+            <dd class="sm:col-span-2">
               {{ procedure().warranty }}
             </dd>
           </div>
 
           <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-3 sm:gap-4">
-            <dt class="font-medium text-gray-900">Justificacion</dt>
-            <dd class="text-gray-700 sm:col-span-2">
+            <dt class="font-medium">Justificacion</dt>
+            <dd class="sm:col-span-2">
               {{ procedure().reason }}
             </dd>
           </div>
@@ -148,7 +142,6 @@
 
       <form [formGroup]="formProcedure">
         <div class="grid grid-cols-4 p-4 gap-x-4">
-         
           <div>
             <mat-form-field appearance="outline">
               <mat-label>Codigo del proyecto </mat-label>

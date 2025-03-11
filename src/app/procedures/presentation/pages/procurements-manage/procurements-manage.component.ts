@@ -36,7 +36,6 @@ import {
   trigger,
 } from '@angular/animations';
 import { DocProcurementDialogComponent } from './doc-procurement-dialog/doc-procurement-dialog.component';
-import { PdfService } from '../../../../presentation/services';
 
 @Component({
   selector: 'app-procurements-manage',
@@ -74,7 +73,6 @@ import { PdfService } from '../../../../presentation/services';
 export default class ProcurementsManageComponent implements OnInit {
   private procurementService = inject(ProcurementService);
   private docxService = inject(DocxService);
-  private pdfService = inject(PdfService);
 
   datasource = signal<ProcurementProcedure[]>([]);
   datasize = signal<number>(0);

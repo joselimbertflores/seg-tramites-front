@@ -1,52 +1,52 @@
-import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
-import { THEME_CLASSES } from '../../domain';
 
-export type Theme = 'light' | 'dark';
+export type ThemeBackground = 'light' | 'dark';
+export type ThemeColor = 'red' | 'yellow' | 'green' | 'rose' | 'azure';
+
+export type ThemeClass = `${ThemeColor}-${ThemeBackground}`;
+
+export const THEME_CLASSES: ThemeClass[] = [
+  'red-light',
+  'red-dark',
+  'green-light',
+  'green-dark',
+  'yellow-light',
+  'yellow-dark',
+  'rose-light',
+  'rose-dark',
+  'azure-dark',
+  'azure-light',
+];
+
+export interface ThemeColorOption {
+  value: ThemeColor;
+  label: string;
+  code: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class ThemeService {
-  private readonly document = inject(DOCUMENT);
-  currentTheme = signal<Theme>('light');
-
-  updateThemeClass = effect(() => {
-    // const theme = this.currentTheme();
-    // document.body.classList.remove(...this.themes.map((t) => `${t.id}-theme`));
-    // document.body.classList.add(`${theme.id}-theme`);
-  });
+  private document = inject(DOCUMENT);
+  private _currentTheme = signal<ThemeClass>('azure-light');
+  currentTheme = computed(() => this._currentTheme());
 
   constructor() {
-    effect(() => {
-      localStorage.setItem('theme', this.currentTheme());
-    });
+    this.setTheme(this.getThemeFromLocalStorage());
   }
 
-  changeTheme(newTheme: any) {
-    // this._theme.set(newTheme);
-  }
-
-  getCurrentTheme(): any {
-    const theme = localStorage.getItem('theme');
-    return this.validateTheme(theme) ? theme : 'azure-light';
-  }
-
-  validateTheme(theme: string | null): theme is any {
-    return THEME_CLASSES.some((validTheme) => validTheme === theme);
-  }
-
-  setTheme(theme: string) {
-    this.document.documentElement.classList.remove(this.currentTheme());
-    this.currentTheme.set(theme as any);
+  setTheme(theme: ThemeClass) {
+    this.document.documentElement.classList.remove(this._currentTheme());
     this.document.documentElement.classList.add(theme);
-    // this.document.documentElement.classList.add('dark-mode');
-    // this.currentTheme.set(theme as any);
-
-    // if (theme === 'dark') {
-    // } else {
-    //   this.document.documentElement.classList.remove('dark-mode');
-    // }
+    this._currentTheme.set(theme);
+    localStorage.setItem('preferred-theme', this._currentTheme());
   }
 
-  testThem() {}
+  private getThemeFromLocalStorage(): ThemeClass {
+    const theme = localStorage.getItem('preferred-theme');
+    const validTheme = THEME_CLASSES.find((validTheme) => validTheme === theme);
+    return validTheme ? validTheme : 'azure-light';
+  }
 }

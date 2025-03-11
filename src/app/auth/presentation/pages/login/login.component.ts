@@ -14,28 +14,28 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { AuthService } from '../../../../presentation/services';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
-    selector: 'app-login',
-    imports: [
-        CommonModule,
-        RouterModule,
-        MatFormFieldModule,
-        ReactiveFormsModule,
-        MatCheckboxModule,
-        MatInputModule,
-        MatIconModule,
-        MatButtonModule,
-        MatProgressSpinnerModule,
-    ],
-    template: `
+  selector: 'app-login',
+  imports: [
+    CommonModule,
+    RouterModule,
+    MatFormFieldModule,
+    ReactiveFormsModule,
+    MatCheckboxModule,
+    MatInputModule,
+    MatIconModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+  ],
+  template: `
     <div class="min-h-screen flex items-center justify-center w-full">
       <div class="shadow-md rounded-lg p-5 mx-2 sm:mx-0 w-full sm:w-[450px]">
         <div class="sm:mx-auto mb-6">
           <img
             class="mx-auto h-16 mb-2"
-            src="assets/images/icons/app.png"
+            src="images/icons/app.png"
             alt="Icon app"
           />
           <p class="text-center text-xl font-bold font-sans">
@@ -89,7 +89,7 @@ import { AuthService } from '../../../../presentation/services';
       </div>
     </div>
   `,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class LoginComponent {
   hidePassword = true;

@@ -6,7 +6,6 @@ import {
   OnInit,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { AuthService } from '../../../../presentation/services';
 import { PublicationDialogComponent } from '../../../../publications/presentation/components';
 import { PostService } from '../../../../publications/presentation/services/post.service';
 
@@ -30,7 +29,7 @@ import { PostService } from '../../../../publications/presentation/services/post
 })
 export default class MainComponent implements OnInit {
   private dialog = inject(MatDialog);
-  private authService = inject(AuthService);
+  // private authService = inject(AuthService);
   private publicationService = inject(PostService);
 
   fullname = '"'

@@ -7,10 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { MaterialModule } from '../../../../material.module';
-import {
-  AuthService,
-  ReportService,
-} from '../../../services';
+
 interface dependents {
   id: string;
   officer?: {
@@ -26,8 +23,8 @@ interface dependents {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ReportDependentsComponent implements OnInit {
-  private reportService = inject(ReportService);
-  private accout = inject(AuthService).user();
+  // private reportService = inject(ReportService);
+  // private accout = inject(AuthService).user();
 
   displayedColumns: string[] = [
     'officer',

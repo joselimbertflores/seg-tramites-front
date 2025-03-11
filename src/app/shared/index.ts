@@ -10,7 +10,6 @@ export * from './components/dialogs/message-dialog/message-dialog.component';
 export * from './services/cache.service';
 export * from './services/alert.service';
 export * from './services/docx.service';
-export * from './services/appearance.service';
 export * from './services/loading.service';
 
 export * from './directives/back-button.directive';

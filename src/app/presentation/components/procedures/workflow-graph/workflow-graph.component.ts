@@ -14,7 +14,6 @@ import { MatCardModule } from '@angular/material/card';
 
 import { Overlay, OverlayModule, OverlayRef } from '@angular/cdk/overlay';
 // import * as shape from 'd3-shape';
-import { StatusMail, Workflow } from '../../../../domain/models';
 import { ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
 import { PaginatorComponent } from '../../paginator/paginator.component';
 @Component({
@@ -30,7 +29,7 @@ import { PaginatorComponent } from '../../paginator/paginator.component';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WorkflowGraphComponent {
-  workflow = input.required<Workflow[]>();
+  workflow = input.required<any[]>();
   // @Input() data: Workflow[] = [];
   // public nodes: Node[] = [];
   // public links: Edge[] = [];
@@ -110,7 +109,7 @@ export class WorkflowGraphComponent {
     });
   }
 
-  createChar(workflow: Workflow[]) {
+  createChar(workflow: any[]) {
     // const nodes: Record<string, Node> = {};
     // const links: any[] = [];
     // workflow.forEach(({ emitter, dispatches }, index) => {

@@ -2,21 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, map, tap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import {
-  transferDetails,
-  account,
-  communicationResponse,
-  dependencyResponse,
-  institution,
-} from '../../../infraestructure/interfaces';
-import {
-  Communication,
-  StateProcedure,
-  StatusMail,
-} from '../../../domain/models';
 
 import { communication, CommunicationMapper } from '../../infrastructure';
 import { communcationStatus, onlineAccount, recipient } from '../../domain';
+import {
+  account,
+  dependency,
+  institution,
+} from '../../../administration/infrastructure';
 
 interface createCommunicationProps {
   form: Object;
@@ -58,7 +51,7 @@ export class InboxService {
 
   getDependenciesInInstitution(id_institution: string) {
     return this.http
-      .get<dependencyResponse[]>(`${this.url}/dependencies/${id_institution}`)
+      .get<dependency[]>(`${this.url}/dependencies/${id_institution}`)
       .pipe(
         map((resp) => resp.map((el) => ({ value: el._id, label: el.nombre })))
       );

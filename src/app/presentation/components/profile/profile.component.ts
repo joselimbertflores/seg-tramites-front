@@ -5,14 +5,14 @@ import {
   inject,
   model,
 } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
-import { AuthService } from '../../services';
+import { AuthService } from '../../../auth/presentation/services/auth.service';
 
 @Component({
   selector: 'profile',
-  imports: [CommonModule, RouterModule, MatListModule, MatIconModule],
+  imports: [CommonModule, MatListModule, MatIconModule],
   template: `
     <div class="p-2">
       <div class="flex flex-col gap-y-2 items-center pb-4">
@@ -54,6 +54,8 @@ import { AuthService } from '../../services';
 export class ProfileComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
+
+  user = this.authService.user();
   isOpen = model.required<boolean>();
 
   settings() {
@@ -65,9 +67,5 @@ export class ProfileComponent {
     this.isOpen.set(false);
     this.authService.logout();
     this.router.navigateByUrl('login');
-  }
-
-  get user() {
-    return this.authService.user();
   }
 }

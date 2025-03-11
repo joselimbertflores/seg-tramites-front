@@ -1,39 +1,39 @@
 import { Content, TableCell } from 'pdfmake/interfaces';
-import {
-  ExternalProcedure,
-  InternalProcedure,
-  Procedure,
-  StateProcedure,
-  StatusMail,
-  Workflow,
-} from '../../domain/models';
+// import {
+//   ExternalProcedure,
+//   InternalProcedure,
+//   Procedure,
+//   StateProcedure,
+//   StatusMail,
+//   Workflow,
+// } from '../../domain/models';
 
-function CreateSectionWorkflow(workflow: Workflow[]): Content {
+function CreateSectionWorkflow(workflow: any[]): Content {
   const body: TableCell[][] = workflow.map((el, index) => {
-    const subTable: TableCell[][] = el.dispatches.map((send) => {
-      return [
-        {
-          text: `${send.receiver.fullname} (${send.receiver.jobtitle})`,
-          fontSize: 7,
-        },
-        [
-          { text: `Referencia: ${send.reference}`, fontSize: 7 },
-          ...(send.eventLog
-            ? [
-                {
-                  text: `\n ${send.eventLog.manager}: ${send.eventLog.description}`,
-                },
-              ]
-            : []),
-        ],
-        [
-          { text: `Fecha: ${send.date?.toLocaleString() ?? 'Pendiente'}` },
-          { text: `Cantidad: ${send.attachmentQuantity}` },
-          { text: `Nro. Interno: ${send.internalNumber}` },
-        ],
-        CreateStatusSection(send.status),
-      ];
-    });
+    // const subTable: TableCell[][] = el.dispatches.map((send) => {
+    //   return [
+    //     {
+    //       text: `${send.receiver.fullname} (${send.receiver.jobtitle})`,
+    //       fontSize: 7,
+    //     },
+    //     [
+    //       { text: `Referencia: ${send.reference}`, fontSize: 7 },
+    //       ...(send.eventLog
+    //         ? [
+    //             {
+    //               text: `\n ${send.eventLog.manager}: ${send.eventLog.description}`,
+    //             },
+    //           ]
+    //         : []),
+    //     ],
+    //     [
+    //       { text: `Fecha: ${send.date?.toLocaleString() ?? 'Pendiente'}` },
+    //       { text: `Cantidad: ${send.attachmentQuantity}` },
+    //       { text: `Nro. Interno: ${send.internalNumber}` },
+    //     ],
+    //     CreateStatusSection(send.status),
+    //   ];
+    // });
     return [
       { text: `${index + 1}`, alignment: 'center' },
       { text: `${el.emitter.fullname} (${el.emitter.jobtitle})` },
@@ -49,7 +49,7 @@ function CreateSectionWorkflow(workflow: Workflow[]): Content {
               { text: 'Detalles', style: 'tableHeader' },
               { text: 'Status', style: 'tableHeader' },
             ],
-            ...subTable,
+            // ...subTable,
           ],
         },
         layout: 'lightHorizontalLines',
@@ -77,32 +77,32 @@ function CreateSectionWorkflow(workflow: Workflow[]): Content {
     },
   };
 }
-function CreateStatusSection(status: StatusMail): Content {
+function CreateStatusSection(status: any): Content {
   const properties: { label: string; color: string } = {
     label: 'Desconocido',
     color: 'purple',
   };
-  switch (status) {
-    case StatusMail.Rejected:
-      properties.color = 'red';
-      properties.label = 'RECHAZADO';
-      break;
-    case StatusMail.Pending:
-      properties.color = 'orange';
-      properties.label = 'PENDIENTE';
-      break;
-    case StatusMail.Archived:
-      properties.color = 'blue';
-      properties.label = 'ARCHIVADO';
-      break;
-    default:
-      properties.color = 'green';
-      properties.label = 'RECIBIDO';
-      break;
-  }
+  // switch (status) {
+  //   case StatusMail.Rejected:
+  //     properties.color = 'red';
+  //     properties.label = 'RECHAZADO';
+  //     break;
+  //   case StatusMail.Pending:
+  //     properties.color = 'orange';
+  //     properties.label = 'PENDIENTE';
+  //     break;
+  //   case StatusMail.Archived:
+  //     properties.color = 'blue';
+  //     properties.label = 'ARCHIVADO';
+  //     break;
+  //   default:
+  //     properties.color = 'green';
+  //     properties.label = 'RECIBIDO';
+  //     break;
+  // }
   return { text: properties.label, color: properties.color, bold: true };
 }
-function CreateDetailSection(procedure: Procedure): Content {
+function CreateDetailSection(procedure: any): Content {
   return [
     {
       fontSize: 10,
@@ -117,7 +117,7 @@ function CreateDetailSection(procedure: Procedure): Content {
           [{ text: 'ESTADO:' }, procedure.state],
           [{ text: 'ENCARGADO:' }, procedure.titleManager],
           [{ text: 'FECHA REGISTRO:' }, procedure.startDate.toLocaleString()],
-          ...(procedure.state === StateProcedure.Concluido
+          ...(procedure.state === "Concluido"
             ? [
                 [
                   { text: 'FECHA FINALIZACION:' },
@@ -131,38 +131,38 @@ function CreateDetailSection(procedure: Procedure): Content {
     },
   ];
 }
-function CreateLocationSection(workflow: Workflow[]): Content {
+function CreateLocationSection(workflow: any[]): Content {
   if (workflow.length === 0) return [];
   const location: TableCell[][] = [];
   workflow.forEach((stage) => {
-    stage.dispatches.forEach((el) => {
-      if (el.status === StatusMail.Archived) {
-        location.push([
-          { text: `ARCHIVADO` },
-          { text: `${el.receiver.fullname} (${el.receiver.jobtitle})` },
-          { text: `Ingreso: ${el.date?.toLocaleString() ?? 'Pendiente'}` },
-        ]);
-        return;
-      }
-      if (el.status === StatusMail.Received) {
-        location.push([
-          { text: `EN BANDEJA` },
-          { text: `${el.receiver.fullname} (${el.receiver.jobtitle})` },
-          { text: `Ingreso: ${el.date?.toLocaleString() ?? 'Pendiente'}` },
-        ]);
-        return;
-      }
-      if (el.status === StatusMail.Pending) {
-        location.push([
-          { text: `EN PROCESO DE ENTREGA` },
-          {
-            text: `${stage.emitter.fullname} (${stage.emitter.jobtitle}) => ${el.receiver.fullname} (${el.receiver.jobtitle})`,
-          },
-          { text: `Fecha envio: ${stage.date.toLocaleString()}` },
-        ]);
-        return;
-      }
-    });
+    // stage.dispatches.forEach((el) => {
+    //   if (el.status === StatusMail.Archived) {
+    //     location.push([
+    //       { text: `ARCHIVADO` },
+    //       { text: `${el.receiver.fullname} (${el.receiver.jobtitle})` },
+    //       { text: `Ingreso: ${el.date?.toLocaleString() ?? 'Pendiente'}` },
+    //     ]);
+    //     return;
+    //   }
+    //   if (el.status === StatusMail.Received) {
+    //     location.push([
+    //       { text: `EN BANDEJA` },
+    //       { text: `${el.receiver.fullname} (${el.receiver.jobtitle})` },
+    //       { text: `Ingreso: ${el.date?.toLocaleString() ?? 'Pendiente'}` },
+    //     ]);
+    //     return;
+    //   }
+    //   if (el.status === StatusMail.Pending) {
+    //     location.push([
+    //       { text: `EN PROCESO DE ENTREGA` },
+    //       {
+    //         text: `${stage.emitter.fullname} (${stage.emitter.jobtitle}) => ${el.receiver.fullname} (${el.receiver.jobtitle})`,
+    //       },
+    //       { text: `Fecha envio: ${stage.date.toLocaleString()}` },
+    //     ]);
+    //     return;
+    //   }
+    // });
   });
   if (location.length === 0)
     location.push([{ text: 'SIN REGISTRO', colSpan: 3 }]);
@@ -191,7 +191,7 @@ function CreateLocationSection(workflow: Workflow[]): Content {
     },
   ];
 }
-function CreateExternalSection(procedure: ExternalProcedure): Content {
+function CreateExternalSection(procedure: any): Content {
   return [
     {
       columns: [
@@ -257,7 +257,7 @@ function CreateExternalSection(procedure: ExternalProcedure): Content {
     },
   ];
 }
-function CreateInternalSection(procedure: InternalProcedure): Content {
+function CreateInternalSection(procedure: any): Content {
   return [
     {
       columns: [

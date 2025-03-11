@@ -37,11 +37,6 @@ import { OverlayModule } from '@angular/cdk/overlay';
 import { filter, switchMap } from 'rxjs';
 
 import {
-  PdfService,
-  SocketService,
-  InboxService,
-} from '../../../../presentation/services';
-import {
   AlertService,
   CacheService,
   SearchInputComponent,
@@ -53,6 +48,8 @@ import {
 import { communcationStatus, Communication } from '../../../domain';
 import { procedureGroup } from '../../../../procedures/domain';
 import { ArchiveDialogComponent } from './archive-dialog/archive-dialog.component';
+import { InboxService } from '../../services';
+import { SocketService } from '../../../../layout/presentation/services';
 
 interface cache {
   datasource: Communication[];
@@ -107,7 +104,7 @@ export default class InboxComponent implements OnInit {
   private inboxService = inject(InboxService);
   private socketService = inject(SocketService);
   private alertService = inject(AlertService);
-  private pdfService = inject(PdfService);
+  // private pdfService = inject(PdfService);
   private cacheService: CacheService<cache> = inject(CacheService);
 
   datasource = signal<Communication[]>([]);

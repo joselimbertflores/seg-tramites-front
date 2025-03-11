@@ -9,7 +9,6 @@ import {
 } from './presentation/guards';
 import { ReportDependentsComponent } from './presentation/pages/reports/report-dependents/report-dependents.component';
 import { ClientsComponent } from './presentation/pages/groupware/clients/clients.component';
-import { VALID_RESOURCES } from './infraestructure/interfaces';
 import { ReportsComponent } from './presentation/pages/reports/reports.component';
 import { ReportUnitComponent } from './presentation/pages/reports/report-unit/report-unit.component';
 import { InfoComponent } from './layout/presentation/pages/info/info.component';
@@ -222,7 +221,7 @@ export const routes: Routes = [
       },
       {
         path: 'groupware',
-        data: { resource: VALID_RESOURCES.groupware },
+        data: { resource: "groupware" },
         children: [
           {
             path: 'users',

@@ -1,59 +1,3 @@
-<!-- <div class="example-container" [class.example-is-mobile]="isHandset$ | async">
-  <mat-toolbar color="primary" class="tonal">
-    <button mat-icon-button (click)="snav.toggle()">
-      <mat-icon>menu</mat-icon>
-    </button>
-    <span class="flex-1"></span>
-    <button mat-icon-button matTooltip="Recursos" routerLink="posts/history">
-      <mat-icon>forum</mat-icon>
-    </button>
-    <button mat-icon-button matTooltip="Recursos" routerLink="resources">
-      <mat-icon>widgets</mat-icon>
-    </button>
-    <button
-      mat-icon-button
-      cdkOverlayOrigin
-      #trigger="cdkOverlayOrigin"
-      (click)="detailsOpen = !detailsOpen"
-    >
-      <mat-icon>account_circle</mat-icon>
-    </button>
-    <ng-template
-      cdkConnectedOverlay
-      [cdkConnectedOverlayOrigin]="trigger"
-      [cdkConnectedOverlayOpen]="detailsOpen"
-      (overlayOutsideClick)="detailsOpen = false"
-    >
-      <div class="overlay-menu mat-elevation-z8 px-2 py-3 sm:w-[380px]">
-        <profile [(isOpen)]="detailsOpen" />
-      </div>
-    </ng-template>
-  </mat-toolbar>
-
-  <mat-sidenav-container
-    class="example-sidenav-container"
-    [style.marginTop.px]="(isHandset$ | async) ? 56 : 0"
-  >
-    <mat-sidenav
-      #snav
-      [mode]="(isHandset$ | async) ? 'over' : 'side'"
-      [fixedInViewport]="isHandset$ | async"
-      [opened]="(isHandset$ | async) === false"
-      class="sidenav"
-      fixedTopGap="56"
-      style="padding: 15px;"
-    >
-      <navigation-list [menu]="menu" />
-    </mat-sidenav>
-
-    <mat-sidenav-content cdkScrollable>
-      <div [@routeAnimations]="prepareRoute(outlet)">
-        <router-outlet #outlet="outlet"></router-outlet>
-      </div>
-    </mat-sidenav-content>
-  </mat-sidenav-container>
-</div> -->
-
 <div class="example-container" [class.example-is-mobile]="isMobile()">
   <mat-toolbar class="example-toolbar">
     <button mat-icon-button (click)="snav.toggle()">
@@ -84,17 +28,6 @@
       </button>
     </div>
   </mat-toolbar>
-
-  <!-- <ng-template
-    cdkConnectedOverlay
-    [cdkConnectedOverlayOrigin]="trigger"
-    [cdkConnectedOverlayOpen]="detailsOpen"
-    (overlayOutsideClick)="detailsOpen = false"
-  >
-    <div class="overlay-menu mat-elevation-z8 px-2 py-3 sm:w-[380px]">
-      <profile [(isOpen)]="detailsOpen" />
-    </div>
-  </ng-template> -->
 
   <ng-template
     cdkConnectedOverlay

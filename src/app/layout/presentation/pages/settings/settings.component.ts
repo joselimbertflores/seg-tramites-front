@@ -3,11 +3,11 @@ import {
   ChangeDetectionStrategy,
   Component,
   OnInit,
+  computed,
   inject,
   signal,
 } from '@angular/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatExpansionModule } from '@angular/material/expansion';
 import {
   FormBuilder,
   FormsModule,
@@ -15,50 +15,46 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MatSelectModule } from '@angular/material/select';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+
 import { CustomFormValidators } from '../../../../helpers';
-import { NotificationComponent } from '../../../../presentation/components/notification/notification.component';
 import {
-  AuthService,
-  AppearanceService,
-} from '../../../../presentation/services';
-import { ThemeSwitcherComponent } from '../../components';
-import {
-  AlertMessageComponent,
   AlertService,
-  FieldValidationErrorMessages,
+  AlertMessageComponent,
   FormErrorMessagesPipe,
+  FieldValidationErrorMessages,
 } from '../../../../shared';
-import { ThemeService } from '../../services/theme.service';
-import { MatMenuModule } from '@angular/material/menu';
+
+import {
+  ThemeClass,
+  ThemeColor,
+  ThemeService,
+  ThemeBackground,
+  ThemeColorOption,
+} from '../../services';
+import { AuthService } from '../../../../auth/presentation/services/auth.service';
 
 @Component({
   selector: 'app-settings',
   imports: [
     CommonModule,
+    FormsModule,
     MatToolbarModule,
-    MatExpansionModule,
     ReactiveFormsModule,
     MatIconModule,
-    FormsModule,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
     MatButtonToggleModule,
     MatSelectModule,
     MatTabsModule,
-    ThemeSwitcherComponent,
     FormErrorMessagesPipe,
     AlertMessageComponent,
-    MatMenuModule,
   ],
   templateUrl: './settings.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -66,9 +62,7 @@ import { MatMenuModule } from '@angular/material/menu';
 export default class SettingsComponent implements OnInit {
   private authService = inject(AuthService);
   private alertService = inject(AlertService);
-  private appearanceService = inject(AppearanceService);
-  private fb = inject(FormBuilder);
-  private router = inject(Router);
+  private _formBuilder = inject(FormBuilder);
   themeService = inject(ThemeService);
 
   protected errorMessages: FieldValidationErrorMessages = {
@@ -83,7 +77,7 @@ export default class SettingsComponent implements OnInit {
 
   protected user = this.authService.user;
 
-  formUser = this.fb.nonNullable.group(
+  formUser = this._formBuilder.nonNullable.group(
     {
       password: [
         '',
@@ -106,13 +100,19 @@ export default class SettingsComponent implements OnInit {
   hideConfirmPassword = signal(true);
   isAlertShowing = signal(false);
 
-  themes = [
-    { value: 'red-light', label: 'Rojo', code: '#ef9a9a' },
-    { value: 'yellow-light', label: 'Amarillo', code: '#fff59d' },
+  themes: ThemeColorOption[] = [
+    { value: 'red', label: 'Rojo', code: '#ef9a9a' },
+    { value: 'yellow', label: 'Amarillo', code: '#fff59d' },
     { value: 'green', label: 'Verde', code: '#a5d6a7' },
     { value: 'rose', label: 'Rosado', code: '#f48fb1' },
-    { value: null, label: 'Celeste', code: '#90caf9' },
+    { value: 'azure', label: 'Celeste', code: '#90caf9' },
   ];
+
+  color = signal(this.themeService.currentTheme().split('-')[0] as ThemeColor);
+  background = signal(
+    this.themeService.currentTheme().split('-')[1] as ThemeBackground
+  );
+  theme = computed<ThemeClass>(() => `${this.color()}-${this.background()}`);
 
   ngOnInit(): void {
     this.showNotification();
@@ -138,14 +138,6 @@ export default class SettingsComponent implements OnInit {
     this.hideConfirmPassword.update((value) => !value);
   }
 
-  get isDarkTheme() {
-    return this.appearanceService.isDarkTheme();
-  }
-
-  toggleDarkTheme() {
-    this.appearanceService.toggleTheme();
-  }
-
   showNotification() {
     if (this.authService.updatedPassword()) return;
     this.alertService.messageDialog({
@@ -155,8 +147,7 @@ export default class SettingsComponent implements OnInit {
     });
   }
 
-  changeTheme(value:string) {
-    // this.themeService.changeTheme(`${this.color()}-${this.backgroud()}`);
-    this.themeService.setTheme(value);
+  changeTheme() {
+    this.themeService.setTheme(this.theme());
   }
 }
