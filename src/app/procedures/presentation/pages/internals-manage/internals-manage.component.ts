@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -7,7 +8,6 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { RouterModule } from '@angular/router';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -16,11 +16,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 
-import {
-  CacheService,
-  DocxService,
-  SearchInputComponent,
-} from '../../../../shared';
+import { CacheService, SearchInputComponent } from '../../../../shared';
 import { InternalProcedure, procedureState } from '../../../domain';
 import { InternalService } from '../../services';
 
@@ -55,7 +51,6 @@ interface cache {
 export default class InternalsManageComponent {
   private dialog = inject(MatDialog);
   private internalService = inject(InternalService);
-  private wordGeneratorService = inject(DocxService);
   // private pdfService = inject(PdfService);
   private cacheService: CacheService<cache> = inject(CacheService);
 
@@ -77,12 +72,12 @@ export default class InternalsManageComponent {
 
   constructor() {
     inject(DestroyRef).onDestroy(() => {
-      this._saveCache();
+      this.saveCache();
     });
   }
 
   ngOnInit(): void {
-    this._loadCache();
+    this.loadCache();
   }
 
   getData(): void {
@@ -96,16 +91,15 @@ export default class InternalsManageComponent {
 
   create() {
     const dialogRef = this.dialog.open(InternalDialogComponent, {
-      maxWidth: '800px',
-      width: '800px',
+      maxWidth: '900px',
+      width: '900px',
       autoFocus: false,
     });
     dialogRef.afterClosed().subscribe((procedure) => {
       if (!procedure) return;
-      this.datasource.update((values) => {
-        if (values.length === this.limit()) values.pop();
-        return [procedure, ...values];
-      });
+      this.datasource.update((values) =>
+        [procedure, ...values].slice(0, this.limit())
+      );
       this.datasize.update((value) => (value += 1));
       this.send(procedure);
     });
@@ -113,8 +107,8 @@ export default class InternalsManageComponent {
 
   update(procedure: InternalProcedure) {
     const dialogRef = this.dialog.open(InternalDialogComponent, {
-      maxWidth: '800px',
-      width: '800px',
+      maxWidth: '900px',
+      width: '900px',
       data: procedure,
     });
     dialogRef.afterClosed().subscribe((result) => {
@@ -172,7 +166,7 @@ export default class InternalsManageComponent {
     // });
   }
 
-  private _saveCache(): void {
+  private saveCache(): void {
     this.cacheService.save('internals', {
       datasource: this.datasource(),
       datasize: this.datasize(),
@@ -182,9 +176,9 @@ export default class InternalsManageComponent {
     });
   }
 
-  private _loadCache(): void {
+  private loadCache(): void {
     const cache = this.cacheService.load('internals');
-    if (!cache) return this.getData();
+    if (!cache || !this.cacheService.keepAlive()) return this.getData();
     this.datasource.set(cache.datasource);
     this.datasize.set(cache.datasize);
     this.term.set(cache.term);

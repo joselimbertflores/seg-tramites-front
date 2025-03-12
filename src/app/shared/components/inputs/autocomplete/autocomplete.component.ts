@@ -37,6 +37,7 @@ export type AutocompleteOption<T> = {
           #input
           type="text"
           matInput
+          [placeholder]="placeholder()"
           [matAutocomplete]="auto"
           (input)="onInputChange(input.value)"
           [formControl]="control"
@@ -63,6 +64,7 @@ export class AutocompleteComponent<T> implements OnInit {
   control = new FormControl('');
   filteredOptions = new BehaviorSubject<AutocompleteOption<T>[]>([]);
 
+  placeholder = input('');
   title = input<string>();
   value = input<string>();
   autoFilter = input<boolean>(false);

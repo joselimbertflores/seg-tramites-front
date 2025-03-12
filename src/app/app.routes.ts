@@ -93,7 +93,7 @@ export const routes: Routes = [
         children: [
           {
             path: 'external',
-            data: { animation: 'fadeIn' },
+            data: { animation: 'ExternalPage' },
             loadComponent: () =>
               import(
                 './procedures/presentation/pages/externals-manage/externals-manage.component'
@@ -101,6 +101,7 @@ export const routes: Routes = [
           },
           {
             path: 'internal',
+            data: { animation: 'InternalPage' },
             loadComponent: () =>
               import(
                 './procedures/presentation/pages/internals-manage/internals-manage.component'
@@ -108,6 +109,7 @@ export const routes: Routes = [
           },
           {
             path: 'procurement',
+            data: { animation: 'ProcurementPage' },
             loadComponent: () =>
               import(
                 './procedures/presentation/pages/procurements-manage/procurements-manage.component'
@@ -123,7 +125,7 @@ export const routes: Routes = [
           {
             path: 'inbox',
             title: 'Bandeja de entrada',
-            data: { animation: 'fadeIn' },
+            data: { animation: 'InboxPage' },
             loadComponent: () =>
               import(
                 './communications/presentation/pages/inbox/inbox.component'
@@ -141,7 +143,7 @@ export const routes: Routes = [
           {
             path: 'outbox',
             title: 'Bandeja - Salida',
-            data: { animation: 'fadeIn' },
+            data: { animation: 'OutboxPage' },
             loadComponent: () =>
               import(
                 './communications/presentation/pages/outbox/outbox.component'
@@ -221,7 +223,7 @@ export const routes: Routes = [
       },
       {
         path: 'groupware',
-        data: { resource: "groupware" },
+        data: { resource: 'groupware' },
         children: [
           {
             path: 'users',

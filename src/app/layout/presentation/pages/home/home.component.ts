@@ -1,57 +1,45 @@
-import { MediaMatcher } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  inject,
-  signal,
-  ViewChild,
-} from '@angular/core';
+import { MediaMatcher } from '@angular/cdk/layout';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
-  ActivatedRoute,
-  ChildrenOutletContexts,
+  ChangeDetectionStrategy,
+  DestroyRef,
+  Component,
+  ViewChild,
+  inject,
+  signal,
+} from '@angular/core';
+import {
   Router,
   RouterModule,
-  RouterOutlet,
+  ActivatedRoute,
+  ChildrenOutletContexts,
 } from '@angular/router';
-import { map, shareReplay } from 'rxjs';
-import { MatIconModule } from '@angular/material/icon';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import {
-  NavigationListComponent,
-  ProfileComponent,
-} from '../../../../presentation/components';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { OverlayModule } from '@angular/cdk/overlay';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
+
+import { CdkScrollable, ScrollingModule } from '@angular/cdk/scrolling';
+import { OverlayModule } from '@angular/cdk/overlay';
 import {
-  CdkScrollable,
-  ScrollDispatcher,
-  ScrollingModule,
-} from '@angular/cdk/scrolling';
+  ProfileComponent,
+  NavigationListComponent,
+} from '../../../../presentation/components';
+
 import { PublicationDialogComponent } from '../../../../publications/presentation/components';
 import {
   AlertService,
-  CacheService,
   LoadingService,
   overlayAnimation,
-  ProgressBarComponent,
 } from '../../../../shared';
+
 import { routeAnimations } from '../../../../shared/animations/route-animations';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import {
-  animate,
-  state,
-  style,
-  transition,
-  trigger,
-} from '@angular/animations';
-import { SocketService } from '../../services';
 import { AuthService } from '../../../../auth/presentation/services/auth.service';
+import { SocketService } from '../../services';
 
 @Component({
   selector: 'app-home',
@@ -59,7 +47,6 @@ import { AuthService } from '../../../../auth/presentation/services/auth.service
     CommonModule,
     MatIconModule,
     MatToolbarModule,
-    NavigationListComponent,
     ProfileComponent,
     MatSidenavModule,
     RouterModule,
@@ -68,6 +55,7 @@ import { AuthService } from '../../../../auth/presentation/services/auth.service
     ScrollingModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
+    NavigationListComponent,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
@@ -90,9 +78,9 @@ export default class HomeComponent {
 
   @ViewChild(CdkScrollable) matContent!: CdkScrollable;
 
-  protected readonly isMobile = signal(true);
-  private readonly _mobileQuery: MediaQueryList;
-  private readonly _mobileQueryListener: () => void;
+  protected isMobile = signal(true);
+  private _mobileQuery: MediaQueryList;
+  private _mobileQueryListener: () => void;
 
   constructor(protected route: ActivatedRoute) {
     const media = inject(MediaMatcher);
@@ -115,7 +103,6 @@ export default class HomeComponent {
   ngOnInit(): void {
     this.listenUserConnections();
     this.handleExpelClient();
-    this.handleCommunications();
     this.socketService.listNews().subscribe((pub) => {
       this.dialogRef.open(PublicationDialogComponent, {
         data: [pub],
@@ -131,10 +118,14 @@ export default class HomeComponent {
     this.router.navigate(['/login']);
   }
 
-  getRouteAnimationData(): string {
-    const context = this.contexts.getContext('primary');
-    const route = context?.route?.snapshot;
-    return route?.data?.['animation'] || route?.component?.name || 'default';
+  prepareRoute() {
+    return this.contexts.getContext('primary')?.route?.snapshot?.data?.[
+      'animation'
+    ];
+  }
+
+  get menu() {
+    return this.authService.menu();
   }
 
   private listenUserConnections(): void {
@@ -153,29 +144,5 @@ export default class HomeComponent {
         });
         this.logout();
       });
-  }
-
-  private handleCommunications(): void {
-    // this.socketService
-    //   .listenProceduresDispatches()
-    //   .pipe(takeUntilDestroyed(this.destroyRef))
-    //   .subscribe((data) =>
-    //     this.alertservice.Toast({
-    //       title: `${data.emitter.fullname} ha enviado un tramite`,
-    //       message: data.reference,
-    //     })
-    //   );
-  }
-
-  prepareRoute(outlet: RouterOutlet) {
-    return (
-      outlet &&
-      outlet.activatedRouteData &&
-      outlet.activatedRouteData['animation']
-    );
-  }
-
-  get menu() {
-    return this.authService.menu();
   }
 }

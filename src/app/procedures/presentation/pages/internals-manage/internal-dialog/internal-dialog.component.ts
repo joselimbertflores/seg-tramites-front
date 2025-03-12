@@ -23,17 +23,14 @@ import { MatInputModule } from '@angular/material/input';
 
 import {
   AutocompleteComponent,
-  SelectSearchComponent,
   AutocompleteOption,
   selectOption,
 } from '../../../../../shared';
 
-import { DocService } from '../../../../../communications/presentation/services';
-import { InternalService } from '../../../services';
+import { InternalService, ProfileService } from '../../../services';
 import { doc } from '../../../../../communications/infrastructure';
 import { Account } from '../../../../../administration/domain';
 import { InternalProcedure } from '../../../../domain';
-import { ProfileService } from '../../../services/profile.service';
 
 type validFormfield = 'sender' | 'recipient';
 type participantOptions = {
@@ -49,7 +46,6 @@ type participantOptions = {
     MatButtonModule,
     MatDialogModule,
     AutocompleteComponent,
-    SelectSearchComponent,
   ],
   templateUrl: './internal-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -63,7 +59,6 @@ type participantOptions = {
 export class InternalDialogComponent {
   private account = inject(ProfileService).account();
   private internalService = inject(InternalService);
-  private documentService = inject(DocService);
   private formBuilder = inject(FormBuilder);
   private dialogRef = inject(MatDialogRef);
 
@@ -82,9 +77,8 @@ export class InternalDialogComponent {
       fullname: ['', Validators.required],
       jobtitle: ['', Validators.required],
     }),
+    cite: [''],
   });
-
-  selectedDocProps = signal<{ cite: string; docId: string } | null>(null);
 
   ngOnInit(): void {
     this._loadFormData();
@@ -93,10 +87,7 @@ export class InternalDialogComponent {
   save() {
     const observable = this.data
       ? this.internalService.update(this.data._id, this.formProcedure.value)
-      : this.internalService.create({
-          ...this.formProcedure.value,
-          ...this.selectedDocProps(),
-        });
+      : this.internalService.create(this.formProcedure.value);
     observable.subscribe((procedure) => this.dialogRef.close(procedure));
   }
 
@@ -117,22 +108,6 @@ export class InternalDialogComponent {
       fullname: account.officer?.fullname,
       jobtitle: account.jobtitle,
     });
-  }
-
-  searchDocuments(term: string) {
-    if (!term) return;
-    this.documentService.searchPendingDocs(term).subscribe((data) => {
-      const options: selectOption<doc>[] = data.map((item) => ({
-        label: `${item.cite} - ${item.reference}`,
-        value: item,
-      }));
-      this.documents.set(options);
-    });
-  }
-
-  onSelectDoc({ cite, _id, reference, sender, recipient }: doc) {
-    this.formProcedure.patchValue({ cite, reference, sender, recipient });
-    this.selectedDocProps.set({ docId: _id, cite });
   }
 
   private _loadFormData() {

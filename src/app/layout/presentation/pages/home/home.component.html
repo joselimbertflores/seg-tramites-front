@@ -4,15 +4,6 @@
       <mat-icon>menu</mat-icon>
     </button>
     <span class="flex-1"></span>
-    <!-- <button
-      mat-icon-button
-      cdkOverlayOrigin
-      #trigger="cdkOverlayOrigin"
-      matTooltip="Info about the action"
-      (click)="detailsOpen = !detailsOpen"
-    >
-      <mat-icon>account_circle</mat-icon>
-    </button> -->
     <div class="relative ml-2">
       <button
         mat-icon-button
@@ -63,8 +54,8 @@
         <mat-spinner />
       </div>
       }
-      <div [@routeAnimations]="prepareRoute(outlet)">
-        <router-outlet #outlet="outlet"></router-outlet>
+      <div [@routeAnimations]="prepareRoute()">
+        <router-outlet />
       </div>
     </mat-sidenav-content>
   </mat-sidenav-container>

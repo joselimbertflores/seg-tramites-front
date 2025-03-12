@@ -51,7 +51,7 @@ import { BackButtonDirective } from '../../../../shared';
       <button mat-icon-button backButton>
         <mat-icon>arrow_back</mat-icon>
       </button>
-      <span class="ml-4">Detalle</span>
+      <span class="ml-4">Detalle tramite</span>
     </mat-toolbar>
 
     <div class="sm:px-4">

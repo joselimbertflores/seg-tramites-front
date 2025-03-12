@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   input,
+  OnInit,
   output,
 } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -27,13 +28,16 @@ import { debounceTime, distinctUntilChanged } from 'rxjs';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SearchInputComponent {
+export class SearchInputComponent implements OnInit {
   placeholder = input<string>('');
   initValue = input<string>('');
   onSearch = output<string>();
-  control = new FormControl(this.initValue(), { nonNullable: true });
+  control = new FormControl('', { nonNullable: true });
 
-  constructor() {
+  constructor() {}
+
+  ngOnInit(): void {
+    if (this.initValue()) this.control.setValue(this.initValue());
     this.control.valueChanges
       .pipe(debounceTime(350), distinctUntilChanged())
       .subscribe((term) => this.onSearch.emit(term));

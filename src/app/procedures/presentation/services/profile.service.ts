@@ -4,7 +4,6 @@ import { catchError, map, Observable, of, tap } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
 import { Account } from '../../../administration/domain';
-
 import { account, AccountMapper } from '../../../administration/infrastructure';
 
 @Injectable({
@@ -12,10 +11,9 @@ import { account, AccountMapper } from '../../../administration/infrastructure';
 })
 export class ProfileService {
   private readonly url = `${environment.base_url}/assignation`;
-
   private http = inject(HttpClient);
-
   private _account = signal<Account | null>(null);
+
   account = computed(() => this._account());
   constructor() {
     effect(() => {});

@@ -15,7 +15,7 @@ import { communcationStatus } from '../../../../communications/domain';
   imports: [CommonModule, NgxGraphModule, MatIconModule],
   template: `
     <div class="w-full h-[80vh] p-4">
-      <div class="border border-black container h-full bg-gray-100">
+      <div class="border border-black container h-full ">
         <ngx-graph
           [nodes]="graph().nodes"
           [links]="graph().links"
@@ -160,8 +160,6 @@ export class WorkflowGraphComponent {
         },
       });
     });
-    console.log('NODES', [...Object.values(nodes)]);
-    console.log('LINKS', [...links]);
     return { nodes: [...Object.values(nodes)], links: [...links] };
   }
 }

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Socket, io } from 'socket.io-client';
 import { BehaviorSubject, Observable } from 'rxjs';
+
 import { environment } from '../../../../environments/environment';
 import { publication } from '../../../publications/infrastructure';
 import { userSocket } from '../../infrastructure';

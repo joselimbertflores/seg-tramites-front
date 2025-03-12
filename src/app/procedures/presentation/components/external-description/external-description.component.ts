@@ -1,13 +1,14 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { ExternalProcedure } from '../../../domain';
 import { CommonModule } from '@angular/common';
+
+import { ExternalProcedure } from '../../../domain';
 
 @Component({
   selector: 'external-description',
   imports: [CommonModule],
   template: `
     <div class="p-3 sm:p-4">
-      <dl class="-my-3 divide-y divide-gray-200 text-sm">
+      <dl class="-my-3 divide-y divide-gray-100 text-sm">
         <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-4 sm:gap-4">
           <dt class="font-medium">Codigo</dt>
           <dd class="sm:col-span-3">{{ data().code }}</dd>

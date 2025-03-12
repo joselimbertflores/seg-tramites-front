@@ -1,7 +1,7 @@
-import { CommonModule } from '@angular/common';
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
+
 
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -10,6 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialog } from '@angular/material/dialog';
 
 import { ExternalDialogComponent } from './external-dialog/external-dialog.component';
 
@@ -80,7 +81,6 @@ export default class ExternalsManageComponent {
     this.externalService
       .findAll(this.limit(), this.offset(), this.term())
       .subscribe(({ procedures, length }) => {
-        console.log('load data form server');
         this.datasource.set(procedures);
         this.datasize.set(length);
       });
@@ -93,11 +93,8 @@ export default class ExternalsManageComponent {
     });
     dialogRef.afterClosed().subscribe((result: ExternalProcedure) => {
       if (!result) return;
+      this.datasource.update((values) => [result, ...values].slice(0, this.limit()));
       this.datasize.update((value) => (value += 1));
-      this.datasource.update((values) => {
-        if (values.length === this.limit()) values.pop();
-        return [result, ...values];
-      });
       this.send(result);
     });
   }
@@ -111,8 +108,8 @@ export default class ExternalsManageComponent {
     dialogRef.afterClosed().subscribe((result) => {
       if (!result) return;
       this.datasource.update((values) => {
-        const indexFound = values.findIndex(({ _id }) => _id === result._id);
-        values[indexFound] = result;
+        const index = values.findIndex(({ _id }) => _id === result._id);
+        values[index] = result;
         return [...values];
       });
     });
@@ -172,7 +169,7 @@ export default class ExternalsManageComponent {
 
   private loadCache(): void {
     const cache = this.cacheService.load('externals');
-    if (!cache) return this.getData();
+    if (!cache || !this.cacheService.keepAlive()) return this.getData();
     this.datasource.set(cache.datasource);
     this.datasize.set(cache.datasize);
     this.term.set(cache.term);

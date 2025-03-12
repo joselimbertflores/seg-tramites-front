@@ -13,6 +13,7 @@ export class CacheService<T> {
 
   save(key: string, data: T): void {
     this.storage[key] = data;
+    this.keepAlive.set(false);
   }
 
   load(key: string): T | undefined {
