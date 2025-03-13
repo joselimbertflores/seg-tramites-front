@@ -365,12 +365,12 @@ export default class InboxComponent implements OnInit {
   private loadCache(): void {
     const cache = this.cacheService.load('inbox');
     if (!cache || !this.cacheService.keepAlive()) return this.getData();
-    this.datasource.set(cache.datasource);
-    this.datasize.set(cache.datasize);
+    this.term.set(cache.term);
     this.limit.set(cache.limit);
     this.index.set(cache.index);
-    this.filterForm.patchValue(cache.form);
-    this.term.set(cache.term);
     this.status.set(cache.status);
+    this.datasize.set(cache.datasize);
+    this.datasource.set(cache.datasource);
+    this.filterForm.patchValue(cache.form);
   }
 }
