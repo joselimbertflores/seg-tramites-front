@@ -20,9 +20,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { SelectionModel } from '@angular/cdk/collections';
 
 import {
-  animate,
   state,
   style,
+  animate,
   transition,
   trigger,
 } from '@angular/animations';
@@ -58,9 +58,7 @@ import { OutboxService } from '../../services';
     MatToolbarModule,
     MatCheckboxModule,
     MatPaginatorModule,
-
     HumanizeDurationPipe,
-
     SearchInputComponent,
     BadgeComponent,
   ],
@@ -86,11 +84,10 @@ import { OutboxService } from '../../services';
   `,
 })
 export default class OutboxComponent {
+  private dialogRef = inject(MatDialog);
   private alertService = inject(AlertService);
   private outboxService = inject(OutboxService);
   // private pdfService = inject(PdfService);
-
-  private dialogRef = inject(MatDialog);
 
   datasource = signal<Communication[]>([]);
   datasize = signal<number>(0);
@@ -107,9 +104,7 @@ export default class OutboxComponent {
     'select',
     'type',
     'code',
-    // 'reference',
     'recipient',
-    // 'sentDate',
     'time',
     'expand',
     'options',
@@ -201,6 +196,13 @@ export default class OutboxComponent {
     this.selection.select(...this.datasource().map((el) => el));
   }
 
+  isButtonEnabledForStatus(status: string): boolean {
+    return (
+      this.selection.selected.every((el) => el.status === status) &&
+      this.selection.selected.length > 0
+    );
+  }
+
   private cancel(items: Communication[]): void {
     const ids = items.map(({ id }) => id);
     this.alertService
@@ -225,6 +227,7 @@ export default class OutboxComponent {
         );
         this.datasize.update((value) => (value -= ids.length));
         this.selection.clear();
+
         if (this.datasource().length === 0 && this.datasize() > 0) {
           this.index.set(0);
           this.getData();
@@ -234,11 +237,11 @@ export default class OutboxComponent {
 
   private handleSubmisionDialogResult(
     result: submissionResult,
-    item: Communication
-  ) {
+    currentItem: Communication
+  ): void {
     if (result.error) {
       this.datasource.update((values) => {
-        const index = values.findIndex(({ id }) => id === item.id);
+        const index = values.findIndex(({ id }) => id === currentItem.id);
         values[index].status = communcationStatus.AutoRejected;
         return [...values];
       });
@@ -246,23 +249,19 @@ export default class OutboxComponent {
     }
     const newItems = result.data ?? [];
 
-    switch (item.status) {
-      case communcationStatus.Pending:
-        this.datasize.update((value) => (value += newItems.length));
-        this.datasource.update((values) =>
-          [...newItems, ...values].splice(0, this.limit())
-        );
-        break;
-
-      default:
-        this.datasize.update((value) => (value += newItems.length - 1));
-        this.datasource.update((values) =>
-          [...newItems, ...values.filter(({ id }) => id !== item.id)].slice(
-            0,
-            this.limit()
-          )
-        );
-        break;
+    if (currentItem.status === communcationStatus.Pending) {
+      this.datasize.update((value) => (value += newItems.length));
+      this.datasource.update((values) =>
+        [...newItems, ...values].splice(0, this.limit())
+      );
+    } else {
+      this.datasize.update((value) => (value += newItems.length - 1));
+      this.datasource.update((values) =>
+        [
+          ...newItems,
+          ...values.filter(({ id }) => id !== currentItem.id),
+        ].slice(0, this.limit())
+      );
     }
   }
 }

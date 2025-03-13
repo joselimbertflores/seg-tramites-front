@@ -14,7 +14,7 @@ export class LoadingService {
 
   isLoading$ = this.isLoading.asObservable();
 
-  private uploadingDialogRef?: MatDialogRef<LoaderDialogComponent, void>;
+  private uploadingDialogRef: MatDialogRef<LoaderDialogComponent, void> | null;
   private dialogRef = inject(MatDialog);
 
   loadingOn() {
@@ -32,7 +32,7 @@ export class LoadingService {
     });
 
     this.uploadingDialogRef.afterClosed().subscribe(() => {
-      this.uploadingDialogRef = undefined; // Reset cuando se cierra el diálogo
+      this.uploadingDialogRef = null; // Reset cuando se cierra el diálogo
     });
   }
 

@@ -42,6 +42,7 @@ export class SocketService {
   listenNewCommunications(): Observable<Communication> {
     return new Observable((observable) => {
       this.socket.on('new-communication', (data: communication) => {
+        console.log('COMMUNICATION RESPONSE', data);
         observable.next(CommunicationMapper.fromResponse(data));
       });
     });

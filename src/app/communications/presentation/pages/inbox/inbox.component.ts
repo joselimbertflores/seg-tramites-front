@@ -48,8 +48,8 @@ import {
 import { communcationStatus, Communication } from '../../../domain';
 import { procedureGroup } from '../../../../procedures/domain';
 import { ArchiveDialogComponent } from './archive-dialog/archive-dialog.component';
-import { InboxService } from '../../services';
 import { SocketService } from '../../../../layout/presentation/services';
+import { InboxService } from '../../services';
 
 interface cache {
   datasource: Communication[];
@@ -97,15 +97,15 @@ interface cache {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class InboxComponent implements OnInit {
-  private destroyRef = inject(DestroyRef);
   private dialogRef = inject(MatDialog);
+  private destroyRef = inject(DestroyRef);
   private formBuilder = inject(FormBuilder);
 
   private inboxService = inject(InboxService);
   private socketService = inject(SocketService);
   private alertService = inject(AlertService);
-  // private pdfService = inject(PdfService);
   private cacheService: CacheService<cache> = inject(CacheService);
+  // private pdfService = inject(PdfService);
 
   datasource = signal<Communication[]>([]);
   datasize = signal<number>(0);
@@ -148,11 +148,11 @@ export default class InboxComponent implements OnInit {
   ];
 
   constructor() {
-    this.listenNewCommunications();
-    this.listenCancelCommunications();
     this.destroyRef.onDestroy(() => {
       this.saveCache();
     });
+    this.listenNewCommunications();
+    this.listenCancelCommunications();
   }
 
   ngOnInit(): void {
@@ -324,9 +324,7 @@ export default class InboxComponent implements OnInit {
   }
 
   private removeItems(ids: string[]): void {
-    this.datasource.update((items) =>
-      items.filter(({ id }) => !ids.includes(id))
-    );
+    this.datasource.update((items) => items.filter(({ id }) => !ids.includes(id)));
     this.datasize.update((length) => (length -= ids.length));
     this.selection.clear();
     if (this.datasource().length === 0 && this.datasize() > 0) {
@@ -347,7 +345,7 @@ export default class InboxComponent implements OnInit {
 
   private hadleHttpErrors(error: any) {
     if (error instanceof HttpErrorResponse && error.status === 409) {
-      const { toRemove = [] } = error.error;
+      const { toRemove = [], message = '' } = error.error;
       this.removeItems(toRemove);
     }
   }

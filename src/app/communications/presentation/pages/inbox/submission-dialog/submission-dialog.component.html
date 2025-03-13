@@ -9,8 +9,8 @@
       <div class="py-3">
         <dl>
           <div class="px-4 sm:grid sm:grid-cols-4 sm:gap-2 sm:px-0">
-            <dt class="text-lg font-medium text-gray-900">Tramite:</dt>
-            <dd class="mt-1 text-lg text-gray-700 sm:col-span-3 sm:mt-0">
+            <dt class="text-lg font-medium">Tramite:</dt>
+            <dd class="mt-1 text-lg sm:col-span-3 sm:mt-0">
               {{ data.procedure.code }} - ({{
                 data.isOriginal ? "Original" : "Copia"
               }})
@@ -30,19 +30,6 @@
               </mat-error>
             </mat-form-field>
           </div>
-          <!-- @if(data.isOriginal && data.allowAttachDocument){
-          <div class="col-span-3">
-            <select-search
-              [items]="documents()"
-              (onTyped)="searchDocuments($event)"
-              (onSelect)="onSelectDoc($event)"
-              [autoFilter]="false"
-              title="Documento a adjuntar (CITE)"
-              placeholder="Selecciono un documento (Opcional)"
-              placeholderLabel="Referencia / Codigo"
-            />
-          </div>
-          } -->
           <div>
             <mat-form-field>
               <mat-label>Cantidad: hojas / anexos</mat-label>
@@ -170,59 +157,8 @@
           <mat-icon>arrow_back</mat-icon>
           Atras
         </button>
-        <button mat-button matStepperNext>
-          Siguiente
-          <mat-icon iconPositionEnd>arrow_forward</mat-icon>
-        </button>
       </div>
     </mat-step>
-
-    <!-- <mat-step label="Archivos adjuntos" optional>
-      <div class="flex justify-between items-center p-2">
-        <span>Archivos:</span>
-        <button
-          mat-mini-fab
-          aria-label="Attach file"
-          (click)="fileInput.click()"
-        >
-          <mat-icon>attach_file</mat-icon>
-        </button>
-        <input
-          #fileInput
-          [hidden]="true"
-          type="file"
-          [multiple]="true"
-          (change)="addFile($event)"
-          accept="*"
-        />
-      </div>
-      <div></div>
-      <div class="col-span-2">
-        <mat-list class="overflow-y-auto max-h-52 w-full rounded-lg border-2">
-          @for (file of files(); track $index) {
-          <mat-list-item>
-            <mat-icon matListItemIcon>description</mat-icon>
-            <div matListItemTitle>{{ file.name }}</div>
-            <div matListItemLine>
-              {{ (file.size / 1024 / 1024).toFixed(2) }} MB
-            </div>
-            <button
-              mat-icon-button
-              (click)="removeFile($index)"
-              matListItemMeta
-            >
-              <mat-icon>delete</mat-icon>
-            </button>
-          </mat-list-item>
-          } @empty {
-          <span class="px-3">Sin archivos adjuntos</span>
-          }
-        </mat-list>
-      </div>
-      <div class="flex justify-end mt-2">
-        <button mat-button matStepperPrevious>Atras</button>
-      </div>
-    </mat-step> -->
   </mat-stepper>
 </mat-dialog-content>
 <mat-dialog-actions align="end">

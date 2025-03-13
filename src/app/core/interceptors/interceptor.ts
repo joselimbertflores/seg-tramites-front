@@ -22,14 +22,15 @@ export function loggingInterceptor(
   const showLoadIndicator = req.context.get(LOAD_INDICATOR);
   const showUploadIndicator = req.context.get(UPLOAD_INDICATOR);
 
+  if (showLoadIndicator && req.method === 'GET') loadingService.loadingOn();
+  if (showUploadIndicator && req.method !== 'GET') loadingService.uploadingOn();
+
   const reqWithHeader = req.clone({
     headers: req.headers.append(
       'Authorization',
       `Bearer ${localStorage.getItem('token') || ''}`
     ),
   });
-  if (showLoadIndicator) loadingService.loadingOff();
-  if (showUploadIndicator) loadingService.uploadingOn();
 
   return next(reqWithHeader).pipe(
     catchError((error) => {
@@ -46,7 +47,6 @@ export function loggingInterceptor(
 const handleHttpErrors = (error: HttpErrorResponse, service: AlertService) => {
   // const authService = inject(AuthService);
   // const router = inject(Router);
-  console.log(error.status);
   const message: string = error.error['message'] ?? 'Error no controlado';
   switch (error.status) {
     case 500:

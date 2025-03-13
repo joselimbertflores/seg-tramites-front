@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { map } from 'rxjs';
 
 import {
@@ -7,6 +7,7 @@ import {
   CommunicationMapper,
 } from '../../../communications/infrastructure';
 import { environment } from '../../../../environments/environment';
+import { UPLOAD_INDICATOR } from '../../../core/interceptors/interceptor';
 
 interface createCommunicationProps {
   attachmentsCount: string;
@@ -26,7 +27,7 @@ interface recipient {
 interface filterParams {
   limit: number;
   offset: number;
-  term: string;
+  term?: string;
 }
 
 type communicationMode = 'initiate' | 'forward' | 'resend';
@@ -37,8 +38,8 @@ export class OutboxService {
   private readonly url = `${environment.base_url}/outbox`;
   constructor(private http: HttpClient) {}
 
-  findAll({ limit, offset }: filterParams) {
-    const params = new HttpParams({ fromObject: { limit, offset } });
+  findAll({ limit, offset, term }: filterParams) {
+    const params = new HttpParams({ fromObject: { limit, offset, ...(term && { term }) } });
     return this.http
       .get<{ communications: communication[]; length: number }>(this.url, {
         params,
@@ -62,7 +63,7 @@ export class OutboxService {
   create(data: createCommunicationProps, mode: communicationMode) {
     return this.http
       .post<communication[]>(`${this.url}/${mode}`, data, {
-        headers: { loader: 'true' },
+        context: new HttpContext().set(UPLOAD_INDICATOR, true),
       })
       .pipe(
         map((resp) =>

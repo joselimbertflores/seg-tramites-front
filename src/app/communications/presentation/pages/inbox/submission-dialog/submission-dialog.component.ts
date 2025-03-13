@@ -57,6 +57,10 @@ import { DocService, InboxService, OutboxService } from '../../../services';
 import { Communication, onlineAccount, recipient } from '../../../../domain';
 import { SocketService } from '../../../../../layout/presentation/services';
 
+export interface submissionResult {
+  error?: string;
+  data?: Communication[];
+}
 export interface submissionData {
   communicationId?: string;
   attachmentsCount: string;
@@ -69,10 +73,6 @@ export interface submissionData {
 interface procedureProps {
   id: string;
   code: string;
-}
-export interface submissionResult {
-  error?: string;
-  data?: Communication[];
 }
 
 export type communicationMode = 'initiate' | 'forward' | 'resend';
@@ -127,7 +127,7 @@ export class SubmissionDialogComponent implements OnInit {
   formSubmission: FormGroup = this._formBuilder.group({
     reference: ['PARA SU ATENCION', Validators.required],
     attachmentsCount: [this.data.attachmentsCount, Validators.required],
-    internalNumber: [this._getInternalNumber()],
+    internalNumber: [''],
   });
   recipients = signal<recipient[]>([]);
 
@@ -326,11 +326,5 @@ export class SubmissionDialogComponent implements OnInit {
         }))
       )
     );
-  }
-
-  private _getInternalNumber(): string {
-    const correlativeNumber = this.data.cite?.split('/')[2] ?? '';
-    return '';
-    // return typeof correlativeNumber === 'number' ? correlativeNumber : '';
   }
 }
