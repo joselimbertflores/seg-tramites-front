@@ -3,10 +3,10 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 
 interface createArchiveProps {
-  communicationIds: string[];
-  status: string;
-  folderId?: string;
   description: string;
+  folderId?: string;
+  communicationIds: string[];
+  state: string;
 }
 @Injectable({
   providedIn: 'root',
@@ -21,9 +21,7 @@ export class ArchiveService {
   }
 
   findAll(folderId: string | null) {
-    const params = new HttpParams({
-      fromObject: { ...(folderId && { folder: folderId }) },
-    });
+    const params = new HttpParams({ fromObject: { ...(folderId && { folder: folderId }) } });
     return this.http.get<{
       archives: any[];
       lenght: number;

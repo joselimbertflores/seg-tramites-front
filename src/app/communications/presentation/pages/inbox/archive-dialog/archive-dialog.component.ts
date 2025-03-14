@@ -1,9 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -12,14 +7,16 @@ import {
 } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { MatRadioModule } from '@angular/material/radio';
+import { toSignal } from '@angular/core/rxjs-interop';
+
 import {
   MAT_DIALOG_DATA,
   MatDialogModule,
   MatDialogRef,
 } from '@angular/material/dialog';
-import { MatInputModule } from '@angular/material/input';
-import { MatRadioModule } from '@angular/material/radio';
-import { toSignal } from '@angular/core/rxjs-interop';
+
 import { filter, map, Observable, switchMap } from 'rxjs';
 
 import { ArchiveService, FolderService } from '../../../services';
@@ -71,7 +68,11 @@ import { Communication } from '../../../../domain';
           </mat-form-field>
 
           <label>Archivar como:</label>
-          <mat-radio-group formControlName="state" class="flex flex-col p-2">
+          <mat-radio-group
+            formControlName="state"
+            class="flex flex-col p-2"
+            required
+          >
             @for (option of statusOptions; track $index) {
             <mat-radio-button [value]="option.value">
               {{ option.label }}
@@ -96,7 +97,7 @@ import { Communication } from '../../../../domain';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ArchiveDialogComponent {
-  private _formBuilder = inject(FormBuilder);
+  private formBuilder = inject(FormBuilder);
   private dialogRef = inject(MatDialogRef);
   private folderService = inject(FolderService);
   private archiveService = inject(ArchiveService);
@@ -120,10 +121,10 @@ export class ArchiveDialogComponent {
     },
   ];
 
-  archiveForm: FormGroup = this._formBuilder.nonNullable.group({
+  archiveForm: FormGroup = this.formBuilder.nonNullable.group({
     description: ['', [Validators.required, Validators.minLength(4)]],
-    folderId: ['', Validators.required],
     state: ['', Validators.required],
+    folderId: [null],
   });
 
   constructor() {}
@@ -148,7 +149,7 @@ export class ArchiveDialogComponent {
         )
       )
       .subscribe(() => {
-        this.dialogRef.close(this.data.map(({ id }) => id));
+        this.dialogRef.close(selection);
       });
   }
 
