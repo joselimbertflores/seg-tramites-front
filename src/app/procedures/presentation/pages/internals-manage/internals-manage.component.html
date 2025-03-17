@@ -27,7 +27,7 @@
       <th mat-header-cell *matHeaderCellDef>Alterno</th>
       <td mat-cell *matCellDef="let element" [id]="element._id" class="sm:w-52">
         <a
-          [routerLink]="['../internal', 'detail', element._id]"
+          [routerLink]="['../internal', element.group, element._id]"
           class="text-blue-600"
         >
           {{ element.code }}

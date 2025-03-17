@@ -31,13 +31,15 @@ export enum procedureState {
   Suspendido = 'SUSPENDIDO',
 }
 
-interface manager {
-  id: string;
-  officer?: officer;
-}
 interface officer {
   fullname: string;
   jobtitle?: string;
+}
+
+export interface originDetails {
+  emitter: officer;
+  receiver?: officer;
+  phone?: string;
 }
 
 export abstract class Procedure {
@@ -75,6 +77,8 @@ export abstract class Procedure {
     this.createdAt = createdAt;
     // if (endDate) this.endDate = new Date(endDate);
   }
+
+  abstract originDetails(): OriginDetails;
 
   get citeCode() {
     return this.cite === '' ? 'S/C' : this.cite;

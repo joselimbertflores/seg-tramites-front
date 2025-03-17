@@ -1,12 +1,22 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
+import { archive } from '../../infrastructure/interfaces/archive.interface';
+import { map } from 'rxjs';
+import { ArchiveMapper } from '../../infrastructure';
 
 interface createArchiveProps {
   description: string;
   folderId?: string;
   communicationIds: string[];
   state: string;
+}
+
+interface findProps {
+  folderId: string | null;
+  term: string;
+  limit: number;
+  offset: number;
 }
 @Injectable({
   providedIn: 'root',
@@ -20,14 +30,33 @@ export class ArchiveService {
     return this.http.post<{ message: string }>(this.url, form);
   }
 
-  findAll(folderId: string | null) {
-    const params = new HttpParams({ fromObject: { ...(folderId && { folder: folderId }) } });
-    return this.http.get<{
-      archives: any[];
-      lenght: number;
-      folderName: string;
-    }>(this.url, {
-      params,
+  findAll({ folderId, term, limit, offset }: findProps) {
+    const params = new HttpParams({
+      fromObject: {
+        ...(folderId && { folder: folderId }),
+        ...(term && { term }),
+        limit,
+        offset,
+      },
     });
+    return this.http
+      .get<{
+        archives: archive[];
+        length: number;
+        folderName: string;
+      }>(this.url, {
+        params,
+      })
+      .pipe(
+        map(({ archives, length, folderName }) => ({
+          length,
+          folderName,
+          archives: archives.map((el) => ArchiveMapper.fromResponse(el)),
+        }))
+      );
+  }
+
+  unarchive(selectedIds: string[]) {
+    return this.http.post<{ message: string }>(`${this.url}/unarchive`, { ids: selectedIds });
   }
 }

@@ -16,7 +16,11 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 
-import { CacheService, SearchInputComponent } from '../../../../shared';
+import {
+  CacheService,
+  PdfService,
+  SearchInputComponent,
+} from '../../../../shared';
 import { InternalProcedure, procedureState } from '../../../domain';
 import { InternalService } from '../../services';
 
@@ -25,6 +29,7 @@ import {
   submissionData,
   SubmissionDialogComponent,
 } from '../../../../communications/presentation/pages/inbox/submission-dialog/submission-dialog.component';
+import { ProcessService } from '../../../../communications/presentation/services';
 interface cache {
   datasource: InternalProcedure[];
   datasize: number;
@@ -51,7 +56,8 @@ interface cache {
 export default class InternalsManageComponent {
   private dialog = inject(MatDialog);
   private internalService = inject(InternalService);
-  // private pdfService = inject(PdfService);
+  private pdfService = inject(PdfService);
+  private processService = inject(ProcessService);
   private cacheService: CacheService<cache> = inject(CacheService);
 
   displayedColumns: string[] = [
@@ -161,9 +167,9 @@ export default class InternalsManageComponent {
 
   generateRouteMap(procedure: InternalProcedure) {
     // TODO gereate route map
-    // this.procedureService.getWorkflow(procedure._id).subscribe((workflow) => {
-    //   this.pdfService.generateRouteSheet(procedure, workflow);
-    // });
+    this.processService.getWorkflow(procedure._id).subscribe((workflow) => {
+      this.pdfService.generateRouteSheet(procedure, workflow);
+    });
   }
 
   private saveCache(): void {

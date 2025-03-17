@@ -1,4 +1,4 @@
-import { Procedure, ProcedureProps } from './procedure.model';
+import { OriginDetails, Procedure, ProcedureProps } from './procedure.model';
 
 export interface procurementDoc {
   reference: string;
@@ -129,5 +129,14 @@ export class ProcurementProcedure extends Procedure {
       Object.values(document).every((value) => value) &&
       Object.keys(document).length > 5
     );
+  }
+
+  override originDetails(): OriginDetails {
+    return {
+      emitter: {
+        fullname: '',
+        jobtitle: '',
+      },
+    };
   }
 }

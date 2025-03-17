@@ -1,4 +1,4 @@
-import { Procedure, ProcedureProps } from './procedure.model';
+import { OriginDetails, Procedure, ProcedureProps } from './procedure.model';
 
 interface ExternalProps extends ProcedureProps {
   type: string;
@@ -77,5 +77,15 @@ export class ExternalProcedure extends Procedure implements ExternalProps {
       ...this,
       ...modifyObject,
     });
+  }
+
+  override originDetails(): OriginDetails {
+    return {
+      emitter: {
+        fullname: this.fullnameApplicant,
+        jobtitle: `P. ${this.applicant.type}`,
+      },
+      phone: this.applicant.phone,
+    };
   }
 }

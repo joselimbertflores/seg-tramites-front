@@ -44,7 +44,7 @@ import { BackButtonDirective } from '../../../../shared';
     WorkflowGraphComponent,
     ExternalDescriptionComponent,
     InternalDescriptionComponent,
-    ProcurementDescriptionComponent
+    ProcurementDescriptionComponent,
   ],
   template: `
     <mat-toolbar>
@@ -61,22 +61,16 @@ import { BackButtonDirective } from '../../../../shared';
         dynamicHeight="true"
       >
         <mat-tab label="Descripcion">
-          @if(procedure()){ 
-            @switch (procedure()?.group) { 
-              @case (groupEnum.External) {
-                 <external-description [data]="external"/>
-              } 
-              @case (groupEnum.Internal) { 
-                <internal-description [data]="internal"/>
-              } 
-              @case (groupEnum.Procurement) { 
-                <procurement-description [data]="procurement"/> 
-              } 
-              @default { 
-                <p>Group procedure is not defined</p>
-              } 
-            } 
-          }
+          @if(procedure()){ @switch (procedure()?.group) { @case
+          (groupEnum.External) {
+          <external-description [data]="external" />
+          } @case (groupEnum.Internal) {
+          <internal-description [data]="internal" />
+          } @case (groupEnum.Procurement) {
+          <procurement-description [data]="procurement" />
+          } @default {
+          <p>Group procedure is not defined</p>
+          } } }
         </mat-tab>
         @if (workflow().length>0) {
         <mat-tab label="Flujo de trabajo">
@@ -95,32 +89,23 @@ export default class DetailComponent {
   private processService = inject(ProcessService);
 
   @Input('id') procedureId: string;
-  @Input('from') from: string;
+  @Input('group') group: string;
 
   procedure = signal<Procedure | null>(null);
-  workflow = signal<communication[]>([]);
+  workflow = signal<any[]>([]);
 
   public groupEnum = procedureGroup;
 
-  private groupMap: Record<string, procedureGroup> = {
-    external: procedureGroup.External,
-    internal: procedureGroup.Internal,
-    procurement: procedureGroup.Procurement,
-  };
-
   ngOnInit(): void {
     this.getProcedureData().subscribe(([procedure, workflow]) => {
-      this.procedure.set(procedure );
+      this.procedure.set(procedure);
       this.workflow.set(workflow);
     });
   }
 
   private getProcedureData() {
     return forkJoin([
-      this.processService.getProcedure(
-        this.procedureId,
-        this.groupMap[this.from]
-      ),
+      this.processService.getProcedure(this.procedureId, this.group),
       this.processService.getWorkflow(this.procedureId),
     ]);
   }

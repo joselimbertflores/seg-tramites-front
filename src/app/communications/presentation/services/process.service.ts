@@ -11,7 +11,7 @@ import {
   procurement,
   ProcurementMapper,
 } from '../../../procedures/infrastructure';
-import { communication } from '../../infrastructure';
+import { communication, CommunicationMapper } from '../../infrastructure';
 import { procedureGroup } from '../../../procedures/domain';
 
 type procedureResponses = internal | external | procurement;
@@ -47,6 +47,12 @@ export class ProcessService {
   }
 
   getWorkflow(id: string) {
-    return this.http.get<communication[]>(`${this.url}/workflow/${id}`);
+    return this.http
+      .get<communication[]>(`${this.url}/workflow/${id}`)
+      .pipe(
+        map((resp) =>
+          resp.map((item) => CommunicationMapper.fromResponse(item))
+        )
+      );
   }
 }

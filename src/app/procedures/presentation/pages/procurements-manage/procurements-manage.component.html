@@ -39,7 +39,7 @@
           class="sm:w-52"
         >
           <a
-            [routerLink]="['../procurement', 'detail', element._id]"
+            [routerLink]="['../procurement', element.group, element._id]"
             class="text-blue-600"
           >
             {{ element.code }}

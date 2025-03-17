@@ -64,7 +64,7 @@ export default class InboxDetailComponent {
 
   communication = signal<Communication | null>(null);
   procedure = signal<Procedure | any | null>(null);
-  workflow = signal<communication[]>([]);
+  workflow = signal<any[]>([]);
 
   isLoading = signal<boolean>(false);
 

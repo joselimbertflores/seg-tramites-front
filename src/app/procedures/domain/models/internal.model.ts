@@ -19,4 +19,17 @@ export class InternalProcedure extends Procedure implements internalProps {
     this.sender = sender;
     this.recipient = recipient;
   }
+
+  override originDetails() {
+    return {
+      emitter: {
+        fullname: this.sender.fullname,
+        jobtitle: this.sender.jobtitle,
+      },
+      receiver: {
+        fullname: this.recipient.fullname,
+        jobtitle: this.recipient.jobtitle,
+      },
+    };
+  }
 }

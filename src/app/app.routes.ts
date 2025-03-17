@@ -116,7 +116,7 @@ export const routes: Routes = [
               ),
           },
           {
-            path: ':from/detail/:id',
+            path: ':from/:group/:id',
             title: 'Detalle',
             data: { animation: 'slide' },
             loadComponent: () =>
@@ -159,7 +159,7 @@ export const routes: Routes = [
 
           {
             path: 'folders',
-            data: { animation: 'folders' },
+            data: { animation: 'FoldersPage' },
             loadComponent: () =>
               import(
                 './communications/presentation/pages/folders/folders.component'
@@ -167,7 +167,7 @@ export const routes: Routes = [
           },
           {
             path: 'folders/:id',
-            data: { animation: 'slide' },
+            data: { animation: 'ArchivePage' },
             loadComponent: () =>
               import(
                 './communications/presentation/pages/archives/archives.component'
@@ -175,16 +175,6 @@ export const routes: Routes = [
           },
         ],
       },
-
-      // {
-      //   path: ':from/:group/:id',
-      //   canActivate: [updatedPasswordGuard],
-      //   loadComponent: () =>
-      //     import(
-      //       './presentation/pages/procedures/detail/detail.component'
-      //     ).then((c) => c.DetailComponent),
-      // },
-
       {
         path: 'resources',
         loadComponent: () =>
