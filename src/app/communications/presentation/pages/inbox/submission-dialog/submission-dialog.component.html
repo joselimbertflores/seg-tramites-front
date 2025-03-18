@@ -1,60 +1,157 @@
 <h2 mat-dialog-title>Remision Tramite</h2>
 <mat-dialog-content>
-  <mat-stepper #stepper>
+  <div class="py-3">
+    <dl>
+      <div class="px-4 sm:grid sm:grid-cols-4 sm:gap-2 sm:px-0">
+        <dt class="text-lg font-medium">Tramite:</dt>
+        <dd class="mt-1 text-lg sm:col-span-3 sm:mt-0">
+          {{ data.procedure.code }} - ({{
+            data.isOriginal ? "Original" : "Copia"
+          }})
+        </dd>
+      </div>
+    </dl>
+  </div>
+  <form [formGroup]="formSubmission">
+    <div class="grid grid-cols-3 gap-x-2 mt-2">
+      <div class="col-span-3">
+        <mat-form-field>
+          <mat-label>Instruccion / Proveido</mat-label>
+          <textarea formControlName="reference" matInput required>
+          </textarea>
+          <mat-error *ngIf="formSubmission.controls['reference'].invalid">
+            Ingrese el motivo
+          </mat-error>
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field>
+          <mat-label>Cantidad: hojas / anexos</mat-label>
+          <input formControlName="attachmentsCount" matInput required />
+          <mat-error
+            *ngIf="formSubmission.controls['attachmentsCount'].invalid"
+          >
+            Ingrese la cantidad
+          </mat-error>
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field>
+          <mat-label>Numero de registro interno</mat-label>
+          <input formControlName="internalNumber" matInput />
+        </mat-form-field>
+      </div>
+    </div>
+  </form>
+  <!-- <div class="flex justify-end mt-2">
+    <button mat-button matStepperNext>
+      Siguiente
+      <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+    </button>
+  </div> -->
+  <div class="grid grid-cols-3 gap-x-2 mt-2">
+    <div>
+      <select-search
+        title="Institucion (Opcional)"
+        placeholder="Seleccione una institucion"
+        [items]="institutions()"
+        (onSelect)="getDependencies($event)"
+      />
+    </div>
+    <div class="col-span-2">
+      <select-search
+        title="Dependencia (Opcional)"
+        placeholder="Seleccione una dependencia"
+        [nullable]="true"
+        [items]="dependencies()"
+        (onSelect)="getRecipientsByDependency($event)"
+      />
+    </div>
+    <div class="col-span-3">
+      <mat-form-field>
+        <mat-select
+          [formControl]="bankServerSideCtrl"
+          placeholder="Buscar destinatarios"
+        >
+          <mat-option>
+            <ngx-mat-select-search
+              [formControl]="filterReceiverCtrl"
+              placeholderLabel="Nombre del destinatario"
+              noEntriesFoundLabel="Sin destinatarios"
+            />
+          </mat-option>
+          @for (receiver of filteredReceivers$|async; track $index) {
+          <mat-option [value]="receiver">
+            <div class="flex gap-x-3 items-center">
+              <span
+                class="inline-flex text-xs h-2 w-2 rounded-full"
+                [ngClass]="receiver.online ? 'bg-green-600' : 'bg-red-600'"
+              >
+              </span>
+              <div class="flex flex-col">
+                <span> {{ receiver.fullname | titlecase }}</span>
+                <small> {{ receiver.jobtitle }}</small>
+              </div>
+            </div>
+          </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div>
+  <div class="flex items-center py-2">
+    <div class="flex-1 text-lg font-medium">
+      DESTINATARIOS ({{ recipients().length }}):
+    </div>
+    <div class="flex justify-center gap-x-2">
+      <button
+        mat-stroked-button
+        (click)="add(true)"
+        [disabled]="!isOriginalEnabled()"
+      >
+        Original
+      </button>
+      <button
+        mat-stroked-button
+        (click)="add(false)"
+        [disabled]="!isCopyEnabled()"
+      >
+        Copia
+      </button>
+    </div>
+  </div>
+  <div class="overflow-y-scroll max-h-64">
+    <mat-list role="list">
+      @for (item of recipients(); track $index) {
+      <mat-list-item role="listitem">
+        <img matListItemAvatar src="images/avatar.png" alt="Profile" />
+        <div matListItemTitle>
+          {{ item.fullname | titlecase }}
+          <span> ({{ item.isOriginal ? "Original" : "Copia" }})</span>
+        </div>
+        <div matListItemLine>{{ item.jobtitle }}</div>
+        <button mat-icon-button matListItemMeta (click)="remove(item.id)">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-list-item>
+      } @empty {
+      <mat-list-item> * Sin destinatarios </mat-list-item>
+      }
+    </mat-list>
+  </div>
+  <!-- <div class="flex justify-end mt-2">
+    <button mat-button matStepperPrevious>
+      <mat-icon>arrow_back</mat-icon>
+      Atras
+    </button>
+  </div> -->
+  <!-- <mat-stepper #stepper>
     <mat-step
       label="Detalle envio"
       [stepControl]="formSubmission"
       errorMessage="Complete los campos"
     >
-      <div class="py-3">
-        <dl>
-          <div class="px-4 sm:grid sm:grid-cols-4 sm:gap-2 sm:px-0">
-            <dt class="text-lg font-medium">Tramite:</dt>
-            <dd class="mt-1 text-lg sm:col-span-3 sm:mt-0">
-              {{ data.procedure.code }} - ({{
-                data.isOriginal ? "Original" : "Copia"
-              }})
-            </dd>
-          </div>
-        </dl>
-      </div>
-      <form [formGroup]="formSubmission">
-        <div class="grid grid-cols-3 gap-x-2 mt-2">
-          <div class="col-span-3">
-            <mat-form-field>
-              <mat-label>Instruccion / Proveido</mat-label>
-              <textarea formControlName="reference" matInput required>
-              </textarea>
-              <mat-error *ngIf="formSubmission.controls['reference'].invalid">
-                Ingrese el motivo
-              </mat-error>
-            </mat-form-field>
-          </div>
-          <div>
-            <mat-form-field>
-              <mat-label>Cantidad: hojas / anexos</mat-label>
-              <input formControlName="attachmentsCount" matInput required />
-              <mat-error
-                *ngIf="formSubmission.controls['attachmentsCount'].invalid"
-              >
-                Ingrese la cantidad
-              </mat-error>
-            </mat-form-field>
-          </div>
-          <div>
-            <mat-form-field>
-              <mat-label>Numero de registro interno</mat-label>
-              <input formControlName="internalNumber" matInput />
-            </mat-form-field>
-          </div>
-        </div>
-      </form>
-      <div class="flex justify-end mt-2">
-        <button mat-button matStepperNext>
-          Siguiente
-          <mat-icon iconPositionEnd>arrow_forward</mat-icon>
-        </button>
-      </div>
+     
     </mat-step>
     <mat-step
       #stepRecipients
@@ -62,104 +159,9 @@
       [hasError]="recipients().length === 0 && stepRecipients.interacted"
       errorMessage="Sin destinatarios"
     >
-      <div class="grid grid-cols-3 gap-x-2 mt-2">
-        <div>
-          <select-search
-            title="Institucion (Opcional)"
-            placeholder="Seleccione una institucion"
-            [items]="institutions()"
-            (onSelect)="getDependencies($event)"
-          />
-        </div>
-        <div class="col-span-2">
-          <select-search
-            title="Dependencia (Opcional)"
-            placeholder="Seleccione una dependencia"
-            [nullable]="true"
-            [items]="dependencies()"
-            (onSelect)="getRecipientsByDependency($event)"
-          />
-        </div>
-        <div class="col-span-3">
-          <mat-form-field>
-            <mat-select
-              [formControl]="bankServerSideCtrl"
-              placeholder="Buscar destinatarios"
-            >
-              <mat-option>
-                <ngx-mat-select-search
-                  [formControl]="filterReceiverCtrl"
-                  placeholderLabel="Nombre del destinatario"
-                  noEntriesFoundLabel="Sin destinatarios"
-                />
-              </mat-option>
-              @for (receiver of filteredReceivers$|async; track $index) {
-              <mat-option [value]="receiver">
-                <div class="flex gap-x-3 items-center">
-                  <span
-                    class="inline-flex text-xs h-2 w-2 rounded-full"
-                    [ngClass]="receiver.online ? 'bg-green-600' : 'bg-red-600'"
-                  >
-                  </span>
-                  <div class="flex flex-col">
-                    <span> {{ receiver.fullname | titlecase }}</span>
-                    <small> {{ receiver.jobtitle }}</small>
-                  </div>
-                </div>
-              </mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-        </div>
-      </div>
-      <div class="flex items-center py-2">
-        <div class="flex-1 text-lg font-medium">
-          DESTINATARIOS ({{ recipients().length }}):
-        </div>
-        <div class="flex justify-center gap-x-2">
-          <button
-            mat-stroked-button
-            (click)="add(true)"
-            [disabled]="!isOriginalEnabled()"
-          >
-            Original
-          </button>
-          <button
-            mat-stroked-button
-            (click)="add(false)"
-            [disabled]="!isCopyEnabled()"
-          >
-            Copia
-          </button>
-        </div>
-      </div>
-      <div class="overflow-y-scroll max-h-64">
-        <mat-list role="list">
-          @for (item of recipients(); track $index) {
-          <mat-list-item role="listitem">
-            <img matListItemAvatar src="images/avatar.png" alt="Profile" />
-            <div matListItemTitle>
-              {{ item.fullname | titlecase }}
-              <span> ({{ item.isOriginal ? "Original" : "Copia" }})</span>
-            </div>
-            <div matListItemLine>{{ item.jobtitle }}</div>
-            <button mat-icon-button matListItemMeta (click)="remove(item.id)">
-              <mat-icon>close</mat-icon>
-            </button>
-          </mat-list-item>
-          } @empty {
-          <mat-list-item> * Sin destinatarios </mat-list-item>
-          }
-        </mat-list>
-      </div>
-      <div class="flex justify-end mt-2">
-        <button mat-button matStepperPrevious>
-          <mat-icon>arrow_back</mat-icon>
-          Atras
-        </button>
-      </div>
+     
     </mat-step>
-  </mat-stepper>
+  </mat-stepper> -->
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button mat-button color="warn" mat-dialog-close>Cancelar</button>

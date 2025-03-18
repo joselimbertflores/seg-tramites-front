@@ -2,7 +2,6 @@ import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
-
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -14,13 +13,18 @@ import { MatDialog } from '@angular/material/dialog';
 
 import { ExternalDialogComponent } from './external-dialog/external-dialog.component';
 
-import { CacheService, SearchInputComponent } from '../../../../shared';
+import {
+  CacheService,
+  PdfService,
+  SearchInputComponent,
+} from '../../../../shared';
 import { ExternalProcedure, procedureState } from '../../../domain';
 import { ExternalService } from '../../services';
 import {
   submissionData,
   SubmissionDialogComponent,
 } from '../../../../communications/presentation/pages/inbox/submission-dialog/submission-dialog.component';
+import { ProcessService } from '../../../../communications/presentation/services';
 
 interface cache {
   datasource: ExternalProcedure[];
@@ -49,7 +53,8 @@ export default class ExternalsManageComponent {
   private dialogRef = inject(MatDialog);
   private externalService = inject(ExternalService);
   private cacheService: CacheService<cache> = inject(CacheService);
-  // private pdfService = inject(PdfService);
+  private pdfService = inject(PdfService);
+  private processService = inject(ProcessService);
 
   datasource = signal<ExternalProcedure[]>([]);
   datasize = signal<number>(0);
@@ -93,7 +98,9 @@ export default class ExternalsManageComponent {
     });
     dialogRef.afterClosed().subscribe((result: ExternalProcedure) => {
       if (!result) return;
-      this.datasource.update((values) => [result, ...values].slice(0, this.limit()));
+      this.datasource.update((values) =>
+        [result, ...values].slice(0, this.limit())
+      );
       this.datasize.update((value) => (value += 1));
       this.send(result);
     });
@@ -139,10 +146,9 @@ export default class ExternalsManageComponent {
   }
 
   generateRouteMap(procedure: ExternalProcedure) {
-    // TODO generate route map
-    // this.procedureService.getWorkflow(procedure._id).subscribe((workflow) => {
-    //   this.pdfService.generateRouteSheet(procedure, workflow);
-    // });
+    this.processService.getWorkflow(procedure._id).subscribe((workflow) => {
+      this.pdfService.generateRouteSheet(procedure, workflow);
+    });
   }
 
   search(term: string) {

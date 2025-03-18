@@ -1,0 +1,241 @@
+import { CommonModule } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+
+import {
+  MAT_FORM_FIELD_DEFAULT_OPTIONS,
+  MatFormFieldModule,
+} from '@angular/material/form-field';
+
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { provideNativeDateAdapter } from '@angular/material/core';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSelectModule } from '@angular/material/select';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
+
+import { ReportProcedureTableComponent } from '../../components';
+import { procedureGroup } from '../../../../procedures/domain';
+import { ReportService } from '../../services/report.service';
+import {
+  tableProcedureColums,
+  tableProcedureData,
+} from '../../../infrastructure';
+import { AlertMessageComponent, CacheService } from '../../../../shared';
+
+type searchMode = 'simple' | 'advanced';
+
+interface cache {
+  datasource: tableProcedureData[];
+  datasize: number;
+  searchMode: searchMode;
+  form: Object;
+  limit: number;
+  index: number;
+}
+
+@Component({
+  selector: 'app-report-search',
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+
+    MatIconModule,
+    MatInputModule,
+    MatButtonModule,
+    MatSelectModule,
+    MatFormFieldModule,
+    MatExpansionModule,
+    MatPaginatorModule,
+    MatDatepickerModule,
+    MatButtonToggleModule,
+    AlertMessageComponent,
+    ReportProcedureTableComponent,
+  ],
+  templateUrl: './report-search.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [
+    {
+      provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
+      useValue: { appearance: 'outline' },
+    },
+    provideNativeDateAdapter(),
+  ],
+})
+export default class ReportSearchComponent {
+  private fb = inject(FormBuilder);
+  private reportService = inject(ReportService);
+  private cacheService: CacheService<cache> = inject(CacheService);
+  // private pdfService = inject(PdfService);
+
+  public searchMode = signal<searchMode>('simple');
+  public FormProcedure = computed<FormGroup>(() => {
+    return this.searchMode() === 'simple'
+      ? this.createSimpleForm()
+      : this.createAdvancedForm();
+  });
+  public datasource = signal<tableProcedureData[]>([]);
+  public datasize = signal<number>(0);
+
+  public columns: tableProcedureColums[] = [
+    { columnDef: 'code', header: 'Alterno' },
+    { columnDef: 'reference', header: 'Referencia' },
+    { columnDef: 'startDate', header: 'Fecha' },
+  ];
+
+  limit = signal<number>(10);
+  index = signal<number>(0);
+  offset = computed<number>(() => this.limit() * this.index());
+  term = signal<string>('');
+  isEmpty = signal(false);
+
+  readonly GROUPS = [
+    { label: 'Tramites externos', value: procedureGroup.External },
+    { label: 'Tramites internos', value: procedureGroup.Internal },
+    {
+      label: 'Tramites para contrataciones',
+      value: procedureGroup.Procurement,
+    },
+  ];
+
+  constructor() {
+    inject(DestroyRef).onDestroy(() => {
+      this.saveCache();
+    });
+  }
+
+  ngOnInit(): void {
+    this.loadCache();
+  }
+
+  getData() {
+    this.isEmpty.set(false)
+    this.reportService
+      .searchProcedureByProperties(
+        this.limit(),
+        this.offset(),
+        this.FormProcedure().value
+      )
+      .subscribe((resp) => {
+        this.datasource.set(resp.procedures);
+        this.datasize.set(resp.length);
+        if (resp.length === 0) {
+          this.isEmpty.set(true);
+        }
+      });
+  }
+
+  generate() {
+    // const { end, group, ...props } = this.FormProcedure().value;
+    // const isFormEmpty = Object.values(props).every((val) => val === '' || !val);
+    // if (isFormEmpty) return;
+    this.index.set(0);
+    this.getData();
+  }
+
+  clear() {
+    this.FormProcedure().reset({});
+    // this.datasource.set([]);
+    this.datasize.set(0);
+  }
+
+  print() {
+    // this.pdfService.GenerateReportSheet({
+    //   title: 'Reporte busqueda',
+    //   results: this.datasource(),
+    //   columns: this.displaycolums,
+    // });
+  }
+
+  searchTypesProcedures(term: string) {
+    // this.reportService
+    //   .getTypeProceduresByText(term, this.FormProcedure().get('group')?.value)
+    //   .subscribe((types) => {
+    //     this.typeProcedures.set(
+    //       types.map((el) => ({ value: el._id, text: el.nombre }))
+    //     );
+    //   });
+  }
+
+  setTypeProcedure(id_type: string = '') {
+    this.FormProcedure().get('type')?.setValue(id_type);
+  }
+
+  changePage(params: { limit: number; index: number }) {
+    // this.cacheService.pageSize.set(params.limit);
+    // this.cacheService.pageIndex.set(params.index);
+    this.getData();
+  }
+
+  selectSearchMode(value: searchMode) {
+    this.searchMode.set(value);
+  }
+
+  changeGroupProcedure() {
+    this.FormProcedure().patchValue({ type: '' });
+  }
+
+  onPageChange({ pageIndex, pageSize }: PageEvent) {
+    this.limit.set(pageSize);
+    this.index.set(pageIndex);
+    this.getData();
+  }
+
+  private saveCache() {
+    const cache: cache = {
+      form: this.FormProcedure().value,
+      searchMode: this.searchMode(),
+      datasource: this.datasource(),
+      datasize: this.datasize(),
+      index: this.index(),
+      limit: this.limit(),
+    };
+    this.cacheService.save('report-search', cache);
+  }
+
+  private loadCache() {
+    const cache = this.cacheService.load('report-search');
+    if (!cache) return;
+    this.FormProcedure().patchValue(cache.form);
+    this.datasource.set(cache.datasource);
+    this.datasize.set(cache.datasize);
+    this.searchMode.set(cache.searchMode);
+    this.index.set(cache.index);
+  }
+
+  private createSimpleForm(): FormGroup {
+    return this.fb.group({
+      code: ['', Validators.minLength(4)],
+      reference: [''],
+      group: [''],
+    });
+  }
+
+  private createAdvancedForm(): FormGroup {
+    return this.fb.group({
+      code: ['', Validators.minLength(4)],
+      state: [''],
+      reference: [''],
+      type: [''],
+      start: [''],
+      end: [new Date()],
+      group: [''],
+      cite: [''],
+    });
+  }
+}

@@ -14,12 +14,10 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import {
-  PaginatorComponent,
-  ReportProcedureTableComponent,
-} from '../../../components';
+
 
 import { MaterialModule } from '../../../../material.module';
+import { PaginatorComponent, ReportProcedureTableComponent } from '../../../../presentation/components';
 
 type validReportType = 'solicitante' | 'representante';
 type typeApplicant = 'NATURAL' | 'JURIDICO';
@@ -45,7 +43,7 @@ interface CacheData {
   templateUrl: './report-applicant.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ReportApplicantComponent {
+export default class ReportApplicantComponent {
   private fb = inject(FormBuilder);
   // private cacheService: CacheService<CacheData> = inject(CacheService);
   // private reportService = inject(ReportService);

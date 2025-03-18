@@ -1,0 +1,1 @@
+export * from "./interfaces/table-procedure.interface"

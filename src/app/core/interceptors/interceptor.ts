@@ -22,7 +22,7 @@ export function loggingInterceptor(
   const showLoadIndicator = req.context.get(LOAD_INDICATOR);
   const showUploadIndicator = req.context.get(UPLOAD_INDICATOR);
 
-  if (showLoadIndicator && req.method === 'GET') loadingService.loadingOn();
+  if (showLoadIndicator) loadingService.loadingOn();
   if (showUploadIndicator && req.method !== 'GET') loadingService.uploadingOn();
 
   const reqWithHeader = req.clone({

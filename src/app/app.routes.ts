@@ -1,16 +1,13 @@
 import { Routes } from '@angular/router';
-import { ReportApplicantComponent } from './presentation/pages/reports/report-applicant/report-applicant.component';
-import { ReportSearchComponent } from './presentation/pages/reports/report-search/report-search.component';
+
 import {
   isAuthenticatedGuard,
   isNotAuthenticatedGuard,
   roleGuard,
   updatedPasswordGuard,
 } from './presentation/guards';
-import { ReportDependentsComponent } from './presentation/pages/reports/report-dependents/report-dependents.component';
 import { ClientsComponent } from './presentation/pages/groupware/clients/clients.component';
-import { ReportsComponent } from './presentation/pages/reports/reports.component';
-import { ReportUnitComponent } from './presentation/pages/reports/report-unit/report-unit.component';
+
 import { InfoComponent } from './layout/presentation/pages/info/info.component';
 import { accountGuard } from './administration/presentation/guards/account.guard';
 
@@ -185,31 +182,62 @@ export const routes: Routes = [
       {
         path: 'reports',
         canActivate: [updatedPasswordGuard],
-        component: ReportsComponent,
-        title: 'Reportes',
+        loadComponent: () =>
+          import(
+            './reports/presentation/layouts/report-dashboard/report-dashboard.component'
+          ),
         children: [
           {
             path: 'applicant',
-            component: ReportApplicantComponent,
+            loadComponent: () =>
+              import(
+                './reports/presentation/pages/report-applicant/report-applicant.component'
+              ),
           },
           {
             path: 'search',
-            component: ReportSearchComponent,
+            loadComponent: () =>
+              import(
+                './reports/presentation/pages/report-search/report-search.component'
+              ),
           },
+
           {
-            path: 'dependents',
-            component: ReportDependentsComponent,
-          },
-          {
-            path: 'unit',
-            component: ReportUnitComponent,
+            path: ':group/:id',
+            title: 'Detalle',
+            data: { animation: 'slide' },
+            loadComponent: () =>
+              import('./procedures/presentation/pages/detail/detail.component'),
           },
           {
             path: '',
-            redirectTo: '/home/reports/search',
-            pathMatch: 'full',
+            loadComponent: () =>
+              import(
+                './reports/presentation/pages/landing-reports/landing-reports.component'
+              ),
           },
+
+          // {
+          //   path: 'dependents',
+          //   component: ReportDependentsComponent,
+          // },
+          // {
+          //   path: 'unit',
+          //   component: ReportUnitComponent,
+          // },
+          // {
+          //   path: '',
+          //   redirectTo: '/home/reports/search',
+          //   pathMatch: 'full',
+          // },
         ],
+      },
+      {
+        path: ':from/:group/:id',
+        title: 'Detalle',
+        data: { animation: 'slide' },
+        loadComponent: () =>
+          import('./procedures/presentation/pages/detail/detail.component'),
       },
       {
         path: 'groupware',
