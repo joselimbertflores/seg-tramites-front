@@ -17,7 +17,6 @@ import {
   MatDialogModule,
   MatDialogRef,
 } from '@angular/material/dialog';
-import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 
@@ -49,35 +48,29 @@ type participantOptions = {
   ],
   templateUrl: './internal-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [
-    {
-      provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
-      useValue: { appearance: 'outline' },
-    },
-  ],
 })
 export class InternalDialogComponent {
   private account = inject(ProfileService).account();
   private internalService = inject(InternalService);
-  private formBuilder = inject(FormBuilder);
+  private _formBuilder = inject(FormBuilder);
   private dialogRef = inject(MatDialogRef);
 
-  data: InternalProcedure = inject(MAT_DIALOG_DATA);
+  data?: InternalProcedure = inject(MAT_DIALOG_DATA);
   officers = signal<participantOptions>({ sender: [], recipient: [] });
   documents = signal<selectOption<doc>[]>([]);
 
-  formProcedure: FormGroup = this.formBuilder.nonNullable.group({
+  formProcedure: FormGroup = this._formBuilder.nonNullable.group({
     numberOfDocuments: ['', Validators.required],
     reference: ['', Validators.required],
-    sender: this.formBuilder.group({
+    cite: [this.account?.dependencia.codigo],
+    sender: this._formBuilder.group({
       fullname: [this.account?.officer?.fullname, Validators.required],
       jobtitle: [this.account?.jobtitle, Validators.required],
     }),
-    recipient: this.formBuilder.group({
+    recipient: this._formBuilder.group({
       fullname: ['', Validators.required],
       jobtitle: ['', Validators.required],
     }),
-    cite: [''],
   });
 
   ngOnInit(): void {

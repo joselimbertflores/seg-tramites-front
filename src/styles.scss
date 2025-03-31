@@ -7,11 +7,13 @@
 
 html {
   color-scheme: light;
-  @include mat.theme((
-    color: mat.$azure-palette,
-    typography: Roboto,
-    density: -1,
-  ));
+  @include mat.theme(
+    (
+      color: mat.$azure-palette,
+      typography: Roboto,
+      density: -1,
+    )
+  );
 }
 
 body {
@@ -31,7 +33,8 @@ body {
 :root {
   @include mat.table-overrides(
     (
-      row-item-label-text-size: 12px,
+      row-item-label-text-size: 11px,
+      row-item-container-height: 30px,
     )
   );
 }
