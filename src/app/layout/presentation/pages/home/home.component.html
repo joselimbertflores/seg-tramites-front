@@ -19,7 +19,9 @@
       </button>
     </div>
   </mat-toolbar>
-
+  @if(isLoading()){
+  <mat-progress-bar mode="indeterminate" class="loading-bar" />
+  }
   <ng-template
     cdkConnectedOverlay
     [cdkConnectedOverlayOrigin]="trigger"
@@ -46,14 +48,7 @@
       <navigation-list [menu]="menu" />
     </mat-sidenav>
 
-    <mat-sidenav-content style="position: relative">
-      @if(loading$ | async) {
-      <div
-        class="absolute inset-0 flex items-center justify-center backdrop-blur-[2px] bg-gray-300 bg-opacity-30 z-50"
-      >
-        <mat-spinner />
-      </div>
-      }
+    <mat-sidenav-content>
       <div [@routeAnimations]="prepareRoute()">
         <router-outlet />
       </div>

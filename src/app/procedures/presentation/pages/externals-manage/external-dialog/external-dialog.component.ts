@@ -133,7 +133,7 @@ export class ExternalDialogComponent {
       : this.externalService.create(form);
 
     subscriptipn.subscribe((procedure) => {
-      this.dialogRef.close(procedure);
+      // this.dialogRef.close(procedure);
     });
   }
 

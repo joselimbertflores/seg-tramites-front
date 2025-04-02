@@ -40,6 +40,7 @@ import {
 import { routeAnimations } from '../../../../shared/animations/route-animations';
 import { AuthService } from '../../../../auth/presentation/services/auth.service';
 import { SocketService } from '../../services';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @Component({
   selector: 'app-home',
@@ -56,6 +57,7 @@ import { SocketService } from '../../services';
     MatTooltipModule,
     MatProgressSpinnerModule,
     NavigationListComponent,
+    MatProgressBarModule,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
@@ -70,7 +72,7 @@ export default class HomeComponent {
   private router = inject(Router);
 
   readonly dialogRef = inject(MatDialog);
-  loading$ = inject(LoadingService).isLoading$;
+  isLoading = inject(LoadingService).isLoading;
 
   public isProfileOpen = false;
 

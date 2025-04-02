@@ -8,7 +8,7 @@
 
 <div class="p-2 sm:p-6">
   <div class="flex justify-end mb-2">
-    <div class="w-full sm:w-1/4 h-12">
+    <div class="w-full sm:w-1/4 h-[54px]">
       <search-input
         [initValue]="term()"
         (onSearch)="search($event)"
@@ -30,7 +30,7 @@
     </ng-container>
     <ng-container matColumnDef="code">
       <th mat-header-cell *matHeaderCellDef>Alterno</th>
-      <td mat-cell *matCellDef="let row" [id]="row._id" class="sm:w-[200px]">
+      <td mat-cell *matCellDef="let row" [id]="row._id" class="sm:w-48">
         <a
           [routerLink]="['../external', row.group, row._id]"
           class="text-blue-500"
@@ -41,20 +41,20 @@
     </ng-container>
     <ng-container matColumnDef="reference">
       <th mat-header-cell *matHeaderCellDef>Referencia</th>
-      <td mat-cell *matCellDef="let row" class="sm:max-w-72">
+      <td mat-cell *matCellDef="let row" class="sm:max-w-96">
         <p class="truncate">{{ row.reference }}</p>
       </td>
     </ng-container>
     <ng-container matColumnDef="applicant">
       <th mat-header-cell *matHeaderCellDef>Solicitante</th>
-      <td mat-cell *matCellDef="let row">
-        {{ row.fullnameApplicant | titlecase }}
+      <td mat-cell *matCellDef="let row" class="sm:max-w-48">
+        <p class="truncate">{{ row.fullnameApplicant | titlecase }}</p>
       </td>
     </ng-container>
     <ng-container matColumnDef="date">
       <th mat-header-cell *matHeaderCellDef>Fecha</th>
-      <td mat-cell *matCellDef="let row">
-        {{ row.createdAt | date : "shortDate" : "-400" }}
+      <td mat-cell *matCellDef="let row" class="sm:w-32">
+        {{ row.createdAt | date : "short" : "-400" }}
       </td>
     </ng-container>
     <ng-container matColumnDef="options">

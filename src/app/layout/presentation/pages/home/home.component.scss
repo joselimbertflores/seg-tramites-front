@@ -14,7 +14,6 @@
   z-index: 2;
 }
 
-
 .example-sidenav-container {
   /* When the sidenav is not fixed, stretch the sidenav container to fill the available space. This
      causes `<mat-sidenav-content>` to act as our scrolling element for desktop layouts. */
@@ -30,4 +29,14 @@
 .sidenav {
   background: var(--mat-sys-surface-container-low);
   padding-inline: 10px;
+}
+
+.example-toolbar {
+  background: var(--mat-sys-surface-container-low);
+}
+
+.loading-bar {
+  position: absolute;
+  top: 56px; /* Justo debajo del toolbar */
+  z-index: 5;
 }

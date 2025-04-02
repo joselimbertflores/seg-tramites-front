@@ -10,7 +10,7 @@ import { Observable, catchError, finalize, throwError } from 'rxjs';
 import { AlertService, LoadingService } from '../../shared';
 
 export const LOAD_INDICATOR = new HttpContextToken<boolean>(() => true);
-export const UPLOAD_INDICATOR = new HttpContextToken<boolean>(() => false);
+export const UPLOAD_INDICATOR = new HttpContextToken<boolean>(() => true);
 
 export function loggingInterceptor(
   req: HttpRequest<unknown>,
@@ -22,8 +22,8 @@ export function loggingInterceptor(
   const showLoadIndicator = req.context.get(LOAD_INDICATOR);
   const showUploadIndicator = req.context.get(UPLOAD_INDICATOR);
 
-  if (showLoadIndicator) loadingService.loadingOn();
-  if (showUploadIndicator && req.method !== 'GET') loadingService.uploadingOn();
+  if (showLoadIndicator) loadingService.toggleLoading(true);
+  if (showUploadIndicator) loadingService.toggleUploading(true);
 
   const reqWithHeader = req.clone({
     headers: req.headers.append(
@@ -38,8 +38,8 @@ export function loggingInterceptor(
       return throwError(() => Error);
     }),
     finalize(() => {
-      if (showLoadIndicator) loadingService.loadingOff();
-      if (showUploadIndicator) loadingService.uploadingOff();
+      if (showLoadIndicator) loadingService.toggleLoading(false);
+      if (showUploadIndicator) loadingService.toggleUploading(false);
     })
   );
 }

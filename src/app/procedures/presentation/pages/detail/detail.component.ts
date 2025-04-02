@@ -14,7 +14,6 @@ import { CommonModule } from '@angular/common';
 import { forkJoin } from 'rxjs';
 
 import { ProcessService } from '../../../../communications/presentation/services';
-import { communication } from '../../../../communications/infrastructure';
 import {
   ExternalProcedure,
   InternalProcedure,

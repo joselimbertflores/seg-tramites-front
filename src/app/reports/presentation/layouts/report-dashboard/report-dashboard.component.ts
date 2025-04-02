@@ -14,12 +14,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDrawer, MatSidenavModule } from '@angular/material/sidenav';
 import { AuthService } from '../../../../auth/presentation/services/auth.service';
 import { RestoreScrollDirective } from '../../../../shared';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { ReportListComponent } from '../../components';
 
-interface menu {
-  label: string;
-  link: string;
-  description: string;
-}
+
 @Component({
   selector: 'app-report-dashboard',
   imports: [
@@ -37,7 +35,7 @@ interface menu {
 })
 export default class ReportDashboardComponent implements OnInit {
   private readonly authService = inject(AuthService);
-  private readonly permissionMappings: Record<string, menu> = {
+  private readonly permissionMappings: Record<string, any> = {
     search: {
       label: 'Busquedas',
       link: 'search',
@@ -59,9 +57,10 @@ export default class ReportDashboardComponent implements OnInit {
     //   description: 'Listado por unidad',
     // },
   };
-  public menu = signal<menu[]>([]);
   private router = inject(Router);
   isLoading = signal<boolean>(false);
+
+  private _bottomSheet = inject(MatBottomSheet);
 
   constructor() {}
 
@@ -75,11 +74,15 @@ export default class ReportDashboardComponent implements OnInit {
     //   [VALID_RESOURCES.reports].map((action) => this.permissionMappings[action])
     //   .filter((item) => item);
     // this.menu.set(menu);
-    this.menu.set(Object.values(this.permissionMappings));
+    // this.menu.set(Object.values(this.permissionMappings));
   }
 
   navigateTo(url: string, drawerRef: MatDrawer) {
     this.router.navigateByUrl(`home/reports/${url}`);
     drawerRef.close();
+  }
+
+  openBottomSheet(): void {
+    this._bottomSheet.open(ReportListComponent, { hasBackdrop: true });
   }
 }

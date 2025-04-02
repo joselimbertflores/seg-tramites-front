@@ -1,10 +1,12 @@
 <mat-toolbar>
   <span>Reportes</span>
   <span class="flex-1"></span>
-  <button mat-icon-button (click)="drawer.toggle()">
-    <mat-icon>tune</mat-icon>
+
+  <button mat-mini-fab aria-label="Menu reports" (click)="openBottomSheet()">
+    <mat-icon>menu</mat-icon>
   </button>
 </mat-toolbar>
+<router-outlet />
 <!-- <div class="max-w-xl mx-auto">
   <mat-nav-list>
     @for (link of menu(); track link) {
@@ -19,7 +21,7 @@
   </mat-nav-list>
 </div> -->
 
-<mat-drawer-container [hasBackdrop]="false">
+<!-- <mat-drawer-container [hasBackdrop]="false">
   <mat-drawer
     #drawer
     mode="over"
@@ -27,7 +29,6 @@
     [autoFocus]="false"
     class="border"
     [opened]="true"
-    
   >
     <mat-nav-list>
       @for (item of menu(); track $index) {
@@ -52,4 +53,4 @@
   >
     <router-outlet />
   </mat-drawer-content>
-</mat-drawer-container>
+</mat-drawer-container> -->
