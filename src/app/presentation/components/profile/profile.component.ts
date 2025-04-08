@@ -27,7 +27,7 @@ import { AuthService } from '../../../auth/presentation/services/auth.service';
         <span
           class="rounded-full bg-green-200 py-1 px-2 text-xs font-medium text-green-700"
         >
-          En linea
+          Conectado
         </span>
       </div>
 

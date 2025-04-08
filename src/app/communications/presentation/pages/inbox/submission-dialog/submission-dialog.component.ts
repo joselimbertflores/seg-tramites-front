@@ -56,6 +56,8 @@ import { doc } from '../../../../infrastructure';
 import { DocService, InboxService, OutboxService } from '../../../services';
 import { Communication, onlineAccount, recipient } from '../../../../domain';
 import { SocketService } from '../../../../../layout/presentation/services';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatChipsModule } from '@angular/material/chips';
 
 export interface submissionResult {
   error?: string;
@@ -90,6 +92,8 @@ export type communicationMode = 'initiate' | 'forward' | 'resend';
     MatStepperModule,
     NgxMatSelectSearchModule,
     SelectSearchComponent,
+    MatAutocompleteModule,
+    MatChipsModule,
   ],
   templateUrl: './submission-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -104,6 +108,7 @@ export type communicationMode = 'initiate' | 'forward' | 'resend';
     },
   ],
 })
+// 3780
 export class SubmissionDialogComponent implements OnInit {
   private _formBuilder = inject(FormBuilder);
   private destroyRef = inject(DestroyRef);

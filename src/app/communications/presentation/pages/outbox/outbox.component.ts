@@ -16,9 +16,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog } from '@angular/material/dialog';
-
 import { SelectionModel } from '@angular/cdk/collections';
-
 import {
   state,
   style,
@@ -104,6 +102,7 @@ export default class OutboxComponent {
     'select',
     'type',
     'code',
+    'reference',
     'recipient',
     'time',
     'expand',
@@ -204,7 +203,6 @@ export default class OutboxComponent {
   }
 
   private cancel(items: Communication[]): void {
-    const ids = items.map(({ id }) => id);
     this.alertService
       .confirmDialog(
         items.length === 1
@@ -219,15 +217,14 @@ export default class OutboxComponent {
       )
       .pipe(
         filter((result) => !!result),
-        switchMap(() => this.outboxService.cancel(ids))
+        switchMap(() => this.outboxService.cancel(items.map(({ id }) => id)))
       )
-      .subscribe(() => {
+      .subscribe(({ ids }) => {
         this.datasource.update((values) =>
           values.filter(({ id }) => !ids.includes(id))
         );
         this.datasize.update((value) => (value -= ids.length));
         this.selection.clear();
-
         if (this.datasource().length === 0 && this.datasize() > 0) {
           this.index.set(0);
           this.getData();

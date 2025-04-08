@@ -39,7 +39,9 @@ export class OutboxService {
   constructor(private http: HttpClient) {}
 
   findAll({ limit, offset, term }: filterParams) {
-    const params = new HttpParams({ fromObject: { limit, offset, ...(term && { term }) } });
+    const params = new HttpParams({
+      fromObject: { limit, offset, ...(term && { term }) },
+    });
     return this.http
       .get<{ communications: communication[]; length: number }>(this.url, {
         params,
@@ -54,9 +56,9 @@ export class OutboxService {
       );
   }
 
-  cancel(selected: string[]) {
-    return this.http.delete<{ message: string }>(this.url, {
-      body: { ids: selected },
+  cancel(selectedIds: string[]) {
+    return this.http.delete<{ message: string; ids: string[] }>(this.url, {
+      body: { ids: selectedIds },
     });
   }
 
