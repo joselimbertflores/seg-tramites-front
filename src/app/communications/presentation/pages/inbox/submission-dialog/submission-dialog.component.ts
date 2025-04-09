@@ -10,6 +10,8 @@ import {
   Component,
   DestroyRef,
   ChangeDetectionStrategy,
+  ViewChild,
+  ElementRef,
 } from '@angular/core';
 
 import {
@@ -26,15 +28,16 @@ import {
   MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
 
-import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
-import { MatStepperModule } from '@angular/material/stepper';
+import {
+  MatAutocompleteModule,
+  MatAutocompleteSelectedEvent,
+} from '@angular/material/autocomplete';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
-import { MatSelectModule } from '@angular/material/select';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { MatListModule } from '@angular/material/list';
 
 import {
   distinctUntilChanged,
@@ -43,6 +46,9 @@ import {
   debounce,
   timer,
   map,
+  filter,
+  Observable,
+  of,
 } from 'rxjs';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 
@@ -53,11 +59,9 @@ import {
 } from '../../../../../shared';
 
 import { doc } from '../../../../infrastructure';
-import { DocService, InboxService, OutboxService } from '../../../services';
+import { InboxService, OutboxService } from '../../../services';
 import { Communication, onlineAccount, recipient } from '../../../../domain';
 import { SocketService } from '../../../../../layout/presentation/services';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatChipsModule } from '@angular/material/chips';
 
 export interface submissionResult {
   error?: string;
@@ -84,29 +88,17 @@ export type communicationMode = 'initiate' | 'forward' | 'resend';
     ReactiveFormsModule,
     CommonModule,
     MatIconModule,
-    MatListModule,
     MatInputModule,
     MatButtonModule,
-    MatSelectModule,
     MatDialogModule,
-    MatStepperModule,
     NgxMatSelectSearchModule,
     SelectSearchComponent,
     MatAutocompleteModule,
+    MatFormFieldModule,
     MatChipsModule,
   ],
   templateUrl: './submission-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [
-    {
-      provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
-      useValue: { appearance: 'outline' },
-    },
-    {
-      provide: STEPPER_GLOBAL_OPTIONS,
-      useValue: { showError: true },
-    },
-  ],
 })
 // 3780
 export class SubmissionDialogComponent implements OnInit {
@@ -115,7 +107,6 @@ export class SubmissionDialogComponent implements OnInit {
   private dialogRef: MatDialogRef<SubmissionDialogComponent, submissionResult> =
     inject(MatDialogRef);
   private inboxService = inject(InboxService);
-  private docService = inject(DocService);
   private alertService = inject(AlertService);
   private socketService = inject(SocketService);
   private outboxService = inject(OutboxService);
@@ -136,9 +127,9 @@ export class SubmissionDialogComponent implements OnInit {
   });
   recipients = signal<recipient[]>([]);
 
-  public filterReceiverCtrl = new FormControl<string>('');
-  public bankServerSideCtrl = new FormControl<onlineAccount | null>(null);
-  public filteredReceivers$ = new BehaviorSubject<onlineAccount[]>([]);
+  filterRecipientCtrl = new FormControl<string>('', { nonNullable: true });
+  bankServerSideCtrl = new FormControl<onlineAccount | null>(null);
+  filteredReceivers$ = new BehaviorSubject<onlineAccount[]>([]);
 
   isCopyEnabled = computed<boolean>(() => {
     if (this.data.isResend) return true;
@@ -153,23 +144,24 @@ export class SubmissionDialogComponent implements OnInit {
 
   isFormValid = computed<boolean>(() => {
     if (this.data.isResend) {
-      return this.formSubmission.valid && this.recipients().length >= 1;
+      return this.formSubmission.valid && this.selectedReceivers().length >= 1;
     }
     return this.formSubmission.valid && this.data.isOriginal
-      ? this.recipients().some(({ isOriginal }) => isOriginal)
-      : this.recipients().length === 1;
+      ? this.selectedReceivers().some(({ isOriginal }) => isOriginal)
+      : this.selectedReceivers().length === 1;
   });
 
-  files = signal<File[]>([]);
+  public selectedReceivers = signal<any[]>([]);
 
   constructor() {
     effect(() => {
+      console.log('effect accounts');
       this.filteredReceivers$.next(this.accounts());
     });
   }
 
   ngOnInit(): void {
-    this._setFilterControl();
+    this.setFilterRecipientsControl();
   }
 
   showConfirmSend(): void {
@@ -185,6 +177,39 @@ export class SubmissionDialogComponent implements OnInit {
       });
   }
 
+  selectRecipient(event: MatAutocompleteSelectedEvent): void {
+    const user = event.option.value;
+    this.filterRecipientCtrl.setValue('');
+    event.option.deselect();
+
+    if (this.selectedReceivers().some(({ id }) => id === user.id)) return;
+
+    if (this.data.isOriginal) {
+      if (this.data.isResend) {
+        this.selectedReceivers.update((values) => [
+          ...values,
+          { ...user, isOriginal: false },
+        ]);
+      } else {
+        this.selectedReceivers.update((values) => {
+          const hasOriginal = values.some(({ isOriginal }) => isOriginal);
+          return [
+            ...values,
+            { ...user, isOriginal: hasOriginal ? false : true },
+          ];
+        });
+      }
+    } else {
+      this.selectedReceivers.set([{ ...user, is: false }]);
+    }
+  }
+
+  removeRecipient(user: recipient): void {
+    this.selectedReceivers.update((values) =>
+      values.filter(({ id }) => id !== user.id)
+    );
+  }
+
   send(): void {
     this.outboxService
       .create(
@@ -192,7 +217,7 @@ export class SubmissionDialogComponent implements OnInit {
           ...this.formSubmission.value,
           communicationId: this.data.communicationId,
           procedureId: this.data.procedure.id,
-          recipients: this.recipients().map(({ id, isOriginal }) => ({
+          recipients: this.selectedReceivers().map(({ id, isOriginal }) => ({
             accountId: id,
             isOriginal,
           })),
@@ -218,22 +243,7 @@ export class SubmissionDialogComponent implements OnInit {
       });
   }
 
-  add(isOriginal: boolean): void {
-    const controlValue = this.bankServerSideCtrl.value;
-    if (!controlValue) return;
-    this.recipients.update((values) => [
-      ...values,
-      { ...controlValue, isOriginal },
-    ]);
-    this.bankServerSideCtrl.setValue(null);
-  }
-
-  remove(id: string): void {
-    this.recipients.update((values) => values.filter((el) => el.id !== id));
-  }
-
   getDependencies(institutionId: string) {
-    this.accounts.set([]);
     this.dependencyId.set(null);
     this.inboxService
       .getDependenciesInInstitution(institutionId)
@@ -248,88 +258,55 @@ export class SubmissionDialogComponent implements OnInit {
     }
     this.inboxService
       .searchRecipientsAccounts(dependencyId)
-      .pipe(switchMap((receivers) => this._checkOnlineAccounts(receivers)))
+      .pipe(map((accounts) => this.checkOnlineAccounts(accounts)))
       .subscribe((accounts) => this.accounts.set(accounts));
   }
 
-  searchDocuments(term: string) {
-    if (!term) return;
-    this.docService.searchPendingDocs(term).subscribe((data) => {
-      const options: selectOption<doc>[] = data.map((item) => ({
-        label: `${item.cite} - ${item.reference}`,
-        value: item,
-      }));
-      this.documents.set(options);
-    });
-  }
-
-  onSelectDoc({ correlative }: doc) {
-    this.formSubmission.patchValue({ internalNumber: correlative });
-  }
-
-  addFile(event: Event): void {
-    const files = this._onInputFileSelect(event);
-    if (!files) return;
-    this.files.update((values) => [...files, ...values]);
-  }
-
-  removeFile(index: number) {
-    this.files.update((values) => {
-      values.splice(index, 1);
-      return [...values];
-    });
-  }
-
-  private _onInputFileSelect(event: Event): File[] {
-    const inputElement = event.target as HTMLInputElement;
-    if (!inputElement.files || inputElement.files.length === 0) return [];
-    const list = inputElement.files;
-    const files: File[] = [];
-    for (let i = 0; i < list.length; i++) {
-      files.push(list[i]);
-    }
-    return files;
-  }
-
-  private _setFilterControl(): void {
-    this.filterReceiverCtrl.valueChanges
+  private setFilterRecipientsControl(): void {
+    this.filterRecipientCtrl.valueChanges
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         distinctUntilChanged(),
-        debounce(() => timer(this.dependencyId() ? 0 : 350))
+        debounce(() => timer(this.dependencyId() ? 0 : 350)),
+        filter((value) => {
+          const isString = typeof value === 'string';
+          // * for filter in backend, term should not be empty
+          return isString && (!!this.dependencyId() || value.trim().length > 0);
+        }),
+        switchMap((term) => {
+          return this.dependencyId()
+            ? this.filterLocalAccounts(term)
+            : this.filterServerAccount(term);
+        })
       )
-      .subscribe((term) => {
-        this._filterRecipients(term);
-      });
+      .subscribe((recipients) => this.filteredReceivers$.next(recipients));
   }
 
-  private _filterRecipients(term: string | null): void {
-    if (!this.dependencyId()) {
-      if (!term) return;
-      this.inboxService
-        .searchRecipientsAccounts(term)
-        .pipe(switchMap((receivers) => this._checkOnlineAccounts(receivers)))
-        .subscribe((recipients) => this.accounts.set(recipients));
-    } else {
-      const options: onlineAccount[] = term
-        ? this.accounts().filter(({ fullname }) =>
-            fullname.toLowerCase().includes(term.toLowerCase())
+  private filterLocalAccounts(term: string): Observable<onlineAccount[]> {
+    const lowerTerm = term.toLowerCase();
+    const options = lowerTerm
+      ? this.accounts().filter(({ fullname, jobtitle }) =>
+          [fullname, jobtitle].some((field) =>
+            field.toLowerCase().includes(lowerTerm)
           )
-        : this.accounts();
-
-      this.filteredReceivers$.next(options);
-    }
+        )
+      : this.accounts();
+    return of(options);
   }
 
-  private _checkOnlineAccounts(accounts: onlineAccount[]) {
-    return this.socketService.onlineClients$.pipe(
-      takeUntilDestroyed(this.destroyRef),
-      map((clients) =>
-        accounts.map((receiver) => ({
-          ...receiver,
-          online: clients.some(({ userId }) => userId === receiver.userId),
-        }))
-      )
-    );
+  private filterServerAccount(term: string): Observable<onlineAccount[]> {
+    if (!term) return of([]);
+    return this.inboxService
+      .searchRecipientsAccounts(term)
+      .pipe(map((recipients) => this.checkOnlineAccounts(recipients)));
+  }
+
+  private checkOnlineAccounts(accounts: onlineAccount[]) {
+    return accounts.map((receiver) => ({
+      ...receiver,
+      online: this.socketService.currentOnlineUsers.some(
+        ({ userId }) => userId === receiver.userId
+      ),
+    }));
   }
 }

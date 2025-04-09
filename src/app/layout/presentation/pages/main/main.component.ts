@@ -16,12 +16,12 @@ import { AuthService } from '../../../../auth/presentation/services/auth.service
   imports: [CommonModule],
   template: `
     <div
-      class="flex flex-col items-center justify-center h-[calc(100vh-64px)] text-center px-2"
+      class="flex flex-col items-center justify-center h-[calc(100vh-64px)] px-2"
     >
       <img
-        src="images/institution/escudo.png"
         alt="Logo"
-        class="h-32 sm:h-52 mb-6"
+        src="images/institution/escudo.png"
+        class="h-32 sm:h-48 mb-6"
       />
       <h1 class="text-xl sm:text-3xl font-bold tracking-wide">
         ¡Bienvenid&#64; {{ userName ?? 'Usuario' | uppercase }}!
@@ -35,19 +35,19 @@ import { AuthService } from '../../../../auth/presentation/services/auth.service
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class MainComponent implements OnInit {
-  private dialog = inject(MatDialog);
+  private dialogRef = inject(MatDialog);
   private publicationService = inject(PostService);
 
   userName = inject(AuthService).user()?.fullname.split(' ')[0].toUpperCase();
 
   ngOnInit(): void {
-    this._showNews();
+    this.showNews();
   }
 
-  private _showNews(): void {
+  private showNews(): void {
     this.publicationService.getNews().subscribe((publications) => {
       if (publications.length === 0) return;
-      this.dialog.open(PublicationDialogComponent, {
+      this.dialogRef.open(PublicationDialogComponent, {
         minWidth: '900px',
         height: '600px',
         data: publications,

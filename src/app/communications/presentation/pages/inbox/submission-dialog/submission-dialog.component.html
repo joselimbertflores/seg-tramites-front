@@ -1,17 +1,23 @@
 <h2 mat-dialog-title>Remision Tramite</h2>
 <mat-dialog-content>
-  <div class="py-3">
-    <dl>
-      <div class="px-4 sm:grid sm:grid-cols-4 sm:gap-2 sm:px-0">
-        <dt class="text-lg font-medium">Tramite:</dt>
-        <dd class="mt-1 text-lg sm:col-span-3 sm:mt-0">
-          {{ data.procedure.code }} - ({{
-            data.isOriginal ? "Original" : "Copia"
-          }})
+  <div class="mb-6">
+    <dl class="-my-3 divide-y divide-gray-200 text-sm">
+      <div class="grid grid-cols-1 gap-1 py-2 sm:grid-cols-3 sm:gap-4">
+        <dt class="font-medium">Tramite:</dt>
+
+        <dd class="sm:col-span-2">{{ data.procedure.code }}</dd>
+      </div>
+
+      <div class="grid grid-cols-1 gap-1 py-2 sm:grid-cols-3 sm:gap-4">
+        <dt class="font-medium">Tipo:</dt>
+
+        <dd class="sm:col-span-2">
+          {{ data.isOriginal ? "ORIGINAL" : "COPIA" }}
         </dd>
       </div>
     </dl>
   </div>
+
   <form [formGroup]="formSubmission">
     <div class="grid grid-cols-3 gap-x-2 mt-2">
       <div class="col-span-3">
@@ -42,14 +48,8 @@
       </div>
     </div>
   </form>
-  <!-- <div class="flex justify-end mt-2">
-    <button mat-button matStepperNext>
-      Siguiente
-      <mat-icon iconPositionEnd>arrow_forward</mat-icon>
-    </button>
-  </div> -->
-  <div class="grid grid-cols-3 gap-x-2 mt-2">
-    <div>
+  <div class="flex flex-col sm:flex-row gap-x-2">
+    <div class="sm:w-1/3">
       <select-search
         title="Institucion (Opcional)"
         placeholder="Seleccione una institucion"
@@ -57,7 +57,7 @@
         (onSelect)="getDependencies($event)"
       />
     </div>
-    <div class="col-span-2">
+    <div class="sm:w-2/3">
       <select-search
         title="Dependencia (Opcional)"
         placeholder="Seleccione una dependencia"
@@ -66,155 +66,70 @@
         (onSelect)="getRecipientsByDependency($event)"
       />
     </div>
-    <div class="col-span-3">
-      <mat-form-field>
-        <mat-select
-          [formControl]="bankServerSideCtrl"
-          placeholder="Buscar destinatarios"
-        >
-          <mat-option>
-            <ngx-mat-select-search
-              [formControl]="filterReceiverCtrl"
-              placeholderLabel="Nombre del destinatario"
-              noEntriesFoundLabel="Sin destinatarios"
-            />
-          </mat-option>
-          @for (receiver of filteredReceivers$|async; track $index) {
-          <mat-option [value]="receiver">
-            <div class="flex gap-x-3 items-center">
-              <span
-                class="inline-flex text-xs h-2 w-2 rounded-full"
-                [ngClass]="receiver.online ? 'bg-green-600' : 'bg-red-600'"
-              >
-              </span>
-              <div class="flex flex-col">
-                <span> {{ receiver.fullname | titlecase }}</span>
-                <small> {{ receiver.jobtitle }}</small>
-              </div>
-            </div>
-          </mat-option>
+  </div>
+  <mat-form-field>
+    <mat-label>Destinatarios</mat-label>
+    <mat-chip-grid #chipGrid aria-label="User selection">
+      @for (fruit of selectedReceivers(); track $index) {
+      <mat-chip-row
+        (removed)="removeRecipient(fruit.id)"
+        [ngStyle]="
+          fruit.isOriginal && {
+            'background-color': 'var(--mat-sys-primary-container)'
           }
-        </mat-select>
-      </mat-form-field>
-    </div>
-  </div>
-  <div class="flex items-center py-2">
-    <div class="flex-1 text-lg font-medium">
-      DESTINATARIOS ({{ recipients().length }}):
-    </div>
-    <div class="flex justify-center gap-x-2">
-      <button
-        mat-stroked-button
-        (click)="add(true)"
-        [disabled]="!isOriginalEnabled()"
+        "
       >
-        Original
-      </button>
-      <button
-        mat-stroked-button
-        (click)="add(false)"
-        [disabled]="!isCopyEnabled()"
-      >
-        Copia
-      </button>
-    </div>
-  </div>
-  <!-- <div class="overflow-y-scroll max-h-64">
-    <mat-list role="list">
-      @for (item of recipients(); track $index) {
-      <mat-list-item role="listitem">
-        <img matListItemAvatar src="images/avatar.png" alt="Profile" />
-        <div matListItemTitle>
-          {{ item.fullname | titlecase }}
-          <span> ({{ item.isOriginal ? "Original" : "Copia" }})</span>
-        </div>
-        <div matListItemLine>{{ item.jobtitle }}</div>
-        <button mat-icon-button matListItemMeta (click)="remove(item.id)">
-          <mat-icon>close</mat-icon>
+        <img
+          matChipAvatar
+          src="images/icons/account.png"
+          alt="Photo of officer"
+        />
+        {{ fruit.fullname | titlecase }}
+
+        <button
+          matChipRemove
+          [attr.aria-label]="'remove ' + fruit.id"
+          (click)="removeRecipient(fruit)"
+        >
+          <mat-icon>cancel</mat-icon>
         </button>
-      </mat-list-item>
-      } @empty {
-      <mat-list-item> * Sin destinatarios </mat-list-item>
+      </mat-chip-row>
       }
-    </mat-list>
-  </div> -->
-<!-- 
-  <div class="col-12">
-    <mat-form-field>
-      <mat-label>Destinatarios</mat-label>
-      <mat-chip-grid #chipGrid aria-label="User selection">
-        @for (fruit of sdsd(); track fruit.id_account) {
-        <mat-chip-row (removed)="remove(fruit.id_account)">
-          <img
-            matChipAvatar
-            src="../../../../../../assets/img/account.png"
-            alt="Photo of officer"
-          />
-          {{ fruit.officer.fullname | titlecase }}
-
-          <button
-            matChipRemove
-            [attr.aria-label]="'remove ' + fruit.id_account"
-          >
-            <mat-icon>cancel</mat-icon>
-          </button>
-        </mat-chip-row>
-        }
-      </mat-chip-grid>
-      <input
-        placeholder="Agregar destinatario..."
-        #receiverInput
-        [formControl]="filterReceiverCtrl"
-        [matChipInputFor]="chipGrid"
-        [matAutocomplete]="auto"
-      />
-      <mat-autocomplete #auto="matAutocomplete">
-        @for (user of filteredReceivers$ | async; track user.id_account) {
-        <mat-option [value]="user">
-          <div class="flex">
-            <img
-              class="h-6 mr-2"
-              src="../../../../../../assets/img/account.png"
-            />
-            <div>
-              <span>{{ user.officer.fullname | titlecase }} </span>
-              <small>({{ user.officer.jobtitle | uppercase }})</small>
-              <span
-                class="c-pill"
-                [ngClass]="user.online ? 'c-pill--success' : 'c-pill--danger'"
-                >{{ user.online ? "Conectado" : "Sin conexion" }}</span
-              >
-            </div>
+    </mat-chip-grid>
+    <input
+      placeholder="Buscar destinatario"
+      #receiverInput
+      [formControl]="filterRecipientCtrl"
+      [matChipInputFor]="chipGrid"
+      [matAutocomplete]="auto"
+    />
+    <mat-autocomplete
+      #auto="matAutocomplete"
+      (optionSelected)="selectRecipient($event); receiverInput.value = ''"
+    >
+      @for (user of filteredReceivers$ | async; track user.id) {
+      <mat-option [value]="user">
+        <div class="flex gap-x-3 items-center relative">
+          <div class="relative">
+            <img class="h-6 w-6 rounded-full" src="images/icons/account.png" />
+            <span
+              class="absolute bottom-0 right-0 w-2 h-2 rounded-full border border-white"
+              [ngClass]="{
+                'bg-green-500': user.online,
+                'bg-gray-400': !user.online
+              }"
+            >
+            </span>
           </div>
-        </mat-option>
-        }
-      </mat-autocomplete>
-    </mat-form-field>
-  </div> -->
-
-  <!-- <div class="flex justify-end mt-2">
-    <button mat-button matStepperPrevious>
-      <mat-icon>arrow_back</mat-icon>
-      Atras
-    </button>
-  </div> -->
-  <!-- <mat-stepper #stepper>
-    <mat-step
-      label="Detalle envio"
-      [stepControl]="formSubmission"
-      errorMessage="Complete los campos"
-    >
-     
-    </mat-step>
-    <mat-step
-      #stepRecipients
-      label="Destinatarios"
-      [hasError]="recipients().length === 0 && stepRecipients.interacted"
-      errorMessage="Sin destinatarios"
-    >
-     
-    </mat-step>
-  </mat-stepper> -->
+          <div class="flex flex-col">
+            <span>{{ user.fullname | titlecase }}</span>
+            <small>{{ user.jobtitle }}</small>
+          </div>
+        </div>
+      </mat-option>
+      }
+    </mat-autocomplete>
+  </mat-form-field>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button mat-button color="warn" mat-dialog-close>Cancelar</button>

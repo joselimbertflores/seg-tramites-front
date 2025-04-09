@@ -16,9 +16,9 @@ import {
 })
 export class SocketService {
   private socket: Socket;
-
   private onlineClientsSubject = new BehaviorSubject<any[]>([]);
-  public onlineClients$ = this.onlineClientsSubject.asObservable();
+
+  onlineClients$ = this.onlineClientsSubject.asObservable();
 
   constructor() {
     this.socket = io(environment.base_url, {
@@ -42,7 +42,6 @@ export class SocketService {
   listenNewCommunications(): Observable<Communication> {
     return new Observable((observable) => {
       this.socket.on('new-communication', (data: communication) => {
-        console.log('COMMUNICATION RESPONSE', data);
         observable.next(CommunicationMapper.fromResponse(data));
       });
     });
@@ -78,5 +77,9 @@ export class SocketService {
 
   closeOne(name: string) {
     this.socket.removeListener(name);
+  }
+
+  get currentOnlineUsers() {
+    return this.onlineClientsSubject.getValue();
   }
 }
