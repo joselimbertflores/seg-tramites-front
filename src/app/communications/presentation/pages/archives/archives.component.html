@@ -7,7 +7,7 @@
 </mat-toolbar>
 
 <div class="px-2 sm:px-4">
-  <div class="flex flex-col sm:flex-row items-center justify-between py-2 px-3">
+  <!-- <div class="flex flex-col sm:flex-row items-center justify-between py-2 px-3">
     <div class="text-lg font-medium">{{ folderName() }}</div>
     <div class="w-full sm:w-1/4 h-11">
       <search-input
@@ -16,15 +16,35 @@
         placeholder="Alterno / Referencia"
       />
     </div>
+  </div> -->
+
+  <div class="flex justify-end mb-2">
+    <div class="w-full sm:w-1/4 h-[54px]">
+      <search-input
+        [initValue]="term()"
+        (onSearch)="search($event)"
+        placeholder="Codigo / Referencia"
+      />
+    </div>
   </div>
 
   <div class="mat-elevation-z8">
     <table mat-table [dataSource]="datasource()" multiTemplateDataRows>
-
       <ng-container matColumnDef="document">
         <th mat-header-cell *matHeaderCellDef>Documento</th>
-        <td mat-cell *matCellDef="let item" class="sm:w-[150px]">
-          {{ item.groupLabel }} - {{ item.documentLabel }}
+        <td mat-cell *matCellDef="let item" class="sm:w-32">
+          <div class="flex items-center gap-x-2">
+            @if(item.isOriginal) {
+            <mat-icon style="color: var(--mat-sys-primary)"> task </mat-icon>
+            } @else {
+            <mat-icon style="color: var(--mat-sys-outline)">
+              description
+            </mat-icon>
+            }
+            <div>
+              {{ item.groupLabel }}
+            </div>
+          </div>
         </td>
       </ng-container>
 
@@ -40,17 +60,17 @@
         </td>
       </ng-container>
 
-      <ng-container matColumnDef="description">
+      <ng-container matColumnDef="reference">
         <th mat-header-cell *matHeaderCellDef>Referencia</th>
-        <td mat-cell *matCellDef="let item">
-          <span class="truncate"> {{ item.procedure.reference }}</span>
+        <td mat-cell *matCellDef="let item" class="sm:max-w-72">
+          <p class="truncate">{{ item.procedure.reference }}</p>
         </td>
       </ng-container>
 
       <ng-container matColumnDef="officer">
         <th mat-header-cell *matHeaderCellDef>Responsable</th>
-        <td mat-cell *matCellDef="let item" class="sm:max-w-80">
-          {{ item.officer.fullname | titlecase }}
+        <td mat-cell *matCellDef="let item" class="sm:w-60">
+          <p class="truncate">{{ item.officer.fullname | titlecase }}</p>
         </td>
       </ng-container>
 
@@ -101,19 +121,34 @@
           <div
             [@detailExpand]="item == expandedElement ? 'expanded' : 'collapsed'"
           >
-            <div class="sm:px-6 py-3">
-              <dl class="text-sm">
-                <div class="grid grid-cols-1 sm:grid-cols-5 py-3 sm:py-1">
-                  <dt class="font-medium">Encargado:</dt>
-                  <dd class="sm:col-span-4">
-                    {{ item.officer.fullname | titlecase }} -
-                    <span class="text-xs">{{ item.officer.jobtitle }}</span>
+            <div class="pb-3">
+              <dl>
+                <div class="px-4 py-2 sm:grid sm:grid-cols-4 sm:gap-4 sm:px-0">
+                  <dt class="text-sm/6 font-medium">Tramite:</dt>
+                  <dd class="mt-1 text-sm/6 sm:col-span-3 sm:mt-0">
+                    {{ item.procedure.code }}
                   </dd>
                 </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-5 py-3 sm:py-1">
-                  <dt class="font-medium">Motivo del archivo:</dt>
-                  <dd class="sm:col-span-2">
+                <div class="px-4 py-2 sm:grid sm:grid-cols-4 sm:gap-4 sm:px-0">
+                  <dt class="text-sm/6 font-medium">Referencia:</dt>
+                  <dd class="mt-1 text-sm sm:col-span-3 sm:mt-0">
+                    {{ item.procedure.reference }}
+                  </dd>
+                </div>
+                <div class="px-4 py-2 sm:grid sm:grid-cols-4 sm:gap-4 sm:px-0">
+                  <dt class="text-sm/6 font-medium">Responsable:</dt>
+                  <dd class="mt-1 text-sm/6 sm:col-span-3 sm:mt-0">
+                    <div class="block">
+                      {{ item.officer.fullname | titlecase }}
+                    </div>
+                    <div class="block text-xs">
+                      {{ item.officer.jobtitle }}
+                    </div>
+                  </dd>
+                </div>
+                <div class="px-4 py-2 sm:grid sm:grid-cols-4 sm:gap-4 sm:px-0">
+                  <dt class="text-sm/6 font-medium">Motivo:</dt>
+                  <dd class="mt-1 text-sm/6 sm:col-span-3 sm:mt-0">
                     {{ item.description }}
                   </dd>
                 </div>
@@ -138,13 +173,14 @@
         <td class="mat-cell p-3" colspan="8">Sin resultados</td>
       </tr>
     </table>
+    @if (datasize() > limit()) {
     <mat-paginator
-      aria-label="Select page of users search results"
       showFirstLastButtons
       [length]="datasize()"
       [pageIndex]="index()"
       [pageSize]="10"
       (page)="onPageChange($event)"
     />
+    }
   </div>
 </div>

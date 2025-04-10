@@ -10,8 +10,6 @@ import {
   Component,
   DestroyRef,
   ChangeDetectionStrategy,
-  ViewChild,
-  ElementRef,
 } from '@angular/core';
 
 import {
@@ -128,7 +126,6 @@ export class SubmissionDialogComponent implements OnInit {
   recipients = signal<recipient[]>([]);
 
   filterRecipientCtrl = new FormControl<string>('', { nonNullable: true });
-  bankServerSideCtrl = new FormControl<onlineAccount | null>(null);
   filteredReceivers$ = new BehaviorSubject<onlineAccount[]>([]);
 
   isCopyEnabled = computed<boolean>(() => {
@@ -224,23 +221,9 @@ export class SubmissionDialogComponent implements OnInit {
         },
         this.data.mode
       )
-      .subscribe({
-        next: (result) => {
-          this.dialogRef.close({ data: result });
-        },
-        error: (err) => {
-          if (err instanceof HttpErrorResponse && err.status === 410) {
-            this.alertService
-              .messageDialog({
-                title: 'Envio actual expirado',
-                description:
-                  'La comunicacion actual ha expirado. Vuelva a remitir el tramite',
-              })
-              .subscribe();
-            this.dialogRef.close({ error: 'expired' });
-          }
-        },
-      });
+      .subscribe((communications) =>
+        this.dialogRef.close({ data: communications })
+      );
   }
 
   getDependencies(institutionId: string) {
@@ -298,7 +281,7 @@ export class SubmissionDialogComponent implements OnInit {
     if (!term) return of([]);
     return this.inboxService
       .searchRecipientsAccounts(term)
-      .pipe(map((recipients) => this.checkOnlineAccounts(recipients)));
+      .pipe(map((accounts) => this.checkOnlineAccounts(accounts)));
   }
 
   private checkOnlineAccounts(accounts: onlineAccount[]) {

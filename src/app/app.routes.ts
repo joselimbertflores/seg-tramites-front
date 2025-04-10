@@ -113,13 +113,6 @@ export const routes: Routes = [
               ),
           },
           {
-            path: ':from/:group/:id',
-            title: 'Detalle',
-            data: { animation: 'slide' },
-            loadComponent: () =>
-              import('./procedures/presentation/pages/detail/detail.component'),
-          },
-          {
             path: 'inbox',
             title: 'Bandeja de entrada',
             data: { animation: 'InboxPage' },
@@ -147,14 +140,6 @@ export const routes: Routes = [
               ),
           },
           {
-            path: 'documents',
-            title: 'Documentos',
-            data: { animation: 'fadeIn' },
-            loadComponent: () =>
-              import('./communications/presentation/pages/docs/docs.component'),
-          },
-
-          {
             path: 'folders',
             data: { animation: 'FoldersPage' },
             loadComponent: () =>
@@ -169,6 +154,13 @@ export const routes: Routes = [
               import(
                 './communications/presentation/pages/archives/archives.component'
               ),
+          },
+          {
+            path: ':from/:group/:id',
+            title: 'Detalle',
+            data: { animation: 'slide' },
+            loadComponent: () =>
+              import('./procedures/presentation/pages/detail/detail.component'),
           },
         ],
       },
@@ -232,13 +224,13 @@ export const routes: Routes = [
           // },
         ],
       },
-      {
-        path: ':from/:group/:id',
-        title: 'Detalle',
-        data: { animation: 'slide' },
-        loadComponent: () =>
-          import('./procedures/presentation/pages/detail/detail.component'),
-      },
+      // {
+      //   path: ':from/:group/:id',
+      //   title: 'Detalle',
+      //   data: { animation: 'slide' },
+      //   loadComponent: () =>
+      //     import('./procedures/presentation/pages/detail/detail.component'),
+      // },
       {
         path: 'groupware',
         data: { resource: 'groupware' },

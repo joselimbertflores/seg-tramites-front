@@ -48,7 +48,7 @@
     <ng-container matColumnDef="applicant">
       <th mat-header-cell *matHeaderCellDef>Destinatario</th>
       <td mat-cell *matCellDef="let element" class="sm:max-w-48">
-        {{ element.sender.fullname | titlecase }}
+        {{ element.recipient.fullname | titlecase }}
       </td>
     </ng-container>
     <ng-container matColumnDef="createdAt">

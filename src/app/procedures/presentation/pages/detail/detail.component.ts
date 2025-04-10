@@ -11,7 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { CommonModule } from '@angular/common';
 
-import { forkJoin } from 'rxjs';
+import { finalize, forkJoin } from 'rxjs';
 
 import { ProcessService } from '../../../../communications/presentation/services';
 import {
@@ -22,6 +22,7 @@ import {
   ProcurementProcedure,
 } from '../../../domain';
 import {
+  DetailSkeletonComponent,
   ExternalDescriptionComponent,
   InternalDescriptionComponent,
   ProcurementDescriptionComponent,
@@ -29,6 +30,8 @@ import {
   WorkflowListComponent,
 } from '../../components';
 import { BackButtonDirective } from '../../../../shared';
+import { animate, style, transition, trigger } from '@angular/animations';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-detail',
@@ -44,6 +47,8 @@ import { BackButtonDirective } from '../../../../shared';
     ExternalDescriptionComponent,
     InternalDescriptionComponent,
     ProcurementDescriptionComponent,
+    // DetailSkeletonComponent,
+    MatProgressSpinnerModule,
   ],
   template: `
     <mat-toolbar>
@@ -53,15 +58,26 @@ import { BackButtonDirective } from '../../../../shared';
       <span class="ml-4">Detalle</span>
     </mat-toolbar>
 
-    <div class="sm:px-4">
+    @if(isLoding()) {
+    <div class="h-[calc(100vh-128px)] w-full p-6">
+      <div
+        class="flex items-center justify-center w-full h-full rounded-2xl"
+        style="background-color: var(--mat-sys-surface-container-highest);"
+      >
+        <mat-spinner></mat-spinner>
+
+        <p>Cargandoi</p>
+      </div>
+    </div>
+    } @else {
+    <div @fadeIn>
       <mat-tab-group
         mat-stretch-tabs="false"
         mat-align-tabs="start"
-        dynamicHeight="true"
+        dynamicHeight
       >
         <mat-tab label="Descripcion">
-          @if(procedure()){ @switch (procedure()?.group) { @case
-          (groupEnum.External) {
+          @switch (procedure()?.group) { @case (groupEnum.External) {
           <external-description [data]="external" />
           } @case (groupEnum.Internal) {
           <internal-description [data]="internal" />
@@ -69,7 +85,7 @@ import { BackButtonDirective } from '../../../../shared';
           <procurement-description [data]="procurement" />
           } @default {
           <p>Group procedure is not defined</p>
-          } } }
+          } }
         </mat-tab>
         @if (workflow().length>0) {
         <mat-tab label="Flujo de trabajo">
@@ -81,8 +97,17 @@ import { BackButtonDirective } from '../../../../shared';
         }
       </mat-tab-group>
     </div>
+    }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [
+    trigger('fadeIn', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('400ms ease-in', style({ opacity: 1 })),
+      ]),
+    ]),
+  ],
 })
 export default class DetailComponent {
   private processService = inject(ProcessService);
@@ -92,14 +117,21 @@ export default class DetailComponent {
 
   procedure = signal<Procedure | null>(null);
   workflow = signal<any[]>([]);
+  isLoding = signal(true);
 
   public groupEnum = procedureGroup;
 
   ngOnInit(): void {
-    this.getProcedureData().subscribe(([procedure, workflow]) => {
-      this.procedure.set(procedure);
-      this.workflow.set(workflow);
-    });
+    this.getDetail();
+  }
+
+  private getDetail() {
+    this.getProcedureData()
+      .pipe(finalize(() => this.isLoding.set(false)))
+      .subscribe(([procedure, workflow]) => {
+        this.procedure.set(procedure);
+        this.workflow.set(workflow);
+      });
   }
 
   private getProcedureData() {

@@ -33,6 +33,8 @@
       <td mat-cell *matCellDef="let row" [id]="row._id" class="sm:w-48">
         <a
           [routerLink]="['../external', row.group, row._id]"
+          routerLinkActive="tonal"
+          [routerLinkActiveOptions]="{ exact: false }"
           class="text-blue-500"
         >
           {{ row.code }}
@@ -97,9 +99,8 @@
       <td class="mat-cell p-2" colspan="6">Sin resultados</td>
     </tr>
   </table>
-  @if(datasize()>limit()){
+  @if (datasize() > limit()){
   <mat-paginator
-    aria-label="Select page of officers search results"
     showFirstLastButtons
     [length]="datasize()"
     [pageIndex]="index()"

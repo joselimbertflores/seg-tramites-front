@@ -32,20 +32,20 @@ interface menu {
         </mat-expansion-panel-header>
         <mat-nav-list>
           @for (subitem of item.children; track $index) {
-          <a
-            mat-list-item
+          <mat-list-item
+            routerLinkActive
+            #link="routerLinkActive"
+            [activated]="link.isActive"
             [routerLink]="subitem.routerLink"
-            routerLinkActive="tonal"
-            class="sidebar-link"
+            class="mt-2"
           >
             <mat-icon matListItemIcon>{{ subitem.icon }}</mat-icon>
             <div class="text" matListItemTitle>{{ subitem.text }}</div>
-          </a>
+          </mat-list-item>
           }
         </mat-nav-list>
       </mat-expansion-panel>
       } @else {
-
       <mat-list-item
         routerLinkActive
         #link="routerLinkActive"

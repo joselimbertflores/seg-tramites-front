@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   inject,
   Input,
   OnInit,
@@ -11,16 +12,17 @@ import {
 import { RouterModule } from '@angular/router';
 
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
+import { SelectionModel } from '@angular/cdk/collections';
 import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
-import { SelectionModel } from '@angular/cdk/collections';
-import { MatTooltipModule } from '@angular/material/tooltip';
 
 import {
   AlertService,
   BackButtonDirective,
+  CacheService,
   SearchInputComponent,
 } from '../../../../shared';
 import { ArchiveService } from '../../services';
@@ -34,6 +36,14 @@ import {
 } from '@angular/animations';
 
 import { filter, switchMap } from 'rxjs';
+
+interface cache {
+  datasource: Archive[];
+  datasize: number;
+  index: number;
+  limit: number;
+  term: string;
+}
 
 @Component({
   selector: 'app-archives',
@@ -73,11 +83,12 @@ import { filter, switchMap } from 'rxjs';
 export default class ArchivesComponent implements OnInit {
   private archiveService = inject(ArchiveService);
   private alertService = inject(AlertService);
+  private cacheService: CacheService<cache> = inject(CacheService);
 
   readonly displayedColumns: string[] = [
     'document',
     'code',
-    'description',
+    'reference',
     'officer',
     'date',
     'expand',
@@ -95,10 +106,16 @@ export default class ArchivesComponent implements OnInit {
   expandedElement: Archive | null;
   selection = new SelectionModel<Archive>(true, []);
 
+  private destroyRef = inject(DestroyRef);
+
   @Input('id') folderId: string;
 
+  constructor() {
+    this.destroyRef.onDestroy(() => this.saveCache());
+  }
+
   ngOnInit(): void {
-    this.getData();
+    this.loadCache()
   }
 
   getData() {
@@ -112,6 +129,7 @@ export default class ArchivesComponent implements OnInit {
       })
       .subscribe((data) => {
         this.datasource.set(data.archives);
+        this.datasize.set(data.length);
         this.folderName.set(data.folderName);
       });
   }
@@ -156,10 +174,31 @@ export default class ArchivesComponent implements OnInit {
     }
     this.selection.select(...this.datasource().map((el) => el));
   }
+
   private removeItems(ids: string[]) {
     this.datasource.update((values) =>
       values.filter(({ id }) => !ids.includes(id))
     );
     this.datasize.update((value) => (value -= 1));
+  }
+
+  private saveCache(): void {
+    this.cacheService.save('archives', {
+      datasource: this.datasource(),
+      datasize: this.datasize(),
+      limit: this.limit(),
+      index: this.index(),
+      term: this.term(),
+    });
+  }
+
+  private loadCache(): void {
+    const cache = this.cacheService.load('archives');
+    if (!cache || !this.cacheService.keepAlive()) return this.getData();
+    this.term.set(cache.term);
+    this.limit.set(cache.limit);
+    this.index.set(cache.index);
+    this.datasize.set(cache.datasize);
+    this.datasource.set(cache.datasource);
   }
 }
