@@ -19,11 +19,15 @@ export function loggingInterceptor(
   const alertService = inject(AlertService);
   const loadingService = inject(LoadingService);
 
-  const showLoadIndicator = req.context.get(LOAD_INDICATOR);
-  const showUploadIndicator = req.context.get(UPLOAD_INDICATOR);
+  const isModifying = req.method !== 'GET';
+  const showLoadIndicator = req.context.get(LOAD_INDICATOR) && !isModifying;
+  const showUploadIndicator = req.context.get(UPLOAD_INDICATOR) && isModifying;
 
-  if (showLoadIndicator) loadingService.toggleLoading(true);
-  if (showUploadIndicator) loadingService.toggleUploading(true);
+  if (showLoadIndicator) {
+    loadingService.toggleLoading(true);
+  } else {
+    loadingService.toggleUploading(true);
+  }
 
   const reqWithHeader = req.clone({
     headers: req.headers.append(
@@ -34,8 +38,8 @@ export function loggingInterceptor(
 
   return next(reqWithHeader).pipe(
     catchError((error) => {
-      handleHttpErrors(error, alertService);
-      return throwError(() => Error);
+      handleHttpErrorMessages(error, alertService);
+      return throwError(() => error);
     }),
     finalize(() => {
       if (showLoadIndicator) loadingService.toggleLoading(false);
@@ -44,7 +48,10 @@ export function loggingInterceptor(
   );
 }
 
-const handleHttpErrors = (error: HttpErrorResponse, service: AlertService) => {
+const handleHttpErrorMessages = (
+  error: HttpErrorResponse,
+  service: AlertService
+) => {
   // const authService = inject(AuthService);
   // const router = inject(Router);
   const message: string = error.error['message'] ?? 'Error no controlado';

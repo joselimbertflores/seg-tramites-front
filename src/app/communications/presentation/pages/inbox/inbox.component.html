@@ -25,7 +25,6 @@
     <mat-icon>block</mat-icon>
   </button>
   }
-
   <button
     mat-icon-button
     aria-label="Filter"
@@ -78,25 +77,26 @@
     </form>
     <div class="flex justify-end gap-x-2 mt-2">
       <button mat-button (click)="reset()">Restablecer</button>
-      <button mat-flat-button (click)="filter()">Buscar</button>
+      <button mat-flat-button (click)="filterByForm()">Buscar</button>
     </div>
   </div>
 </ng-template>
-<div class="px-2 sm:px-4">
-  <div class="flex flex-col sm:flex-row justify-between items-center py-2 gap-y-2">
+<div class="p-2 sm:p-4">
+  <div
+    class="flex flex-col sm:flex-row items-center gap-y-2 justify-between mb-2"
+  >
     <div>
-      <mat-button-toggle-group [(ngModel)]="status" (change)="getData()">
+      <mat-button-toggle-group [(ngModel)]="status" (change)="filterByStatus()">
         <mat-button-toggle value="all">Todo</mat-button-toggle>
         <mat-button-toggle value="received">Recibidos</mat-button-toggle>
         <mat-button-toggle value="pending">Sin Recibir</mat-button-toggle>
       </mat-button-toggle-group>
     </div>
-
-    <div class="w-full px-2 sm:w-1/4 h-12">
+    <div class="w-full sm:w-1/4 h-[54px]">
       <search-input
         [initValue]="term()"
         (onSearch)="search($event)"
-        placeholder="Alterno / Referencia"
+        placeholder="Codigo / Destinatario"
       />
     </div>
   </div>
@@ -199,17 +199,18 @@
       ></tr>
       <tr class="mat-row" *matNoDataRow>
         <td class="mat-cell p-3" [attr.colspan]="displayedColumns.length">
-          <span class="p-3">Sin resultados</span>
+          SIN RESULTADOS.
         </td>
       </tr>
     </table>
+    @if (datasize() > limit()){
     <mat-paginator
-      aria-label="Select page of comunications search results"
       showFirstLastButtons
       [length]="datasize()"
       [pageIndex]="index()"
-      [pageSize]="10"
+      [pageSize]="limit()"
       (page)="onPageChange($event)"
     />
+    }
   </div>
 </div>

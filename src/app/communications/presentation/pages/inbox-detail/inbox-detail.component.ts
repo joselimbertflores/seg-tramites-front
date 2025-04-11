@@ -7,6 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
@@ -33,7 +34,6 @@ import {
   InboxCardComponent,
 } from '../../components';
 import { communcationStatus, Communication } from '../../../domain';
-import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-inbox-detail',

@@ -176,7 +176,7 @@
 
                 <div class="grid grid-cols-1 sm:grid-cols-5 py-3 sm:py-1">
                   <dt class="font-medium">Fecha de envio:</dt>
-                  <dd class="sm:col-span-2">
+                  <dd class="sm:col-span-4">
                     {{ item.sentDate | date : "short" }}
                   </dd>
                 </div>
@@ -191,7 +191,7 @@
                 @if(item.actionLog){
                 <div class="grid grid-cols-1 py-3 sm:grid-cols-5 text-red-600">
                   <dt class="font-medium">Descripcion rechazo:</dt>
-                  <dd class="sm:col-span-2">
+                  <dd class="sm:col-span-4">
                     <div class="block">
                       [{{ item.actionLog.date | date : "short" }}]
                     </div>
@@ -225,7 +225,7 @@
         <td class="mat-cell p-3" colspan="8">SIN RESULTADOS.</td>
       </tr>
     </table>
-    @if(datasize()>limit()){
+    @if (datasize() > limit()){
     <mat-paginator
       showFirstLastButtons
       [length]="datasize()"

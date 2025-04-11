@@ -95,12 +95,11 @@
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
     <tr class="mat-row" *matNoDataRow>
-      <td class="p-3" colspan="6">Sin resultados resultados</td>
+      <td class="mat-cell p-3" colspan="6">SIN RESULTADOS.</td>
     </tr>
   </table>
-  @if(datasize()>limit()){
+  @if (datasize() > limit()){
   <mat-paginator
-    aria-label="Select page of officers search results"
     showFirstLastButtons
     [length]="datasize()"
     [pageIndex]="index()"

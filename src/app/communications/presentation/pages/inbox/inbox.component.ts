@@ -254,9 +254,14 @@ export default class InboxComponent implements OnInit {
     this.getData();
   }
 
-  filter() {
+  filterByForm() {
     this.index.set(0);
     this.isOpen = false;
+    this.getData();
+  }
+
+  filterByStatus() {
+    this.index.set(0);
     this.getData();
   }
 
@@ -324,7 +329,9 @@ export default class InboxComponent implements OnInit {
   }
 
   private removeItems(ids: string[]): void {
-    this.datasource.update((items) => items.filter(({ id }) => !ids.includes(id)));
+    this.datasource.update((items) =>
+      items.filter(({ id }) => !ids.includes(id))
+    );
     this.datasize.update((length) => (length -= ids.length));
     this.selection.clear();
     if (this.datasource().length === 0 && this.datasize() > 0) {

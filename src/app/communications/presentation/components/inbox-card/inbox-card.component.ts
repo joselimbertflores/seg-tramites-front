@@ -3,39 +3,79 @@ import { MatCardModule } from '@angular/material/card';
 import { CommonModule } from '@angular/common';
 
 import { Communication } from '../../../domain';
-import { AlertMessageComponent } from '../../../../shared';
 
 @Component({
   selector: 'inbox-card',
-  imports: [CommonModule, MatCardModule, AlertMessageComponent],
+  imports: [CommonModule, MatCardModule],
   template: `
     <mat-card appearance="outlined">
-      <mat-card-header>
-        <img mat-card-avatar src="images/icons/account.png" />
-        <mat-card-title>
-          {{ data().sender.fullname | titlecase }}
-        </mat-card-title>
-        <mat-card-subtitle>
-          {{ data().sender.jobtitle }}
-        </mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="py-2">
-          <p class="font-medium">{{ data().sentDate | date : 'fullDate' }}</p>
-        </div>
-        <div>
-          {{ data().reference }}
-        </div>
-        <div></div>
-        @if(data().status==='pending'){
-        <div class="mt-3">
-          <alert-message
-            title="Este tramite aun no ha sido recibido"
-            severity="warn"
+      <div
+        class="flex flex-col sm:flex-row sm:items-center justify-between p-4 gap-3"
+      >
+        <div class="flex items-start sm:items-center gap-4 flex-1">
+          <img
+            src="images/icons/account.png"
+            alt="Avatar"
+            class="w-10 h-10 rounded-full object-cover"
           />
+
+          <div class="flex flex-col">
+            <span class="font-semibold tracking-wide">
+              {{ data().sender.fullname | titlecase }}
+            </span>
+            <span class="text-sm">
+              {{ data().sender.jobtitle }}
+            </span>
+          </div>
         </div>
-        }
-      </mat-card-content>
+
+        <div class="sm:text-right whitespace-nowrap">
+          {{ data().sentDate | date : "d 'de' MMMM 'de' y HH:mm" }}
+        </div>
+      </div>
+
+      <div class="flow-root p-4 mb-2">
+        <dl class="-my-3 divide-y divide-gray-200 text-sm">
+          <div class="grid grid-cols-1 gap-1 py-2 sm:grid-cols-4 sm:gap-4">
+            <dt class="font-medium">Para:</dt>
+            <dd class="sm:col-span-3">
+              {{ data().recipient.fullname | titlecase }}
+            </dd>
+          </div>
+
+          <div class="grid grid-cols-1 gap-1 py-2 sm:grid-cols-4 sm:gap-4">
+            <dt class="font-medium">Instruccion / Proveeido:</dt>
+            <dd class="sm:col-span-3">
+              {{ data().reference }}
+            </dd>
+          </div>
+
+          <div class="grid grid-cols-1 gap-1 py-2 sm:grid-cols-4 sm:gap-4">
+            <dt class="font-medium">Tipo de documento:</dt>
+            <dd class="sm:col-span-3">
+              {{ data().documentLabel }} - {{ data().groupLabel }}
+            </dd>
+          </div>
+
+          <div class="grid grid-cols-1 gap-1 py-2 sm:grid-cols-4 sm:gap-4">
+            <dt class="font-medium">Cantidad de hojas / anexos:</dt>
+            <dd class="sm:col-span-3">{{ data().attachmentsCount }}</dd>
+          </div>
+
+          <div class="grid grid-cols-1 gap-1 py-2 sm:grid-cols-4 sm:gap-4">
+            <dt class="font-medium">Fecha de recepcion:</dt>
+            <dd class="sm:col-span-3">
+              @if(data().status==="received"){
+              {{ data().receivedDate }}
+              } @else {
+              <span class="text-red-500 font-medium">
+                Usted aun no ha recibido este tramite.
+              </span>
+              }
+            </dd>
+          </div>
+        </dl>
+      </div>
     </mat-card>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

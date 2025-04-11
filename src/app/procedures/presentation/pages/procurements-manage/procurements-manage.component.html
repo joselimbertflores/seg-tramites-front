@@ -199,7 +199,7 @@
         [class.example-expanded-row]="expandedElement === row"
       ></tr>
       <tr class="mat-row" *matNoDataRow>
-        <td class="p-3" colspan="6">Sin resultados resultados</td>
+        <td class="mat-cell p-3" colspan="6">SIN RESULTADOS.</td>
       </tr>
       <tr
         mat-row
@@ -207,13 +207,14 @@
         class="example-detail-row"
       ></tr>
     </table>
-    <mat-paginator
-      aria-label="Select page of officers search results"
-      showFirstLastButtons
-      [length]="datasize()"
-      [pageIndex]="index()"
-      [pageSize]="10"
-      (page)="onPageChange($event)"
-    />
+    @if (datasize() > limit()){
+      <mat-paginator
+        showFirstLastButtons
+        [length]="datasize()"
+        [pageIndex]="index()"
+        [pageSize]="limit()"
+        (page)="onPageChange($event)"
+      />
+      }
   </div>
 </div>

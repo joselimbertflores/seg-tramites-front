@@ -5,6 +5,8 @@ import {
   Input,
   signal,
 } from '@angular/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { animate, style, transition, trigger } from '@angular/animations';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -15,23 +17,20 @@ import { finalize, forkJoin } from 'rxjs';
 
 import { ProcessService } from '../../../../communications/presentation/services';
 import {
+  ProcurementProcedure,
   ExternalProcedure,
   InternalProcedure,
-  Procedure,
   procedureGroup,
-  ProcurementProcedure,
+  Procedure,
 } from '../../../domain';
 import {
-  DetailSkeletonComponent,
+  ProcurementDescriptionComponent,
   ExternalDescriptionComponent,
   InternalDescriptionComponent,
-  ProcurementDescriptionComponent,
   WorkflowGraphComponent,
   WorkflowListComponent,
 } from '../../components';
 import { BackButtonDirective } from '../../../../shared';
-import { animate, style, transition, trigger } from '@angular/animations';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-detail',
@@ -47,7 +46,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     ExternalDescriptionComponent,
     InternalDescriptionComponent,
     ProcurementDescriptionComponent,
-    // DetailSkeletonComponent,
     MatProgressSpinnerModule,
   ],
   template: `
@@ -59,14 +57,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     </mat-toolbar>
 
     @if(isLoding()) {
-    <div class="h-[calc(100vh-128px)] w-full p-6">
-      <div
-        class="flex items-center justify-center w-full h-full rounded-2xl"
-        style="background-color: var(--mat-sys-surface-container-highest);"
-      >
-        <mat-spinner></mat-spinner>
-
-        <p>Cargandoi</p>
+    <div class="h-[calc(100vh-200px)] flex items-center justify-center w-full">
+      <div class="flex flex-col items-center">
+        <mat-spinner />
+        <p class="text-lg font-normal mt-4">Cargando contenido</p>
       </div>
     </div>
     } @else {
@@ -77,17 +71,19 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
         dynamicHeight
       >
         <mat-tab label="Descripcion">
-          @switch (procedure()?.group) { @case (groupEnum.External) {
-          <external-description [data]="external" />
-          } @case (groupEnum.Internal) {
-          <internal-description [data]="internal" />
-          } @case (groupEnum.Procurement) {
-          <procurement-description [data]="procurement" />
-          } @default {
-          <p>Group procedure is not defined</p>
-          } }
+          <div class="p-2 sm:p-4">
+            @switch (procedure()?.group) { @case (groupEnum.External) {
+            <external-description [data]="external" />
+            } @case (groupEnum.Internal) {
+            <internal-description [data]="internal" />
+            } @case (groupEnum.Procurement) {
+            <procurement-description [data]="procurement" />
+            } @default {
+            <p>Group procedure is not defined</p>
+            } }
+          </div>
         </mat-tab>
-        @if (workflow().length>0) {
+        @if (workflow().length > 0) {
         <mat-tab label="Flujo de trabajo">
           <workflow-list [workflow]="workflow()" />
         </mat-tab>
@@ -104,7 +100,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     trigger('fadeIn', [
       transition(':enter', [
         style({ opacity: 0 }),
-        animate('400ms ease-in', style({ opacity: 1 })),
+        animate('250ms ease-in', style({ opacity: 1 })),
       ]),
     ]),
   ],

@@ -1,28 +1,30 @@
 import { inject, Injectable } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 import { BehaviorSubject } from 'rxjs';
 
 import { LoaderDialogComponent } from '../components/dialogs/loader-dialog/loader-dialog.component';
-import { toSignal } from '@angular/core/rxjs-interop';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LoadingService {
   private dialogRef = inject(MatDialog);
-  private uploadingDialogRef: MatDialogRef<LoaderDialogComponent, void> | null;
-  private totalRequests = 0;
+  private uploadingDialog: MatDialogRef<LoaderDialogComponent, void> | null = null;
   private _isLoading = new BehaviorSubject<boolean>(false);
+  private totalRequests = 0;
 
   isLoading = toSignal(this._isLoading);
 
   toggleLoading(show: boolean) {
     if (show) {
       this.totalRequests++;
+      console.log('incrementando', this.totalRequests);
       this._isLoading.next(true);
     } else {
-      this.totalRequests--;
+      this.totalRequests = Math.max(0, this.totalRequests - 1);
+      console.log('decrementando', this.totalRequests);
       if (this.totalRequests === 0) {
         this._isLoading.next(false);
       }
@@ -31,15 +33,15 @@ export class LoadingService {
 
   toggleUploading(show: boolean): void {
     if (show) {
-      if (this.uploadingDialogRef) return;
-      this.uploadingDialogRef = this.dialogRef.open(LoaderDialogComponent, {
+      if (this.uploadingDialog) return;
+      this.uploadingDialog = this.dialogRef.open(LoaderDialogComponent, {
         disableClose: true,
       });
-      this.uploadingDialogRef.afterClosed().subscribe(() => {
-        this.uploadingDialogRef = null;
+      this.uploadingDialog.afterClosed().subscribe(() => {
+        this.uploadingDialog = null;
       });
     } else {
-      this.uploadingDialogRef?.close();
+      this.uploadingDialog?.close();
     }
   }
 }

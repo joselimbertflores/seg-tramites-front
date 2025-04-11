@@ -8,7 +8,7 @@ import { BadgeComponent } from '../../../../shared';
   selector: 'workflow-list',
   imports: [CommonModule, BadgeComponent],
   template: `
-    <div class="max-h-[80vh] overflow-y-scroll overflow-x-auto p-4">
+    <div class=" overflow-y-scroll overflow-x-auto p-4">
       <table class="min-w-full divide-y-2 divide-gray-200 text-sm text-left">
         <thead class="font-medium">
           <tr>
