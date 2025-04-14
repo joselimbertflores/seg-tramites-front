@@ -7,7 +7,7 @@
     <span class="ml-4">Detalle</span>
     <span class="flex-1"></span>
 
-    @if (communication()?.status === 'pending') {
+    @if (data()?.status === 'pending') {
     <button mat-icon-button matTooltip="Aceptar" (click)="accept()">
       <mat-icon>done</mat-icon>
     </button>
@@ -19,15 +19,15 @@
 
   <!-- Contenido con scroll -->
   <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4">
-    @if (communication()) {
-    <inbox-card [data]="communication()!" />
+    @if (data()) {
+    <inbox-card [data]="data()!" />
     }
 
     <div class="border border-slate-300 rounded-xl">
       @if (!isLoading()) {
       <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
         <mat-tab label="Descripcion">
-          @switch (communication()?.procedure?.group) { @case
+          @switch (data()?.procedure?.group) { @case
           ("ExternalProcedure") {
           <external-communication [procedure]="external!" />
           } @case ("InternalProcedure") {
@@ -35,7 +35,7 @@
           } @case ("ProcurementProcedure") {
           <procurement-communication
             [procedure]="procedure()"
-            [isReceived]="communication()?.status === 'received'"
+            [isReceived]="data()?.status === 'received'"
           />
           } @default {
           <p>Type Procedure is not define</p>

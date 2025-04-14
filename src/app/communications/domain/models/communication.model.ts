@@ -8,7 +8,7 @@ interface communicationProps {
   reference: string;
   attachmentsCount: string;
   internalNumber: string;
-  status: communcationStatus;
+  status: status;
   sentDate: Date;
   receivedDate?: Date;
   isOriginal: boolean;
@@ -43,6 +43,15 @@ export enum communcationStatus {
   AutoRejected = 'auto-rejected',
 }
 
+type status =
+  | 'received'
+  | 'completed'
+  | 'rejected'
+  | 'pending'
+  | 'archived'
+  | 'forwarding'
+  | 'auto-rejected';
+
 export class Communication implements communicationProps {
   readonly id: string;
   readonly sender: worker;
@@ -52,7 +61,7 @@ export class Communication implements communicationProps {
   readonly attachmentsCount: string;
   readonly internalNumber: string;
   readonly sentDate: Date;
-  status: communcationStatus;
+  status: status;
   receivedDate?: Date;
   isOriginal: boolean;
   actionLog?: actionLog;
@@ -88,9 +97,7 @@ export class Communication implements communicationProps {
     this.remainingTime = remainingTime;
   }
 
-  public copyWith(modifyObject: {
-    [P in keyof this]?: this[P];
-  }): Communication {
+  public copyWith(modifyObject: Partial<communicationProps>): Communication {
     return Object.assign(Object.create(Communication.prototype), {
       ...this,
       ...modifyObject,

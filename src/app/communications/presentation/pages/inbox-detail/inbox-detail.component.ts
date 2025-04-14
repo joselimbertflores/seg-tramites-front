@@ -6,6 +6,7 @@ import {
   Input,
   signal,
 } from '@angular/core';
+import { Location } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
@@ -15,11 +16,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { filter, forkJoin, switchMap, tap } from 'rxjs';
 
 import { InboxService, ProcessService } from '../../services';
-import { communication } from '../../../infrastructure';
 import {
   AlertService,
-  BackButtonDirective,
   CacheService,
+  BackButtonDirective,
 } from '../../../../shared';
 import {
   WorkflowGraphComponent,
@@ -28,13 +28,13 @@ import {
 import {
   ExternalProcedure,
   InternalProcedure,
-  Procedure,
   procedureGroup,
+  Procedure,
 } from '../../../../procedures/domain';
 import {
-  ExternalCommunicationComponent,
-  InternalCommunicationComponent,
   ProcurementCommunicationComponent,
+  InternalCommunicationComponent,
+  ExternalCommunicationComponent,
   InboxCardComponent,
 } from '../../components';
 import { communcationStatus, Communication, inboxCache } from '../../../domain';
@@ -65,10 +65,11 @@ export default class InboxDetailComponent {
   private processService = inject(ProcessService);
   private alertService = inject(AlertService);
   private cacheService: CacheService<inboxCache> = inject(CacheService);
+  private localtion = inject(Location);
 
   @Input('id') communicationId: string;
 
-  communication = signal<Communication | null>(null);
+  data = signal<Communication | null>(null);
   procedure = signal<Procedure | any | null>(null);
   workflow = signal<any[]>([]);
 
@@ -79,7 +80,7 @@ export default class InboxDetailComponent {
     this.inboxService
       .getOne(this.communicationId)
       .pipe(
-        tap((data) => this.communication.set(data)),
+        tap((data) => this.data.set(data)),
         switchMap(({ procedure }) =>
           this.getProcedure(procedure.ref, procedure.group)
         )
@@ -91,53 +92,41 @@ export default class InboxDetailComponent {
       });
   }
 
-  get external() {
-    return this.procedure() as ExternalProcedure;
-  }
-
-  get internal() {
-    return this.procedure() as InternalProcedure;
-  }
-
-  private getProcedure(procedureId: string, group: procedureGroup) {
-    return forkJoin([
-      this.processService.getProcedure(procedureId, group),
-      this.processService.getWorkflow(procedureId),
-    ]);
-  }
-
   accept(): void {
     this.alertService
       .confirmDialog({
-        title: `¿Aceptar tramite ${this.communication()?.procedure.code}?`,
-        description:
-          'IMPORTANTE: Solo debe aceptar tramites que haya recibido en fisico',
+        title: `¿Aceptar tramite ${this.data()?.procedure.code}?`,
+        description: 'Solo debe aceptar tramites que haya recibido en fisico',
       })
       .pipe(
         filter((result) => result),
         switchMap(() => this.inboxService.accept([this.communicationId]))
       )
-      .subscribe(({ updatedIds, skipped, notFoundIds }) => {
-        const cache = this.cacheService.load('inbox');
-        if (updatedIds.length===1) {
-          this.communication.update((value) => value!.copyWith({ status: communcationStatus.Received }));
-
-        }
-        else if(skipped.includes){
-
-        }
-        if (cache) {
-          this.cacheService.save('inbox', {
-            ...cache,
-            datasource: cache.datasource.filter(),
-          });
-        }
-        if (notFoundIds.includes(this.communicationId)) {
-        }
-        this.communication.update((values) => {
-          values!.status = communcationStatus.Received;
-          return values;
-        });
+      .subscribe({
+        next: ({ success, skipped }) => {
+          const received = success?.[0];
+          const invalid = skipped?.[0];
+          if (invalid) {
+            this.alertService.messageDialog({
+              title: 'No se pudo aceptar el tramite',
+              description: invalid.reason,
+            });
+            return;
+          }
+          if (received) {
+            const receivedDate = new Date(received.date);
+            this.updateStatusItem(communcationStatus.Received, receivedDate);
+            const cache = this.cacheService.load('inbox');
+            if (!cache) return;
+            let { datasource, ...props } = cache;
+            const index = datasource.findIndex(({ id }) => id === received.id);
+            datasource[index] = datasource[index].copyWith({
+              status: 'received',
+              receivedDate,
+            });
+            this.cacheService.save('inbox', { ...props, datasource });
+          }
+        },
       });
   }
 
@@ -158,5 +147,29 @@ export default class InboxDetailComponent {
         )
       )
       .subscribe(() => {});
+  }
+
+  get external() {
+    return this.procedure() as ExternalProcedure;
+  }
+
+  get internal() {
+    return this.procedure() as InternalProcedure;
+  }
+
+  private getProcedure(procedureId: string, group: procedureGroup) {
+    return forkJoin([
+      this.processService.getProcedure(procedureId, group),
+      this.processService.getWorkflow(procedureId),
+    ]);
+  }
+
+  private updateStatusItem(status: communcationStatus, date?: Date) {
+    this.data.update((value) =>
+      value!.copyWith({
+        status,
+        receivedDate: date ? date : value?.receivedDate,
+      })
+    );
   }
 }
