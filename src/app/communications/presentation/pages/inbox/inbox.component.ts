@@ -45,21 +45,11 @@ import {
   submissionData,
   SubmissionDialogComponent,
 } from './submission-dialog/submission-dialog.component';
-import { communcationStatus, Communication } from '../../../domain';
+import { communcationStatus, Communication, inboxCache } from '../../../domain';
 import { procedureGroup } from '../../../../procedures/domain';
 import { ArchiveDialogComponent } from './archive-dialog/archive-dialog.component';
 import { SocketService } from '../../../../layout/presentation/services';
 import { InboxService } from '../../services';
-
-interface cache {
-  datasource: Communication[];
-  datasize: number;
-  index: number;
-  limit: number;
-  form: Object;
-  term: string;
-  status: communcationStatus | 'all';
-}
 
 @Component({
   selector: 'app-inbox',
@@ -104,7 +94,7 @@ export default class InboxComponent implements OnInit {
   private inboxService = inject(InboxService);
   private socketService = inject(SocketService);
   private alertService = inject(AlertService);
-  private cacheService: CacheService<cache> = inject(CacheService);
+  private cacheService: CacheService<inboxCache> = inject(CacheService);
   // private pdfService = inject(PdfService);
 
   datasource = signal<Communication[]>([]);
@@ -210,7 +200,7 @@ export default class InboxComponent implements OnInit {
         switchMap(() => this.inboxService.accept(items.map(({ id }) => id)))
       )
       .subscribe({
-        next: (ids) => this.setStatusItems(ids, communcationStatus.Received),
+        // next: (ids) => this.setStatusItems(ids, communcationStatus.Received),
         error: (error) => this.hadleHttpErrors(error),
       });
   }
@@ -232,7 +222,7 @@ export default class InboxComponent implements OnInit {
         )
       )
       .subscribe({
-        next: (ids) => this.removeItems(ids),
+        // next: (ids) => this.removeItems(ids),
         error: (error) => this.hadleHttpErrors(error),
       });
   }

@@ -32,6 +32,19 @@ interface filterInboxProps {
   group?: string | null;
   status?: communcationStatus | null;
 }
+
+interface bulkActionResponse {
+  updatedIds: string[];
+  skipped: skippedItem[];
+  notFoundIds: string[];
+}
+
+interface skippedItem {
+  id: string;
+  status: string;
+  reason: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -118,11 +131,11 @@ export class InboxService {
   // }
 
   accept(ids: string[]) {
-    return this.http.put<string[]>(`${this.url}/accept`, { ids });
+    return this.http.put<bulkActionResponse>(`${this.url}/accept`, { ids });
   }
 
   reject(ids: string[], description: string) {
-    return this.http.put<string[]>(`${this.url}/reject`, {
+    return this.http.put<bulkActionResponse>(`${this.url}/reject`, {
       description,
       ids,
     });

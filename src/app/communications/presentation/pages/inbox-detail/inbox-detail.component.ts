@@ -16,7 +16,11 @@ import { filter, forkJoin, switchMap, tap } from 'rxjs';
 
 import { InboxService, ProcessService } from '../../services';
 import { communication } from '../../../infrastructure';
-import { AlertService, BackButtonDirective } from '../../../../shared';
+import {
+  AlertService,
+  BackButtonDirective,
+  CacheService,
+} from '../../../../shared';
 import {
   WorkflowGraphComponent,
   WorkflowListComponent,
@@ -33,7 +37,7 @@ import {
   ProcurementCommunicationComponent,
   InboxCardComponent,
 } from '../../components';
-import { communcationStatus, Communication } from '../../../domain';
+import { communcationStatus, Communication, inboxCache } from '../../../domain';
 
 @Component({
   selector: 'app-inbox-detail',
@@ -57,10 +61,12 @@ import { communcationStatus, Communication } from '../../../domain';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class InboxDetailComponent {
-  @Input('id') communicationId: string;
   private inboxService = inject(InboxService);
   private processService = inject(ProcessService);
   private alertService = inject(AlertService);
+  private cacheService: CacheService<inboxCache> = inject(CacheService);
+
+  @Input('id') communicationId: string;
 
   communication = signal<Communication | null>(null);
   procedure = signal<Procedure | any | null>(null);
@@ -111,20 +117,27 @@ export default class InboxDetailComponent {
         filter((result) => result),
         switchMap(() => this.inboxService.accept([this.communicationId]))
       )
-      .subscribe({
-        next: () => {
-          this.communication.update((values) => {
-            values!.status = communcationStatus.Received;
-            return values;
+      .subscribe(({ updatedIds, skipped, notFoundIds }) => {
+        const cache = this.cacheService.load('inbox');
+        if (updatedIds.length===1) {
+          this.communication.update((value) => value!.copyWith({ status: communcationStatus.Received }));
+
+        }
+        else if(skipped.includes){
+
+        }
+        if (cache) {
+          this.cacheService.save('inbox', {
+            ...cache,
+            datasource: cache.datasource.filter(),
           });
-        },
-        error: (error) => {
-          // if (error instanceof HttpErrorResponse && error.status === 409) {
-          //   const { toRemove = [], toUpdated = [] } = error.error;
-          //   this.removeItems(toRemove);
-          //   this.setStatusItems(toUpdated, communcationStatus.Received);
-          // }
-        },
+        }
+        if (notFoundIds.includes(this.communicationId)) {
+        }
+        this.communication.update((values) => {
+          values!.status = communcationStatus.Received;
+          return values;
+        });
       });
   }
 
