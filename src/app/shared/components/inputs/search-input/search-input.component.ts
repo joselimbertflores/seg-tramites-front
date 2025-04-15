@@ -39,7 +39,7 @@ export class SearchInputComponent implements OnInit {
   ngOnInit(): void {
     if (this.initValue()) this.control.setValue(this.initValue());
     this.control.valueChanges
-      .pipe(debounceTime(350), distinctUntilChanged())
+      .pipe(debounceTime(400), distinctUntilChanged())
       .subscribe((term) => this.onSearch.emit(term));
   }
 }

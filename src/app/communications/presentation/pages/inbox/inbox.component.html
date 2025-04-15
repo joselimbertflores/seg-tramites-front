@@ -124,13 +124,24 @@
 
       <ng-container matColumnDef="group">
         <th mat-header-cell *matHeaderCellDef>Documento</th>
-        <td mat-cell *matCellDef="let row">
-          {{ row.groupLabel }} / {{ row.documentLabel }}
+        <td mat-cell *matCellDef="let row" class="sm:w-32">
+          <div class="flex items-center gap-x-2">
+            @if(row.isOriginal) {
+            <mat-icon style="color: var(--mat-sys-primary)"> task </mat-icon>
+            } @else {
+            <mat-icon style="color: var(--mat-sys-outline)">
+              description
+            </mat-icon>
+            }
+            <div>
+              {{ row.groupLabel }}
+            </div>
+          </div>
         </td>
       </ng-container>
       <ng-container matColumnDef="code">
         <th mat-header-cell *matHeaderCellDef>Alterno</th>
-        <td mat-cell *matCellDef="let row">
+        <td mat-cell *matCellDef="let row" class="sm:w-52">
           <a [routerLink]="['../inbox', row.id]" class="text-blue-600">
             {{ row.procedure.code }}
           </a>
@@ -138,7 +149,7 @@
       </ng-container>
       <ng-container matColumnDef="reference">
         <th mat-header-cell *matHeaderCellDef>Referencia</th>
-        <td mat-cell *matCellDef="let row" class="sm:max-w-72">
+        <td mat-cell *matCellDef="let row" class="sm:max-w-80">
           <p class="truncate">{{ row.procedure.reference }}</p>
         </td>
       </ng-container>

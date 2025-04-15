@@ -21,8 +21,8 @@ import { RouterModule } from '@angular/router';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
@@ -45,10 +45,16 @@ import {
   submissionData,
   SubmissionDialogComponent,
 } from './submission-dialog/submission-dialog.component';
-import { communcationStatus, Communication, inboxCache } from '../../../domain';
-import { procedureGroup } from '../../../../procedures/domain';
+import {
+  inboxCache,
+  Communication,
+  communcationStatus,
+  invalidCommunicationsError,
+  notFoundCommunicationsError,
+} from '../../../domain';
 import { ArchiveDialogComponent } from './archive-dialog/archive-dialog.component';
 import { SocketService } from '../../../../layout/presentation/services';
+import { procedureGroup } from '../../../../procedures/domain';
 import { InboxService } from '../../services';
 
 @Component({
@@ -90,7 +96,6 @@ export default class InboxComponent implements OnInit {
   private dialogRef = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
   private formBuilder = inject(FormBuilder);
-
   private inboxService = inject(InboxService);
   private socketService = inject(SocketService);
   private alertService = inject(AlertService);
@@ -114,8 +119,6 @@ export default class InboxComponent implements OnInit {
 
   status = signal<communcationStatus | 'all'>('all');
 
-  isLoading = signal(true);
-
   readonly displayedColumns: string[] = [
     'select',
     'group',
@@ -129,7 +132,7 @@ export default class InboxComponent implements OnInit {
   readonly groups = [
     { value: procedureGroup.External, label: 'Externos' },
     { value: procedureGroup.Internal, label: 'Internos' },
-    { value: 'ProcurementProcedure', label: 'Contrataciones' },
+    { value: procedureGroup.Procurement, label: 'Contrataciones' },
   ];
 
   readonly documentTypes = [
@@ -162,7 +165,6 @@ export default class InboxComponent implements OnInit {
         this.datasource.set(communications);
         this.datasize.set(length);
         this.selection.clear();
-        this.isLoading.set(false);
       });
   }
 
@@ -192,16 +194,22 @@ export default class InboxComponent implements OnInit {
           items.length === 1
             ? `¿Aceptar tramite ${items[0].procedure.code}?`
             : `¿Aceptar los tramites seleccionados?`,
-        description:
-          'IMPORTANTE: Solo debe aceptar tramites que haya recibido en fisico',
+        description: 'Solo debe aceptar tramites que haya recibido en fisico',
       })
       .pipe(
         filter((result) => result),
         switchMap(() => this.inboxService.accept(items.map(({ id }) => id)))
       )
       .subscribe({
-        // next: (ids) => this.setStatusItems(ids, communcationStatus.Received),
-        error: (error) => this.hadleHttpErrors(error),
+        next: ({ itemIds, receivedDate }) => {
+          this.updateItems(itemIds, {
+            status: communcationStatus.Received,
+            receivedDate,
+          });
+        },
+        error: (error) => {
+          this.handleHttpErrors(error);
+        },
       });
   }
 
@@ -213,7 +221,7 @@ export default class InboxComponent implements OnInit {
           items.length === 1
             ? `¿Rechazar tramite ${items[0].procedure.code}?`
             : `¿Rechazar los tramites seleccionados?`,
-        placeholder: 'Ingrese una descripcion clara ',
+        placeholder: 'Ingrese una descripcion clara del motivo del rechazo',
       })
       .pipe(
         filter((description) => !!description),
@@ -222,8 +230,14 @@ export default class InboxComponent implements OnInit {
         )
       )
       .subscribe({
-        // next: (ids) => this.removeItems(ids),
-        error: (error) => this.hadleHttpErrors(error),
+        next: ({ itemIds }) => {
+          this.removeItems(itemIds);
+        },
+        error: (error) => {
+          if (error instanceof HttpErrorResponse) {
+            this.handleHttpErrors(error);
+          }
+        },
       });
   }
 
@@ -318,6 +332,35 @@ export default class InboxComponent implements OnInit {
       });
   }
 
+  private handleHttpErrors(error: HttpErrorResponse): void {
+    switch (error.status) {
+      case 404:
+        const { notFoundIds } = error.error as notFoundCommunicationsError;
+        this.alertService.messageDialog({
+          title:
+            notFoundIds.length === 1
+              ? 'Elemento no encontrado'
+              : 'Algunos de los elementos seleccionados no existen',
+          description: 'El remitente ha cancelado el envio',
+        });
+        this.removeItems(notFoundIds);
+        break;
+
+      case 422:
+        const { invalidItems } = error.error as invalidCommunicationsError;
+        this.alertService.messageDialog({
+          title:
+            invalidItems.length === 1
+              ? 'El elemento seleccionado es invalido'
+              : 'Algunos de los elementos seleccionados son invalidos',
+          list: invalidItems.map(({ code }) => `Tramite: ${code}`),
+        });
+        break;
+      default:
+        break;
+    }
+  }
+
   private removeItems(ids: string[]): void {
     this.datasource.update((items) =>
       items.filter(({ id }) => !ids.includes(id))
@@ -329,22 +372,11 @@ export default class InboxComponent implements OnInit {
     }
   }
 
-  private setStatusItems(ids: string[], status: communcationStatus) {
+  private updateItems(ids: string[], props: Partial<Communication>) {
+    const idSet = new Set(ids);
     this.datasource.update((values) =>
-      values.map((item) => {
-        if (ids.includes(item.id)) {
-          item.status = status;
-        }
-        return item;
-      })
+      values.map((item) => (idSet.has(item.id) ? item.copyWith(props) : item))
     );
-  }
-
-  private hadleHttpErrors(error: any) {
-    if (error instanceof HttpErrorResponse && error.status === 409) {
-      const { toRemove = [], message = '' } = error.error;
-      this.removeItems(toRemove);
-    }
   }
 
   private saveCache(): void {

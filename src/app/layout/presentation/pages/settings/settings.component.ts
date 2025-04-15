@@ -28,6 +28,7 @@ import {
   AlertMessageComponent,
   FormErrorMessagesPipe,
   FieldValidationErrorMessages,
+  BackButtonDirective,
 } from '../../../../shared';
 
 import {
@@ -55,6 +56,7 @@ import { AuthService } from '../../../../auth/presentation/services/auth.service
     MatTabsModule,
     FormErrorMessagesPipe,
     AlertMessageComponent,
+    BackButtonDirective,
   ],
   templateUrl: './settings.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

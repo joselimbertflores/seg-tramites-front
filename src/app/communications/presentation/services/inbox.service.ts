@@ -33,17 +33,9 @@ interface filterInboxProps {
   status?: communcationStatus | null;
 }
 interface bulkActionResponse {
-  success: succesItem[];
-  skipped: skippedItem[];
-}
-
-interface skippedItem {
-  id: string;
-  reason: string;
-}
-interface succesItem {
-  id: string;
   date: string;
+  itemIds: string[];
+  message: string;
 }
 
 @Injectable({
@@ -134,7 +126,9 @@ export class InboxService {
   accept(ids: string[]) {
     return this.http
       .put<bulkActionResponse>(`${this.url}/accept`, { ids })
-      .pipe(tap((resp) => console.log(resp)));
+      .pipe(
+        map(({ itemIds, date }) => ({ itemIds, receivedDate: new Date(date) }))
+      );
   }
 
   reject(ids: string[], description: string) {

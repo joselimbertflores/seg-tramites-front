@@ -20,11 +20,9 @@ export class LoadingService {
   toggleLoading(show: boolean) {
     if (show) {
       this.totalRequests++;
-      console.log('incrementando', this.totalRequests);
       this._isLoading.next(true);
     } else {
       this.totalRequests = Math.max(0, this.totalRequests - 1);
-      console.log('decrementando', this.totalRequests);
       if (this.totalRequests === 0) {
         this._isLoading.next(false);
       }

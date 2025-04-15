@@ -1,6 +1,5 @@
-<!-- inbox-detail.component.html -->
 <div class="flex flex-col h-full">
-  <mat-toolbar color="primary" class="sticky top-0 z-20" style="background-color: rebeccapurple;">
+  <mat-toolbar color="primary" class="sticky top-0 z-20">
     <button mat-icon-button backButton>
       <mat-icon>arrow_back</mat-icon>
     </button>
@@ -11,24 +10,42 @@
     <button mat-icon-button matTooltip="Aceptar" (click)="accept()">
       <mat-icon>done</mat-icon>
     </button>
-    <button mat-icon-button matTooltip="Rechazar">
+    <button mat-icon-button matTooltip="Rechazar" (click)="reject()">
       <mat-icon>block</mat-icon>
     </button>
+    } @else {
+    <div class="flex gap-x-2">
+      <button mat-icon-button matTooltip="Remitir">
+        <mat-icon>send</mat-icon>
+      </button>
+      <button mat-icon-button matTooltip="Archivar">
+        <mat-icon>archive</mat-icon>
+      </button>
+      <button mat-icon-button matTooltip="Hoja de ruta">
+        <mat-icon>description</mat-icon>
+      </button>
+    </div>
+
     }
   </mat-toolbar>
 
-  <!-- Contenido con scroll -->
-  <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+  @if(isLoading()) {
+  <div class="h-[calc(100vh-128px)] flex items-center justify-center w-full">
+    <div class="flex flex-col items-center">
+      <mat-spinner />
+      <p class="text-lg font-normal mt-4">Cargando contenido</p>
+    </div>
+  </div>
+  } @else {
+  <div class="flex-1 overflow-y-auto p-4 space-y-4" @fadeIn>
     @if (data()) {
     <inbox-card [data]="data()!" />
     }
-
     <div class="border border-slate-300 rounded-xl">
       @if (!isLoading()) {
       <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
         <mat-tab label="Descripcion">
-          @switch (data()?.procedure?.group) { @case
-          ("ExternalProcedure") {
+          @switch (data()?.procedure?.group) { @case ("ExternalProcedure") {
           <external-communication [procedure]="external!" />
           } @case ("InternalProcedure") {
           <internal-communication [procedure]="internal" />
@@ -51,4 +68,5 @@
       }
     </div>
   </div>
+  }
 </div>

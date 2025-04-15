@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import {
-  FormBuilder,
   FormGroup,
-  ReactiveFormsModule,
   Validators,
+  FormBuilder,
+  ReactiveFormsModule,
 } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 
@@ -30,8 +30,13 @@ import { AuthService } from '../../services/auth.service';
     MatProgressSpinnerModule,
   ],
   template: `
-    <div class="min-h-screen flex items-center justify-center w-full">
-      <div class="shadow-md rounded-lg p-5 mx-2 sm:mx-0 w-full sm:w-[450px]">
+    <div
+      class="min-h-screen flex items-center justify-center w-full main-container"
+    >
+      <div
+        class="rounded-lg p-5 mx-2 sm:mx-0 w-full sm:w-[450px] login-container"
+        style="background-color: var(--mat-sys-surface); "
+      >
         <div class="sm:mx-auto mb-6">
           <img
             class="mx-auto h-16 mb-2"
@@ -88,6 +93,14 @@ import { AuthService } from '../../services/auth.service';
         </form>
       </div>
     </div>
+  `,
+  styles: `
+  .main-container {
+    background-color:var(--mat-sys-surface-container);
+  }
+  .login-container {
+    box-shadow: var(--mat-sys-level1);
+  }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

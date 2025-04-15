@@ -57,6 +57,8 @@ export class ArchiveService {
   }
 
   unarchive(selectedIds: string[]) {
-    return this.http.post<{ message: string }>(`${this.url}/unarchive`, { ids: selectedIds });
+    return this.http.post<{ message: string }>(`${this.url}/unarchive`, {
+      ids: selectedIds,
+    });
   }
 }

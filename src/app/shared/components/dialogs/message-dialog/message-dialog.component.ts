@@ -5,7 +5,8 @@ import { MatButtonModule } from '@angular/material/button';
 
 export interface messageDialogProps {
   title: string;
-  description: string;
+  description?: string;
+  list?: string[];
 }
 @Component({
   selector: 'app-message-dialog',
@@ -13,7 +14,16 @@ export interface messageDialogProps {
   template: `
     <h2 mat-dialog-title>{{ data.title }}</h2>
     <mat-dialog-content>
-      {{ data.description }}
+      @if(data.description){
+        {{ data.description }}
+      } 
+      @if(data.list){
+      <ul class="list-disc">
+        @for (item of data.list; track $index) {
+          <li> {{item}} </li>
+        }
+      </ul>
+      }
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button [mat-dialog-close]="true" cdkFocusInitial>
