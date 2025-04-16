@@ -31,8 +31,12 @@ export class FormErrorMessagesPipe implements PipeTransform {
 
   private handleGenericErrorMessages(errors: ValidationErrors) {
     if (errors['required']) return 'Este campo es requerido';
-    if (errors['minlength'])
+    if (errors['minlength']) {
       return `Ingrese al menos ${errors['minlength'].requiredLength} caracteres`;
+    }
+    if (errors['maxlength']) {
+      return `Maximo ${errors['maxlength'].requiredLength} caracteres`;
+    }
     return 'Este campo no es valido';
   }
 }

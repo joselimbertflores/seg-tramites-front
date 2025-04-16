@@ -8,7 +8,7 @@ import { ArchiveMapper } from '../../infrastructure';
 interface createArchiveProps {
   description: string;
   folderId?: string;
-  communicationIds: string[];
+  ids: string[];
   state: string;
 }
 
@@ -27,7 +27,10 @@ export class ArchiveService {
   constructor() {}
 
   create(form: createArchiveProps) {
-    return this.http.post<{ message: string }>(this.url, form);
+    return this.http.post<{ message: string; itemIds: string[] }>(
+      this.url,
+      form
+    );
   }
 
   findAll({ folderId, term, limit, offset }: findProps) {

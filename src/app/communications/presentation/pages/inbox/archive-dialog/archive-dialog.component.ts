@@ -20,21 +20,21 @@ import {
 import { filter, map, Observable, switchMap } from 'rxjs';
 
 import { ArchiveService, FolderService } from '../../../services';
+import { procedureState } from '../../../../../procedures/domain';
+import { Communication } from '../../../../domain';
 import {
   AlertService,
   selectOption,
   SelectSearchComponent,
 } from '../../../../../shared';
-import { procedureState } from '../../../../../procedures/domain';
-import { Communication } from '../../../../domain';
 
 @Component({
   selector: 'app-archive-dialog',
   imports: [
-    MatDialogModule,
-    MatButtonModule,
     ReactiveFormsModule,
     MatFormFieldModule,
+    MatDialogModule,
+    MatButtonModule,
     MatInputModule,
     MatRadioModule,
     SelectSearchComponent,
@@ -45,33 +45,17 @@ import { Communication } from '../../../../domain';
     </h2>
     <mat-dialog-content>
       <form [formGroup]="archiveForm">
-        <div class="flex flex-col">
-          <div class="text-md mb-6">
+        <div class="flex flex-col gap-y-2">
+          <div class="text-md mb-4">
             @if(data.length>1){ Se archivaran un total de
             {{ data.length }} tramites. } @else { El tramite
             {{ data[0].procedure.code }} sera archivado. }
           </div>
-          <select-search
-            [items]="folders()"
-            title="Carpeta (Opcional)"
-            placeholder="Seleccione una carpeta"
-            placeholderLabel="Nombre de la carpeta a buscar"
-            (onSelect)="archiveForm.get('folderId')?.setValue($event)"
-          />
-          <mat-form-field appearance="outline">
-            <mat-label>Descripcion</mat-label>
-            <textarea
-              matInput
-              formControlName="description"
-              placeholder="Ingrese el motivo del archivo"
-            ></textarea>
-          </mat-form-field>
-
           <label>Archivar como:</label>
           <mat-radio-group
+            required
             formControlName="state"
             class="flex flex-col p-2"
-            required
           >
             @for (option of statusOptions; track $index) {
             <mat-radio-button [value]="option.value">
@@ -79,6 +63,25 @@ import { Communication } from '../../../../domain';
             </mat-radio-button>
             }
           </mat-radio-group>
+          <div>
+            <mat-form-field appearance="outline">
+              <mat-label>Descripcion</mat-label>
+              <textarea
+                matInput
+                formControlName="description"
+                placeholder="Ingrese el motivo del archivo"
+              ></textarea>
+            </mat-form-field>
+          </div>
+          <div>
+            <select-search
+              [items]="folders()"
+              title="Carpeta (Opcional)"
+              placeholder="Seleccione una carpeta"
+              placeholderLabel="Nombre de la carpeta a buscar"
+              (onSelect)="archiveForm.get('folderId')?.setValue($event)"
+            />
+          </div>
         </div>
       </form>
     </mat-dialog-content>
@@ -97,11 +100,11 @@ import { Communication } from '../../../../domain';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ArchiveDialogComponent {
-  private formBuilder = inject(FormBuilder);
   private dialogRef = inject(MatDialogRef);
+  private formBuilder = inject(FormBuilder);
+  private alertService = inject(AlertService);
   private folderService = inject(FolderService);
   private archiveService = inject(ArchiveService);
-  private alertService = inject(AlertService);
 
   data: Communication[] = inject(MAT_DIALOG_DATA);
   folders = toSignal(this.getFolders(), { initialValue: [] });
@@ -127,8 +130,6 @@ export class ArchiveDialogComponent {
     folderId: [null],
   });
 
-  constructor() {}
-
   archive() {
     const selection = this.data.map(({ id }) => id);
     this.alertService
@@ -143,13 +144,13 @@ export class ArchiveDialogComponent {
         filter((confirm) => confirm),
         switchMap(() =>
           this.archiveService.create({
-            communicationIds: selection,
             ...this.archiveForm.value,
+            ids: selection,
           })
         )
       )
-      .subscribe(() => {
-        this.dialogRef.close(selection);
+      .subscribe(({ itemIds }) => {
+        this.dialogRef.close(itemIds);
       });
   }
 

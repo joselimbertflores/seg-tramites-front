@@ -1,12 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
-import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 
 import { FolderService } from '../../../services';
+import {
+  FieldValidationErrorMessages,
+  FormErrorMessagesPipe,
+} from '../../../../../shared';
 
 @Component({
   selector: 'app-folder-dialog',
@@ -17,12 +20,7 @@ import { FolderService } from '../../../services';
     ReactiveFormsModule,
     MatDialogModule,
     MatButtonModule,
-  ],
-  providers: [
-    {
-      provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
-      useValue: { appearance: 'outline' },
-    },
+    FormErrorMessagesPipe,
   ],
   template: `
     <h2 mat-dialog-title>Crear carpeta</h2>
@@ -31,12 +29,9 @@ import { FolderService } from '../../../services';
         <mat-form-field class="w-full">
           <mat-label>Nombre de la carpeta</mat-label>
           <input matInput [formControl]="name" />
-          <mat-error *ngIf="name.hasError('required')">
-            El nombre es obligatorio.
-          </mat-error>
-          <mat-error *ngIf="name.hasError('minlength')">
-            Debe tener al menos 3 caracteres.
-          </mat-error>
+          @if (name.invalid){
+            <mat-error> {{ name.errors | formErrorMessages }} </mat-error>
+          }
         </mat-form-field>
       </div>
     </mat-dialog-content>
@@ -60,9 +55,12 @@ export class FolderDialogComponent {
 
   name = new FormControl('', {
     nonNullable: true,
-    validators: [Validators.required, Validators.minLength(3)],
+    validators: [
+      Validators.required,
+      Validators.minLength(4),
+      Validators.maxLength(45),
+    ],
   });
-  constructor() {}
 
   create() {
     this.folderService.create(this.name.value).subscribe((folder) => {

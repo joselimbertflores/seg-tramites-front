@@ -20,7 +20,7 @@ export class FolderService {
     return this.http.get<folder[]>(this.url);
   }
 
-  delete(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.url}/${id}`);
+  delete(id: string) {
+    return this.http.delete<{ message: string }>(`${this.url}/${id}`);
   }
 }

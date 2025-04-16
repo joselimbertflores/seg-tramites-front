@@ -1,5 +1,4 @@
 import { CommonModule } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
 
 import {
   OnInit,
@@ -197,7 +196,7 @@ export class SubmissionDialogComponent implements OnInit {
         });
       }
     } else {
-      this.selectedReceivers.set([{ ...user, is: false }]);
+      this.selectedReceivers.set([{ ...user, isOriginal: false }]);
     }
   }
 
