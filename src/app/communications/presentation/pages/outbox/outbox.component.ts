@@ -212,7 +212,7 @@ export default class OutboxComponent {
             }
           : {
               title: '¿Cancelar envios seleccionados?',
-              description: `Solo se pueden cancelar los envios que aun no hayan sido recibidos`,
+              description: `Solo se pueden cancelar los envios que aun no hayan sido recibidos por el destinatario`,
             }
       )
       .pipe(
@@ -220,9 +220,7 @@ export default class OutboxComponent {
         switchMap(() => this.outboxService.cancel(items.map(({ id }) => id)))
       )
       .subscribe(({ ids }) => {
-        this.datasource.update((values) =>
-          values.filter(({ id }) => !ids.includes(id))
-        );
+        this.datasource.update((values) =>  values.filter(({ id }) => !ids.includes(id)) );
         this.datasize.update((value) => (value -= ids.length));
         this.selection.clear();
         if (this.datasource().length === 0 && this.datasize() > 0) {
@@ -246,19 +244,27 @@ export default class OutboxComponent {
     }
     const newItems = result.data ?? [];
 
-    if (currentItem.status === communcationStatus.Pending) {
-      this.datasize.update((value) => (value += newItems.length));
-      this.datasource.update((values) =>
-        [...newItems, ...values].splice(0, this.limit())
-      );
-    } else {
-      this.datasize.update((value) => (value += newItems.length - 1));
-      this.datasource.update((values) =>
-        [
-          ...newItems,
-          ...values.filter(({ id }) => id !== currentItem.id),
-        ].slice(0, this.limit())
-      );
+    switch (currentItem.status) {
+      case communcationStatus.Pending:
+        this.datasize.update((value) => (value += newItems.length));
+        this.datasource.update((values) =>
+          [...newItems, ...values].splice(0, this.limit())
+        );
+        break;
+
+      default:
+        this.datasize.update((value) => (value += newItems.length - 1));
+        this.datasource.update((values) =>
+          [
+            ...newItems,
+            ...values.filter(({ id }) => id !== currentItem.id),
+          ].slice(0, this.limit())
+        );
+        break;
     }
+  }
+
+  get canDoAction() {
+    return this.isButtonEnabledForStatus('pending');
   }
 }

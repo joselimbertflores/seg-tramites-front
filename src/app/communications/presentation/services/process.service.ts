@@ -36,7 +36,6 @@ export class ProcessService {
               return InternalMapper.fromResponse(resp as internal);
 
             case procedureGroup.Procurement:
-              console.log('RESPONSE', resp);
               return ProcurementMapper.fromResponse(resp as procurement);
 
             default:

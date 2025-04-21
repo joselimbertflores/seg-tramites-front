@@ -3,26 +3,30 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   inject,
   OnInit,
   signal,
 } from '@angular/core';
-import { MatIconModule } from '@angular/material/icon';
+import { RouterModule } from '@angular/router';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { DocxService, SearchInputComponent } from '../../../../shared';
+import { MatTableModule } from '@angular/material/table';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDialog } from '@angular/material/dialog';
+import {
+  CacheService,
+  DocxService,
+  SearchInputComponent,
+} from '../../../../shared';
 import { ProcurementService } from '../../services';
 import {
-  InternalProcedure,
   procedureState,
   procurementDoc,
   ProcurementProcedure,
 } from '../../../domain';
-import { InternalDialogComponent } from '../internals-manage/internal-dialog/internal-dialog.component';
-import { MatDialog } from '@angular/material/dialog';
-import { RouterModule } from '@angular/router';
-import { MatMenuModule } from '@angular/material/menu';
+
 import { ProcurementDialogComponent } from './procurement-dialog/procurement-dialog.component';
 import {
   submissionData,
@@ -37,6 +41,13 @@ import {
 } from '@angular/animations';
 import { DocProcurementDialogComponent } from './doc-procurement-dialog/doc-procurement-dialog.component';
 
+interface cache {
+  datasource: ProcurementProcedure[];
+  datasize: number;
+  limit: number;
+  index: number;
+  term: string;
+}
 @Component({
   selector: 'app-procurements-manage',
   imports: [
@@ -72,6 +83,7 @@ import { DocProcurementDialogComponent } from './doc-procurement-dialog/doc-proc
 })
 export default class ProcurementsManageComponent implements OnInit {
   private procurementService = inject(ProcurementService);
+  private cacheService = inject(CacheService);
   private docxService = inject(DocxService);
 
   datasource = signal<ProcurementProcedure[]>([]);
@@ -95,8 +107,14 @@ export default class ProcurementsManageComponent implements OnInit {
   ];
   expandedElement: any | null;
 
+  constructor() {
+    inject(DestroyRef).onDestroy(() => {
+      this.saveCache();
+    });
+  }
+
   ngOnInit(): void {
-    this.getData();
+    this.loadCache();
   }
 
   getData(): void {
@@ -114,24 +132,22 @@ export default class ProcurementsManageComponent implements OnInit {
       width: '1200px',
       autoFocus: false,
     });
-    dialogRef.afterClosed().subscribe((procedure) => {
-      if (!procedure) return;
-      this.datasource.update((values) => {
-        if (values.length === this.limit()) values.pop();
-        return [procedure, ...values];
-      });
+    dialogRef.afterClosed().subscribe((result) => {
+      if (!result) return;
+      this.datasource.update((values) =>
+        [result, ...values].slice(0, this.limit())
+      );
       this.datasize.update((value) => (value += 1));
-      console.log(procedure);
     });
   }
 
-  update(procedure: InternalProcedure) {
+  update(procedure: ProcurementProcedure) {
     const dialogRef = this.dialog.open(ProcurementDialogComponent, {
       maxWidth: '1200px',
       width: '1200px',
       data: procedure,
     });
-    dialogRef.afterClosed().subscribe((result) => {
+    dialogRef.afterClosed().subscribe((result: ProcurementProcedure) => {
       if (!result) return;
       this.datasource.update((values) => {
         const index = values.findIndex(({ _id }) => _id === procedure._id);
@@ -141,7 +157,7 @@ export default class ProcurementsManageComponent implements OnInit {
     });
   }
 
-  send(procedure: any) {
+  send(procedure: ProcurementProcedure) {
     const data: submissionData = {
       procedure: {
         id: procedure._id,
@@ -157,8 +173,8 @@ export default class ProcurementsManageComponent implements OnInit {
       width: '1100px',
       data,
     });
-    dialogRef.afterClosed().subscribe((message) => {
-      if (!message) return;
+    dialogRef.afterClosed().subscribe((result) => {
+      if (!result) return;
       this.datasource.update((values) => {
         const index = values.findIndex(({ _id }) => _id === procedure._id);
         values[index].state = procedureState.Revision;
@@ -216,5 +232,25 @@ export default class ProcurementsManageComponent implements OnInit {
     this.limit.set(pageSize);
     this.index.set(pageIndex);
     this.getData();
+  }
+
+  private saveCache(): void {
+    this.cacheService.save('procurements', {
+      datasource: this.datasource(),
+      datasize: this.datasize(),
+      term: this.term(),
+      limit: this.limit(),
+      index: this.index(),
+    });
+  }
+
+  private loadCache(): void {
+    const cache = this.cacheService.load('procurements');
+    if (!cache || !this.cacheService.keepAlive()) return this.getData();
+    this.datasource.set(cache.datasource);
+    this.datasize.set(cache.datasize);
+    this.term.set(cache.term);
+    this.limit.set(cache.limit);
+    this.index.set(cache.index);
   }
 }

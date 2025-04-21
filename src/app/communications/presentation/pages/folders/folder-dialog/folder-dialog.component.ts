@@ -6,10 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 
 import { FolderService } from '../../../services';
-import {
-  FieldValidationErrorMessages,
-  FormErrorMessagesPipe,
-} from '../../../../../shared';
+import { FormErrorMessagesPipe } from '../../../../../shared';
 
 @Component({
   selector: 'app-folder-dialog',
@@ -30,7 +27,7 @@ import {
           <mat-label>Nombre de la carpeta</mat-label>
           <input matInput [formControl]="name" />
           @if (name.invalid){
-            <mat-error> {{ name.errors | formErrorMessages }} </mat-error>
+          <mat-error> {{ name.errors | formErrorMessages }} </mat-error>
           }
         </mat-form-field>
       </div>

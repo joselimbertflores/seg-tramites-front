@@ -1,40 +1,42 @@
 <mat-toolbar>
   <span>Bandeja de entrada</span>
   <span class="flex-1"></span>
-  @if(isButtonEnabledForStatus('received')){
-  <button
-    mat-icon-button
-    matTooltip="Archivar"
-    (click)="archive(selection.selected)"
-  >
-    <mat-icon>archive</mat-icon>
-  </button>
-  } @if(isButtonEnabledForStatus('pending')){
-  <button
-    mat-icon-button
-    matTooltip="Recibir"
-    (click)="accept(selection.selected)"
-  >
-    <mat-icon>check</mat-icon>
-  </button>
-  <button
-    mat-icon-button
-    matTooltip="Rechazar"
-    (click)="reject(selection.selected)"
-  >
-    <mat-icon>block</mat-icon>
-  </button>
-  }
-  <button
-    mat-icon-button
-    aria-label="Filter"
-    cdkOverlayOrigin
-    #menuOverlay="cdkOverlayOrigin"
-    matTooltip="Filtrar"
-    (click)="isOpen = !isOpen"
-  >
-    <mat-icon>filter_alt</mat-icon>
-  </button>
+  <div class="flex gap-x-2">
+    @if(canDoReceivedAction){
+    <button
+      mat-icon-button
+      matTooltip="Archivar"
+      (click)="archive(selection.selected)"
+    >
+      <mat-icon>archive</mat-icon>
+    </button>
+    } @if(canDoPendingAction){
+    <button
+      mat-icon-button
+      matTooltip="Recibir"
+      (click)="accept(selection.selected)"
+    >
+      <mat-icon>check</mat-icon>
+    </button>
+    <button
+      mat-icon-button
+      matTooltip="Rechazar"
+      (click)="reject(selection.selected)"
+    >
+      <mat-icon>block</mat-icon>
+    </button>
+    }
+    <button
+      mat-icon-button
+      aria-label="Filter"
+      cdkOverlayOrigin
+      #menuOverlay="cdkOverlayOrigin"
+      matTooltip="Filtrar"
+      (click)="isOpen = !isOpen"
+    >
+      <mat-icon>filter_alt</mat-icon>
+    </button>
+  </div>
 </mat-toolbar>
 <ng-template
   cdkConnectedOverlay

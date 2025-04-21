@@ -112,7 +112,7 @@ export class ArchiveDialogComponent {
   readonly statusOptions = [
     {
       value: procedureState.Concluido,
-      label: 'Finalizado: Se concluyo correctamente',
+      label: 'Concluido: Se concluyo correctamente',
     },
     {
       value: procedureState.Suspendido,

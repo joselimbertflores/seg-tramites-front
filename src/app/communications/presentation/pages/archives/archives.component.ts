@@ -36,6 +36,7 @@ import {
 } from '@angular/animations';
 
 import { filter, switchMap } from 'rxjs';
+import { ProfileService } from '../../../../procedures/presentation/services';
 
 interface cache {
   datasource: Archive[];
@@ -84,6 +85,7 @@ export default class ArchivesComponent implements OnInit {
   private archiveService = inject(ArchiveService);
   private alertService = inject(AlertService);
   private cacheService: CacheService<cache> = inject(CacheService);
+  private account = inject(ProfileService).account;
 
   readonly displayedColumns: string[] = [
     'document',
@@ -115,7 +117,7 @@ export default class ArchivesComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadCache()
+    this.loadCache();
   }
 
   getData() {
@@ -156,14 +158,15 @@ export default class ArchivesComponent implements OnInit {
     this.alertService
       .confirmDialog({
         title: `¿Desarchivar tramite?`,
-        description: `El tramite volvera a su bandeja de entrada para su remision`,
+        description:
+          'El tramite volvera a su bandeja de entrada para su remision',
       })
       .pipe(
         filter((result) => result),
-        switchMap(() => this.archiveService.unarchive([item.id]))
+        switchMap(() => this.archiveService.unarchive(item.id))
       )
-      .subscribe(() => {
-        this.removeItems([item.id]);
+      .subscribe(({ id }) => {
+        this.removeItems([id]);
       });
   }
 
@@ -180,6 +183,10 @@ export default class ArchivesComponent implements OnInit {
       values.filter(({ id }) => !ids.includes(id))
     );
     this.datasize.update((value) => (value -= 1));
+    if (this.datasource().length === 0 && this.datasize() > 0) {
+      this.index.set(0);
+      this.getData();
+    }
   }
 
   private saveCache(): void {

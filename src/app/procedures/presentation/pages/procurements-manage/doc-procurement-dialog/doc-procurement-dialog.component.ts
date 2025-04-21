@@ -30,7 +30,7 @@ import {
 } from '../../../../../shared';
 import { DocService } from '../../../../../communications/presentation/services';
 import { Account } from '../../../../../administration/domain';
-import { ProcurementService } from '../../../services';
+import { ProcurementService, ProfileService } from '../../../services';
 import { procurementDoc } from '../../../../domain';
 
 type validFormfield = 'sender' | 'recipient' | 'via';
@@ -70,6 +70,7 @@ export class DocProcurementDialogComponent implements OnInit {
   private docService = inject(DocService);
   private procurementService = inject(ProcurementService);
   private dialogRef = inject(MatDialogRef);
+  private account = inject(ProfileService).account();
 
   data = inject<dialogData>(MAT_DIALOG_DATA);
   participants = signal<participantOptions>({
@@ -81,11 +82,11 @@ export class DocProcurementDialogComponent implements OnInit {
 
   formDoc: FormGroup = this._formBuilder.group({
     reference: ['', Validators.required],
-    cite: ['', Validators.required],
+    cite: [this.account?.dependencia.codigo, Validators.required],
     date: [new Date(), Validators.required],
     sender: this._formBuilder.group({
-      fullname: ['', Validators.required],
-      jobtitle: ['', Validators.required],
+      fullname: [this.account?.officer?.fullname, Validators.required],
+      jobtitle: [this.account?.jobtitle, Validators.required],
     }),
     recipient: this._formBuilder.group({
       fullname: ['', Validators.required],

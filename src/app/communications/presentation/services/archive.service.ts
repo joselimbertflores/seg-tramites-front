@@ -59,9 +59,9 @@ export class ArchiveService {
       );
   }
 
-  unarchive(selectedIds: string[]) {
-    return this.http.post<{ message: string }>(`${this.url}/unarchive`, {
-      ids: selectedIds,
-    });
+  unarchive(id: string) {
+    return this.http.delete<{ message: string; id: string }>(
+      `${this.url}/${id}`
+    );
   }
 }

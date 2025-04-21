@@ -23,10 +23,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatStepperModule } from '@angular/material/stepper';
-import {
-  MatFormFieldModule,
-  MAT_FORM_FIELD_DEFAULT_OPTIONS,
-} from '@angular/material/form-field';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 import { ProcurementService } from '../../../services';
 import { ProcurementProcedure } from '../../../../domain';
@@ -46,12 +43,6 @@ import { ProcurementProcedure } from '../../../../domain';
   ],
   templateUrl: './procurement-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [
-    {
-      provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
-      useValue: { appearance: 'outline' },
-    },
-  ],
 })
 export class ProcurementDialogComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
@@ -107,7 +98,7 @@ export class ProcurementDialogComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this._loadForm()
+    this.loadForm();
   }
 
   save() {
@@ -141,9 +132,9 @@ export class ProcurementDialogComponent implements OnInit {
     return this.formProcedure.get('items') as FormArray;
   }
 
-  private _loadForm(): void {
+  private loadForm(): void {
     if (!this.data) return;
-    this.data.documents.forEach(() => this.addRequirement());
+    this.data.items.forEach(() => this.addRequirement());
     this.formProcedure.patchValue(this.data);
   }
 }

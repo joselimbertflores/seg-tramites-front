@@ -368,6 +368,7 @@ export default class InboxComponent implements OnInit {
     this.datasize.update((length) => (length -= ids.length));
     this.selection.clear();
     if (this.datasource().length === 0 && this.datasize() > 0) {
+      this.index.set(0);
       this.getData();
     }
   }
@@ -377,6 +378,7 @@ export default class InboxComponent implements OnInit {
     this.datasource.update((values) =>
       values.map((item) => (idSet.has(item.id) ? item.copyWith(props) : item))
     );
+    this.selection.clear()
   }
 
   private saveCache(): void {
@@ -401,5 +403,13 @@ export default class InboxComponent implements OnInit {
     this.datasize.set(cache.datasize);
     this.datasource.set(cache.datasource);
     this.filterForm.patchValue(cache.form);
+  }
+
+  get canDoPendingAction(): boolean {
+    return this.isButtonEnabledForStatus('pending');
+  }
+
+  get canDoReceivedAction(): boolean {
+    return this.isButtonEnabledForStatus('received');
   }
 }
