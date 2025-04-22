@@ -9,6 +9,7 @@ import {
   internal,
   procurement,
 } from '../../../procedures/infrastructure';
+import { skipUploadIndicator } from '../../../helpers';
 
 type procedureResponse = external | internal | procurement;
 
@@ -23,12 +24,11 @@ export class ReportService {
     const params = new HttpParams({ fromObject: { limit, offset } });
     const properties = this.removeEmptyValuesFromObject(form);
     return this.http
-      .post<{
-        procedures: procedureResponse[];
-        length: number;
-      }>(`${this.url}/procedure`, properties, {
-        params,
-      })
+      .post<{ procedures: procedureResponse[]; length: number }>(
+        `${this.url}/procedure`,
+        properties,
+        { params, context: skipUploadIndicator() }
+      )
       .pipe(
         map(({ procedures, length }) => ({
           procedures: this.responseToTableData(procedures),
@@ -44,15 +44,13 @@ export class ReportService {
     );
   }
 
-  private responseToTableData(
-    procedures: procedureResponse[]
-  ): tableProcedureData[] {
-    return procedures.map((item) => ({
-      _id: item._id,
+  private responseToTableData(items: procedureResponse[]) {
+    return items.map((item) => ({
+      id: item._id,
       group: item.group,
       state: item.state,
       reference: item.reference,
-      startDate: item.createdAt,
+      createdAt: item.createdAt,
       code: item.code,
     }));
   }

@@ -19,13 +19,14 @@ export function loggingInterceptor(
   const alertService = inject(AlertService);
   const loadingService = inject(LoadingService);
 
-  const isModifying = req.method !== 'GET';
-  const showLoadIndicator = req.context.get(LOAD_INDICATOR) && !isModifying;
-  const showUploadIndicator = req.context.get(UPLOAD_INDICATOR) && isModifying;
+  const showLoadIndicator = req.context.get(LOAD_INDICATOR) && req.method === 'GET';;
+  const showUploadIndicator = req.context.get(UPLOAD_INDICATOR) && req.method !== 'GET';
 
   if (showLoadIndicator) {
     loadingService.toggleLoading(true);
-  } else {
+  }
+
+  if (showUploadIndicator) {
     loadingService.toggleUploading(true);
   }
 

@@ -1,15 +1,18 @@
 import { Content, TDocumentDefinitions } from 'pdfmake/interfaces';
 import { convertImageABase64 } from '../image_base64';
-import {
-  ReportColumns,
-  ReportResults,
-  ReportSheetProps,
-} from '../../domain/interfaces';
+import { tableProcedureColums, tableProcedureData } from '../../reports/infrastructure';
 
 const translateFields: Record<string, string> = {
   dni: 'CI',
   code: 'CODIGO',
 };
+
+export interface reportProcedureSheetProps {
+  title: string;
+  datasource: tableProcedureData[];
+  columns: tableProcedureColums[];
+  parameters?: Object;
+}
 
 export async function createReportSheet(
   props: ReportSheetProps,

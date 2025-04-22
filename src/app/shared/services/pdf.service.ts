@@ -1,14 +1,25 @@
 import { Injectable } from '@angular/core';
+
+import { TDocumentDefinitions } from 'pdfmake/interfaces';
+
 import { Procedure } from '../../procedures/domain';
 import { Communication } from '../../communications/domain';
-import { TDocumentDefinitions } from 'pdfmake/interfaces';
-import { PdfTemplates } from '../../helpers';
+import { PdfTemplates, ProcedureReportTemplates } from '../../helpers';
 
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
+import {
+  tableProcedureColums,
+  tableProcedureData,
+} from '../../reports/infrastructure';
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
-
+interface reportProcedureSheetProps {
+  title: string;
+  datasource: tableProcedureData[];
+  columns: tableProcedureColums[];
+  parameters?: Record<string, any>;
+}
 @Injectable({
   providedIn: 'root',
 })
@@ -68,5 +79,10 @@ export class PdfService {
       },
     };
     pdfMake.createPdf(docDefinition).print();
+  }
+
+  private async generateReportProcedureSheet(data: reportProcedureSheetProps) {
+    const doc = await ProcedureReportTemplates.reportProcedureSheet(data);
+    pdfMake.createPdf(doc).print();
   }
 }

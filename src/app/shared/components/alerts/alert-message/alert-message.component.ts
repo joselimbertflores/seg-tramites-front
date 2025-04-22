@@ -1,4 +1,5 @@
 import { animate, style, transition, trigger } from '@angular/animations';
+import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -12,188 +13,89 @@ import {
 
 @Component({
   selector: 'alert-message',
-  imports: [],
+  imports: [CommonModule],
   template: `
-    @switch (severity()) { @case ('success') {
     <div
-      class="flex items-center p-4 text-green-800 rounded-lg bg-green-100"
-      role="alert"
-      @fadeInSlide
+      class="border-s-4 p-4 rounded-lg flex items-start space-x-3"
+      [ngClass]="{
+        'bg-teal-50 border-teal-500 text-teal-800': severity() === 'success',
+        'bg-blue-50 border-blue-500 text-blue-800': severity() === 'info',
+        'bg-yellow-50 border-yellow-500 text-yellow-800': severity() === 'warning',
+        'bg-red-50 border-red-500 text-red-800': severity() === 'error'
+      }"
     >
-      <svg
-        class="shrink-0 w-4 h-4"
-        aria-hidden="true"
-        xmlns="http://www.w3.org/2000/svg"
-        fill="currentColor"
-        viewBox="0 0 20 20"
-      >
-        <path
-          d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
-        />
-      </svg>
-      <span class="sr-only">Info</span>
-      <div class="ms-3 text-sm font-medium">
-        {{ title() }}
-      </div>
-      @if(closable()){
-      <button
-        type="button"
-        class="ms-auto -mx-1.5 -my-1.5 bg-green-100 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-200 inline-flex items-center justify-center h-8 w-8"
-        data-dismiss-target="#alert-3"
-        aria-label="Close"
-        (click)="close.emit()"
-      >
-        <span class="sr-only">Close</span>
-        <svg
-          class="w-3 h-3"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 14 14"
+      <!-- Icono -->
+      <div class="shrink-0">
+        <span
+          class="inline-flex justify-center items-center size-8 rounded-full border-4"
+          [ngClass]="{
+            'border-teal-100 bg-teal-200 text-teal-800': severity() === 'success',
+            'border-blue-100 bg-blue-200 text-blue-800': severity() === 'info',
+            'border-yellow-100 bg-yellow-200 text-yellow-800': severity() === 'warning',
+            'border-red-100 bg-red-200 text-red-800': severity() === 'error'
+          }"
         >
-          <path
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-          />
-        </svg>
-      </button>
-      }
-    </div>
-
-    } @case ('error') {
-    <div
-      id="alert-additional-content-4"
-      class="p-4 mb-4 text-yellow-800 border border-yellow-300 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300 dark:border-yellow-800"
-      role="alert"
-    >
-      <div class="flex items-center">
-        <svg
-          class="shrink-0 w-4 h-4 me-2"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="currentColor"
-          viewBox="0 0 20 20"
-        >
-          <path
-            d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
-          />
-        </svg>
-        <span class="sr-only">Info</span>
-        <h3 class="text-lg font-medium">This is a warning alert</h3>
+          <ng-container [ngSwitch]="severity()">
+            <svg
+              *ngSwitchCase="'success'"
+              class="size-4"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M9 12l2 2 4-4" />
+            </svg>
+            <svg
+              *ngSwitchCase="'info'"
+              class="size-4"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="16" x2="12" y2="12" />
+              <line x1="12" y1="8" x2="12.01" y2="8" />
+            </svg>
+            <svg
+              *ngSwitchCase="'warning'"
+              class="size-4"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M10.29 3.86L1.82 18a1 1 0 00.86 1.5h18.64a1 1 0 00.86-1.5L13.71 3.86a1 1 0 00-1.72 0z"
+              />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+            <svg
+              *ngSwitchCase="'error'"
+              class="size-4"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </ng-container>
+        </span>
       </div>
-      <div class="mt-2 mb-4 text-sm">
-        More info about this info warning goes here. This example text is going
-        to run a bit longer so that you can see how spacing within an alert
-        works with this kind of content.
-      </div>
-    </div>
 
-    } @case ('warn') {
-    <div role="alert" class="p-2 border border-red-300 rounded-lg bg-red-50">
-      <div class="flex items-center gap-2 text-red-600">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          class="size-5"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
-            clip-rule="evenodd"
-          />
-        </svg>
-
-        <p class="block font-medium">{{ title() }}</p>
-      </div>
-      @if(description()){
-      <div class="mt-2 text-red-700 text-sm">
-        {{ description() }}
-      </div>
-      }
-    </div>
-
-    } @case ("info") {
-    <div
-      id="alert-border-1"
-      class="flex items-center p-4 mb-4 text-blue-800 border-t-4 border-blue-300 bg-blue-50 dark:text-blue-400 dark:bg-gray-800 dark:border-blue-800"
-      role="alert"
-    >
-      <svg
-        class="shrink-0 w-4 h-4"
-        aria-hidden="true"
-        xmlns="http://www.w3.org/2000/svg"
-        fill="currentColor"
-        viewBox="0 0 20 20"
-      >
-        <path
-          d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
-        />
-      </svg>
-      <div class="ms-3 text-sm font-medium">
-        A simple info alert with an
-        <a href="#" class="font-semibold underline hover:no-underline"
-          >example link</a
-        >. Give it a click if you like.
-      </div>
-      <button
-        type="button"
-        class="ms-auto -mx-1.5 -my-1.5 bg-blue-50 text-blue-500 rounded-lg focus:ring-2 focus:ring-blue-400 p-1.5 hover:bg-blue-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-blue-400 dark:hover:bg-gray-700"
-        data-dismiss-target="#alert-border-1"
-        aria-label="Close"
-      >
-        <span class="sr-only">Dismiss</span>
-        <svg
-          class="w-3 h-3"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 14 14"
-        >
-          <path
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-          />
-        </svg>
-      </button>
-    </div>
-    } @default {
-
-    <div
-      id="alert-additional-content-5"
-      class="p-4 border border-gray-300 rounded-lg bg-gray-50 dark:border-gray-600 dark:bg-gray-800"
-      role="alert"
-    >
-      <div class="flex items-center">
-        <svg
-          class="shrink-0 w-4 h-4 me-2 dark:text-gray-300"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="currentColor"
-          viewBox="0 0 20 20"
-        >
-          <path
-            d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
-          />
-        </svg>
-        <span class="sr-only">Info</span>
-        <h3 class="text-lg font-medium text-gray-800 dark:text-gray-300">
-          This is a dark alert
+      <!-- Contenido -->
+      <div class="flex-1">
+        <h3 class="font-semibold text-gray-800">
+          {{ title() }}
         </h3>
-      </div>
-      <div class="mt-2 mb-4 text-sm text-gray-800 dark:text-gray-300">
-        More info about this info dark goes here. This example text is going to
-        run a bit longer so that you can see how spacing within an alert works
-        with this kind of content.
+        <p class="text-sm text-gray-700">{{ message() }}</p>
       </div>
     </div>
-    } }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [
@@ -215,9 +117,9 @@ import {
   ],
 })
 export class AlertMessageComponent implements OnInit {
-  severity = input.required<'success' | 'warn' | 'error' | 'info'>();
+  severity = input.required<'success' | 'warning' | 'error' | 'info'>();
   title = input.required<string>();
-  description = input<string>('');
+  message = input<string>('');
 
   life = input<number>();
   close = output<void>();

@@ -9,9 +9,10 @@ import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 import {
-  tableProcedureColums,
   tableProcedureData,
+  tableProcedureColums,
 } from '../../../infrastructure';
+import { procedureGroup } from '../../../../procedures/domain';
 
 export interface ProcedureTableColumns {
   columnDef: string;
@@ -22,57 +23,60 @@ export interface ProcedureTableColumns {
   selector: 'report-procedure-table',
   imports: [CommonModule, MatTableModule, RouterModule],
   template: `
-    @if(datasource().length>0){
     <table mat-table [dataSource]="datasource()">
       @for (item of columns(); track $index) {
       <ng-container matColumnDef="{{ item.columnDef }}">
         <th mat-header-cell *matHeaderCellDef>{{ item.header }}</th>
-        @switch (item.columnDef) { @case ("code") {
-        <td
-          mat-cell
-          *matCellDef="let element"
-          [id]="element._id"
-          class="w-[200px]"
-        >
-          <a
-            [routerLink]="['/home/reports', element.group, element._id]"
-            class="text-blue-500"
-          >
-            {{ element['code'] }}
-          </a>
-        </td>
-        } @case ("reference") {
-        <td
-          mat-cell
-          *matCellDef="let element"
-          [id]="element._id"
-          class="sm:max-w-72"
-        >
-          <p class="truncate">{{ element['reference'] }}</p>
-        </td>
-        } @case ("startDate") {
-        <td
-          mat-cell
-          *matCellDef="let element"
-          [id]="element._id"
-          class="w-[150px]"
-        >
-          {{ element['startDate'] | date : 'short' : '-400' }}
-        </td>
-        } @default {
-        <td mat-cell *matCellDef="let element" [id]="element._id">
-          {{ element[item.columnDef] }}
-        </td>
-        } }
+          @switch (item.columnDef) { 
+            @case ("group") {
+              <td  mat-cell  *matCellDef="let element" class="sm:w-32">
+                @switch (element.group) {
+                  @case (group.External) {
+                    Externo
+                  }
+                  @case (group.Internal) {
+                    Interno
+                  }
+                  @default {
+                    Contratacion
+                  }
+                }
+              </td>
+            }
+            @case ("code") {
+              <td mat-cell *matCellDef="let element" class="sm:w-48">
+                <a
+                  [routerLink]="['/home/reports', element.group, element.id]"
+                  class="text-blue-500"
+                >
+                  {{ element['code'] }}
+                </a>
+              </td>
+            } 
+            @case ("reference") {
+              <td  mat-cell  *matCellDef="let element" class="sm:max-w-96">
+                <p class="truncate">{{ element['reference'] }}</p>
+              </td>
+            } 
+            @case ("createdAt") {
+              <td mat-cell *matCellDef="let element" class="sm:w-32">
+                {{ element['createdAt'] | date : 'short' : '-400' }}
+              </td>
+            } 
+            @default {
+              <td mat-cell *matCellDef="let element">
+                {{ element[item.columnDef] }}
+              </td>
+            } 
+          }
       </ng-container>
       }
       <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns()"></tr>
       <tr class="mat-row" *matNoDataRow>
-        <td class="mat-cell p-3" colspan="5">No se encontraron resultados</td>
+        <td class="mat-cell p-3" [attr.colspan]="displayedColumns().length">SIN RESULTADOS.</td>
       </tr>
     </table>
-    }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -83,4 +87,8 @@ export class ReportProcedureTableComponent {
   displayedColumns = computed(() =>
     this.columns().map(({ columnDef }) => columnDef)
   );
+
+  get group(){
+    return procedureGroup
+  }
 }

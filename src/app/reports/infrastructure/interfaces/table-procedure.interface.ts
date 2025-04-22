@@ -1,13 +1,13 @@
-
 export interface tableProcedureColums {
-  columnDef: keyof tableProcedureData;
   header: string;
+  columnDef: keyof tableProcedureData;
 }
 export interface tableProcedureData {
-  _id: string;
+  id: string;
   group: string;
-  reference: string;
-  startDate: string;
   code: string;
+  reference: string;
+  state: string;
+  createdAt: string;
   applicant?: string;
 }

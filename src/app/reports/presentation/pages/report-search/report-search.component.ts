@@ -9,11 +9,12 @@ import {
 
 import { MatFormFieldModule } from '@angular/material/form-field';
 
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
@@ -26,7 +27,11 @@ import {
   tableProcedureColums,
   tableProcedureData,
 } from '../../../infrastructure';
-import { AlertMessageComponent, CacheService } from '../../../../shared';
+import {
+  AlertMessageComponent,
+  CacheService,
+  PdfService,
+} from '../../../../shared';
 
 interface cache {
   datasource: tableProcedureData[];
@@ -42,7 +47,6 @@ interface cache {
   imports: [
     CommonModule,
     ReactiveFormsModule,
-
     MatIconModule,
     MatInputModule,
     MatButtonModule,
@@ -51,6 +55,7 @@ interface cache {
     MatExpansionModule,
     MatPaginatorModule,
     MatDatepickerModule,
+    MatProgressBarModule,
     MatButtonToggleModule,
     AlertMessageComponent,
     ReportProcedureTableComponent,
@@ -62,7 +67,7 @@ export default class ReportSearchComponent {
   private fb = inject(FormBuilder);
   private reportService = inject(ReportService);
   private cacheService: CacheService<cache> = inject(CacheService);
-  // private pdfService = inject(PdfService);
+  private pdfService = inject(PdfService);
 
   isAdvancedMode = signal<boolean>(false);
   form = computed<FormGroup>(() =>
@@ -71,17 +76,19 @@ export default class ReportSearchComponent {
   datasource = signal<tableProcedureData[]>([]);
   datasize = signal<number>(0);
 
-  columns: tableProcedureColums[] = [
-    { columnDef: 'code', header: 'Alterno' },
+  readonly columns: tableProcedureColums[] = [
+    { columnDef: 'group', header: 'Grupo' },
+    { columnDef: 'code', header: 'Codigo' },
     { columnDef: 'reference', header: 'Referencia' },
-    { columnDef: 'startDate', header: 'Fecha' },
+    { columnDef: 'state', header: 'Estado' },
+    { columnDef: 'createdAt', header: 'Fecha' },
   ];
 
   limit = signal<number>(10);
   index = signal<number>(0);
   offset = computed<number>(() => this.limit() * this.index());
-  term = signal<string>('');
-  isEmpty = signal(false);
+  isLoading = signal(false);
+  hasSearched = signal(false);
 
   readonly currentDate = new Date();
 
@@ -107,19 +114,23 @@ export default class ReportSearchComponent {
   }
 
   getData() {
-    this.isEmpty.set(false);
+    this.isLoading.set(true);
+    this.hasSearched.set(true);
     this.reportService
       .searchProcedureByProperties(
         this.limit(),
         this.offset(),
         this.form().value
       )
-      .subscribe((resp) => {
-        this.datasource.set(resp.procedures);
-        this.datasize.set(resp.length);
-        if (resp.length === 0) {
-          this.isEmpty.set(true);
-        }
+      .subscribe({
+        next: (resp) => {
+          this.datasource.set(resp.procedures);
+          this.datasize.set(resp.length);
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.isLoading.set(false);
+        },
       });
   }
 
@@ -138,11 +149,11 @@ export default class ReportSearchComponent {
   }
 
   print() {
-    // this.pdfService.GenerateReportSheet({
-    //   title: 'Reporte busqueda',
-    //   results: this.datasource(),
-    //   columns: this.displaycolums,
-    // });
+    this.pdfService.GenerateReportSheet({
+      title: 'Reporte busqueda',
+      results: this.datasource(),
+      columns: this.displaycolums,
+    });
   }
 
   searchTypesProcedures(term: string) {
@@ -201,10 +212,10 @@ export default class ReportSearchComponent {
   private loadCache() {
     const cache = this.cacheService.load('report-search');
     if (!cache) return;
-    this.form().patchValue(cache.form);
-    this.datasource.set(cache.datasource);
-    this.datasize.set(cache.datasize);
     this.isAdvancedMode.set(cache.isAdvancedMode);
+    this.datasource.set(cache.datasource);
+    this.form().patchValue(cache.form);
+    this.datasize.set(cache.datasize);
     this.index.set(cache.index);
   }
 

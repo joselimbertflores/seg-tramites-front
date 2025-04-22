@@ -1,5 +1,5 @@
 <div class="p-2 sm:p-4">
-  <div class="mb-6">
+  <div class="flex flex-col gap-y-6">
     <mat-accordion>
       <mat-expansion-panel expanded="true">
         <mat-expansion-panel-header>
@@ -126,31 +126,49 @@
             <mat-icon>print</mat-icon>
           </button>
           <button mat-button (click)="clear()">Limpiar</button>
-          <button mat-button color="primary" (click)="generate()" [disabled]="!isFormValid">
+          <button
+            mat-button
+            color="primary"
+            (click)="getData()"
+            [disabled]="!isFormValid"
+          >
             Buscar
           </button>
         </mat-action-row>
       </mat-expansion-panel>
     </mat-accordion>
-  </div>
 
-  <p class="text-xl mx-4 tracking-wide">Resultados</p>
+    <p class="text-xl tracking-wide">Resultados</p>
 
-  <div class="mt-2">
-    <report-procedure-table [datasource]="datasource()" [columns]="columns" />
-    <mat-paginator
-      aria-label="Select page of officers search results"
-      showFirstLastButtons
-      [pageSize]="10"
-      [pageIndex]="index()"
-      [length]="datasize()"
-      (page)="onPageChange($event)"
-    />
+    <div>
+      @if (isLoading()){
+        <div class="px-6 py-2">
+          <mat-progress-bar mode="indeterminate" />
+        </div>
+      } 
+      @if (!isLoading() && !hasSearched()){
+        <div class="text-gray-500 text-center py-4">
+          Complete el formulario con al menos 2 campos para obtener los
+          resultados.
+        </div>
+      }
+      @if(!isLoading() && hasSearched() && datasource().length > 0){
+        <report-procedure-table
+          [datasource]="datasource()"
+          [columns]="columns"
+        />
+        <mat-paginator
+          aria-label="Select page of officers search results"
+          showFirstLastButtons
+          [pageSize]="10"
+          [pageIndex]="index()"
+          [length]="datasize()"
+          (page)="onPageChange($event)"
+        />
+      }
+      @if(!isLoading() && hasSearched() && datasource().length === 0){
+        <alert-message title="Sin resultados" message="Revise los parametros ingresados" severity="warning"/>
+      } 
+    </div>
   </div>
-  @if(isEmpty()){
-  <alert-message
-    title="No se encontraron resutlado, revise los datos"
-    severity="warn"
-  />
-  }
 </div>
