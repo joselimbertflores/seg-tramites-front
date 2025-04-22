@@ -1,5 +1,5 @@
-<div class="px-2 sm:px-6">
-  <div class="py-2">
+<div class="p-2 sm:p-4">
+  <div class="mb-6">
     <mat-accordion>
       <mat-expansion-panel expanded="true">
         <mat-expansion-panel-header>
@@ -10,19 +10,87 @@
           <div>
             <mat-button-toggle-group
               (change)="selectSearchMode($event.value)"
-              [value]="searchMode()"
+              [value]="isAdvancedMode()"
             >
-              <mat-button-toggle value="simple">Simple</mat-button-toggle>
-              <mat-button-toggle value="advanced">Avanzada</mat-button-toggle>
+              <mat-button-toggle [value]="false">Simple</mat-button-toggle>
+              <mat-button-toggle [value]="true">Avanzada</mat-button-toggle>
             </mat-button-toggle-group>
           </div>
         </div>
-        <form [formGroup]="FormProcedure()">
-          @switch (searchMode()) { @case ('simple') {
+        <form [formGroup]="form()">
+          @if(isAdvancedMode()){
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-x-4">
+            <mat-form-field>
+              <mat-label>Codigo</mat-label>
+              <input matInput formControlName="code" />
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Grupo</mat-label>
+              <mat-select
+                (valueChange)="changeGroupProcedure()"
+                formControlName="group"
+              >
+                @for (item of GROUPS; track $index) {
+                <mat-option [value]="item.value"> {{ item.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <div>
+              <mat-form-field>
+                <mat-label>Estado</mat-label>
+                <mat-select formControlName="state">
+                  <mat-option> ---- </mat-option>
+                  @for (state of STATES; track $index) {
+                  <mat-option [value]="state">{{ state }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <mat-form-field>
+              <mat-label>Cite</mat-label>
+              <input matInput formControlName="cite" />
+            </mat-form-field>
+            <div>
+              <mat-form-field>
+                <mat-label>Rango de registro</mat-label>
+                <mat-date-range-input
+                  [rangePicker]="picker"
+                  [max]="currentDate"
+                >
+                  <input
+                    matStartDate
+                    formControlName="start"
+                    placeholder="Fecha inicial"
+                  />
+                  <input
+                    matEndDate
+                    formControlName="end"
+                    placeholder="Fecha final"
+                  />
+                </mat-date-range-input>
+                <mat-datepicker-toggle
+                  matIconSuffix
+                  [for]="picker"
+                ></mat-datepicker-toggle>
+                <mat-date-range-picker #picker></mat-date-range-picker>
+              </mat-form-field>
+            </div>
+            <div class="sm:col-span-2">
+              <mat-form-field>
+                <mat-label>Referencia</mat-label>
+                <textarea
+                  matInput
+                  placeholder="Descripcion del tramite"
+                  formControlName="reference"
+                ></textarea>
+              </mat-form-field>
+            </div>
+          </div>
+          } @else {
           <div class="grid grid-cols-1 sm:grid-cols-4 gap-x-2">
             <div class="sm:col-span-1">
               <mat-form-field>
-                <mat-label>Alterno</mat-label>
+                <mat-label>Codigo</mat-label>
                 <input matInput formControlName="code" />
               </mat-form-field>
             </div>
@@ -32,8 +100,8 @@
                 <mat-select formControlName="group">
                   @for (item of GROUPS; track $index) {
                   <mat-option [value]="item.value">
-                    {{ item.label }}</mat-option
-                  >
+                    {{ item.label }}
+                  </mat-option>
                   }
                 </mat-select>
               </mat-form-field>
@@ -50,95 +118,7 @@
               </mat-form-field>
             </div>
           </div>
-          } @case ('advanced') {
-          <div class="row">
-            <div class="col-sm-3">
-              <mat-form-field>
-                <mat-label>Alterno</mat-label>
-                <input matInput formControlName="code" />
-              </mat-form-field>
-            </div>
-            <div class="col-sm-3">
-              <mat-form-field>
-                <mat-label>Estado:</mat-label>
-                <mat-select formControlName="state">
-                  <mat-option> ---- </mat-option>
-
-                  <!-- @for (state of states; track $index) {
-                <mat-option [value]="state">{{ state }}</mat-option>
-                } -->
-                </mat-select>
-              </mat-form-field>
-            </div>
-            <div class="col-sm-2">
-              <mat-form-field>
-                <mat-label>Cite</mat-label>
-                <input matInput formControlName="cite" />
-              </mat-form-field>
-            </div>
-            <div class="col-sm-4">
-              <mat-form-field>
-                <mat-label>Referencia</mat-label>
-                <textarea
-                  matInput
-                  placeholder="Descripcion del tramite"
-                  formControlName="reference"
-                ></textarea>
-              </mat-form-field>
-            </div>
-            <div class="col-sm-2">
-              <mat-form-field>
-                <mat-label>GRUPO:</mat-label>
-                <mat-select
-                  (valueChange)="changeGroupProcedure()"
-                  formControlName="group"
-                >
-                  @for (item of GROUPS; track $index) {
-                  <mat-option [value]="item.value">
-                    {{ item.label }}</mat-option
-                  >
-                  }
-                </mat-select>
-              </mat-form-field>
-            </div>
-            <div class="col-sm-7">
-              <!-- <server-select-search
-            placeholder="Buscar tipo de tramite"
-            [isRequired]="false"
-            [initialValue]="FormProcedure().get('type')?.value"
-            [elements]="typeProcedures()"
-            (onSearch)="searchTypesProcedures($event)"
-            (onSelect)="setTypeProcedure($event)"
-          /> -->
-            </div>
-            <div class="col-sm-3">
-              <mat-form-field>
-                <mat-label>Rango de registro</mat-label>
-                <mat-date-range-input [rangePicker]="picker">
-                  <input
-                    matStartDate
-                    formControlName="start"
-                    placeholder="Fecha inicial"
-                  />
-                  <input
-                    matEndDate
-                    formControlName="end"
-                    placeholder="Fecha final"
-                  />
-                </mat-date-range-input>
-                <mat-hint>DD/MM/YYYY – DD/MM/YYYY</mat-hint>
-                <mat-datepicker-toggle
-                  matIconSuffix
-                  [for]="picker"
-                ></mat-datepicker-toggle>
-                <mat-date-range-picker #picker></mat-date-range-picker>
-              </mat-form-field>
-            </div>
-          </div>
-          <div class="row mt-2">
-            <div class="col-sm-7"></div>
-          </div>
-          } @default { unknown search type } }
+          }
         </form>
 
         <mat-action-row>
@@ -146,7 +126,7 @@
             <mat-icon>print</mat-icon>
           </button>
           <button mat-button (click)="clear()">Limpiar</button>
-          <button mat-button color="primary" (click)="generate()" autofocus>
+          <button mat-button color="primary" (click)="generate()" [disabled]="!isFormValid">
             Buscar
           </button>
         </mat-action-row>
@@ -155,7 +135,6 @@
   </div>
 
   <p class="text-xl mx-4 tracking-wide">Resultados</p>
-
 
   <div class="mt-2">
     <report-procedure-table [datasource]="datasource()" [columns]="columns" />
@@ -169,6 +148,9 @@
     />
   </div>
   @if(isEmpty()){
-  <alert-message title="No se encontraron resutlado, revise los datos" severity="warn" />
+  <alert-message
+    title="No se encontraron resutlado, revise los datos"
+    severity="warn"
+  />
   }
 </div>

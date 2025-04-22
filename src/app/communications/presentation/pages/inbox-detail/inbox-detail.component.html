@@ -5,27 +5,26 @@
     </button>
     <span class="ml-4">Detalle</span>
     <span class="flex-1"></span>
-
-    @if (data()?.status === 'pending') {
-    <button mat-icon-button matTooltip="Aceptar" (click)="accept()">
-      <mat-icon>done</mat-icon>
-    </button>
-    <button mat-icon-button matTooltip="Rechazar" (click)="reject()">
-      <mat-icon>block</mat-icon>
-    </button>
-    } @else {
     <div class="flex gap-x-2">
-      <button mat-icon-button matTooltip="Remitir">
+      @switch (data()?.status) { @case ("pending") {
+      <button mat-icon-button matTooltip="Aceptar" (click)="accept()">
+        <mat-icon>done</mat-icon>
+      </button>
+      <button mat-icon-button matTooltip="Rechazar" (click)="reject()">
+        <mat-icon>block</mat-icon>
+      </button>
+      } @case ("received") {
+      <button mat-icon-button matTooltip="Remitir" (click)="send()">
         <mat-icon>send</mat-icon>
       </button>
-      <button mat-icon-button matTooltip="Archivar">
+      <button mat-icon-button matTooltip="Archivar" (click)="archive()">
         <mat-icon>archive</mat-icon>
       </button>
       <button mat-icon-button matTooltip="Hoja de ruta">
         <mat-icon>description</mat-icon>
       </button>
+      } @default {} }
     </div>
-    }
   </mat-toolbar>
 
   @if(isLoading()) {

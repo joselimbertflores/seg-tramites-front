@@ -378,7 +378,7 @@ export default class InboxComponent implements OnInit {
     this.datasource.update((values) =>
       values.map((item) => (idSet.has(item.id) ? item.copyWith(props) : item))
     );
-    this.selection.clear()
+    this.selection.clear();
   }
 
   private saveCache(): void {

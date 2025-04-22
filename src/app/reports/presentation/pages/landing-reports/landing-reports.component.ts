@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-landing-reports',
-  imports: [],
+  imports: [MatButtonModule],
   template: `
     <div
       class="flex items-center justify-center w-full "
@@ -16,10 +17,15 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
           <p class="mt-2 text-lg text-pretty sm:text-lg/8">
             Seleccione uno de los reportes disponibles para comenzar
           </p>
+          <div class="mt-2">
+            <button mat-flat-button>Ver reportes</button>
+          </div>
         </div>
       </div>
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export default class LandingReportsComponent {}
+export default class LandingReportsComponent {
+  
+}

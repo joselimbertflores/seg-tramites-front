@@ -35,7 +35,7 @@ export interface ProcedureTableColumns {
           class="w-[200px]"
         >
           <a
-            [routerLink]="['../', element.group, element._id]"
+            [routerLink]="['/home/reports', element.group, element._id]"
             class="text-blue-500"
           >
             {{ element['code'] }}

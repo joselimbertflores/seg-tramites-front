@@ -1,12 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  computed,
-  inject,
-  signal,
-} from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -14,10 +7,7 @@ import {
   Validators,
 } from '@angular/forms';
 
-import {
-  MAT_FORM_FIELD_DEFAULT_OPTIONS,
-  MatFormFieldModule,
-} from '@angular/material/form-field';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -30,7 +20,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 
 import { ReportProcedureTableComponent } from '../../components';
-import { procedureGroup } from '../../../../procedures/domain';
+import { procedureGroup, procedureState } from '../../../../procedures/domain';
 import { ReportService } from '../../services/report.service';
 import {
   tableProcedureColums,
@@ -38,12 +28,10 @@ import {
 } from '../../../infrastructure';
 import { AlertMessageComponent, CacheService } from '../../../../shared';
 
-type searchMode = 'simple' | 'advanced';
-
 interface cache {
   datasource: tableProcedureData[];
   datasize: number;
-  searchMode: searchMode;
+  isAdvancedMode: boolean;
   form: Object;
   limit: number;
   index: number;
@@ -68,14 +56,7 @@ interface cache {
     ReportProcedureTableComponent,
   ],
   templateUrl: './report-search.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [
-    {
-      provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
-      useValue: { appearance: 'outline' },
-    },
-    provideNativeDateAdapter(),
-  ],
+  providers: [provideNativeDateAdapter()],
 })
 export default class ReportSearchComponent {
   private fb = inject(FormBuilder);
@@ -83,16 +64,14 @@ export default class ReportSearchComponent {
   private cacheService: CacheService<cache> = inject(CacheService);
   // private pdfService = inject(PdfService);
 
-  public searchMode = signal<searchMode>('simple');
-  public FormProcedure = computed<FormGroup>(() => {
-    return this.searchMode() === 'simple'
-      ? this.createSimpleForm()
-      : this.createAdvancedForm();
-  });
-  public datasource = signal<tableProcedureData[]>([]);
-  public datasize = signal<number>(0);
+  isAdvancedMode = signal<boolean>(false);
+  form = computed<FormGroup>(() =>
+    this.isAdvancedMode() ? this.createAdvancedForm() : this.createSimpleForm()
+  );
+  datasource = signal<tableProcedureData[]>([]);
+  datasize = signal<number>(0);
 
-  public columns: tableProcedureColums[] = [
+  columns: tableProcedureColums[] = [
     { columnDef: 'code', header: 'Alterno' },
     { columnDef: 'reference', header: 'Referencia' },
     { columnDef: 'startDate', header: 'Fecha' },
@@ -104,6 +83,8 @@ export default class ReportSearchComponent {
   term = signal<string>('');
   isEmpty = signal(false);
 
+  readonly currentDate = new Date();
+
   readonly GROUPS = [
     { label: 'Tramites externos', value: procedureGroup.External },
     { label: 'Tramites internos', value: procedureGroup.Internal },
@@ -112,6 +93,8 @@ export default class ReportSearchComponent {
       value: procedureGroup.Procurement,
     },
   ];
+
+  readonly STATES = Object.values(procedureState).map((value) => value);
 
   constructor() {
     inject(DestroyRef).onDestroy(() => {
@@ -124,12 +107,12 @@ export default class ReportSearchComponent {
   }
 
   getData() {
-    this.isEmpty.set(false)
+    this.isEmpty.set(false);
     this.reportService
       .searchProcedureByProperties(
         this.limit(),
         this.offset(),
-        this.FormProcedure().value
+        this.form().value
       )
       .subscribe((resp) => {
         this.datasource.set(resp.procedures);
@@ -149,7 +132,7 @@ export default class ReportSearchComponent {
   }
 
   clear() {
-    this.FormProcedure().reset({});
+    this.form().reset({});
     // this.datasource.set([]);
     this.datasize.set(0);
   }
@@ -173,7 +156,7 @@ export default class ReportSearchComponent {
   }
 
   setTypeProcedure(id_type: string = '') {
-    this.FormProcedure().get('type')?.setValue(id_type);
+    this.form().get('type')?.setValue(id_type);
   }
 
   changePage(params: { limit: number; index: number }) {
@@ -182,12 +165,12 @@ export default class ReportSearchComponent {
     this.getData();
   }
 
-  selectSearchMode(value: searchMode) {
-    this.searchMode.set(value);
+  selectSearchMode(isAdvancedMode: boolean) {
+    this.isAdvancedMode.set(isAdvancedMode);
   }
 
   changeGroupProcedure() {
-    this.FormProcedure().patchValue({ type: '' });
+    this.form().patchValue({ type: '' });
   }
 
   onPageChange({ pageIndex, pageSize }: PageEvent) {
@@ -196,10 +179,17 @@ export default class ReportSearchComponent {
     this.getData();
   }
 
+  get isFormValid() {
+    return (
+      this.form().valid &&
+      Object.values(this.form().value).filter((value) => value).length >= 2
+    );
+  }
+
   private saveCache() {
     const cache: cache = {
-      form: this.FormProcedure().value,
-      searchMode: this.searchMode(),
+      form: this.form().value,
+      isAdvancedMode: this.isAdvancedMode(),
       datasource: this.datasource(),
       datasize: this.datasize(),
       index: this.index(),
@@ -211,17 +201,17 @@ export default class ReportSearchComponent {
   private loadCache() {
     const cache = this.cacheService.load('report-search');
     if (!cache) return;
-    this.FormProcedure().patchValue(cache.form);
+    this.form().patchValue(cache.form);
     this.datasource.set(cache.datasource);
     this.datasize.set(cache.datasize);
-    this.searchMode.set(cache.searchMode);
+    this.isAdvancedMode.set(cache.isAdvancedMode);
     this.index.set(cache.index);
   }
 
   private createSimpleForm(): FormGroup {
     return this.fb.group({
       code: ['', Validators.minLength(4)],
-      reference: [''],
+      reference: ['', Validators.minLength(6)],
       group: [''],
     });
   }
@@ -230,10 +220,10 @@ export default class ReportSearchComponent {
     return this.fb.group({
       code: ['', Validators.minLength(4)],
       state: [''],
-      reference: [''],
+      reference: ['', Validators.minLength(6)],
       type: [''],
       start: [''],
-      end: [new Date()],
+      end: [this.currentDate],
       group: [''],
       cite: [''],
     });

@@ -16,6 +16,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialog } from '@angular/material/dialog';
 
 import { filter, finalize, forkJoin, switchMap, tap } from 'rxjs';
 
@@ -41,7 +42,18 @@ import {
   ExternalCommunicationComponent,
   InboxCardComponent,
 } from '../../components';
-import { Communication, inboxCache } from '../../../domain';
+import {
+  communcationStatus,
+  Communication,
+  inboxCache,
+  invalidCommunicationsError,
+  notFoundCommunicationsError,
+} from '../../../domain';
+import {
+  submissionData,
+  SubmissionDialogComponent,
+} from '../inbox/submission-dialog/submission-dialog.component';
+import { ArchiveDialogComponent } from '../inbox/archive-dialog/archive-dialog.component';
 
 @Component({
   selector: 'app-inbox-detail',
@@ -78,6 +90,7 @@ export default class InboxDetailComponent {
   private alertService = inject(AlertService);
   private cacheService: CacheService<inboxCache> = inject(CacheService);
   private localtion = inject(Location);
+  private dialogRef = inject(MatDialog);
 
   @Input('id') communicationId: string;
 
@@ -99,17 +112,14 @@ export default class InboxDetailComponent {
       })
       .pipe(
         filter((result) => result),
-        switchMap(() => this.inboxService.accept([this.communicationId]))
+        switchMap(() => this.inboxService.accept([this.communication.id]))
       )
       .subscribe({
-        // next: ({ ids, date }) => {
-        //   const id = ids[0];
-        //   const receivedDate = new Date(date);
-        //   this.data.update((value) =>
-        //     value!.copyWith({ status: 'received', receivedDate })
-        //   );
-        //   this.updateStatusItemCache(id, { status: 'received', receivedDate });
-        // },
+        next: ({ itemIds: [id], receivedDate }) => {
+          const update = { status: communcationStatus.Received, receivedDate };
+          this.data.update((value) => value!.copyWith(update));
+          this.updateItemCache(id, update);
+        },
         error: (error) => {
           if (error instanceof HttpErrorResponse) {
             this.handleHttpError(error);
@@ -131,9 +141,8 @@ export default class InboxDetailComponent {
         )
       )
       .subscribe({
-        next: ({ itemIds }) => {
-          // this.removeItemCache(itemIds);
-          this.backLocation();
+        next: ({ itemIds: [id] }) => {
+          this.finalizeAndReturn(id);
         },
         error: (error) => {
           if (error instanceof HttpErrorResponse) {
@@ -143,12 +152,37 @@ export default class InboxDetailComponent {
       });
   }
 
-  get external() {
-    return this.procedure() as ExternalProcedure;
+  send() {
+    const data: submissionData = {
+      mode: 'forward',
+      communicationId: this.communication.id,
+      procedure: {
+        id: this.communication.procedure.ref,
+        code: this.communication.procedure.code,
+      },
+      attachmentsCount: this.communication.attachmentsCount,
+      isOriginal: this.communication.isOriginal,
+    };
+    const dialogRef = this.dialogRef.open(SubmissionDialogComponent, {
+      maxWidth: '1100px',
+      width: '1100px',
+      data,
+    });
+    dialogRef.afterClosed().subscribe((message: string) => {
+      if (!message) return;
+      this.finalizeAndReturn(this.communication.id);
+    });
   }
 
-  get internal() {
-    return this.procedure() as InternalProcedure;
+  archive() {
+    const dialogRef = this.dialogRef.open(ArchiveDialogComponent, {
+      width: '600px',
+      data: [this.communication],
+    });
+    dialogRef.afterClosed().subscribe((result: string[]) => {
+      if (!result) return;
+      this.finalizeAndReturn(this.communication.id);
+    });
   }
 
   private getData() {
@@ -175,7 +209,7 @@ export default class InboxDetailComponent {
     ]);
   }
 
-  private updateStatusItemCache(id: string, update: Partial<Communication>) {
+  private updateItemCache(id: string, update: Partial<Communication>) {
     const cache = this.cacheService.load('inbox');
     if (!cache) return;
     let { datasource, ...props } = cache;
@@ -198,31 +232,46 @@ export default class InboxDetailComponent {
 
   private handleHttpError(error: HttpErrorResponse): void {
     switch (error.status) {
-      // case 404:
-      //   this.alertService.messageDialog({
-      //     title: 'Elemento no encontrado',
-      //     description: 'El envio del tramite ha sido cancelado',
-      //   });
-      //   const {
-      //     ids: [id],
-      //   } = error.error as notFoundError;
-      //   this.removeItemCache(id);
-      //   this.backLocation();
-      //   break;
-      // case 422:
-      //   const { items } = error.error as invalidError;
-      //   this.alertService.messageDialog({
-      //     title: 'Elemento actual invalido',
-      //     description: items[0].reason,
-      //   });
-      //   break;
+      case 404:
+        const {
+          notFoundIds: [notFoundId],
+        } = error.error as notFoundCommunicationsError;
+        this.alertService.messageDialog({
+          title: 'Elemento no encontrado',
+          description: 'El remitente ha cancelado el envio',
+        });
+        this.finalizeAndReturn(notFoundId);
+        break;
+
+      case 422:
+        const {
+          invalidItems: [invalidItem],
+        } = error.error as invalidCommunicationsError;
+        this.alertService.messageDialog({
+          title: 'El elemento seleccionado es invalido',
+          description: `Tramite: ${invalidItem.code}`,
+        });
+        break;
       default:
         break;
     }
   }
 
-  private backLocation() {
+  private finalizeAndReturn(id: string) {
+    this.removeItemCache(id);
     this.cacheService.keepAlive.set(true);
     this.localtion.back();
+  }
+
+  get external() {
+    return this.procedure() as ExternalProcedure;
+  }
+
+  get internal() {
+    return this.procedure() as InternalProcedure;
+  }
+
+  get communication() {
+    return this.data()!;
   }
 }
