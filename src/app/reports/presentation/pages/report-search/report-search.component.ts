@@ -75,31 +75,37 @@ export default class ReportSearchComponent {
   );
   datasource = signal<tableProcedureData[]>([]);
   datasize = signal<number>(0);
-
-  readonly columns: tableProcedureColums[] = [
-    { columnDef: 'group', header: 'Grupo' },
-    { columnDef: 'code', header: 'Codigo' },
-    { columnDef: 'reference', header: 'Referencia' },
-    { columnDef: 'state', header: 'Estado' },
-    { columnDef: 'createdAt', header: 'Fecha' },
-  ];
-
   limit = signal<number>(10);
   index = signal<number>(0);
   offset = computed<number>(() => this.limit() * this.index());
   isLoading = signal(false);
   hasSearched = signal(false);
 
-  readonly currentDate = new Date();
+  readonly COLUMNS: tableProcedureColums[] = [
+    { columnDef: 'group', header: 'Grupo' },
+    { columnDef: 'code', header: 'Codigo' },
+    { columnDef: 'reference', header: 'Referencia' },
+    { columnDef: 'state', header: 'Estado' },
+    { columnDef: 'createdAt', header: 'Fecha' },
+  ] as const;
 
+  readonly CURRENT_DATE = new Date();
   readonly GROUPS = [
-    { label: 'Tramites externos', value: procedureGroup.External },
-    { label: 'Tramites internos', value: procedureGroup.Internal },
-    {
-      label: 'Tramites para contrataciones',
-      value: procedureGroup.Procurement,
-    },
-  ];
+    { label: 'Externos', value: procedureGroup.External },
+    { label: 'Internos', value: procedureGroup.Internal },
+    { label: 'Contrataciones', value: procedureGroup.Procurement },
+  ] as const;
+
+  readonly LABELS_MAP = {
+    reference: 'Referencia',
+    start: 'Fecha inicio',
+    end: 'Fecha fin',
+    state: 'Estado',
+    group: 'Grupo',
+    code: 'Codigo',
+    type: 'Tipo',
+    cite: 'Cite',
+  } as const;
 
   readonly STATES = Object.values(procedureState).map((value) => value);
 
@@ -149,10 +155,15 @@ export default class ReportSearchComponent {
   }
 
   print() {
-    this.pdfService.GenerateReportSheet({
+    this.pdfService.generateReportProcedureSheet({
       title: 'Reporte busqueda',
-      results: this.datasource(),
-      columns: this.displaycolums,
+      datasource: this.datasource(),
+      columns: this.COLUMNS,
+      parameters: {
+        ...this.form().value,
+        group: this.GROUP_LABELS[this.form().get('group')?.value],
+      },
+      labelsMap: this.LABELS_MAP,
     });
   }
 
@@ -197,6 +208,13 @@ export default class ReportSearchComponent {
     );
   }
 
+  get GROUP_LABELS(): Record<string, string> {
+    return this.GROUPS.reduce(
+      (acc, { value, label }) => ({ ...acc, [value]: label }),
+      {}
+    );
+  }
+
   private saveCache() {
     const cache: cache = {
       form: this.form().value,
@@ -234,7 +252,7 @@ export default class ReportSearchComponent {
       reference: ['', Validators.minLength(6)],
       type: [''],
       start: [''],
-      end: [this.currentDate],
+      end: [this.CURRENT_DATE],
       group: [''],
       cite: [''],
     });

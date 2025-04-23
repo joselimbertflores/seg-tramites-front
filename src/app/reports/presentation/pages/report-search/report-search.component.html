@@ -55,7 +55,7 @@
                 <mat-label>Rango de registro</mat-label>
                 <mat-date-range-input
                   [rangePicker]="picker"
-                  [max]="currentDate"
+                  [max]="CURRENT_DATE"
                 >
                   <input
                     matStartDate
@@ -142,33 +142,31 @@
 
     <div>
       @if (isLoading()){
-        <div class="px-6 py-2">
-          <mat-progress-bar mode="indeterminate" />
-        </div>
-      } 
-      @if (!isLoading() && !hasSearched()){
-        <div class="text-gray-500 text-center py-4">
-          Complete el formulario con al menos 2 campos para obtener los
-          resultados.
-        </div>
+      <div class="px-6 py-2">
+        <mat-progress-bar mode="indeterminate" />
+      </div>
+      } @if (!isLoading() && !hasSearched()){
+      <div class="text-gray-500 text-center py-4">
+        Complete el formulario con al menos 2 campos para obtener los
+        resultados.
+      </div>
+      } @if(!isLoading() && hasSearched() && datasource().length > 0){
+      <report-procedure-table [datasource]="datasource()" [columns]="COLUMNS" />
+      <mat-paginator
+        aria-label="Select page of officers search results"
+        showFirstLastButtons
+        [pageSize]="10"
+        [pageIndex]="index()"
+        [length]="datasize()"
+        (page)="onPageChange($event)"
+      />
+      } @if(!isLoading() && hasSearched() && datasource().length === 0){
+      <alert-message
+        title="Sin resultados"
+        message="Revise los parametros ingresados"
+        severity="warning"
+      />
       }
-      @if(!isLoading() && hasSearched() && datasource().length > 0){
-        <report-procedure-table
-          [datasource]="datasource()"
-          [columns]="columns"
-        />
-        <mat-paginator
-          aria-label="Select page of officers search results"
-          showFirstLastButtons
-          [pageSize]="10"
-          [pageIndex]="index()"
-          [length]="datasize()"
-          (page)="onPageChange($event)"
-        />
-      }
-      @if(!isLoading() && hasSearched() && datasource().length === 0){
-        <alert-message title="Sin resultados" message="Revise los parametros ingresados" severity="warning"/>
-      } 
     </div>
   </div>
 </div>
