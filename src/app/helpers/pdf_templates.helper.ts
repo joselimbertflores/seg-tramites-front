@@ -3,7 +3,7 @@ import {
   ContentTable,
   TDocumentDefinitions,
 } from 'pdfmake/interfaces';
-import { convertImageABase64 } from './image_base64';
+import { convertImageBase64 } from './image_base64';
 import { Procedure, procedureGroup } from '../procedures/domain';
 import pdfMake from 'pdfmake/build/pdfmake';
 import { Communication } from '../communications/domain';
@@ -44,10 +44,10 @@ interface participant {
 
 export class PdfTemplates {
   static async headerInternalDocument(): Promise<Content> {
-    const leftImage = await convertImageABase64(
+    const leftImage = await convertImageBase64(
       'images/institution/alcaldia.jpeg'
     );
-    const rightImage = await convertImageABase64(
+    const rightImage = await convertImageBase64(
       'images/institution/sacaba.jpeg'
     );
     return [
@@ -137,10 +137,10 @@ export class PdfTemplates {
   }
 
   private static async sectionHeaderRouteMap(): Promise<Content> {
-    const leftImage = await convertImageABase64(
+    const leftImage = await convertImageBase64(
       'images/institution/alcaldia.jpeg'
     );
-    const rightImage = await convertImageABase64(
+    const rightImage = await convertImageBase64(
       'images/institution/sacaba.jpeg'
     );
     return [

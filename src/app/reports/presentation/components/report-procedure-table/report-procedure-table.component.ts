@@ -29,7 +29,7 @@ export interface ProcedureTableColumns {
         <th mat-header-cell *matHeaderCellDef>{{ item.header }}</th>
           @switch (item.columnDef) { 
             @case ("group") {
-              <td  mat-cell  *matCellDef="let element" class="sm:w-32">
+              <td  mat-cell  *matCellDef="let element" class="sm:w-28">
                 @switch (element.group) {
                   @case (group.External) {
                     Externo
@@ -44,7 +44,7 @@ export interface ProcedureTableColumns {
               </td>
             }
             @case ("code") {
-              <td mat-cell *matCellDef="let element" class="sm:w-48">
+              <td mat-cell *matCellDef="let element" class="sm:w-52">
                 <a
                   [routerLink]="['/home/reports', element.group, element.id]"
                   class="text-blue-500"

@@ -14,6 +14,7 @@ import {
   MessageDialogComponent,
   messageDialogProps,
 } from '..';
+import { toast } from 'ngx-sonner';
 
 interface AlertOptions {
   title: string;
@@ -147,6 +148,7 @@ export class AlertService {
       progressBar: true,
     };
     this.toast[type](message, title, config);
+    // toast.loading('Warning')
   }
 
   Snackbar({ message, duration = 3000, action }: SnackbarOptions) {

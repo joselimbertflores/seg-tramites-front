@@ -21,10 +21,6 @@
           @if(isAdvancedMode()){
           <div class="grid grid-cols-1 sm:grid-cols-4 gap-x-4">
             <mat-form-field>
-              <mat-label>Codigo</mat-label>
-              <input matInput formControlName="code" />
-            </mat-form-field>
-            <mat-form-field>
               <mat-label>Grupo</mat-label>
               <mat-select
                 (valueChange)="changeGroupProcedure()"
@@ -34,6 +30,10 @@
                 <mat-option [value]="item.value"> {{ item.label }}</mat-option>
                 }
               </mat-select>
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Codigo</mat-label>
+              <input matInput formControlName="code" />
             </mat-form-field>
             <div>
               <mat-form-field>
@@ -88,13 +88,7 @@
           </div>
           } @else {
           <div class="grid grid-cols-1 sm:grid-cols-4 gap-x-2">
-            <div class="sm:col-span-1">
-              <mat-form-field>
-                <mat-label>Codigo</mat-label>
-                <input matInput formControlName="code" />
-              </mat-form-field>
-            </div>
-            <div class="sm:col-span-1">
+            <div>
               <mat-form-field>
                 <mat-label>Grupo</mat-label>
                 <mat-select formControlName="group">
@@ -106,7 +100,12 @@
                 </mat-select>
               </mat-form-field>
             </div>
-
+            <div>
+              <mat-form-field>
+                <mat-label>Codigo</mat-label>
+                <input matInput formControlName="code" />
+              </mat-form-field>
+            </div>
             <div class="sm:col-span-2">
               <mat-form-field>
                 <mat-label>Referencia</mat-label>
@@ -126,14 +125,7 @@
             <mat-icon>print</mat-icon>
           </button>
           <button mat-button (click)="clear()">Limpiar</button>
-          <button
-            mat-button
-            color="primary"
-            (click)="getData()"
-            [disabled]="!isFormValid"
-          >
-            Buscar
-          </button>
+          <button mat-button [disabled]="isFormValid" (click)="getData()">Buscar</button>
         </mat-action-row>
       </mat-expansion-panel>
     </mat-accordion>
@@ -145,22 +137,27 @@
       <div class="px-6 py-2">
         <mat-progress-bar mode="indeterminate" />
       </div>
-      } @if (!isLoading() && !hasSearched()){
+      }
+      @if (!isLoading() && !hasSearched()){
       <div class="text-gray-500 text-center py-4">
         Complete el formulario con al menos 2 campos para obtener los
         resultados.
       </div>
-      } @if(!isLoading() && hasSearched() && datasource().length > 0){
-      <report-procedure-table [datasource]="datasource()" [columns]="COLUMNS" />
-      <mat-paginator
-        aria-label="Select page of officers search results"
-        showFirstLastButtons
-        [pageSize]="10"
-        [pageIndex]="index()"
-        [length]="datasize()"
-        (page)="onPageChange($event)"
-      />
-      } @if(!isLoading() && hasSearched() && datasource().length === 0){
+      }
+       @if(!isLoading() && hasSearched() && datasource().length > 0){
+        <report-procedure-table [datasource]="datasource()" [columns]="COLUMNS" />
+        @if (limit() < datasize()){
+          <mat-paginator
+            showFirstLastButtons
+            [pageSizeOptions]="[10, 20, 30, 50]"
+            [pageSize]="limit()"
+            [pageIndex]="index()"
+            [length]="datasize()"
+            (page)="onPageChange($event)"
+          />
+        }
+      } 
+      @if(!isLoading() && hasSearched() && datasource().length === 0){
       <alert-message
         title="Sin resultados"
         message="Revise los parametros ingresados"

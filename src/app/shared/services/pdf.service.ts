@@ -77,8 +77,8 @@ export class PdfService {
   }
 
   async generateReportProcedureSheet(data: reportTableSheetProps) {
-    const doc = await ProcedureReportTemplate.reportTable({...data, parameters:this.filtreAndTranslateProps(data.parameters, data.labelsMap)});
-    pdfMake.createPdf(doc).print();
+    const doc = await ProcedureReportTemplate.reportTable({...data, parameters:[{header:"2", "columnDef":"a", width:""}]});
+    // pdfMake.createPdf(doc).print();
   }
 
   private filtreAndTranslateProps(

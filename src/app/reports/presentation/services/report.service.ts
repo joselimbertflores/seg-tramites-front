@@ -23,6 +23,7 @@ export class ReportService {
   searchProcedureByProperties(limit: number, offset: number, form: Object) {
     const params = new HttpParams({ fromObject: { limit, offset } });
     const properties = this.removeEmptyValuesFromObject(form);
+    console.log(properties);
     return this.http
       .post<{ procedures: procedureResponse[]; length: number }>(
         `${this.url}/procedure`,

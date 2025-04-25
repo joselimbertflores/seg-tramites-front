@@ -1,5 +1,5 @@
 import { Content } from 'pdfmake/interfaces';
-import { convertImageABase64 } from '../image_base64';
+import { convertImageBase64 } from '../image_base64';
 
 interface HeaderProps {
   title: string;
@@ -11,7 +11,7 @@ async function createHeader({
   date,
   code,
 }: HeaderProps): Promise<Content> {
-  const image = await convertImageABase64(
+  const image = await convertImageBase64(
     '../../../assets/img/gams/logo_alcaldia_vertical.jpeg'
   );
   return [

@@ -167,26 +167,6 @@ export default class ReportSearchComponent {
     });
   }
 
-  searchTypesProcedures(term: string) {
-    // this.reportService
-    //   .getTypeProceduresByText(term, this.FormProcedure().get('group')?.value)
-    //   .subscribe((types) => {
-    //     this.typeProcedures.set(
-    //       types.map((el) => ({ value: el._id, text: el.nombre }))
-    //     );
-    //   });
-  }
-
-  setTypeProcedure(id_type: string = '') {
-    this.form().get('type')?.setValue(id_type);
-  }
-
-  changePage(params: { limit: number; index: number }) {
-    // this.cacheService.pageSize.set(params.limit);
-    // this.cacheService.pageIndex.set(params.index);
-    this.getData();
-  }
-
   selectSearchMode(isAdvancedMode: boolean) {
     this.isAdvancedMode.set(isAdvancedMode);
   }
@@ -235,13 +215,14 @@ export default class ReportSearchComponent {
     this.form().patchValue(cache.form);
     this.datasize.set(cache.datasize);
     this.index.set(cache.index);
+    this.limit.set(cache.datasize);
   }
 
   private createSimpleForm(): FormGroup {
     return this.fb.group({
       code: ['', Validators.minLength(4)],
       reference: ['', Validators.minLength(6)],
-      group: [''],
+      group: ['', Validators.required],
     });
   }
 
@@ -253,7 +234,7 @@ export default class ReportSearchComponent {
       type: [''],
       start: [''],
       end: [this.CURRENT_DATE],
-      group: [''],
+      group: ['', Validators.required],
       cite: [''],
     });
   }

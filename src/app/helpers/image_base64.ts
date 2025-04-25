@@ -1,4 +1,4 @@
-export async function convertImageABase64(path: string): Promise<string> {
+export async function convertImageBase64(path: string): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     fetch(path)
       .then((response) => response.blob())
