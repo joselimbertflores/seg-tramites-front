@@ -22,10 +22,7 @@
           <div class="grid grid-cols-1 sm:grid-cols-4 gap-x-4">
             <mat-form-field>
               <mat-label>Grupo</mat-label>
-              <mat-select
-                (valueChange)="changeGroupProcedure()"
-                formControlName="group"
-              >
+              <mat-select formControlName="group">
                 @for (item of GROUPS; track $index) {
                 <mat-option [value]="item.value"> {{ item.label }}</mat-option>
                 }
@@ -121,11 +118,11 @@
         </form>
 
         <mat-action-row>
-          <button mat-icon-button (click)="print()">
+          <button mat-icon-button [disabled]="!hasSearched()" (click)="print()">
             <mat-icon>print</mat-icon>
           </button>
           <button mat-button (click)="clear()">Limpiar</button>
-          <button mat-button [disabled]="isFormValid" (click)="getData()">Buscar</button>
+          <button mat-button [disabled]="!isFormValid" (click)="getData()">Buscar</button>
         </mat-action-row>
       </mat-expansion-panel>
     </mat-accordion>
@@ -139,9 +136,8 @@
       </div>
       }
       @if (!isLoading() && !hasSearched()){
-      <div class="text-gray-500 text-center py-4">
-        Complete el formulario con al menos 2 campos para obtener los
-        resultados.
+      <div class="py-4 italic">
+        "Seleccione un grupo de tramite e ingrese alguno de los otros campos para realizar la busqueda"
       </div>
       }
        @if(!isLoading() && hasSearched() && datasource().length > 0){

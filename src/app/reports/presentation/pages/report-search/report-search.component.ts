@@ -20,9 +20,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 
-import { ReportProcedureTableComponent } from '../../components';
+import { ProcedureReportService } from '../../services/procedure-report.service';
 import { procedureGroup, procedureState } from '../../../../procedures/domain';
-import { ReportService } from '../../services/report.service';
+import { ReportProcedureTableComponent } from '../../components';
 import {
   tableProcedureColums,
   tableProcedureData,
@@ -37,6 +37,7 @@ interface cache {
   datasource: tableProcedureData[];
   datasize: number;
   isAdvancedMode: boolean;
+  hasSearched: boolean;
   form: Object;
   limit: number;
   index: number;
@@ -65,7 +66,7 @@ interface cache {
 })
 export default class ReportSearchComponent {
   private fb = inject(FormBuilder);
-  private reportService = inject(ReportService);
+  private reportService = inject(ProcedureReportService);
   private cacheService: CacheService<cache> = inject(CacheService);
   private pdfService = inject(PdfService);
 
@@ -84,7 +85,7 @@ export default class ReportSearchComponent {
   readonly COLUMNS: tableProcedureColums[] = [
     { columnDef: 'group', header: 'Grupo' },
     { columnDef: 'code', header: 'Codigo' },
-    { columnDef: 'reference', header: 'Referencia' },
+    { columnDef: 'reference', header: 'Referencia', width: '*' },
     { columnDef: 'state', header: 'Estado' },
     { columnDef: 'createdAt', header: 'Fecha' },
   ] as const;
@@ -141,38 +142,34 @@ export default class ReportSearchComponent {
   }
 
   generate() {
-    // const { end, group, ...props } = this.FormProcedure().value;
-    // const isFormEmpty = Object.values(props).every((val) => val === '' || !val);
-    // if (isFormEmpty) return;
     this.index.set(0);
     this.getData();
   }
 
   clear() {
     this.form().reset({});
-    // this.datasource.set([]);
-    this.datasize.set(0);
   }
 
   print() {
-    this.pdfService.generateReportProcedureSheet({
+    this.pdfService.procedureListSheet({
       title: 'Reporte busqueda',
-      datasource: this.datasource(),
+      datasource: this.datasource().map(({ group, ...values }) => ({
+        group: this.translateProcedureGroup(group),
+        ...values,
+      })),
       columns: this.COLUMNS,
-      parameters: {
-        ...this.form().value,
-        group: this.GROUP_LABELS[this.form().get('group')?.value],
+      filterParams: {
+        params: {
+          ...this.form().value,
+          group: this.GROUP_LABELS[this.form().get('group')?.value],
+        },
+        labelsMap: this.LABELS_MAP,
       },
-      labelsMap: this.LABELS_MAP,
     });
   }
 
   selectSearchMode(isAdvancedMode: boolean) {
     this.isAdvancedMode.set(isAdvancedMode);
-  }
-
-  changeGroupProcedure() {
-    this.form().patchValue({ type: '' });
   }
 
   onPageChange({ pageIndex, pageSize }: PageEvent) {
@@ -203,6 +200,7 @@ export default class ReportSearchComponent {
       datasize: this.datasize(),
       index: this.index(),
       limit: this.limit(),
+      hasSearched: this.hasSearched(),
     };
     this.cacheService.save('report-search', cache);
   }
@@ -216,6 +214,7 @@ export default class ReportSearchComponent {
     this.datasize.set(cache.datasize);
     this.index.set(cache.index);
     this.limit.set(cache.datasize);
+    this.hasSearched.set(cache.hasSearched)
   }
 
   private createSimpleForm(): FormGroup {
@@ -237,5 +236,18 @@ export default class ReportSearchComponent {
       group: ['', Validators.required],
       cite: [''],
     });
+  }
+
+  private translateProcedureGroup(group: string) {
+    switch (group) {
+      case 'ExternalProcedure':
+        return 'Externo';
+      case 'InternalProcedure':
+        return 'Interno';
+      case 'ProcurementProcedure':
+        return 'Contratacion';
+      default:
+        return 'Sin definir';
+    }
   }
 }

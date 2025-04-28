@@ -15,6 +15,18 @@ import {
 } from '../../reports/infrastructure';
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
+interface procedureListProps {
+  title: string;
+  datasource: tableProcedureData[];
+  columns: tableProcedureColums[];
+  filterParams: filterParams;
+}
+
+interface filterParams {
+  params: Record<string, any>;
+  labelsMap: Record<string, string>;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -76,20 +88,36 @@ export class PdfService {
     pdfMake.createPdf(docDefinition).print();
   }
 
-  async generateReportProcedureSheet(data: reportTableSheetProps) {
-    const doc = await ProcedureReportTemplate.reportTable({...data, parameters:[{header:"2", "columnDef":"a", width:""}]});
-    // pdfMake.createPdf(doc).print();
+  async procedureListSheet(config: procedureListProps) {
+    const doc = await ProcedureReportTemplate.reportTable({
+      rows: config.datasource,
+      columns: config.columns,
+      title: config.title,
+      parameters: this.filtreAndTranslateParams(
+        config.filterParams.params,
+        config.filterParams.labelsMap
+      ),
+    });
+    pdfMake.createPdf(doc).print();
   }
 
-  private filtreAndTranslateProps(
-    params: Record<string, any>,
+  private filtreAndTranslateParams(
+    params: Object,
     map: Record<string, string>
   ) {
     return Object.entries(params)
       .filter((item) => item[1])
       .reduce(
-        (acc, [key, value]) => ({ [map[key] ? map[key] : key]: value, ...acc }),
+        (acc, [key, value]) => ({
+          [map[key] ? map[key] : key]: this.toValueString(value),
+          ...acc,
+        }),
         {}
       );
+  }
+
+  private toValueString(value: any): string {
+    if (value instanceof Date) return value.toLocaleDateString();
+    return value;
   }
 }

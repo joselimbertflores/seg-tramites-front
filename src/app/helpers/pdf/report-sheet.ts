@@ -15,7 +15,7 @@ export interface reportProcedureSheetProps {
 }
 
 export async function createReportSheet(
-  props: ReportSheetProps,
+  props: any,
   manager: string
 ): Promise<TDocumentDefinitions> {
   return {
@@ -60,8 +60,8 @@ export async function createReportSheet(
 }
 
 function generateSectionResults(
-  results: ReportResults[],
-  colums: ReportColumns[]
+  results: any[],
+  colums: any[]
 ): Content {
   if (results.length === 0) {
     return { text: 'NO SE ENCONTRARON RESULTADOS', alignment: 'center' };

@@ -60,6 +60,7 @@ export class RoleDialogComponent {
 
   ngOnInit(): void {
     this.roleService.getResources().subscribe((resources) => {
+      console.log(resources);
       this.loadResources(resources);
     });
   }

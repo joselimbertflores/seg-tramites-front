@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
-  Component,
   DestroyRef,
+  Component,
   effect,
   inject,
   input,
@@ -14,7 +14,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatSelectModule } from '@angular/material/select';
-import { BehaviorSubject, debounceTime } from 'rxjs';
+import { BehaviorSubject, debounceTime, distinctUntilChanged } from 'rxjs';
 
 export type selectOption<T> = {
   label: string;
@@ -76,8 +76,8 @@ export class SelectSearchComponent<T> implements OnInit {
   onTyped = output<string>();
   onSelect = output<T>();
   nullable = input<boolean>(false);
-
-  optionCtrl: FormControl<selectOption<T> | null> = new FormControl(null);
+  value = input<T>();
+  optionCtrl: FormControl<T | null> = new FormControl(null);
 
   optionFilterCtrl: FormControl<string> = new FormControl();
 
@@ -90,8 +90,12 @@ export class SelectSearchComponent<T> implements OnInit {
   }
 
   ngOnInit(): void {
+    if (this.value()) {
+      this.optionCtrl.setValue(this.value() ?? null);
+    }
     this.optionFilterCtrl.valueChanges
       .pipe(
+        distinctUntilChanged(),
         debounceTime(this.autoFilter() ? 0 : 350),
         takeUntilDestroyed(this.destroyRef)
       )

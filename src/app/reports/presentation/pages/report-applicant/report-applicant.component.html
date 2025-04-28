@@ -1,117 +1,115 @@
-<mat-accordion>
-  <mat-expansion-panel expanded="true">
-    <mat-expansion-panel-header>
-      <mat-panel-title>PROPIEDADES SOLICITANTE </mat-panel-title>
-    </mat-expansion-panel-header>
-    <div class="row">
-      <div class="col-sm-3">
-        <div class="row">
-          <div class="col-12">
-            <mat-form-field>
-              <mat-label>BUSQUEDA POR:</mat-label>
-              <mat-select
-                (selectionChange)="changeTypeSearch($event.value)"
-                [ngModel]="typeSearch()"
-              >
-                <mat-option value="solicitante">SOLICITANTE</mat-option>
-                <mat-option value="representante">REPRESENTANTE</mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-          <div class="col-12">
-            @if (typeSearch()==='solicitante') {
-            <section>
-              <mat-radio-group
-                (change)="typeApplicant.set($event.value)"
-                [ngModel]="typeApplicant()"
-              >
-                <mat-radio-button value="NATURAL"> NATURAL </mat-radio-button>
-                <mat-radio-button value="JURIDICO"> JURIDICO </mat-radio-button>
-              </mat-radio-group>
-            </section>
-            }
-          </div>
+<div class="p-2 sm:p-4">
+  <mat-accordion>
+    <mat-expansion-panel expanded="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title>PROPIEDADES SOLICITANTE </mat-panel-title>
+      </mat-expansion-panel-header>
+      <div class="flex justify-center gap-2 items-center">
+        <div class="w-full sm:w-1/3">
+          <mat-form-field>
+            <mat-label>BUSQUEDA POR:</mat-label>
+            <mat-select
+              (selectionChange)="changeTypeSearch($event.value)"
+              [ngModel]="typeSearch()"
+            >
+              <mat-option value="applicant">SOLICITANTE</mat-option>
+              <mat-option value="representative">REPRESENTANTE</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="w-full sm:w-2/3">
+          <select-search
+            title="Tipo de tramite"
+            [items]="typeProcedures()"
+            [autoFilter]="false"
+            [value]="selectedTypeProcedure()"
+            (onTyped)="searchTypesProcedure($event)"
+            (onSelect)="selectTypeProcedure($event)"
+          />
         </div>
       </div>
-      <div class="col-sm-9">
-        <form [formGroup]="FormApplicant()">
-          <div class="row">
-            @if (typeApplicant()==='NATURAL') {
-            <div class="col-sm-4">
-              <mat-form-field>
-                <mat-label>Nombre</mat-label>
-                <input matInput formControlName="nombre" />
-              </mat-form-field>
-            </div>
-            <div class="col-sm-2">
-              <mat-form-field>
-                <mat-label>Paterno</mat-label>
-                <input matInput formControlName="paterno" />
-              </mat-form-field>
-            </div>
-            <div class="col-sm-2">
-              <mat-form-field>
-                <mat-label>Materno</mat-label>
-                <input matInput formControlName="materno" />
-              </mat-form-field>
-            </div>
-            <div class="col-sm-2">
-              <mat-form-field>
-                <mat-label>CI</mat-label>
-                <input matInput formControlName="dni" />
-              </mat-form-field>
-            </div>
-            <div class="col-sm-2">
-              <mat-form-field>
-                <mat-label>Telefono</mat-label>
-                <input matInput formControlName="telefono" />
-              </mat-form-field>
-            </div>
-            } @else {
-            <div class="col-sm-8">
-              <mat-form-field>
-                <mat-label>Nombre</mat-label>
-                <input matInput formControlName="nombre" />
-              </mat-form-field>
-            </div>
-            <div class="col-sm-4">
-              <mat-form-field>
-                <mat-label>Telefono</mat-label>
-                <input matInput formControlName="telefono" />
-              </mat-form-field>
-            </div>
-            }
+      @if (typeSearch()==='applicant') {
+      <section class="py-2">
+        <span class="mr-4">Tipo de Solicitante:</span>
+        <mat-radio-group
+          (change)="typeApplicant.set($event.value)"
+          [ngModel]="typeApplicant()"
+        >
+          <mat-radio-button value="NATURAL"> NATURAL </mat-radio-button>
+          <mat-radio-button value="JURIDICO"> JURIDICO </mat-radio-button>
+        </mat-radio-group>
+      </section>
+      }
+      <form [formGroup]="formApplicant()">
+        <div class="grid grid-cols-1 sm:grid-cols-5 gap-4">
+          @if (typeApplicant()==='NATURAL') {
+          <div>
+            <mat-form-field>
+              <mat-label>Nombre</mat-label>
+              <input matInput formControlName="firstname" />
+            </mat-form-field>
           </div>
-        </form>
-      </div>
-    </div>
-    <mat-action-row>
-      <button mat-icon-button (click)="print()">
-        <mat-icon>print</mat-icon>
-      </button>
-      <button mat-button (click)="clear()">Limpiar</button>
-      <button
-        mat-button
-        [disabled]="FormApplicant().invalid"
-        (click)="generate()"
-      >
-        Buscar
-      </button>
-    </mat-action-row>
-  </mat-expansion-panel>
-</mat-accordion>
-<div class="mat-elevation-z8 mt-2">
-  <!-- <report-procedure-table
-    [pageSize]="limit"
-    [pageIndex]="index"
-    [datasource]="datasource"
-    [colums]="displaycolums"
-  /> -->
-  <paginator
+          <div>
+            <mat-form-field>
+              <mat-label>Paterno</mat-label>
+              <input matInput formControlName="middlename" />
+            </mat-form-field>
+          </div>
+          <div>
+            <mat-form-field>
+              <mat-label>Materno</mat-label>
+              <input matInput formControlName="lastname" />
+            </mat-form-field>
+          </div>
+          <div>
+            <mat-form-field>
+              <mat-label>CI</mat-label>
+              <input matInput formControlName="dni" />
+            </mat-form-field>
+          </div>
+          <div>
+            <mat-form-field>
+              <mat-label>Telefono</mat-label>
+              <input matInput formControlName="phone" />
+            </mat-form-field>
+          </div>
+
+          } @else {
+          <div class="sm:col-span-2">
+            <mat-form-field>
+              <mat-label>Nombre</mat-label>
+              <input matInput formControlName="firstname" />
+            </mat-form-field>
+          </div>
+          <div>
+            <mat-form-field>
+              <mat-label>Telefono</mat-label>
+              <input matInput formControlName="phone" />
+            </mat-form-field>
+          </div>
+          }
+        </div>
+      </form>
+      <mat-action-row>
+        <button mat-icon-button (click)="print()">
+          <mat-icon>print</mat-icon>
+        </button>
+        <button mat-button (click)="clear()">Limpiar</button>
+        <button mat-button [disabled]="!isFormValid" (click)="generate()">
+          Buscar
+        </button>
+      </mat-action-row>
+    </mat-expansion-panel>
+  </mat-accordion>
+  <report-procedure-table [datasource]="datasource()" [columns]="COLUMNS" />
+  @if (limit() < datasize()){
+  <mat-paginator
+    showFirstLastButtons
     [pageSizeOptions]="[10, 20, 30, 50]"
-    [limit]="limit"
-    [index]="index"
+    [pageSize]="limit()"
+    [pageIndex]="index()"
     [length]="datasize()"
-    (onPageChage)="changePage($event)"
+    (page)="onPageChange($event)"
   />
+  }
 </div>

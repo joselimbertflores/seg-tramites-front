@@ -1,16 +1,19 @@
 export interface reportTableSheetProps {
   title: string;
-  datasource: datas[];
-  columns: reportColumn[];
-  parameters: Record<string, any>;
-  labelsMap: Record<string, string>;
+  datasource: datasource[];
+  columns: column[];
+  parameters: parameters;
 }
-
-export interface reportColumn {
-  header: string;
-  columnDef: keyof datas;
-}
-
-interface datas {
+interface datasource {
   [key: string]: string | number;
+}
+interface column {
+  header: string;
+  columnDef: keyof datasource;
+  width?: 'auto' | '*';
+}
+
+interface parameters {
+  form: Object;
+  labelsMap: Record<string, string>;
 }

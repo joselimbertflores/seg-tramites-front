@@ -7,5 +7,4 @@ export * from './procedures/observations/observations.component';
 export * from './procedures/workflow-graph/workflow-graph.component';
 export * from './procedures/search-input/search-input.component';
 
-export * from './reports/report-procedure-table/report-procedure-table.component';
 export * from './profile/profile.component';
