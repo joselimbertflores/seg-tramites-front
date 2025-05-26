@@ -16,13 +16,22 @@ import {
 } from '@angular/forms';
 
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSelectModule } from '@angular/material/select';
+import { MatInputModule } from '@angular/material/input';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatIconModule } from '@angular/material/icon';
 
-import { MaterialModule } from '../../../../material.module';
+
 import {
+  AlertMessageComponent,
+  SelectSearchComponent,
   CacheService,
   PdfService,
   selectOption,
-  SelectSearchComponent,
 } from '../../../../shared';
 import { ProcedureReportService } from '../../services/procedure-report.service';
 import {
@@ -44,6 +53,7 @@ interface cache {
   index: number;
   typeProcedures: selectOption<typeProcedureOption>[];
   selectedTypeProcedure: typeProcedureOption | null;
+  hasSearched: boolean;
 }
 
 interface typeProcedureOption {
@@ -56,11 +66,19 @@ interface typeProcedureOption {
   imports: [
     CommonModule,
     FormsModule,
+    AlertMessageComponent,
+    MatProgressBarModule,
     ReactiveFormsModule,
-    MaterialModule,
-    ReportProcedureTableComponent,
-    SelectSearchComponent,
     MatPaginatorModule,
+    MatExpansionModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatRadioModule,
+    MatIconModule,
+    MatButtonModule,
+    SelectSearchComponent,
+    ReportProcedureTableComponent,
   ],
   templateUrl: './report-applicant.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -81,6 +99,8 @@ export default class ReportApplicantComponent {
       ? this.formByApplicatNatural()
       : this.formByApplicatJuridico();
   });
+
+  private readonly KEY_CACHE = 'report-applicant';
 
   typeProcedures = signal<selectOption<typeProcedureOption>[]>([]);
   selectedTypeProcedure = signal<typeProcedureOption | null>(null);
@@ -121,6 +141,8 @@ export default class ReportApplicantComponent {
   }
 
   getData() {
+    this.isLoading.set(true);
+    this.hasSearched.set(true);
     this.reportService
       .searchProcedureByApplicant({
         limit: this.limit(),
@@ -134,9 +156,15 @@ export default class ReportApplicantComponent {
         },
         typeProcedure: this.selectedTypeProcedure()?.id,
       })
-      .subscribe((resp) => {
-        this.datasource.set(resp.procedures);
-        this.datasize.set(resp.length);
+      .subscribe({
+        next: (resp) => {
+          this.datasource.set(resp.procedures);
+          this.datasize.set(resp.length);
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.isLoading.set(false);
+        },
       });
   }
 
@@ -160,13 +188,17 @@ export default class ReportApplicantComponent {
 
   print() {
     this.pdfService.procedureListSheet({
-      title: 'Reporte solicitante',
-      datasource: this.datasource(),
+      title: 'Reporte Solicitante',
+      datasource: this.datasource().map((item) => ({
+        ...item,
+        group: 'Externo',
+      })),
       columns: this.COLUMNS,
       filterParams: {
         params: {
           'Tipo de tramite': this.selectedTypeProcedure()?.name,
-          'Busqueda por': this.typeSearch() === 'applicant' ? 'Solicitante' : 'Representante',
+          'Busqueda por':
+            this.typeSearch() === 'applicant' ? 'Solicitante' : 'Representante',
           'Tipo de solicitante': this.typeApplicant(),
           ...this.formApplicant().value,
         },
@@ -176,7 +208,6 @@ export default class ReportApplicantComponent {
   }
 
   searchTypesProcedure(term: string) {
-    if (!term) return;
     this.reportService.getTypeProcedures(term).subscribe((values) => {
       this.typeProcedures.set(
         values.map(({ label, value }) => ({
@@ -232,12 +263,13 @@ export default class ReportApplicantComponent {
       selectedTypeProcedure: this.selectedTypeProcedure(),
       limit: this.limit(),
       index: this.offset(),
+      hasSearched: this.hasSearched(),
     };
-    this.cacheService.save('report-applicant', cache);
+    this.cacheService.save(this.KEY_CACHE, cache);
   }
 
   private loadCache(): void {
-    const cache = this.cacheService.load('report-applicant');
+    const cache = this.cacheService.load(this.KEY_CACHE);
     if (!cache) return;
     this.datasource.set(cache.datasource);
     this.datasize.set(cache.datasize);
@@ -247,6 +279,7 @@ export default class ReportApplicantComponent {
     this.limit.set(cache.limit);
     this.index.set(cache.index);
     this.typeProcedures.set(cache.typeProcedures);
+    this.hasSearched.set(cache.hasSearched);
     this.selectedTypeProcedure.set(cache.selectedTypeProcedure);
   }
 }

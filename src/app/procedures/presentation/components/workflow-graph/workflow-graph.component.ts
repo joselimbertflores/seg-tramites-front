@@ -6,24 +6,27 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { Edge, NgxGraphModule, Node } from '@swimlane/ngx-graph';
+import { ClusterNode, Edge, NgxGraphModule, Node } from '@swimlane/ngx-graph';
 
-import { communication } from '../../../../communications/infrastructure';
+import { workflow } from '../../../../communications/infrastructure';
 import { communcationStatus } from '../../../../communications/domain';
 @Component({
   selector: 'workflow-graph',
   imports: [CommonModule, NgxGraphModule, MatIconModule],
   template: `
     <div class="w-full h-[80vh] p-4">
-      <div class="border border-black container h-full ">
+      <div class="border border-black container h-full w-full">
         <ngx-graph
           [nodes]="graph().nodes"
           [links]="graph().links"
+          [clusters]="graph().clusters"
+          [animate]="false"
           [draggingEnabled]="false"
           [showMiniMap]="true"
           [autoCenter]="true"
           [nodeWidth]="380"
           [nodeHeight]="200"
+          [autoZoom]="true"
           layout="dagreCluster"
         >
           <ng-template #defsTemplate>
@@ -48,16 +51,36 @@ import { communcationStatus } from '../../../../communications/domain';
                 [attr.width]="cluster.dimension.width"
                 [attr.height]="cluster.dimension.height"
                 [attr.fill]="cluster.data.color"
+                stroke="#666"
+                stroke-width="1"
               />
+              <svg:rect
+                x="0"
+                y="0"
+                [attr.width]="cluster.dimension.width"
+                height="28"
+                fill="black"
+                rx="5"
+                ry="5"
+              ></svg:rect>
+              <svg:text
+                fill="white"
+                font-size="14"
+                [attr.x]="cluster.dimension.width / 2"
+                y="18"
+                text-anchor="middle"
+              >
+                {{ cluster.label }}
+              </svg:text>
             </svg:g>
           </ng-template>
 
           <ng-template #nodeTemplate let-node>
             <svg:foreignObject width="380" height="200">
               <div
-                class="w-[380px] h-[200px] rounded-xl border border-black bg-blue-50"
+                class="w-[380px] h-[200px] rounded-xl border border-black theme-color"
               >
-                <div class="h-[30px] flex justify-end items-center  px-2">
+                <div class="h-[30px] flex justify-end items-center px-2">
                   @if(node.data.location){
                   <mat-icon>article</mat-icon>
                   }
@@ -80,9 +103,10 @@ import { communcationStatus } from '../../../../communications/domain';
             <svg:g class="edge">
               <svg:path
                 class="line"
-                stroke-width="3"
+                stroke-width="5"
                 [ngClass]="[link.data.class]"
                 marker-end="url(#arrow)"
+                [attr.stroke-dasharray]="link.data.original ? '0' : '5,5'"
               ></svg:path>
               <svg:text class="edge-label" text-anchor="middle">
                 <textPath
@@ -90,6 +114,8 @@ import { communcationStatus } from '../../../../communications/domain';
                   [attr.href]="'#' + link.id"
                   [style.dominant-baseline]="link.dominantBaseline"
                   startOffset="50%"
+                  text-anchor="middle"
+                  [style.font-size]="link.data.fontSize || '12px'"
                 >
                   {{ link.label }}
                 </textPath>
@@ -112,11 +138,15 @@ import { communcationStatus } from '../../../../communications/domain';
       stroke: #8338EC;
       stroke-dasharray: 4 4;
     }
+
+    .theme-color{
+      background-color:var(--mat-sys-surface-bright)
+    }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkflowGraphComponent {
-  workflow = input.required<communication[]>();
+  workflow = input.required<workflow[]>();
   graph = computed(() => this.createGraph(this.workflow()));
 
   private errorStates: string[] = [
@@ -124,10 +154,11 @@ export class WorkflowGraphComponent {
     communcationStatus.AutoRejected,
   ];
 
-  private createGraph(workflow: communication[]) {
+  private createGraph(workflow: workflow[]) {
     const nodes: Record<string, Node> = {};
     const links: Edge[] = [];
-    workflow.forEach(({ sender, recipient, status }, index) => {
+    const clusterMap = new Map<string, ClusterNode>();
+    workflow.forEach(({ sender, recipient, status, isOriginal }, index) => {
       nodes[sender.account] = {
         id: sender.account,
         label: sender.account,
@@ -157,9 +188,36 @@ export class WorkflowGraphComponent {
         label: (index + 1).toString(),
         data: {
           class: status,
+          original: isOriginal,
         },
       });
+      // Clusters (sender)
+      if (!clusterMap.has(sender.dependency._id)) {
+        clusterMap.set(sender.dependency._id, {
+          id: sender.dependency._id,
+          label: sender.dependency.nombre,
+          childNodeIds: [],
+        });
+      }
+      clusterMap.get(sender.dependency._id)!.childNodeIds!.push(sender.account);
+
+      // Clusters (recipient)
+      if (!clusterMap.has(recipient.dependency._id)) {
+        clusterMap.set(recipient.dependency._id, {
+          id: recipient.dependency._id,
+          label: recipient.dependency.nombre, // lo podemos llenar si tienes el nombre
+          childNodeIds: [],
+        });
+      }
+      clusterMap
+        .get(recipient.dependency._id)!
+        .childNodeIds!.push(recipient.account);
     });
-    return { nodes: [...Object.values(nodes)], links: [...links] };
+
+    return {
+      nodes: [...Object.values(nodes)],
+      links: [...links],
+      clusters: Array.from(clusterMap.values()),
+    };
   }
 }

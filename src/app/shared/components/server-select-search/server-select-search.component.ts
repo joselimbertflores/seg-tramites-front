@@ -63,7 +63,7 @@ export class ServerSelectSearchComponent<T> implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.bankFilterCtrl.valueChanges
       .pipe(
-        filter((search) => !!search),
+        // filter((search) => !!search),
         takeUntil(this._onDestroy),
         debounceTime(350)
       )

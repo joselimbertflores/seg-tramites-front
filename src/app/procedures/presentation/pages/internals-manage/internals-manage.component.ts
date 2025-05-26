@@ -30,6 +30,7 @@ import {
   SubmissionDialogComponent,
 } from '../../../../communications/presentation/pages/inbox/submission-dialog/submission-dialog.component';
 import { ProcessService } from '../../../../communications/presentation/services';
+import { RouteMapComponent } from '../../../../communications/presentation/components/route-map/route-map.component';
 interface cache {
   datasource: InternalProcedure[];
   datasize: number;
@@ -168,7 +169,12 @@ export default class InternalsManageComponent {
   generateRouteMap(procedure: InternalProcedure) {
     // TODO gereate route map
     this.processService.getWorkflow(procedure._id).subscribe((workflow) => {
-      this.pdfService.generateRouteSheet(procedure, workflow);
+      this.dialog.open(RouteMapComponent, {
+        data: { procedure, workflow },
+        width: '1200px',
+        maxWidth:'1200px'
+      });
+      // this.pdfService.generateRouteSheet(procedure, workflow);
     });
   }
 

@@ -100,9 +100,12 @@ export class SelectSearchComponent<T> implements OnInit {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe((value) => {
-        this.onTyped.emit(value);
+        const trimmed = value.trim();
         if (this.autoFilter()) {
-          this.filter(value);
+          this.filter(trimmed);
+        }
+        if (!this.autoFilter() && trimmed !== '') {
+          this.onTyped.emit(trimmed);
         }
       });
 

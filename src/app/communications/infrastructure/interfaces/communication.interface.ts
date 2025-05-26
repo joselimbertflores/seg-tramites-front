@@ -12,12 +12,15 @@ export interface communication {
   actionLog?: actionLog;
   isOriginal: boolean;
   remainingTime?: number;
+  parentId?: string;
 }
 
 interface officer {
   account: string;
   fullname: string;
   jobtitle: string;
+  dependency: any;
+  institution: any;
 }
 
 interface procedureProps {

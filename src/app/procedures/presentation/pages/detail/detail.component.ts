@@ -28,9 +28,10 @@ import {
   ExternalDescriptionComponent,
   InternalDescriptionComponent,
   WorkflowGraphComponent,
-  WorkflowListComponent,
+  WorkflowPathsComponent,
 } from '../../components';
 import { BackButtonDirective } from '../../../../shared';
+import { workflow } from '../../../../communications/infrastructure';
 
 @Component({
   selector: 'app-detail',
@@ -41,7 +42,7 @@ import { BackButtonDirective } from '../../../../shared';
     MatButtonModule,
     MatTabsModule,
     BackButtonDirective,
-    WorkflowListComponent,
+    WorkflowPathsComponent,
     WorkflowGraphComponent,
     ExternalDescriptionComponent,
     InternalDescriptionComponent,
@@ -85,7 +86,7 @@ import { BackButtonDirective } from '../../../../shared';
         </mat-tab>
         @if (workflow().length > 0) {
         <mat-tab label="Flujo de trabajo">
-          <workflow-list [workflow]="workflow()" />
+          <workflow-paths [workflow]="workflow()" />
         </mat-tab>
         <mat-tab label="Flujo de trabajo grafico">
           <workflow-graph [workflow]="workflow()" />
@@ -112,7 +113,7 @@ export default class DetailComponent {
   @Input('group') group: string;
 
   procedure = signal<Procedure | null>(null);
-  workflow = signal<any[]>([]);
+  workflow = signal<workflow[]>([]);
   isLoding = signal(true);
 
   public groupEnum = procedureGroup;

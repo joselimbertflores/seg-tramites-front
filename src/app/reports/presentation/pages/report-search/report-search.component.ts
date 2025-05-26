@@ -213,8 +213,8 @@ export default class ReportSearchComponent {
     this.form().patchValue(cache.form);
     this.datasize.set(cache.datasize);
     this.index.set(cache.index);
-    this.limit.set(cache.datasize);
-    this.hasSearched.set(cache.hasSearched)
+    this.limit.set(cache.limit);
+    this.hasSearched.set(cache.hasSearched);
   }
 
   private createSimpleForm(): FormGroup {

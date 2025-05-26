@@ -7,6 +7,8 @@ export * from './components/dialogs/confirm-dialog/confirm-dialog.component';
 export * from './components/dialogs/loader-dialog/loader-dialog.component';
 export * from './components/dialogs/message-dialog/message-dialog.component';
 
+export * from './components/pdf-display/pdf-display.component';
+
 export * from './services/cache.service';
 export * from './services/alert.service';
 export * from './services/docx.service';
@@ -25,6 +27,7 @@ export * from './components/badge/badge.component';
 export * from './components/progress-bar/progress-bar.component';
 
 export * from './pipes/form-error-messages.pipe';
+export * from './pipes/safe.pipe';
 
 export * from './animations/route-animations';
 export * from './animations/overlay-animations';

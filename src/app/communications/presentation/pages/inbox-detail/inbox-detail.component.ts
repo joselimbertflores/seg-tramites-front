@@ -28,7 +28,7 @@ import {
 } from '../../../../shared';
 import {
   WorkflowGraphComponent,
-  WorkflowListComponent,
+  WorkflowPathsComponent,
 } from '../../../../procedures/presentation/components';
 import {
   ExternalProcedure,
@@ -70,7 +70,7 @@ import { ArchiveDialogComponent } from '../inbox/archive-dialog/archive-dialog.c
     ExternalCommunicationComponent,
     ProcurementCommunicationComponent,
     InboxCardComponent,
-    WorkflowListComponent,
+    WorkflowPathsComponent,
     MatProgressSpinnerModule,
   ],
   templateUrl: './inbox-detail.component.html',

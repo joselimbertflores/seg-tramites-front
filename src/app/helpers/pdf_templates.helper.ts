@@ -8,6 +8,8 @@ import { Procedure, procedureGroup } from '../procedures/domain';
 import pdfMake from 'pdfmake/build/pdfmake';
 import { Communication } from '../communications/domain';
 import { toOrdinal } from './ordinal';
+import { communication, workflow } from '../communications/infrastructure';
+import { text } from 'd3';
 
 interface firstSectionDetails {
   code: string;
@@ -75,19 +77,43 @@ export class PdfTemplates {
 
   static async routeMap(
     procedure: Procedure,
-    workflow: Communication[]
+    workflow: workflow[][]
   ): Promise<Content[]> {
+    const leftImage = await convertImageBase64(
+      'images/institution/alcaldia.jpeg'
+    );
+    const rightImage = await convertImageBase64(
+      'images/institution/sacaba.jpeg'
+    );
     return [
-      await this.sectionHeaderRouteMap(),
+      workflow.map((el) => [
+        this.sectionHeaderRouteMap(leftImage, rightImage),
+        this.firstSection(procedure, el),
+        this.secondSection(el),
+        [{ text: '', pageBreak: 'before' }],
+      ]),
+      // ,
+    ];
+  }
+  static async routeMap2(
+    procedure: Procedure,
+    workflow: workflow[]
+  ): Promise<Content[]> {
+    const leftImage = await convertImageBase64(
+      'images/institution/alcaldia.jpeg'
+    );
+    const rightImage = await convertImageBase64(
+      'images/institution/sacaba.jpeg'
+    );
+    return [
+      this.sectionHeaderRouteMap(leftImage, rightImage),
       this.firstSection(procedure, workflow),
       this.secondSection(workflow),
+      // ,
     ];
   }
 
-  
- 
-
-  private static firstSection(procedure: Procedure, workflow: Communication[]) {
+  private static firstSection(procedure: Procedure, workflow: workflow[]) {
     const { emitter, receiver, phone } = procedure.originDetails();
     const sectionReceiver = receiver
       ? {
@@ -121,28 +147,15 @@ export class PdfTemplates {
       },
       internalNumber: workflow[0]?.internalNumber ?? '',
       receiver: sectionReceiver,
-      receivedDate:
-        workflow.length > 0
-          ? {
-              date: workflow[0].sentDate.toLocaleDateString('es-ES'),
-              hour: workflow[0].sentDate.toLocaleTimeString('es-ES', {
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false,
-              }),
-              quantity: workflow[0].attachmentsCount,
-            }
-          : { date: '', hour: '', quantity: '' },
+      receivedDate: { date: '', hour: '', quantity: '' },
+      // f
     });
   }
 
-  private static async sectionHeaderRouteMap(): Promise<Content> {
-    const leftImage = await convertImageBase64(
-      'images/institution/alcaldia.jpeg'
-    );
-    const rightImage = await convertImageBase64(
-      'images/institution/sacaba.jpeg'
-    );
+  private static sectionHeaderRouteMap(
+    leftImage: string,
+    rightImage: string
+  ): Content {
     return [
       {
         margin: [0, 0, 0, 5],
@@ -167,7 +180,7 @@ export class PdfTemplates {
     ];
   }
 
-  static secondSection(workflow: Communication[]) {
+  static secondSection(workflow: workflow[]) {
     const containers: ContentTable[] = [];
     for (const [index, item] of workflow.entries()) {
       const nextStage = workflow
@@ -181,8 +194,8 @@ export class PdfTemplates {
         internalNumber: nextStage?.internalNumber ?? '',
         sentDate: item.receivedDate
           ? {
-              date: item.receivedDate.toLocaleDateString('es-ES'),
-              hour: item.receivedDate.toLocaleTimeString('es-ES', {
+              date: new Date(item.receivedDate).toLocaleDateString('es-ES'),
+              hour: new Date(item.receivedDate).toLocaleTimeString('es-ES', {
                 hour: '2-digit',
                 minute: '2-digit',
                 hour12: false,
@@ -190,10 +203,22 @@ export class PdfTemplates {
               quantity: item.attachmentsCount,
             }
           : { date: '', hour: '', quantity: '' },
+
+        // receivedDate: nextStage
+        //   ? {
+        //       date: nextStage.sentDate.toLocaleDateString('es-ES'),
+        //       hour: nextStage.sentDate.toLocaleTimeString('es-ES', {
+        //         hour: '2-digit',
+        //         minute: '2-digit',
+        //         hour12: false,
+        //       }),
+        //       quantity: nextStage.attachmentsCount,
+        //     }
+        //   : { date: '', hour: '', quantity: '' },
         receivedDate: nextStage
           ? {
-              date: nextStage.sentDate.toLocaleDateString('es-ES'),
-              hour: nextStage.sentDate.toLocaleTimeString('es-ES', {
+              date: new Date(nextStage.sentDate).toLocaleDateString('es-ES'),
+              hour: new Date(nextStage.sentDate).toLocaleTimeString('es-ES', {
                 hour: '2-digit',
                 minute: '2-digit',
                 hour12: false,
