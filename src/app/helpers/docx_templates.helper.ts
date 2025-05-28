@@ -19,7 +19,7 @@ import {
   VerticalPositionRelativeFrom,
   WidthType,
 } from 'docx';
-import { convertImageBase64 } from './image_base64';
+import { imageToBase64 } from './image_base64';
 import { ProcurementProcedure } from '../procedures/domain';
 import { numberToText } from './numer_to_text.helper';
 
@@ -213,10 +213,10 @@ export class DocxTemplates {
   }
 
   private static async heeader(): Promise<Header> {
-    const leftImage = await convertImageBase64(
+    const leftImage = await imageToBase64(
       'images/institution/alcaldia.jpeg'
     );
-    const rightImage = await convertImageBase64(
+    const rightImage = await imageToBase64(
       'images/institution/sacaba.jpeg'
     );
     return new Header({

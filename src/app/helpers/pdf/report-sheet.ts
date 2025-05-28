@@ -1,5 +1,5 @@
 import { Content, TDocumentDefinitions } from 'pdfmake/interfaces';
-import { convertImageBase64 } from '../image_base64';
+import { imageToBase64 } from '../image_base64';
 import { tableProcedureColums, tableProcedureData } from '../../reports/infrastructure';
 
 const translateFields: Record<string, string> = {
@@ -23,7 +23,7 @@ export async function createReportSheet(
       columns: [
         {
           width: 120,
-          image: await convertImageBase64(
+          image: await imageToBase64(
             '../../../assets/img/gams/logo_alcaldia.jpeg'
           ),
         },

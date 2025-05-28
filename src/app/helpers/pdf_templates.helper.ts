@@ -3,7 +3,7 @@ import {
   ContentTable,
   TDocumentDefinitions,
 } from 'pdfmake/interfaces';
-import { convertImageBase64 } from './image_base64';
+import { imageToBase64 } from './image_base64';
 import { Procedure, procedureGroup } from '../procedures/domain';
 import pdfMake from 'pdfmake/build/pdfmake';
 import { Communication } from '../communications/domain';
@@ -46,12 +46,8 @@ interface participant {
 
 export class PdfTemplates {
   static async headerInternalDocument(): Promise<Content> {
-    const leftImage = await convertImageBase64(
-      'images/institution/alcaldia.jpeg'
-    );
-    const rightImage = await convertImageBase64(
-      'images/institution/sacaba.jpeg'
-    );
+    const leftImage = await imageToBase64('images/institution/alcaldia.jpeg');
+    const rightImage = await imageToBase64('images/institution/sacaba.jpeg');
     return [
       {
         style: 'cabecera',
@@ -79,41 +75,37 @@ export class PdfTemplates {
     procedure: Procedure,
     workflow: workflow[][]
   ): Promise<Content[]> {
-    const leftImage = await convertImageBase64(
-      'images/institution/alcaldia.jpeg'
-    );
-    const rightImage = await convertImageBase64(
-      'images/institution/sacaba.jpeg'
-    );
+    const leftImage = await imageToBase64('images/institution/alcaldia.jpeg');
+    const rightImage = await imageToBase64('images/institution/sacaba.jpeg');
     return [
-      workflow.map((el) => [
-        this.sectionHeaderRouteMap(leftImage, rightImage),
-        this.firstSection(procedure, el),
-        this.secondSection(el),
-        [{ text: '', pageBreak: 'before' }],
-      ]),
+      // workflow.map((el) => [
+      //   this.sectionHeaderRouteMap(leftImage, rightImage),
+      //   this.firstSection(procedure, el),
+      //   this.secondSection(el),
+      //   [{ text: '', pageBreak: 'before' }],
+      // ]),
       // ,
     ];
   }
   static async routeMap2(
     procedure: Procedure,
-    workflow: workflow[]
+    workflow: workflow[],
+    isOriginal: boolean = true
   ): Promise<Content[]> {
-    const leftImage = await convertImageBase64(
-      'images/institution/alcaldia.jpeg'
-    );
-    const rightImage = await convertImageBase64(
-      'images/institution/sacaba.jpeg'
-    );
+    const leftImage = await imageToBase64('images/institution/alcaldia.jpeg');
+    const rightImage = await imageToBase64('images/institution/sacaba.jpeg');
     return [
       this.sectionHeaderRouteMap(leftImage, rightImage),
-      this.firstSection(procedure, workflow),
+      this.firstSection(procedure, workflow, isOriginal),
       this.secondSection(workflow),
-      // ,
     ];
   }
 
-  private static firstSection(procedure: Procedure, workflow: workflow[]) {
+  private static firstSection(
+    procedure: Procedure,
+    workflow: workflow[],
+    isOriginal: boolean
+  ) {
     const { emitter, receiver, phone } = procedure.originDetails();
     const sectionReceiver = receiver
       ? {
@@ -126,30 +118,33 @@ export class PdfTemplates {
           jobtitle: workflow[0].recipient.jobtitle,
         }
       : { fullname: '', jobtitle: '' };
-    return this.firstRouteMapContainer({
-      code: procedure.code,
-      cite: procedure.cite,
-      reference: procedure.reference,
-      group: procedure.group,
-      emitter: {
-        fullname: emitter.fullname,
-        jobtitle: emitter.jobtitle ?? 'Sin cargo',
+    return this.firstRouteMapContainer(
+      {
+        code: procedure.code,
+        cite: procedure.cite,
+        reference: procedure.reference,
+        group: procedure.group,
+        emitter: {
+          fullname: emitter.fullname,
+          jobtitle: emitter.jobtitle ?? 'Sin cargo',
+        },
+        phone: phone,
+        sendDate: {
+          date: procedure.createdAt.toLocaleDateString('es-ES'),
+          hour: procedure.createdAt.toLocaleTimeString('es-ES', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+          }),
+          quantity: procedure.numberOfDocuments,
+        },
+        internalNumber: workflow[0]?.internalNumber ?? '',
+        receiver: sectionReceiver,
+        receivedDate: { date: '', hour: '', quantity: '' },
+        // f
       },
-      phone: phone,
-      sendDate: {
-        date: procedure.createdAt.toLocaleDateString('es-ES'),
-        hour: procedure.createdAt.toLocaleTimeString('es-ES', {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false,
-        }),
-        quantity: procedure.numberOfDocuments,
-      },
-      internalNumber: workflow[0]?.internalNumber ?? '',
-      receiver: sectionReceiver,
-      receivedDate: { date: '', hour: '', quantity: '' },
-      // f
-    });
+      isOriginal
+    );
   }
 
   private static sectionHeaderRouteMap(
@@ -260,18 +255,53 @@ export class PdfTemplates {
     return containers;
   }
 
-  private static firstRouteMapContainer({
-    group,
-    code,
-    reference,
-    sendDate,
-    cite,
-    emitter,
-    receiver,
-    receivedDate,
-    internalNumber = '',
-    phone,
-  }: firstSectionDetails) {
+  private static firstRouteMapContainer(
+    {
+      group,
+      code,
+      reference,
+      sendDate,
+      cite,
+      emitter,
+      receiver,
+      receivedDate,
+      internalNumber = '',
+      phone,
+    }: firstSectionDetails,
+    isOriginal: boolean
+  ): ContentTable {
+    const selectionOptions = isOriginal
+      ? [
+          {
+            label: 'CORRESPONDENCIA INTERNA',
+            active:
+              group === procedureGroup.Internal ||
+              group === procedureGroup.Procurement,
+          },
+          {
+            label: 'CORRESPONDENCIA EXTERNA',
+            active: group === procedureGroup.External,
+          },
+          {
+            label: 'COPIA\n\n',
+            active: false, // O la condición que corresponda
+          },
+        ]
+      : [
+          {
+            label: 'CORRESPONDENCIA INTERNA',
+            active: false,
+          },
+          {
+            label: 'CORRESPONDENCIA EXTERNA',
+            active: false,
+          },
+          {
+            label: 'COPIA\n\n',
+            active: true,
+          },
+        ];
+
     return {
       fontSize: 7,
       table: {
@@ -284,61 +314,76 @@ export class PdfTemplates {
               style: 'selection_container',
               fontSize: 6,
               columns: [
-                {
-                  width: 100,
+                // {
+                //   width: 100,
+                //   table: {
+                //     widths: [75, 5],
+                //     body: [
+                //       [
+                //         {
+                //           text: 'CORRESPONDENCIA INTERNA',
+                //           border: [false, false, false, false],
+                //         },
+                //         {
+                //           text:
+                //             group === procedureGroup.Internal ||
+                //             procedureGroup.Procurement
+                //               ? 'X'
+                //               : '',
+                //           style: 'header',
+                //         },
+                //       ],
+                //     ],
+                //   },
+                // },
+                // {
+                //   width: 100,
+                //   table: {
+                //     widths: [75, 5],
+                //     body: [
+                //       [
+                //         {
+                //           text: 'CORRESPONDENCIA EXTERNA',
+                //           border: [false, false, false, false],
+                //         },
+                //         {
+                //           text: group === procedureGroup.External ? 'X' : '',
+                //           style: 'header',
+                //         },
+                //       ],
+                //     ],
+                //   },
+                // },
+                // {
+                //   width: 50,
+                //   table: {
+                //     widths: [30, 5],
+                //     body: [
+                //       [
+                //         {
+                //           text: 'COPIA\n\n',
+                //           border: [false, false, false, false],
+                //         },
+                //         { text: '', style: 'header' },
+                //       ],
+                //     ],
+                //   },
+                // },
+                ...selectionOptions.map((option) => ({
+                  width: option.label.includes('COPIA') ? 50 : 100,
                   table: {
-                    widths: [75, 5],
+                    widths: [option.label.includes('COPIA') ? 30 : 75, 5],
                     body: [
                       [
                         {
-                          text: 'CORRESPONDENCIA INTERNA',
+                          text: option.label,
                           border: [false, false, false, false],
                         },
-                        {
-                          text:
-                            group === procedureGroup.Internal ||
-                            procedureGroup.Procurement
-                              ? 'X'
-                              : '',
-                          style: 'header',
-                        },
+                        { text: option.active ? 'X' : '', style: 'header' },
                       ],
                     ],
                   },
-                },
-                {
-                  width: 100,
-                  table: {
-                    widths: [75, 5],
-                    body: [
-                      [
-                        {
-                          text: 'CORRESPONDENCIA EXTERNA',
-                          border: [false, false, false, false],
-                        },
-                        {
-                          text: group === procedureGroup.External ? 'X' : '',
-                          style: 'header',
-                        },
-                      ],
-                    ],
-                  },
-                },
-                {
-                  width: 50,
-                  table: {
-                    widths: [30, 5],
-                    body: [
-                      [
-                        {
-                          text: 'COPIA\n\n',
-                          border: [false, false, false, false],
-                        },
-                        { text: '', style: 'header' },
-                      ],
-                    ],
-                  },
-                },
+                })),
                 {
                   width: '*',
                   table: {

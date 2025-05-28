@@ -1,5 +1,5 @@
 import { Content, ContentTable } from 'pdfmake/interfaces';
-import { convertImageBase64, TimeManager, toOrdinal } from '../';
+import { imageToBase64, TimeManager, toOrdinal } from '../';
 
 interface RouteMapProps {
   index: number;
@@ -171,7 +171,7 @@ async function createHeaderContainer(): Promise<Content> {
       style: 'cabecera',
       columns: [
         {
-          image: await convertImageBase64(
+          image: await imageToBase64(
             '../../../assets/img/gams/logo_alcaldia.jpeg'
           ),
           width: 140,
@@ -183,7 +183,7 @@ async function createHeaderContainer(): Promise<Content> {
           alignment: 'center',
         },
         {
-          image: await convertImageBase64(
+          image: await imageToBase64(
             '../../../assets/img/gams/escudo_sacaba.jpeg'
           ),
           width: 60,

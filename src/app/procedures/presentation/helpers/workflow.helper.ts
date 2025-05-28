@@ -92,3 +92,45 @@ export function resolveWorkflowPaths(raw: workflow[]): {
     (a, b) => (b.isOriginal ? 1 : 0) - (a.isOriginal ? 1 : 0)
   );
 }
+
+export function buildPathTo(
+  targetId: string,
+  communications: workflow[]
+): workflow[] {
+  const byId = new Map<string, workflow>();
+  const path: workflow[] = [];
+
+  for (const comm of communications) {
+    byId.set(comm._id, comm);
+  }
+
+  let current = byId.get(targetId);
+  while (current) {
+    path.unshift(current);
+    current = current.parentId ? byId.get(current.parentId) : undefined;
+  }
+
+  return path;
+}
+
+export function resolveWorkflowPathTo(
+  targeId: string,
+  communications: workflow[]
+) {
+  const isModern = communications.some((w) => w.isOriginal === true);
+  if (!isModern) {
+    return {
+      title: 'Flujo antiguo',
+      isOriginal: false,
+      path: communications,
+    };
+  }
+  const path = buildPathTo(targeId, communications);
+  const isOriginal = path.every((w) => w.isOriginal);
+
+  return {
+    path,
+    isOriginal,
+    title: isOriginal ? 'Original' : `Copia`,
+  };
+}

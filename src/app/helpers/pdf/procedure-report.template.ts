@@ -1,5 +1,5 @@
 import { Content, TDocumentDefinitions } from 'pdfmake/interfaces';
-import { convertImageBase64 } from '../image_base64';
+import { imageToBase64 } from '../image_base64';
 
 interface reportTableProps {
   title: string;
@@ -14,8 +14,8 @@ interface column {
 }
 export class ProcedureReportTemplate {
   static async reportTable( data: reportTableProps): Promise<TDocumentDefinitions> {
-    const rightImage = await convertImageBase64( 'images/institution/alcaldia.jpeg');
-    const leftImage = await convertImageBase64('images/institution/slogan.png');
+    const rightImage = await imageToBase64( 'images/institution/alcaldia.jpeg');
+    const leftImage = await imageToBase64('images/institution/slogan.png');
     return {
       header: {
         alignment: 'center',

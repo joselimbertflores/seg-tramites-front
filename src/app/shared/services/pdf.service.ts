@@ -14,6 +14,7 @@ import {
   tableProcedureData,
 } from '../../reports/infrastructure';
 import { communication, workflow } from '../../communications/infrastructure';
+import { from, map, Observable } from 'rxjs';
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 interface procedureListProps {
@@ -34,60 +35,118 @@ interface filterParams {
 export class PdfService {
   constructor() {}
 
-  async testRouteMaop(procedure: Procedure, workflow: workflow[]) {
-    const re = this.buildPaths(workflow);
-    const ress = [];
-    for (const element of re) {
-      const docDefinition: TDocumentDefinitions = {
-        pageSize: 'LETTER',
-        pageMargins: [30, 30, 30, 30],
-        content: await PdfTemplates.routeMap2(procedure, element),
-        footer: {
-          margin: [10, 0, 10, 0],
-          fontSize: 7,
-          pageBreak: 'after',
-          text: [
-            {
-              text: 'NOTA: Esta hoja de ruta de correspondencia, no debera ser separada ni extraviada del documento del cual se encuentra adherida, por constituirse parte indivisible del mismo',
-              bold: true,
+  testRouteMaop(
+    procedure: Procedure,
+    workflow: workflow[],
+    isOriginal: boolean
+  ) {
+    return new Observable<Blob>((observer) => {
+      PdfTemplates.routeMap2(procedure, workflow, isOriginal)
+        .then((content) => {
+          const docDefinition: TDocumentDefinitions = {
+            pageSize: 'LETTER',
+            pageMargins: [30, 30, 30, 30],
+            content,
+            footer: {
+              margin: [10, 0, 10, 0],
+              fontSize: 7,
+              pageBreak: 'after',
+              text: [
+                {
+                  text: 'NOTA: Esta hoja de ruta de correspondencia, no debera ser separada ni extraviada del documento del cual se encuentra adherida, por constituirse parte indivisible del mismo',
+                  bold: true,
+                },
+                {
+                  text: '\nDireccion: Plaza 6 de agosto E-0415 - Telefono: No. Piloto 4701677 - 4702301 - 4703059 - Fax interno: 143',
+                  color: '#BC6C25',
+                },
+                {
+                  text: '\nE-mail: info@sacaba.gob.bo - Pagina web: www.sacaba.gob.bo',
+                  color: '#BC6C25',
+                },
+              ],
             },
-            {
-              text: '\nDireccion: Plaza 6 de agosto E-0415 - Telefono: No. Piloto 4701677 - 4702301 - 4703059 - Fax interno: 143',
-              color: '#BC6C25',
+            styles: {
+              cabecera: {
+                margin: [0, 0, 0, 2],
+              },
+              header: {
+                fontSize: 10,
+                bold: true,
+              },
+              tableExample: {
+                fontSize: 8,
+                alignment: 'center',
+                margin: [0, 0, 0, 5],
+              },
+              selection_container: {
+                fontSize: 7,
+                alignment: 'center',
+                margin: [0, 10, 0, 0],
+              },
             },
-            {
-              text: '\nE-mail: info@sacaba.gob.bo - Pagina web: www.sacaba.gob.bo',
-              color: '#BC6C25',
-            },
-          ],
-        },
-        styles: {
-          cabecera: {
-            margin: [0, 0, 0, 2],
-          },
-          header: {
-            fontSize: 10,
-            bold: true,
-          },
-          tableExample: {
-            fontSize: 8,
-            alignment: 'center',
-            margin: [0, 0, 0, 5],
-          },
-          selection_container: {
-            fontSize: 7,
-            alignment: 'center',
-            margin: [0, 10, 0, 0],
-          },
-        },
-      };
-      const pdfBlob = await this.generatePdfBlob(docDefinition);
-      ress.push(pdfBlob);
-      // const pdfUrl = URL.createObjectURL(pdfBlob);
-      // ress.push(pdfUrl);
-    }
+          };
+          // Generamos el PDF y emitimos el Blob
+          pdfMake.createPdf(docDefinition).getBlob((blob) => {
+            observer.next(blob);
+            observer.complete();
+          });
+        })
+        .catch((error) => {
+          observer.error(error); // Manejo de errores
+        });
+    });
+    // const docDefinition: TDocumentDefinitions = {
+    //   pageSize: 'LETTER',
+    //   pageMargins: [30, 30, 30, 30],
+    //   content: await PdfTemplates.routeMap2(procedure, workflow, isOriginal),
+    //   footer: {
+    //     margin: [10, 0, 10, 0],
+    //     fontSize: 7,
+    //     pageBreak: 'after',
+    //     text: [
+    //       {
+    //         text: 'NOTA: Esta hoja de ruta de correspondencia, no debera ser separada ni extraviada del documento del cual se encuentra adherida, por constituirse parte indivisible del mismo',
+    //         bold: true,
+    //       },
+    //       {
+    //         text: '\nDireccion: Plaza 6 de agosto E-0415 - Telefono: No. Piloto 4701677 - 4702301 - 4703059 - Fax interno: 143',
+    //         color: '#BC6C25',
+    //       },
+    //       {
+    //         text: '\nE-mail: info@sacaba.gob.bo - Pagina web: www.sacaba.gob.bo',
+    //         color: '#BC6C25',
+    //       },
+    //     ],
+    //   },
+    //   styles: {
+    //     cabecera: {
+    //       margin: [0, 0, 0, 2],
+    //     },
+    //     header: {
+    //       fontSize: 10,
+    //       bold: true,
+    //     },
+    //     tableExample: {
+    //       fontSize: 8,
+    //       alignment: 'center',
+    //       margin: [0, 0, 0, 5],
+    //     },
+    //     selection_container: {
+    //       fontSize: 7,
+    //       alignment: 'center',
+    //       margin: [0, 10, 0, 0],
+    //     },
+    //   },
+    // };
+    // return new Observable((observer) => {
+    //   pdfMake.createPdf(docDefinition).getBlob((blob) => {
+    //     observer.next(blob);
+    //     observer.complete();
+    //   });
+    // });
 
-    return ress;
+    // return await this.generatePdfBlob(docDefinition);
   }
 
   async generateRouteSheet(procedure: Procedure, workflow: workflow[]) {
