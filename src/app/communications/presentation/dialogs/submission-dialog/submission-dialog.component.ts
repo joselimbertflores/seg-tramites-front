@@ -39,26 +39,25 @@ import { MatIconModule } from '@angular/material/icon';
 import {
   distinctUntilChanged,
   BehaviorSubject,
+  Observable,
   switchMap,
   debounce,
+  filter,
   timer,
   map,
-  filter,
-  Observable,
   of,
 } from 'rxjs';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 
+import { SocketService } from '../../../../layout/presentation/services';
 import {
   AlertService,
   selectOption,
   SelectSearchComponent,
-} from '../../../../../shared';
-
-import { doc } from '../../../../infrastructure';
-import { InboxService, OutboxService } from '../../../services';
-import { Communication, onlineAccount, recipient } from '../../../../domain';
-import { SocketService } from '../../../../../layout/presentation/services';
+} from '../../../../shared';
+import { InboxService, OutboxService } from '../../services';
+import { Communication, onlineAccount, recipient } from '../../../domain';
+import { doc } from '../../../infrastructure';
 
 export interface submissionResult {
   error?: string;
@@ -94,10 +93,158 @@ export type communicationMode = 'initiate' | 'forward' | 'resend';
     MatFormFieldModule,
     MatChipsModule,
   ],
-  templateUrl: './submission-dialog.component.html',
+  template: `
+    <h2 mat-dialog-title>Remision Tramite</h2>
+    <mat-dialog-content>
+      <div class="mb-6">
+        <dl class="-my-3 divide-y divide-gray-200 text-sm">
+          <div class="grid grid-cols-1 gap-1 py-2 sm:grid-cols-3 sm:gap-4">
+            <dt class="font-medium">Tramite:</dt>
+
+            <dd class="sm:col-span-2">{{ data.procedure.code }}</dd>
+          </div>
+
+          <div class="grid grid-cols-1 gap-1 py-2 sm:grid-cols-3 sm:gap-4">
+            <dt class="font-medium">Tipo:</dt>
+
+            <dd class="sm:col-span-2">
+              {{ data.isOriginal ? 'ORIGINAL' : 'COPIA' }}
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <form [formGroup]="formSubmission">
+        <div class="grid grid-cols-3 gap-x-2 mt-2">
+          <div class="col-span-3">
+            <mat-form-field>
+              <mat-label>Instruccion / Proveido</mat-label>
+              <textarea formControlName="reference" matInput required>
+              </textarea>
+              <mat-error *ngIf="formSubmission.controls['reference'].invalid">
+                Ingrese el motivo
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <div>
+            <mat-form-field>
+              <mat-label>Cantidad: hojas / anexos</mat-label>
+              <input formControlName="attachmentsCount" matInput required />
+              <mat-error
+                *ngIf="formSubmission.controls['attachmentsCount'].invalid"
+              >
+                Ingrese la cantidad
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <div>
+            <mat-form-field>
+              <mat-label>Numero de registro interno</mat-label>
+              <input formControlName="internalNumber" matInput />
+            </mat-form-field>
+          </div>
+        </div>
+      </form>
+      <div class="flex flex-col sm:flex-row gap-x-2">
+        <div class="sm:w-1/3">
+          <select-search
+            title="Institucion (Opcional)"
+            placeholder="Seleccione una institucion"
+            [items]="institutions()"
+            (onSelect)="getDependencies($event)"
+          />
+        </div>
+        <div class="sm:w-2/3">
+          <select-search
+            title="Dependencia (Opcional)"
+            placeholder="Seleccione una dependencia"
+            [nullable]="true"
+            [items]="dependencies()"
+            (onSelect)="getRecipientsByDependency($event)"
+          />
+        </div>
+      </div>
+      <mat-form-field>
+        <mat-label>Destinatarios</mat-label>
+        <mat-chip-grid #chipGrid aria-label="User selection">
+          @for (fruit of selectedReceivers(); track $index) {
+          <mat-chip-row
+            (removed)="removeRecipient(fruit.id)"
+            [ngStyle]="
+              fruit.isOriginal && {
+                'background-color': 'var(--mat-sys-primary-container)'
+              }
+            "
+          >
+            <img
+              matChipAvatar
+              src="images/icons/account.png"
+              alt="Photo of officer"
+            />
+            {{ fruit.fullname | titlecase }}
+
+            <button
+              matChipRemove
+              [attr.aria-label]="'remove ' + fruit.id"
+              (click)="removeRecipient(fruit)"
+            >
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip-row>
+          }
+        </mat-chip-grid>
+        <input
+          placeholder="Buscar destinatario"
+          #receiverInput
+          [formControl]="filterRecipientCtrl"
+          [matChipInputFor]="chipGrid"
+          [matAutocomplete]="auto"
+        />
+        <mat-autocomplete
+          #auto="matAutocomplete"
+          (optionSelected)="selectRecipient($event); receiverInput.value = ''"
+        >
+          @for (user of filteredReceivers$ | async; track user.id) {
+          <mat-option [value]="user">
+            <div class="flex gap-x-3 items-center relative">
+              <div class="relative">
+                <img
+                  class="h-6 w-6 rounded-full"
+                  src="images/icons/account.png"
+                />
+                <span
+                  class="absolute bottom-0 right-0 w-2 h-2 rounded-full border border-white"
+                  [ngClass]="{
+                    'bg-green-500': user.online,
+                    'bg-gray-400': !user.online
+                  }"
+                >
+                </span>
+              </div>
+              <div class="flex flex-col">
+                <span>{{ user.fullname | titlecase }}</span>
+                <small>{{ user.jobtitle }}</small>
+              </div>
+            </div>
+          </mat-option>
+          }
+        </mat-autocomplete>
+      </mat-form-field>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button color="warn" mat-dialog-close>Cancelar</button>
+      <button
+        mat-button
+        color="primary"
+        [disabled]="!isFormValid()"
+        (click)="showConfirmSend()"
+      >
+        Remitir
+      </button>
+    </mat-dialog-actions>
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-// 3780
 export class SubmissionDialogComponent implements OnInit {
   private _formBuilder = inject(FormBuilder);
   private destroyRef = inject(DestroyRef);

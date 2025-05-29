@@ -2,9 +2,9 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import {
   ChangeDetectionStrategy,
+  DestroyRef,
   Component,
   computed,
-  DestroyRef,
   inject,
   signal,
 } from '@angular/core';
@@ -16,21 +16,18 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 
-import {
-  CacheService,
-  PdfService,
-  SearchInputComponent,
-} from '../../../../shared';
+import { CacheService, SearchInputComponent } from '../../../../shared';
 import { InternalProcedure, procedureState } from '../../../domain';
 import { InternalService } from '../../services';
 
 import { InternalDialogComponent } from './internal-dialog/internal-dialog.component';
 import {
+  routeSheetData,
+  RouteSheetDialogComponent,
   submissionData,
   SubmissionDialogComponent,
-} from '../../../../communications/presentation/pages/inbox/submission-dialog/submission-dialog.component';
-import { ProcessService } from '../../../../communications/presentation/services';
-import { RouteMapDialogComponent } from '../../../../communications/presentation/components/route-map-dialog/route-map-dialog.component';
+} from '../../../../communications/presentation/dialogs';
+
 interface cache {
   datasource: InternalProcedure[];
   datasize: number;
@@ -57,8 +54,6 @@ interface cache {
 export default class InternalsManageComponent {
   private dialog = inject(MatDialog);
   private internalService = inject(InternalService);
-  private pdfService = inject(PdfService);
-  private processService = inject(ProcessService);
   private cacheService: CacheService<cache> = inject(CacheService);
 
   displayedColumns: string[] = [
@@ -154,6 +149,20 @@ export default class InternalsManageComponent {
     });
   }
 
+  generateRouteSheet(procedure: InternalProcedure) {
+    const data: routeSheetData = {
+      requestParams: {
+        procedure: { id: procedure._id, group: procedure.group },
+      },
+      preloadedData: { procedure },
+    };
+    this.dialog.open(RouteSheetDialogComponent, {
+      data,
+      width: '1200px',
+      maxWidth: '1200px',
+    });
+  }
+
   search(term: string) {
     this.term.set(term);
     this.index.set(0);
@@ -164,24 +173,6 @@ export default class InternalsManageComponent {
     this.limit.set(pageSize);
     this.index.set(pageIndex);
     this.getData();
-  }
-
-  generateRouteMap(procedure: InternalProcedure) {
-    // TODO gereate route map
-    // this.processService.getWorkflow(procedure._id).subscribe((workflow) => {
-    //   this.dialog.open(RouteMapDialogComponent, {
-    //     data: { procedure, workflow },
-    //     width: '1200px',
-    //     maxWidth:'1200px'
-    //   });
-    //   // this.pdfService.generateRouteSheet(procedure, workflow);
-    // });
-
-    this.dialog.open(RouteMapDialogComponent, {
-      data: { procedure },
-      width: '1200px',
-      maxWidth: '1200px',
-    });
   }
 
   private saveCache(): void {

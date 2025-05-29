@@ -1,22 +1,19 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map, tap } from 'rxjs';
+import { map } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
 import {
   external,
-  ExternalMapper,
   internal,
-  InternalMapper,
   procurement,
+  ExternalMapper,
+  InternalMapper,
   ProcurementMapper,
 } from '../../../procedures/infrastructure';
-import {
-  communication,
-  CommunicationMapper,
-  workflow,
-} from '../../infrastructure';
+
 import { procedureGroup } from '../../../procedures/domain';
+import { workflow } from '../../infrastructure';
 
 type procedureResponses = internal | external | procurement;
 @Injectable({
@@ -28,6 +25,7 @@ export class ProcessService {
   constructor() {}
 
   getProcedure(id: string, group: string) {
+    console.log('GETTING DATA PROCEDURE FROM SERVER');
     return this.http
       .get<procedureResponses>(`${this.url}/detail/${group}/${id}`)
       .pipe(
@@ -50,11 +48,7 @@ export class ProcessService {
   }
 
   getWorkflow(id: string) {
+    console.log('GETTING DATA WORLFOW FROM SERVER');
     return this.http.get<workflow[]>(`${this.url}/workflow/${id}`);
-    // .pipe(
-    //   map((resp) =>
-    //     resp.map((item) => CommunicationMapper.fromResponse(item))
-    //   )
-    // );
   }
 }

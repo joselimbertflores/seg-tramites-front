@@ -10,10 +10,10 @@ import { MatIconModule } from '@angular/material/icon';
 
 import { WorkflowTimelineComponent } from '../workflow-timeline/workflow-timeline.component';
 import { workflow } from '../../../../communications/infrastructure';
-import { resolveWorkflowPaths } from '../../helpers';
+import { getWorkflowPaths } from '../../../../communications/presentation/helpers';
 
 @Component({
-  selector: 'workflow-paths',
+  selector: 'workflow-list',
   imports: [
     CommonModule,
     MatExpansionModule,
@@ -52,7 +52,7 @@ import { resolveWorkflowPaths } from '../../helpers';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class WorkflowPathsComponent {
+export class WorkflowListComponent {
   workflow = input.required<workflow[]>();
-  paths = computed(() => resolveWorkflowPaths(this.workflow()));
+  paths = computed(() => getWorkflowPaths(this.workflow()));
 }

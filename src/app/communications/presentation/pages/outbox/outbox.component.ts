@@ -33,16 +33,12 @@ import {
 } from '../../../../shared';
 
 import {
-  submissionData,
-  submissionResult,
-  SubmissionDialogComponent,
-} from '../inbox/submission-dialog/submission-dialog.component';
-import {
   Communication,
   communcationStatus,
 } from '../../../domain/models/communication.model';
 import { HumanizeDurationPipe } from '../../pipes/humanize-duration.pipe';
 import { OutboxService } from '../../services';
+import { submissionData, SubmissionDialogComponent, submissionResult } from '../../dialogs';
 
 @Component({
   selector: 'outbox',

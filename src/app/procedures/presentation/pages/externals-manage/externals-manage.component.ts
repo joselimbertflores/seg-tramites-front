@@ -20,11 +20,9 @@ import {
 } from '../../../../shared';
 import { ExternalProcedure, procedureState } from '../../../domain';
 import { ExternalService } from '../../services';
-import {
-  submissionData,
-  SubmissionDialogComponent,
-} from '../../../../communications/presentation/pages/inbox/submission-dialog/submission-dialog.component';
+
 import { ProcessService } from '../../../../communications/presentation/services';
+import { submissionData, SubmissionDialogComponent } from '../../../../communications/presentation/dialogs';
 
 interface cache {
   datasource: ExternalProcedure[];

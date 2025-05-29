@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import {
-  FormBuilder,
   FormGroup,
-  ReactiveFormsModule,
   Validators,
+  FormBuilder,
+  ReactiveFormsModule,
 } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
@@ -12,31 +12,30 @@ import { MatRadioModule } from '@angular/material/radio';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 import {
+  MatDialogRef,
   MAT_DIALOG_DATA,
   MatDialogModule,
-  MatDialogRef,
 } from '@angular/material/dialog';
 
 import { filter, map, Observable, switchMap } from 'rxjs';
-
-import { ArchiveService, FolderService } from '../../../services';
-import { procedureState } from '../../../../../procedures/domain';
-import { Communication } from '../../../../domain';
 import {
   AlertService,
   selectOption,
   SelectSearchComponent,
-} from '../../../../../shared';
+} from '../../../../shared';
+import { procedureState } from '../../../../procedures/domain';
+import { FolderService, ArchiveService } from '../../services';
+import { Communication } from '../../../domain';
 
 @Component({
   selector: 'app-archive-dialog',
   imports: [
-    ReactiveFormsModule,
-    MatFormFieldModule,
     MatDialogModule,
     MatButtonModule,
     MatInputModule,
     MatRadioModule,
+    MatFormFieldModule,
+    ReactiveFormsModule,
     SelectSearchComponent,
   ],
   template: `

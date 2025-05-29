@@ -27,11 +27,13 @@ import {
   ProcurementDescriptionComponent,
   ExternalDescriptionComponent,
   InternalDescriptionComponent,
-  WorkflowGraphComponent,
-  WorkflowPathsComponent,
 } from '../../components';
 import { BackButtonDirective } from '../../../../shared';
 import { workflow } from '../../../../communications/infrastructure';
+import {
+  WorkflowGraphComponent,
+  WorkflowListComponent,
+} from '../../../../communications/presentation/components';
 
 @Component({
   selector: 'app-detail',
@@ -42,8 +44,8 @@ import { workflow } from '../../../../communications/infrastructure';
     MatButtonModule,
     MatTabsModule,
     BackButtonDirective,
-    WorkflowPathsComponent,
     WorkflowGraphComponent,
+    WorkflowListComponent,
     ExternalDescriptionComponent,
     InternalDescriptionComponent,
     ProcurementDescriptionComponent,
@@ -86,7 +88,7 @@ import { workflow } from '../../../../communications/infrastructure';
         </mat-tab>
         @if (workflow().length > 0) {
         <mat-tab label="Flujo de trabajo">
-          <workflow-paths [workflow]="workflow()" />
+          <workflow-list [workflow]="workflow()" />
         </mat-tab>
         <mat-tab label="Flujo de trabajo grafico">
           <workflow-graph [workflow]="workflow()" />

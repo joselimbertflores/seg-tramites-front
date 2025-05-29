@@ -26,10 +26,7 @@ import {
   CacheService,
   BackButtonDirective,
 } from '../../../../shared';
-import {
-  WorkflowGraphComponent,
-  WorkflowPathsComponent,
-} from '../../../../procedures/presentation/components';
+
 import {
   ExternalProcedure,
   InternalProcedure,
@@ -40,8 +37,11 @@ import {
   ProcurementCommunicationComponent,
   InternalCommunicationComponent,
   ExternalCommunicationComponent,
+  WorkflowGraphComponent,
+  WorkflowListComponent,
   InboxCardComponent,
 } from '../../components';
+
 import {
   communcationStatus,
   Communication,
@@ -49,11 +49,12 @@ import {
   invalidCommunicationsError,
   notFoundCommunicationsError,
 } from '../../../domain';
+
 import {
   submissionData,
+  ArchiveDialogComponent,
   SubmissionDialogComponent,
-} from '../inbox/submission-dialog/submission-dialog.component';
-import { ArchiveDialogComponent } from '../inbox/archive-dialog/archive-dialog.component';
+} from '../../dialogs';
 
 @Component({
   selector: 'app-inbox-detail',
@@ -65,12 +66,12 @@ import { ArchiveDialogComponent } from '../inbox/archive-dialog/archive-dialog.c
     MatToolbarModule,
     BackButtonDirective,
     MatTooltipModule,
+    InboxCardComponent,
+    WorkflowListComponent,
     WorkflowGraphComponent,
     InternalCommunicationComponent,
     ExternalCommunicationComponent,
     ProcurementCommunicationComponent,
-    InboxCardComponent,
-    WorkflowPathsComponent,
     MatProgressSpinnerModule,
   ],
   templateUrl: './inbox-detail.component.html',

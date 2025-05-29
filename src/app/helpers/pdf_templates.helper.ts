@@ -95,7 +95,27 @@ export class PdfTemplates {
     const leftImage = await imageToBase64('images/institution/alcaldia.jpeg');
     const rightImage = await imageToBase64('images/institution/sacaba.jpeg');
     return [
-      this.sectionHeaderRouteMap(leftImage, rightImage),
+      // Header
+      {
+        margin: [0, 0, 0, 5],
+        columns: [
+          {
+            image: leftImage,
+            width: 120,
+            height: 50,
+          },
+          {
+            text: '\nHOJA DE RUTA DE CORRESPONDENCIA',
+            bold: true,
+            alignment: 'center',
+          },
+          {
+            image: rightImage,
+            width: 50,
+            height: 50,
+          },
+        ],
+      },
       this.firstSection(procedure, workflow, isOriginal),
       this.secondSection(workflow),
     ];
@@ -145,34 +165,6 @@ export class PdfTemplates {
       },
       isOriginal
     );
-  }
-
-  private static sectionHeaderRouteMap(
-    leftImage: string,
-    rightImage: string
-  ): Content {
-    return [
-      {
-        margin: [0, 0, 0, 5],
-        columns: [
-          {
-            image: leftImage,
-            width: 120,
-            height: 50,
-          },
-          {
-            text: '\nHOJA DE RUTA DE CORRESPONDENCIA',
-            bold: true,
-            alignment: 'center',
-          },
-          {
-            image: rightImage,
-            width: 50,
-            height: 50,
-          },
-        ],
-      },
-    ];
   }
 
   static secondSection(workflow: workflow[]) {
@@ -284,7 +276,7 @@ export class PdfTemplates {
           },
           {
             label: 'COPIA\n\n',
-            active: false, // O la condición que corresponda
+            active: false,
           },
         ]
       : [

@@ -4,7 +4,6 @@ export * from './simple-select-search/simple-select-search.component';
 export * from './paginator/paginator.component';
 
 export * from './procedures/observations/observations.component';
-export * from './procedures/workflow-graph/workflow-graph.component';
 export * from './procedures/search-input/search-input.component';
 
 export * from './profile/profile.component';

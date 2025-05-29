@@ -9,6 +9,14 @@ import {
   signal,
 } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import {
+  animate,
+  state,
+  style,
+  transition,
+  trigger,
+} from '@angular/animations';
+
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTableModule } from '@angular/material/table';
@@ -28,18 +36,12 @@ import {
 } from '../../../domain';
 
 import { ProcurementDialogComponent } from './procurement-dialog/procurement-dialog.component';
+
+import { DocProcurementDialogComponent } from './doc-procurement-dialog/doc-procurement-dialog.component';
 import {
   submissionData,
   SubmissionDialogComponent,
-} from '../../../../communications/presentation/pages/inbox/submission-dialog/submission-dialog.component';
-import {
-  animate,
-  state,
-  style,
-  transition,
-  trigger,
-} from '@angular/animations';
-import { DocProcurementDialogComponent } from './doc-procurement-dialog/doc-procurement-dialog.component';
+} from '../../../../communications/presentation/dialogs';
 
 interface cache {
   datasource: ProcurementProcedure[];

@@ -41,10 +41,7 @@ import {
   CacheService,
   SearchInputComponent,
 } from '../../../../shared';
-import {
-  submissionData,
-  SubmissionDialogComponent,
-} from './submission-dialog/submission-dialog.component';
+
 import {
   inboxCache,
   Communication,
@@ -52,10 +49,16 @@ import {
   invalidCommunicationsError,
   notFoundCommunicationsError,
 } from '../../../domain';
-import { ArchiveDialogComponent } from './archive-dialog/archive-dialog.component';
 import { SocketService } from '../../../../layout/presentation/services';
 import { procedureGroup } from '../../../../procedures/domain';
 import { InboxService } from '../../services';
+import {
+  submissionData,
+  ArchiveDialogComponent,
+  RouteSheetDialogComponent,
+  SubmissionDialogComponent,
+  routeSheetData,
+} from '../../dialogs';
 
 @Component({
   selector: 'app-inbox',
@@ -275,13 +278,18 @@ export default class InboxComponent implements OnInit {
     this.getData();
   }
 
-  generateRouteMap({ procedure }: Communication) {
-    // forkJoin([
-    //   this.procedureService.getDetail(procedure._id, procedure.group),
-    //   this.procedureService.getWorkflow(procedure._id),
-    // ]).subscribe((resp) => {
-    //   this.pdfService.generateRouteSheet(resp[0], resp[1]);
-    // });
+  generateRouteSheet({ id, procedure }: Communication) {
+    const data: routeSheetData = {
+      requestParams: {
+        procedure: { id: procedure.ref, group: procedure.group },
+        communicationId: id,
+      },
+    };
+    this.dialogRef.open(RouteSheetDialogComponent, {
+      data,
+      width: '1200px',
+      maxWidth: '1200px',
+    });
   }
 
   isAllSelected() {

@@ -1,15 +1,16 @@
-import { workflow } from '../../../communications/infrastructure';
+import { workflow } from '../../infrastructure';
 
-export function buildPaths(communications: workflow[]): workflow[][] {
+// --- Construcción de caminos completos (estructura moderna)
+export function buildPaths(data: workflow[]): workflow[][] {
   const byId = new Map<string, workflow>();
   const childrenMap = new Map<string, string[]>();
 
   // Paso 1: indexar por ID y construir mapa de hijos
-  for (const comm of communications) {
-    const id = comm._id;
-    byId.set(id, comm);
+  for (const item of data) {
+    const id = item._id;
+    byId.set(id, item);
 
-    const parentId = comm?.parentId;
+    const parentId = item?.parentId;
     if (parentId) {
       if (!childrenMap.has(parentId)) {
         childrenMap.set(parentId, []);
@@ -19,7 +20,7 @@ export function buildPaths(communications: workflow[]): workflow[][] {
   }
 
   // Paso 2: encontrar raíces (sin parentId)
-  const roots = communications.filter((c) => !c.parentId).map((c) => c._id);
+  const roots = data.filter((c) => !c.parentId).map((c) => c._id);
 
   const paths: workflow[][] = [];
 
@@ -57,24 +58,25 @@ export function buildPaths(communications: workflow[]): workflow[][] {
   return paths;
 }
 
-export function resolveWorkflowPaths(raw: workflow[]): {
+// --- Detección de estructura y separación de caminos
+export function getWorkflowPaths(data: workflow[]): {
   title: string;
   path: workflow[];
   isOriginal: boolean;
 }[] {
-  const isModern = raw.some((w) => w.isOriginal === true);
+  const isModern = data.some((w) => w.isOriginal === true);
 
   if (!isModern) {
     return [
       {
         title: 'Flujo antiguo',
-        path: raw,
+        path: data,
         isOriginal: false,
       },
     ];
   }
 
-  const allPaths = buildPaths(raw);
+  const allPaths = buildPaths(data);
 
   let copyIndex = 1;
 
@@ -93,15 +95,13 @@ export function resolveWorkflowPaths(raw: workflow[]): {
   );
 }
 
-export function buildPathTo(
-  targetId: string,
-  communications: workflow[]
-): workflow[] {
+// --- Construcción de camino hacia una comunicación específica
+export function buildPathTo(targetId: string, data: workflow[]): workflow[] {
   const byId = new Map<string, workflow>();
   const path: workflow[] = [];
 
-  for (const comm of communications) {
-    byId.set(comm._id, comm);
+  for (const item of data) {
+    byId.set(item._id, item);
   }
 
   let current = byId.get(targetId);
@@ -113,19 +113,17 @@ export function buildPathTo(
   return path;
 }
 
-export function resolveWorkflowPathTo(
-  targeId: string,
-  communications: workflow[]
-) {
-  const isModern = communications.some((w) => w.isOriginal === true);
+// --- Deteccion de estructura
+export function getWorkflowPathTo(targeId: string, data: workflow[]) {
+  const isModern = data.some((w) => w.isOriginal === true);
   if (!isModern) {
     return {
       title: 'Flujo antiguo',
       isOriginal: false,
-      path: communications,
+      path: data,
     };
   }
-  const path = buildPathTo(targeId, communications);
+  const path = buildPathTo(targeId, data);
   const isOriginal = path.every((w) => w.isOriginal);
 
   return {
