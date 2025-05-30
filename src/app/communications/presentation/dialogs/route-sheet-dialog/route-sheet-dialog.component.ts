@@ -18,6 +18,7 @@ import { PdfService, PdfDisplayComponent } from '../../../../shared';
 import { getWorkflowPaths, getWorkflowPathTo } from '../../helpers';
 import { workflow } from '../../../infrastructure';
 import { ProcessService } from '../../services';
+import { sendStatus } from '../../../domain';
 
 export interface routeSheetData {
   requestParams: routeSheetParams;
@@ -94,31 +95,37 @@ export class RouteSheetDialogComponent {
   private processService = inject(ProcessService);
   readonly data: routeSheetData = inject(MAT_DIALOG_DATA);
 
-  constructor() {}
-
   pdfBlobList = resource<pdfBlobItem[], routeSheetData>({
     request: () => this.data,
     loader: ({ request }) => {
       return firstValueFrom(
         this.buildGetDataMethod().pipe(
           map(({ procedure, workflow }) => {
+            const filteredWorkflow = workflow.filter(
+              ({ status }) =>
+                ![
+                  sendStatus.Rejected,
+                  sendStatus.AutoRejected,
+                  sendStatus.Forwarding,
+                ].includes(status as sendStatus)
+            );
             return {
               procedure,
               paths: request.requestParams.communicationId
                 ? [
                     getWorkflowPathTo(
                       request.requestParams.communicationId,
-                      workflow
+                      filteredWorkflow
                     ),
                   ]
-                : getWorkflowPaths(workflow),
+                : getWorkflowPaths(filteredWorkflow),
             };
           }),
           switchMap(({ procedure, paths }) =>
             forkJoin(
               paths.map(({ path, isOriginal, title }) =>
                 this.pdfservice
-                  .testRouteMaop(procedure, path, isOriginal)
+                  .routeSheet(procedure, path, isOriginal)
                   .pipe(map((blob) => ({ title, blob })))
               )
             )

@@ -193,7 +193,13 @@ export const routes: Routes = [
                 './reports/presentation/pages/report-search/report-search.component'
               ),
           },
-
+          {
+            path: 'home',
+            loadComponent: () =>
+              import(
+                './reports/presentation/pages/report-home/report-home.component'
+              ),
+          },
           {
             path: ':group/:id',
             title: 'Detalle',
@@ -201,13 +207,7 @@ export const routes: Routes = [
             loadComponent: () =>
               import('./procedures/presentation/pages/detail/detail.component'),
           },
-          {
-            path: '',
-            loadComponent: () =>
-              import(
-                './reports/presentation/pages/landing-reports/landing-reports.component'
-              ),
-          },
+          { path: '', pathMatch: 'full', redirectTo: 'home' },
 
           // {
           //   path: 'dependents',

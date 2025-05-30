@@ -1,56 +1,8 @@
 <mat-toolbar>
   <span>Reportes</span>
   <span class="flex-1"></span>
-
   <button mat-mini-fab aria-label="Menu reports" (click)="openBottomSheet()">
     <mat-icon>menu</mat-icon>
   </button>
 </mat-toolbar>
 <router-outlet />
-<!-- <div class="max-w-xl mx-auto">
-  <mat-nav-list>
-    @for (link of menu(); track link) {
-    <mat-list-item>
-      <span matListItemTitle>{{ link.label }}</span>
-      <span matListItemLine class="demo-2">{{ link.description }}</span>
-      <div matListItemMeta>
-        <mat-icon>chevron_right</mat-icon>
-      </div>
-    </mat-list-item>
-    }
-  </mat-nav-list>
-</div> -->
-
-<!-- <mat-drawer-container [hasBackdrop]="false">
-  <mat-drawer
-    #drawer
-    mode="over"
-    [position]="'end'"
-    [autoFocus]="false"
-    class="border"
-    [opened]="true"
-  >
-    <mat-nav-list>
-      @for (item of menu(); track $index) {
-      <mat-list-item
-        routerLinkActive
-        #link="routerLinkActive"
-        [activated]="link.isActive"
-        (click)="navigateTo(item.link, drawer)"
-      >
-        <div class="label" matListItemTitle>{{ item.label }}</div>
-        <span matListItemLine>{{ item.description }}</span>
-      </mat-list-item>
-
-      }
-    </mat-nav-list>
-  </mat-drawer>
-  <mat-drawer-content
-    restoreScroll
-    scrollKey="folders-scroll"
-    [isLoading]="isLoading()"
-    style="height: calc(100vh - 128px); overflow-y: auto"
-  >
-    <router-outlet />
-  </mat-drawer-content>
-</mat-drawer-container> -->

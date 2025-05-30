@@ -45,7 +45,7 @@ import {
 import {
   inboxCache,
   Communication,
-  communcationStatus,
+  sendStatus,
   invalidCommunicationsError,
   notFoundCommunicationsError,
 } from '../../../domain';
@@ -120,7 +120,7 @@ export default class InboxComponent implements OnInit {
     isOriginal: [],
   });
 
-  status = signal<communcationStatus | 'all'>('all');
+  status = signal<sendStatus | 'all'>('all');
 
   readonly displayedColumns: string[] = [
     'select',
@@ -206,7 +206,7 @@ export default class InboxComponent implements OnInit {
       .subscribe({
         next: ({ itemIds, receivedDate }) => {
           this.updateItems(itemIds, {
-            status: communcationStatus.Received,
+            status: sendStatus.Received,
             receivedDate,
           });
         },

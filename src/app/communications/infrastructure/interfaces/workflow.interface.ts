@@ -7,7 +7,7 @@ export interface workflow {
   reference: string;
   attachmentsCount: string;
   internalNumber: string;
-  sentDate: Date;
+  sentDate: string;
   isOriginal: boolean;
   parentId?: string;
   receivedDate?: Date;

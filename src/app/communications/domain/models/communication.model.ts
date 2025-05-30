@@ -33,7 +33,7 @@ interface actionLog {
   date: string;
 }
 
-export enum communcationStatus {
+export enum sendStatus {
   Received = 'received',
   Completed = 'completed',
   Rejected = 'rejected',

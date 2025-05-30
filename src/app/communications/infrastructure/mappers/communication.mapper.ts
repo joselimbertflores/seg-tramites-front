@@ -1,6 +1,6 @@
 import type { procedureGroup } from '../../../procedures/domain';
 import type { communication } from '../interfaces/communication.interface';
-import { communcationStatus, Communication } from '../../domain';
+import { sendStatus, Communication } from '../../domain';
 
 export class CommunicationMapper {
   static fromResponse(response: communication): Communication {
@@ -14,7 +14,7 @@ export class CommunicationMapper {
         group: response.procedure.group as procedureGroup,
         reference: response.procedure.reference,
       },
-      status: response.status as communcationStatus,
+      status: response.status as sendStatus,
       sentDate: new Date(response.sentDate),
       receivedDate: response.receivedDate
         ? new Date(response.receivedDate)

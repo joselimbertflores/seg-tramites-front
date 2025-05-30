@@ -25,7 +25,6 @@ export class ProcessService {
   constructor() {}
 
   getProcedure(id: string, group: string) {
-    console.log('GETTING DATA PROCEDURE FROM SERVER');
     return this.http
       .get<procedureResponses>(`${this.url}/detail/${group}/${id}`)
       .pipe(
@@ -48,7 +47,6 @@ export class ProcessService {
   }
 
   getWorkflow(id: string) {
-    console.log('GETTING DATA WORLFOW FROM SERVER');
     return this.http.get<workflow[]>(`${this.url}/workflow/${id}`);
   }
 }

@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { ClusterNode, Edge, NgxGraphModule, Node } from '@swimlane/ngx-graph';
 
 import { workflow } from '../../../../communications/infrastructure';
-import { communcationStatus } from '../../../../communications/domain';
+import { sendStatus } from '../../../../communications/domain';
 @Component({
   selector: 'workflow-graph',
   imports: [CommonModule, NgxGraphModule, MatIconModule],
@@ -150,8 +150,8 @@ export class WorkflowGraphComponent {
   graph = computed(() => this.createGraph(this.workflow()));
 
   private errorStates: string[] = [
-    communcationStatus.Rejected,
-    communcationStatus.AutoRejected,
+    sendStatus.Rejected,
+    sendStatus.AutoRejected,
   ];
 
   private createGraph(workflow: workflow[]) {

@@ -19,9 +19,9 @@ import {
   VerticalPositionRelativeFrom,
   WidthType,
 } from 'docx';
-import { imageToBase64 } from './image_base64';
+import { imageToBase64 } from './image-base64.helper';
 import { ProcurementProcedure } from '../procedures/domain';
-import { numberToText } from './numer_to_text.helper';
+import { numberToText } from './numer-to-text.helper';
 
 interface communicationProps {
   from: officer;

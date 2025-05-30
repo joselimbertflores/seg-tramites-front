@@ -4,7 +4,7 @@ import { Observable, map, tap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 
 import { communication, CommunicationMapper } from '../../infrastructure';
-import { communcationStatus, onlineAccount, recipient } from '../../domain';
+import { sendStatus, onlineAccount, recipient } from '../../domain';
 import {
   account,
   dependency,
@@ -30,7 +30,7 @@ interface filterInboxProps {
   term?: string;
   isOriginal?: boolean | null;
   group?: string | null;
-  status?: communcationStatus | null;
+  status?: sendStatus | null;
 }
 interface bulkActionResponse {
   date: string;

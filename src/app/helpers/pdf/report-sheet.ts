@@ -1,5 +1,5 @@
 import { Content, TDocumentDefinitions } from 'pdfmake/interfaces';
-import { imageToBase64 } from '../image_base64';
+import { imageToBase64 } from '../image-base64.helper';
 import { tableProcedureColums, tableProcedureData } from '../../reports/infrastructure';
 
 const translateFields: Record<string, string> = {

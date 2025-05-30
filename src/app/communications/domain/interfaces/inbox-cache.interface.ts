@@ -1,5 +1,5 @@
 import {
-  communcationStatus,
+  sendStatus,
   Communication,
 } from '../models/communication.model';
 
@@ -10,5 +10,5 @@ export interface inboxCache {
   limit: number;
   form: Object;
   term: string;
-  status: communcationStatus | 'all';
+  status: sendStatus | 'all';
 }

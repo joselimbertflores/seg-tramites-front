@@ -13,16 +13,15 @@ import { MatDialog } from '@angular/material/dialog';
 
 import { ExternalDialogComponent } from './external-dialog/external-dialog.component';
 
-import {
-  CacheService,
-  PdfService,
-  SearchInputComponent,
-} from '../../../../shared';
+import { CacheService, SearchInputComponent } from '../../../../shared';
 import { ExternalProcedure, procedureState } from '../../../domain';
 import { ExternalService } from '../../services';
-
-import { ProcessService } from '../../../../communications/presentation/services';
-import { submissionData, SubmissionDialogComponent } from '../../../../communications/presentation/dialogs';
+import {
+  routeSheetData,
+  RouteSheetDialogComponent,
+  submissionData,
+  SubmissionDialogComponent,
+} from '../../../../communications/presentation/dialogs';
 
 interface cache {
   datasource: ExternalProcedure[];
@@ -51,8 +50,6 @@ export default class ExternalsManageComponent {
   private dialogRef = inject(MatDialog);
   private externalService = inject(ExternalService);
   private cacheService: CacheService<cache> = inject(CacheService);
-  private pdfService = inject(PdfService);
-  private processService = inject(ProcessService);
 
   datasource = signal<ExternalProcedure[]>([]);
   datasize = signal<number>(0);
@@ -143,9 +140,17 @@ export default class ExternalsManageComponent {
     });
   }
 
-  generateRouteMap(procedure: ExternalProcedure) {
-    this.processService.getWorkflow(procedure._id).subscribe((workflow) => {
-      this.pdfService.generateRouteSheet(procedure, workflow);
+  generateRouteSheet(procedure: ExternalProcedure) {
+    const data: routeSheetData = {
+      requestParams: {
+        procedure: { id: procedure._id, group: procedure.group },
+      },
+      preloadedData: { procedure },
+    };
+    this.dialogRef.open(RouteSheetDialogComponent, {
+      data,
+      width: '1200px',
+      maxWidth: '1200px',
     });
   }
 

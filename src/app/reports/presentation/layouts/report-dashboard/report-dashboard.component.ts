@@ -6,17 +6,17 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
+import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
-import { MatDrawer, MatSidenavModule } from '@angular/material/sidenav';
+
 import { AuthService } from '../../../../auth/presentation/services/auth.service';
 import { RestoreScrollDirective } from '../../../../shared';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ReportListComponent } from '../../components';
-
+import { ReportCacheService } from '../../services';
 
 @Component({
   selector: 'app-report-dashboard',
@@ -27,7 +27,6 @@ import { ReportListComponent } from '../../components';
     MatListModule,
     MatButtonModule,
     MatToolbarModule,
-    MatSidenavModule,
     RestoreScrollDirective,
   ],
   templateUrl: './report-dashboard.component.html',
@@ -35,6 +34,7 @@ import { ReportListComponent } from '../../components';
 })
 export default class ReportDashboardComponent implements OnInit {
   private readonly authService = inject(AuthService);
+  private reportCacheService = inject(ReportCacheService);
   private readonly permissionMappings: Record<string, any> = {
     search: {
       label: 'Busquedas',
@@ -58,6 +58,7 @@ export default class ReportDashboardComponent implements OnInit {
     // },
   };
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   isLoading = signal<boolean>(false);
 
   private _bottomSheet = inject(MatBottomSheet);
@@ -65,10 +66,11 @@ export default class ReportDashboardComponent implements OnInit {
   constructor() {}
 
   ngOnInit(): void {
-    this._loadMenu();
+    this.loadMenu();
+    this.navigateToLastReport();
   }
 
-  private _loadMenu() {
+  private loadMenu() {
     // const menu = this.authService
     //   .permissions()
     //   [VALID_RESOURCES.reports].map((action) => this.permissionMappings[action])
@@ -77,12 +79,17 @@ export default class ReportDashboardComponent implements OnInit {
     // this.menu.set(Object.values(this.permissionMappings));
   }
 
-  navigateTo(url: string, drawerRef: MatDrawer) {
-    this.router.navigateByUrl(`home/reports/${url}`);
-    drawerRef.close();
-  }
-
   openBottomSheet(): void {
     this._bottomSheet.open(ReportListComponent, { hasBackdrop: true });
+  }
+
+  private navigateToLastReport() {
+    const lastPath = this.reportCacheService.getLastReportPath();
+
+    const isInReportHome = this.route.firstChild?.routeConfig?.path === 'home';
+
+    if (isInReportHome && lastPath && lastPath !== this.router.url) {
+      this.router.navigateByUrl(lastPath);
+    }
   }
 }

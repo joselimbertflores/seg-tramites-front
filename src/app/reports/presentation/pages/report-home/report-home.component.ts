@@ -1,8 +1,16 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnInit,
+} from '@angular/core';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatButtonModule } from '@angular/material/button';
 
+import { ReportListComponent } from '../../components';
+
 @Component({
-  selector: 'app-landing-reports',
+  selector: 'app-report-home',
   imports: [MatButtonModule],
   template: `
     <div
@@ -18,7 +26,7 @@ import { MatButtonModule } from '@angular/material/button';
             Seleccione uno de los reportes disponibles para comenzar
           </p>
           <div class="mt-2">
-            <button mat-flat-button>Ver reportes</button>
+            <button mat-flat-button (click)="open()">Ver reportes</button>
           </div>
         </div>
       </div>
@@ -26,6 +34,12 @@ import { MatButtonModule } from '@angular/material/button';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export default class LandingReportsComponent {
-  
+export default class ReportHomeComponent implements OnInit {
+  private bottomSheet = inject(MatBottomSheet);
+
+  ngOnInit(): void {}
+
+  open() {
+    this.bottomSheet.open(ReportListComponent);
+  }
 }

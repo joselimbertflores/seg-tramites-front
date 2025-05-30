@@ -64,9 +64,7 @@ export function getWorkflowPaths(data: workflow[]): {
   path: workflow[];
   isOriginal: boolean;
 }[] {
-  const isModern = data.some((w) => w.isOriginal === true);
-
-  if (!isModern) {
+  if (!isModernWorkflow(data)) {
     return [
       {
         title: 'Flujo antiguo',
@@ -115,8 +113,7 @@ export function buildPathTo(targetId: string, data: workflow[]): workflow[] {
 
 // --- Deteccion de estructura
 export function getWorkflowPathTo(targeId: string, data: workflow[]) {
-  const isModern = data.some((w) => w.isOriginal === true);
-  if (!isModern) {
+  if (!isModernWorkflow(data)) {
     return {
       title: 'Flujo antiguo',
       isOriginal: false,
@@ -131,4 +128,8 @@ export function getWorkflowPathTo(targeId: string, data: workflow[]) {
     isOriginal,
     title: isOriginal ? 'Original' : `Copia`,
   };
+}
+
+export function isModernWorkflow(workflow: workflow[]): boolean {
+  return workflow.some((w) => w.isOriginal === true);
 }

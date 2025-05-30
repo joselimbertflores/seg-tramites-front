@@ -23,8 +23,8 @@ import { InternalService } from '../../services';
 import { InternalDialogComponent } from './internal-dialog/internal-dialog.component';
 import {
   routeSheetData,
-  RouteSheetDialogComponent,
   submissionData,
+  RouteSheetDialogComponent,
   SubmissionDialogComponent,
 } from '../../../../communications/presentation/dialogs';
 

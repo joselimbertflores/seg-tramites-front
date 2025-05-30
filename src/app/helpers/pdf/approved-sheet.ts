@@ -1,5 +1,5 @@
 import { Content } from 'pdfmake/interfaces';
-import { imageToBase64 } from '../image_base64';
+import { imageToBase64 } from '../image-base64.helper';
 
 interface HeaderProps {
   title: string;

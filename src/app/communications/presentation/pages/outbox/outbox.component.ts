@@ -34,11 +34,17 @@ import {
 
 import {
   Communication,
-  communcationStatus,
+  sendStatus,
 } from '../../../domain/models/communication.model';
 import { HumanizeDurationPipe } from '../../pipes/humanize-duration.pipe';
 import { OutboxService } from '../../services';
-import { submissionData, SubmissionDialogComponent, submissionResult } from '../../dialogs';
+import {
+  routeSheetData,
+  RouteSheetDialogComponent,
+  submissionData,
+  SubmissionDialogComponent,
+  submissionResult,
+} from '../../dialogs';
 
 @Component({
   selector: 'outbox',
@@ -159,6 +165,20 @@ export default class OutboxComponent {
     });
   }
 
+  generateRouteSheet({ id, procedure }: Communication) {
+    const data: routeSheetData = {
+      requestParams: {
+        procedure: { id: procedure.ref, group: procedure.group },
+        communicationId: id,
+      },
+    };
+    this.dialogRef.open(RouteSheetDialogComponent, {
+      data,
+      width: '1200px',
+      maxWidth: '1200px',
+    });
+  }
+
   cancelSelection(): void {
     this.cancel(this.selection.selected);
   }
@@ -216,7 +236,9 @@ export default class OutboxComponent {
         switchMap(() => this.outboxService.cancel(items.map(({ id }) => id)))
       )
       .subscribe(({ ids }) => {
-        this.datasource.update((values) =>  values.filter(({ id }) => !ids.includes(id)) );
+        this.datasource.update((values) =>
+          values.filter(({ id }) => !ids.includes(id))
+        );
         this.datasize.update((value) => (value -= ids.length));
         this.selection.clear();
         if (this.datasource().length === 0 && this.datasize() > 0) {
@@ -233,7 +255,7 @@ export default class OutboxComponent {
     if (result.error) {
       this.datasource.update((values) => {
         const index = values.findIndex(({ id }) => id === currentItem.id);
-        values[index].status = communcationStatus.AutoRejected;
+        values[index].status = sendStatus.AutoRejected;
         return [...values];
       });
       return;
@@ -241,7 +263,7 @@ export default class OutboxComponent {
     const newItems = result.data ?? [];
 
     switch (currentItem.status) {
-      case communcationStatus.Pending:
+      case sendStatus.Pending:
         this.datasize.update((value) => (value += newItems.length));
         this.datasource.update((values) =>
           [...newItems, ...values].splice(0, this.limit())

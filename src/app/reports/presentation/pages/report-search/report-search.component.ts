@@ -32,6 +32,8 @@ import {
   CacheService,
   PdfService,
 } from '../../../../shared';
+import { ReportCacheService } from '../../services';
+import { Router } from '@angular/router';
 
 interface cache {
   datasource: tableProcedureData[];
@@ -69,6 +71,8 @@ export default class ReportSearchComponent {
   private reportService = inject(ProcedureReportService);
   private cacheService: CacheService<cache> = inject(CacheService);
   private pdfService = inject(PdfService);
+  private reportCacheService = inject(ReportCacheService);
+  private router = inject(Router);
 
   isAdvancedMode = signal<boolean>(false);
   form = computed<FormGroup>(() =>
@@ -111,9 +115,8 @@ export default class ReportSearchComponent {
   readonly STATES = Object.values(procedureState).map((value) => value);
 
   constructor() {
-    inject(DestroyRef).onDestroy(() => {
-      this.saveCache();
-    });
+
+    this.reportCacheService.setLastReportPath(this.router.url);
   }
 
   ngOnInit(): void {

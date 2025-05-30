@@ -43,7 +43,7 @@ import {
 } from '../../components';
 
 import {
-  communcationStatus,
+  sendStatus,
   Communication,
   inboxCache,
   invalidCommunicationsError,
@@ -117,7 +117,7 @@ export default class InboxDetailComponent {
       )
       .subscribe({
         next: ({ itemIds: [id], receivedDate }) => {
-          const update = { status: communcationStatus.Received, receivedDate };
+          const update = { status: sendStatus.Received, receivedDate };
           this.data.update((value) => value!.copyWith(update));
           this.updateItemCache(id, update);
         },
