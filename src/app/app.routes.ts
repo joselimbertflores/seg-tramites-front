@@ -167,8 +167,8 @@ export const routes: Routes = [
       {
         path: 'resources',
         loadComponent: () =>
-          import('./layout/resources/resources.component').then(
-            (c) => c.ResourcesComponent
+          import(
+            './resources/presentation/pages/resources/resources.component'
           ),
       },
       {

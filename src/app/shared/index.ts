@@ -1,13 +1,18 @@
 export * from './components/inputs/search-input/search-input.component';
 export * from './components/server-select-search/server-select-search.component';
 export * from './components/simple-select-search/simple-select-search.component';
-
 export * from './components/dialogs/description-dialog/description-dialog.component';
 export * from './components/dialogs/confirm-dialog/confirm-dialog.component';
 export * from './components/dialogs/loader-dialog/loader-dialog.component';
 export * from './components/dialogs/message-dialog/message-dialog.component';
-
+export * from './components/inputs/autocomplete/autocomplete.component';
+export * from './components/inputs/select-search/select-search.component';
+export * from './components/inputs/year-picker/year-picker.component';
+export * from './components/alerts/alert-message/alert-message.component';
+export * from './components/badge/badge.component';
+export * from './components/progress-bar/progress-bar.component';
 export * from './components/pdf-display/pdf-display.component';
+export * from './components/file-upload/file-upload.component';
 
 export * from './services/cache.service';
 export * from './services/alert.service';
@@ -17,14 +22,6 @@ export * from './services/pdf.service';
 
 export * from './directives/back-button.directive';
 export * from './directives/restore-scroll.directive';
-
-export * from './components/inputs/autocomplete/autocomplete.component';
-export * from './components/inputs/select-search/select-search.component';
-export * from './components/inputs/year-picker/year-picker.component';
-
-export * from './components/alerts/alert-message/alert-message.component';
-export * from './components/badge/badge.component';
-export * from './components/progress-bar/progress-bar.component';
 
 export * from './pipes/form-error-messages.pipe';
 export * from './pipes/safe.pipe';
