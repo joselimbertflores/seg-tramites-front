@@ -10,12 +10,20 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 
+import { FileIconPipe } from '../../pipes/file-icon.pipe';
+
 @Component({
   selector: 'file-upload',
-  imports: [CommonModule, MatButtonModule, MatIconModule, MatListModule],
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatIconModule,
+    MatListModule,
+    FileIconPipe,
+  ],
   template: `
     <div class="flex justify-between items-center p-2">
-      <span>Archivos:</span>
+      <span class="text-lg">Archivos:</span>
       <button mat-mini-fab aria-label="Attach file" (click)="fileInput.click()">
         <mat-icon>attach_file</mat-icon>
       </button>
@@ -23,18 +31,19 @@ import { MatListModule } from '@angular/material/list';
         #fileInput
         type="file"
         [hidden]="true"
-        [attr.multiple]="multiple() ? '' : null"
-        [attr.accept]="acceptAttr()"
+        [multiple]="multiple()"
+        [accept]="accept()"
         (change)="add($event)"
       />
     </div>
-    <ul class="mt-4 space-y-2">
-      @for (item of selectedFilesProps(); track $index) {
+
+    <ul class="mt-2 space-y-2 max-h-[300px] overflow-y-auto p-2">
+      @for (item of displayFiles(); track $index) {
       <li class="flex items-center justify-between p-2 border rounded-xl">
         <div class="flex items-center space-x-3">
           <img
             class="size-6"
-            [src]="'images/icons/files/' + item.icon"
+            [src]="item.file.name | fileIcon"
             alt="Icon file"
           />
           <div>
@@ -45,13 +54,16 @@ import { MatListModule } from '@angular/material/list';
           </div>
         </div>
         <button
+          mat-icon-button
+          aria-label="Remive file"
           (click)="remove($index)"
-          class="text-red-500 hover:text-red-700 transition"
-          title="Eliminar"
         >
-          ✖
+          <mat-icon class="text-red-600">close</mat-icon>
         </button>
       </li>
+      }
+      @empty {
+        <li>Sin elementos</li>
       }
     </ul>
   `,
@@ -61,20 +73,19 @@ export class FileUploadComponent {
   files = model<File[]>([]);
   multiple = input(false);
   allowedExtensions = input<string[]>([]);
-  selectedFilesProps = computed(() =>
+  accept = computed(() => {
+    if (this.allowedExtensions().length === 0) return null;
+    return this.allowedExtensions()
+      .map((ext) => '.' + ext.toLowerCase())
+      .join(',');
+  });
+
+  displayFiles = computed(() =>
     this.files().map((item) => ({
       file: item,
       size: this.formatFileSize(item.size),
-      icon: this.getIconByExtension(item),
     }))
   );
-
-  acceptAttr = computed(() => {
-    if (this.allowedExtensions().length === 0) return undefined;
-    return this.allowedExtensions()
-      .map((ext) => '.' + ext)
-      .join(',');
-  });
 
   add(event: Event): void {
     const selectedFiles = this.onInputFileSelect(event);
@@ -102,30 +113,6 @@ export class FileUploadComponent {
     const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  }
-
-  private getIconByExtension(file: File): string {
-    const ext = file.name.split('.').pop()?.toLowerCase() || '';
-    switch (ext) {
-      case 'pdf':
-        return 'pdf.png';
-      case 'docx':
-        return 'doc.png';
-      case 'xlsx':
-        return 'xls.png';
-      case 'ods':
-        return 'xls.png';
-      case 'mp4':
-        return 'video.png';
-      case 'png':
-        return 'image.png';
-      case 'jpg':
-        return 'image.png';
-      case 'jpeg':
-        return 'image.png';
-      default:
-        return 'unknow.png';
-    }
   }
 
   isDuplicate(file: File): boolean {

@@ -7,54 +7,61 @@
   </button>
 </mat-toolbar>
 <div class="mx-auto max-w-4xl p-4">
-  <cdk-accordion class="block">
-    @for (category of categories; track category; let i = $index) {
-    <cdk-accordion-item
-      #accordionItem="cdkAccordionItem"
-      class="block border border-gray-200"
-    >
-      <button
-        class="w-full flex items-center justify-between p-4 text-left hover:bg-gray-200"
-        (click)="accordionItem.toggle()"
-        tabindex="0"
-        [attr.id]="'accordion-header-' + i"
-        [attr.aria-expanded]="accordionItem.expanded"
-        [attr.aria-controls]="'accordion-body-' + i"
+  <div class="px-4 sm:px-0">
+    <p class="text-2xl font-medium">Listado de Recursos</p>
+  </div>
+  <div class="mt-2 mb-3 border-t border-gray-600">
+    <cdk-accordion class="block space-y-2">
+      @for (item of groupedResources(); track item; let i = $index) {
+      <cdk-accordion-item
+        #accordionItem="cdkAccordionItem"
+        class="block border border-gray-200 rounded-xl"
       >
-        <div class="flex items-center gap-x-4">
-          <img src="images/icons/folder.png" alt="folder" class="size-8" />
-          <span class="font-medium text-gray-800">{{ category }}</span>
-        </div>
-        <span class="text-sm text-gray-500">
-          {{ accordionItem.expanded ? "Cerrar" : "Abrir" }}
-        </span>
-      </button>
-
-      <!-- Body -->
-      @if (accordionItem.expanded) {
-      <div
-        class="bg-white divide-y divide-gray-100"
-        role="region"
-        [attr.id]="'accordion-body-' + i"
-        [attr.aria-labelledby]="'accordion-header-' + i"
-      >
-        <div
-          *ngFor="let file of files"
-          class="flex items-center justify-between px-4 py-2 hover:bg-gray-50"
+        <button
+          class="w-full flex items-center justify-between p-4 text-left hover:bg-gray-200"
+          (click)="accordionItem.toggle()"
+          tabindex="0"
+          [attr.id]="'accordion-header-' + i"
+          [attr.aria-expanded]="accordionItem.expanded"
+          [attr.aria-controls]="'accordion-body-' + i"
         >
-          <div class="flex items-center gap-x-2">
-            <img class="w-5 h-5" />
-            <a class="text-blue-600 hover:underline">
-              {{ file.fileName }}
-            </a>
+          <div class="flex items-center gap-x-4">
+            <img src="images/icons/folder.png" alt="folder" class="size-8" />
+            <span class="font-medium text-gray-800">{{ item.category }}</span>
           </div>
-          <button mat-icon-button matTooltip="Eliminar archivo">
-            <mat-icon>delete</mat-icon>
-          </button>
+          <span class="text-sm text-gray-500">
+            {{ accordionItem.expanded ? "Cerrar" : "Abrir" }}
+          </span>
+        </button>
+
+        @if (accordionItem.expanded) {
+        <div
+          class="divide-y divide-gray-200 p-6"
+          role="region"
+          [attr.id]="'accordion-body-' + i"
+          [attr.aria-labelledby]="'accordion-header-' + i"
+        >
+          <div
+            *ngFor="let file of item.files"
+            class="flex items-center justify-between px-4 py-2 hover:bg-gray-50"
+          >
+            <div class="flex items-center gap-x-2">
+              <img class="w-5 h-5" [src]="file.fileName | fileIcon" />
+              <a class="text-blue-600 hover:underline" (click)="download(file)">
+                {{ file.originalName }}
+              </a>
+            </div>
+            <button mat-icon-button matTooltip="Eliminar archivo">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
         </div>
-      </div>
+        }
+      </cdk-accordion-item>
       }
-    </cdk-accordion-item>
+    </cdk-accordion>
+    @if(groupedResources().length===0){
+    <p class="text-lg mt-4">No se han encontrado elementos.</p>
     }
-  </cdk-accordion>
+  </div>
 </div>

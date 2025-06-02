@@ -19,12 +19,14 @@ export * from './services/alert.service';
 export * from './services/docx.service';
 export * from './services/loading.service';
 export * from './services/pdf.service';
+export * from './services/file-upload.service';
 
 export * from './directives/back-button.directive';
 export * from './directives/restore-scroll.directive';
 
 export * from './pipes/form-error-messages.pipe';
 export * from './pipes/safe.pipe';
+export * from './pipes/file-icon.pipe';
 
 export * from './animations/route-animations';
 export * from './animations/overlay-animations';
