@@ -11,12 +11,13 @@ html {
     (
       color: mat.$azure-palette,
       typography: Roboto,
-      density: -1,
+      density: -2,
     )
   );
   .tonal{
     background-color: var(--mat-sys-primary);
-  }
+  } 
+  font-size: 15px;
 }
 
 body {

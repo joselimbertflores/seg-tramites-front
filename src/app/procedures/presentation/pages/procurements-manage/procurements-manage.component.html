@@ -138,9 +138,9 @@
                           <mat-icon>edit</mat-icon>
                           <span>Editar</span>
                         </button>
+                        <!-- [disabled]="!element.isPrintEnabled($index)" -->
                         <button
                           mat-menu-item
-                          [disabled]="!element.isPrintEnabled($index)"
                           (click)="generateDocument(element, $index)"
                         >
                           <mat-icon>print</mat-icon>
@@ -208,13 +208,13 @@
       ></tr>
     </table>
     @if (datasize() > limit()){
-      <mat-paginator
-        showFirstLastButtons
-        [length]="datasize()"
-        [pageIndex]="index()"
-        [pageSize]="limit()"
-        (page)="onPageChange($event)"
-      />
-      }
+    <mat-paginator
+      showFirstLastButtons
+      [length]="datasize()"
+      [pageIndex]="index()"
+      [pageSize]="limit()"
+      (page)="onPageChange($event)"
+    />
+    }
   </div>
 </div>

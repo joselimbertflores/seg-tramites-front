@@ -6,62 +6,65 @@
     Agregar
   </button>
 </mat-toolbar>
-<div class="mx-auto max-w-4xl p-4">
-  <div class="px-4 sm:px-0">
-    <p class="text-2xl font-medium">Listado de Recursos</p>
+<div class="mx-auto max-w-4xl py-4 px-2">
+  <div
+    class="flex flex-col sm:flex-row items-center sm:justify-between mb-4 gap-2"
+  >
+    <div class="flex gap-2">
+      <button mat-stroked-button (click)="accordion().openAll()">
+        <mat-icon>keyboard_arrow_down</mat-icon>
+        Ver todo
+      </button>
+      <button mat-stroked-button (click)="accordion().closeAll()">
+        <mat-icon>keyboard_arrow_up</mat-icon>
+        Cerrar todo
+      </button>
+    </div>
+    <div class="h-12 w-full sm:w-1/3">
+      <mat-form-field>
+        <mat-label>Buscar</mat-label>
+        <input matInput [(ngModel)]="term" placeholder="Nombre del archivo" />
+      </mat-form-field>
+    </div>
   </div>
-  <div class="mt-2 mb-3 border-t border-gray-600">
-    <cdk-accordion class="block space-y-2">
-      @for (item of groupedResources(); track item; let i = $index) {
-      <cdk-accordion-item
-        #accordionItem="cdkAccordionItem"
-        class="block border border-gray-200 rounded-xl"
-      >
-        <button
-          class="w-full flex items-center justify-between p-4 text-left hover:bg-gray-200"
-          (click)="accordionItem.toggle()"
-          tabindex="0"
-          [attr.id]="'accordion-header-' + i"
-          [attr.aria-expanded]="accordionItem.expanded"
-          [attr.aria-controls]="'accordion-body-' + i"
-        >
-          <div class="flex items-center gap-x-4">
-            <img src="images/icons/folder.png" alt="folder" class="size-8" />
-            <span class="font-medium text-gray-800">{{ item.category }}</span>
-          </div>
-          <span class="text-sm text-gray-500">
-            {{ accordionItem.expanded ? "Cerrar" : "Abrir" }}
-          </span>
-        </button>
-
-        @if (accordionItem.expanded) {
-        <div
-          class="divide-y divide-gray-200 p-6"
-          role="region"
-          [attr.id]="'accordion-body-' + i"
-          [attr.aria-labelledby]="'accordion-header-' + i"
-        >
-          <div
-            *ngFor="let file of item.files"
-            class="flex items-center justify-between px-4 py-2 hover:bg-gray-50"
-          >
-            <div class="flex items-center gap-x-2">
-              <img class="w-5 h-5" [src]="file.fileName | fileIcon" />
-              <a class="text-blue-600 hover:underline" (click)="download(file)">
-                {{ file.originalName }}
-              </a>
-            </div>
-            <button mat-icon-button matTooltip="Eliminar archivo">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </div>
+  <mat-accordion multi>
+    @for (item of filteredGroupedResources(); track item; let i = $index) {
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <div class="flex items-center gap-x-4">
+          <img src="images/icons/folder.png" alt="folder" class="size-6" />
+          <span class="font-medium">{{ item.category }}</span>
         </div>
-        }
-      </cdk-accordion-item>
-      }
-    </cdk-accordion>
-    @if(groupedResources().length===0){
-    <p class="text-lg mt-4">No se han encontrado elementos.</p>
+      </mat-expansion-panel-header>
+
+      <div>
+        <ul class="divide-y divide-gray-400">
+          @for (file of item.files; track $index) {
+          <li class="flex items-center justify-between p-2 hover:bg-gray-100">
+            <div class="flex items-center space-x-4">
+              <img class="size-5" [src]="file.fileName | fileIcon" />
+              <div>
+                <p class="font-medium">
+                  {{ file.originalName }}
+                </p>
+                <p class="text-xs">
+                  Creacion: {{ file.createdAt | date : "dd/MM/yyyy" }}
+                </p>
+              </div>
+            </div>
+            <div class="flex gap-x-2">
+              <button mat-icon-button (click)="download(file)">
+                <mat-icon>download</mat-icon>
+              </button>
+              <button mat-icon-button (click)="download(file)">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </li>
+          }
+        </ul>
+      </div>
+    </mat-expansion-panel>
     }
-  </div>
+  </mat-accordion>
 </div>
