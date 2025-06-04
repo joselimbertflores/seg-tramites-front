@@ -64,7 +64,7 @@ export default class ResourcesComponent implements OnInit {
   accordion = viewChild.required(MatAccordion);
 
   expansion = viewChildren<CdkAccordion>(MatAccordion);
-  groupedResources = signal<groupedResource[]>([]);
+  groupedResources = signal<groupedResource>({});
 
   term = signal<string>('');
   isLoading = signal(false);
@@ -72,12 +72,16 @@ export default class ResourcesComponent implements OnInit {
   public readonly PERMISSION = validResource;
 
   filteredGroupedResources = computed(() => {
-    if (!this.term()) return this.groupedResources();
-    return this.groupedResources().filter((values) =>
-      values.files.some(({ originalName }) =>
-        originalName.toLowerCase().includes(this.term().toLowerCase())
-      )
-    );
+    return Object.entries(this.groupedResources()).map(([category, files]) => ({
+      category,
+      files,
+    }));
+    // if (!this.term()) return this.groupedResources();
+    // return this.groupedResources().filter((values) =>
+    //   values.files.some(({ originalName }) =>
+    //     originalName.toLowerCase().includes(this.term().toLowerCase())
+    //   )
+    // );
   });
 
   ngOnInit(): void {
@@ -91,45 +95,46 @@ export default class ResourcesComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe((result: groupedResource) => {
       if (!result) return;
-      this.groupedResources.update((values) => {
-        const index = values.findIndex(
-          ({ category }) => category === result.category
-        );
+      // this.groupedResources.update((values) => {
+      //   const index = values.findIndex(
+      //     ({ category }) => category === result.category
+      //   );
 
-        if (index === -1) {
-          return [result, ...values];
-        }
+      //   if (index === -1) {
+      //     return [result, ...values];
+      //   }
 
-        const updatedGroup = {
-          ...values[index],
-          files: [...result.files, ...values[index].files],
-        };
-        return [
-          ...values.slice(0, index),
-          updatedGroup,
-          ...values.slice(index + 1),
-        ];
-      });
+      //   const updatedGroup = {
+      //     ...values[index],
+      //     files: [...result.files, ...values[index].files],
+      //   };
+      //   return [
+      //     ...values.slice(0, index),
+      //     updatedGroup,
+      //     ...values.slice(index + 1),
+      //   ];
+      // });
     });
   }
 
   remove(item: resourceFile) {
     this.resourceService.remove(item._id).subscribe(() => {
-      this.groupedResources.update((values) =>
-        values
-          .map((group) => {
-            if (group.category !== item.category) return group;
-            return {
-              ...group,
-              files: group.files.filter((file) => file._id !== item._id),
-            };
-          })
-          .filter((group) => group.files.length > 0)
-      );
+      // this.groupedResources.update((values) =>
+      //   values
+      //     .map((group) => {
+      //       if (group.category !== item.category) return group;
+      //       return {
+      //         ...group,
+      //         files: group.files.filter((file) => file._id !== item._id),
+      //       };
+      //     })
+      //     .filter((group) => group.files.length > 0)
+      // );
     });
   }
 
   download({ fileName, originalName }: resourceFile) {
+    console.log(fileName);
     this.fileUploadService.downloadFileFromUrl(fileName, originalName);
   }
 

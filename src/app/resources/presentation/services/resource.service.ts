@@ -16,7 +16,7 @@ export class ResourceService {
   private http = inject(HttpClient);
   private readonly URL = `${environment.base_url}/resources`;
 
-  private cacheResources = signal<groupedResource[]>([]);
+  resources = signal<groupedResource>({});
 
   constructor() {}
 
@@ -36,11 +36,11 @@ export class ResourceService {
   }
 
   findAllGroupedByCategory() {
-    return this.cacheResources().length === 0
+    return Object.keys(this.resources()).length === 0
       ? this.http
-          .get<groupedResource[]>(`${this.URL}/grouped`)
-          .pipe(tap((data) => this.cacheResources.set(data)))
-      : of(this.cacheResources());
+          .get<groupedResource>(`${this.URL}/grouped`)
+          .pipe(tap((data) => this.resources.set(data)))
+      : of(this.resources());
   }
 
   getCategories() {
@@ -48,30 +48,30 @@ export class ResourceService {
   }
 
   private addResource(newResource: groupedResource) {
-    this.cacheResources.update((values) => {
-      const index = values.findIndex(
-        ({ category }) => category === newResource.category
-      );
-      if (index === -1) {
-        return [newResource, ...values];
-      } else {
-        values[index].files = [...newResource.files];
-        return [...values];
-      }
-    });
+    // this.cacheResources.update((values) => {
+    //   const index = values.findIndex(
+    //     ({ category }) => category === newResource.category
+    //   );
+    //   if (index === -1) {
+    //     return [newResource, ...values];
+    //   } else {
+    //     values[index].files = [...newResource.files];
+    //     return [...values];
+    //   }
+    // });
   }
 
   private removeFileResource(id: string) {
-    this.cacheResources.update((values) =>
-      values
-        .map((group) => {
-          if (!group.files.some((file) => file._id === id)) return group;
-          return {
-            ...group,
-            files: group.files.filter(({ _id }) => _id !== id),
-          };
-        })
-        .filter((group) => group.files.length > 0)
-    );
+    // this.cacheResources.update((values) =>
+    //   values
+    //     .map((group) => {
+    //       if (!group.files.some((file) => file._id === id)) return group;
+    //       return {
+    //         ...group,
+    //         files: group.files.filter(({ _id }) => _id !== id),
+    //       };
+    //     })
+    //     .filter((group) => group.files.length > 0)
+    // );
   }
 }

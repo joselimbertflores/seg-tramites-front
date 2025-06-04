@@ -96,8 +96,8 @@ export class RouteSheetDialogComponent {
   readonly data: routeSheetData = inject(MAT_DIALOG_DATA);
 
   pdfBlobList = resource<pdfBlobItem[], routeSheetData>({
-    request: () => this.data,
-    loader: ({ request }) => {
+    params: () => this.data,
+    loader: ({ params }) => {
       return firstValueFrom(
         this.buildGetDataMethod().pipe(
           map(({ procedure, workflow }) => {
@@ -111,10 +111,10 @@ export class RouteSheetDialogComponent {
             );
             return {
               procedure,
-              paths: request.requestParams.communicationId
+              paths: params.requestParams.communicationId
                 ? [
                     getWorkflowPathTo(
-                      request.requestParams.communicationId,
+                      params.requestParams.communicationId,
                       filteredWorkflow
                     ),
                   ]

@@ -1,6 +1,5 @@
 export interface groupedResource {
-  category: string;
-  files: resourceFile[];
+  [key: string]: resourceFile[];
 }
 
 export interface resourceFile {
@@ -8,5 +7,5 @@ export interface resourceFile {
   fileName: string;
   originalName: string;
   createdAt: string;
-   category: string;
+  category: string;
 }

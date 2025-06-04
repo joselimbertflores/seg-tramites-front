@@ -2,7 +2,8 @@
 @use "@angular/material-experimental" as matx;
 @use "sass:map";
 
-@include mat.core();
+@include mat.elevation-classes();
+@include mat.app-background();
 
 $palettes: (
   "red": matx.$m3-red-palette,
