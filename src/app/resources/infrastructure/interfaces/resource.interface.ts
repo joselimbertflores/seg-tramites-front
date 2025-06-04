@@ -8,4 +8,5 @@ export interface resourceFile {
   fileName: string;
   originalName: string;
   createdAt: string;
+   category: string;
 }

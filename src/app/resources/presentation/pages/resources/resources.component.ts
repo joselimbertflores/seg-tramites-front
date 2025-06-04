@@ -5,7 +5,9 @@ import {
   Component,
   computed,
   inject,
+  linkedSignal,
   OnInit,
+  resource,
   signal,
   viewChild,
   viewChildren,
@@ -19,12 +21,18 @@ import { MatListModule } from '@angular/material/list';
 import { MatDialog } from '@angular/material/dialog';
 
 import { ResourceDialogComponent } from '../../dialogs/resource-dialog/resource-dialog.component';
-import { FileIconPipe, FileUploadService } from '../../../../shared';
+import {
+  FileIconPipe,
+  FileUploadService,
+  HasPermissionDirective,
+} from '../../../../shared';
 import { ResourceService } from '../../services/resource.service';
 import { groupedResource, resourceFile } from '../../../infrastructure';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
+import { validResource } from '../../../../auth/infrastructure';
+import { finalize } from 'rxjs';
 @Component({
   selector: 'app-resources',
   imports: [
@@ -39,13 +47,14 @@ import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
     FileIconPipe,
     FormsModule,
     MatExpansionModule,
+    HasPermissionDirective,
   ],
   templateUrl: './resources.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
-    mat-expansion-panel-header {
-      height: 50px; 
-    }
+    // mat-expansion-panel-header {
+    //   height: 50px; 
+    // }
   `,
 })
 export default class ResourcesComponent implements OnInit {
@@ -54,11 +63,13 @@ export default class ResourcesComponent implements OnInit {
   private resourceService = inject(ResourceService);
   accordion = viewChild.required(MatAccordion);
 
-  expansion = viewChildren<CdkAccordion>('myAc');
-  expandedIndex = 0;
+  expansion = viewChildren<CdkAccordion>(MatAccordion);
   groupedResources = signal<groupedResource[]>([]);
 
   term = signal<string>('');
+  isLoading = signal(false);
+
+  public readonly PERMISSION = validResource;
 
   filteredGroupedResources = computed(() => {
     if (!this.term()) return this.groupedResources();
@@ -84,23 +95,37 @@ export default class ResourcesComponent implements OnInit {
         const index = values.findIndex(
           ({ category }) => category === result.category
         );
-        if (index === -1) return [result, ...values];
-        values[index].files.push(...result.files);
-        return [...values];
+
+        if (index === -1) {
+          return [result, ...values];
+        }
+
+        const updatedGroup = {
+          ...values[index],
+          files: [...result.files, ...values[index].files],
+        };
+        return [
+          ...values.slice(0, index),
+          updatedGroup,
+          ...values.slice(index + 1),
+        ];
       });
     });
   }
 
-
   remove(item: resourceFile) {
     this.resourceService.remove(item._id).subscribe(() => {
-      this.groupedResources.update((values) => {
-        const index = values.findIndex(({ files }) => files.some(({ _id }) => _id === item._id));
-        if(index===-1) return [...values]
-        values[index].files=values[index].files.filter((({_id})=>_id!==item._id))
-       
-        return [...values];
-      });
+      this.groupedResources.update((values) =>
+        values
+          .map((group) => {
+            if (group.category !== item.category) return group;
+            return {
+              ...group,
+              files: group.files.filter((file) => file._id !== item._id),
+            };
+          })
+          .filter((group) => group.files.length > 0)
+      );
     });
   }
 
@@ -109,8 +134,12 @@ export default class ResourcesComponent implements OnInit {
   }
 
   getResources() {
-    this.resourceService.findAllGroupedByCategory().subscribe((data) => {
-      this.groupedResources.set(data);
-    });
+    this.isLoading.set(true);
+    this.resourceService
+      .findAllGroupedByCategory()
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe((data) => {
+        this.groupedResources.set(data);
+      });
   }
 }

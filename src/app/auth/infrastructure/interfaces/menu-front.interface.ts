@@ -20,4 +20,5 @@ export enum validResource {
   reports = 'reports',
   roles = 'roles',
   jobs = 'jobs',
+  resources = 'resources',
 }

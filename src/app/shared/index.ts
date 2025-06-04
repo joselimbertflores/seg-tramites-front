@@ -23,6 +23,7 @@ export * from './services/file-upload.service';
 
 export * from './directives/back-button.directive';
 export * from './directives/restore-scroll.directive';
+export * from './directives/has-permission.directive';
 
 export * from './pipes/form-error-messages.pipe';
 export * from './pipes/safe.pipe';

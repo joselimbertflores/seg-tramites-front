@@ -1,15 +1,20 @@
 <mat-toolbar>
   <span>Recursos</span>
   <span class="flex-1"></span>
-  <button mat-flat-button (click)="create()">
+  <button
+    mat-flat-button
+    *hasPermission="{
+      resource: PERMISSION.resources,
+      actions: ['create']
+    }"
+    (click)="create()"
+  >
     <mat-icon>add</mat-icon>
     Agregar
   </button>
 </mat-toolbar>
 <div class="mx-auto max-w-4xl py-4 px-2">
-  <div
-    class="flex flex-col sm:flex-row items-center sm:justify-between mb-4 gap-2"
-  >
+  <div class="flex flex-col sm:flex-row items-center sm:justify-between mb-4 gap-2">
     <div class="flex gap-2">
       <button mat-stroked-button (click)="accordion().openAll()">
         <mat-icon>keyboard_arrow_down</mat-icon>
@@ -28,43 +33,59 @@
     </div>
   </div>
   <mat-accordion multi>
-    @for (item of filteredGroupedResources(); track item; let i = $index) {
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <div class="flex items-center gap-x-4">
-          <img src="images/icons/folder.png" alt="folder" class="size-6" />
-          <span class="font-medium">{{ item.category }}</span>
-        </div>
-      </mat-expansion-panel-header>
+    @if (isLoading()) { 
+      <p>Cargado</p>
+    } @else {
+       @for (item of filteredGroupedResources();  track item; let i = $index) {
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <div class="flex items-center gap-x-4">
+              <img src="images/icons/folder.png" alt="folder" class="size-6" />
+              <span class="font-medium">{{ item.category }}</span>
+            </div>
+          </mat-expansion-panel-header>
+          <div>
+            <ul class="divide-y divide-gray-400">
+              @for (file of item.files; track $index) {
+              <li class="flex items-center justify-between p-2 hover:bg-gray-100">
+                <div class="flex items-center space-x-4">
+                  <img class="size-5" [src]="file.fileName | fileIcon" />
+                  <div>
+                    <p class="font-medium">
+                      {{ file.originalName }}
+                    </p>
+                    <p class="text-xs">
+                      Creacion: {{ file.createdAt | date : "dd/MM/yyyy" }}
+                    </p>
+                  </div>
+                </div>
+                <div class="flex gap-x-2">
+                  <button mat-icon-button (click)="download(file)">
+                    <mat-icon>download</mat-icon>
+                  </button>
+                  <ng-container>
+                    <button
+                      mat-icon-button
+                      *hasPermission="{
+                        resource: PERMISSION.resources,
+                        actions: ['delete']
+                      }"
+                      (click)="remove(file)"
+                    >
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </ng-container>
+                </div>
+              </li>
+              }
+            </ul>
+          </div>
+        </mat-expansion-panel>
 
-      <div>
-        <ul class="divide-y divide-gray-400">
-          @for (file of item.files; track $index) {
-          <li class="flex items-center justify-between p-2 hover:bg-gray-100">
-            <div class="flex items-center space-x-4">
-              <img class="size-5" [src]="file.fileName | fileIcon" />
-              <div>
-                <p class="font-medium">
-                  {{ file.originalName }}
-                </p>
-                <p class="text-xs">
-                  Creacion: {{ file.createdAt | date : "dd/MM/yyyy" }}
-                </p>
-              </div>
-            </div>
-            <div class="flex gap-x-2">
-              <button mat-icon-button (click)="download(file)">
-                <mat-icon>download</mat-icon>
-              </button>
-              <button mat-icon-button (click)="download(file)">
-                <mat-icon>close</mat-icon>
-              </button>
-            </div>
-          </li>
-          }
-        </ul>
-      </div>
-    </mat-expansion-panel>
+      } 
+      @empty {
+        <p class="text-xl p-4">Sin elementos</p>
+      } 
     }
   </mat-accordion>
 </div>

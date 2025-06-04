@@ -86,6 +86,13 @@ export class AuthService {
       .pipe(tap(() => this._updatedPassword.set(true)));
   }
 
+  hasPermission(resource: validResource, action: string[] | string): boolean {
+    const entry = this._permissions() ? this._permissions()![resource] : null;
+    if (!entry) return false;
+    const actions = Array.isArray(action) ? action : [action];
+    return actions.some((action) => entry.includes(action));
+  }
+
   private _setAuthentication(token: string): boolean {
     this._user.set(jwtDecode(token));
     localStorage.setItem('token', token);
