@@ -1,5 +1,5 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
+import { computed, inject, Injectable, signal, DOCUMENT } from '@angular/core';
+
 
 export type ThemeBackground = 'light' | 'dark';
 export type ThemeColor = 'red' | 'yellow' | 'green' | 'rose' | 'azure';
