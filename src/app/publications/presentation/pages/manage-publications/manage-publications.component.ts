@@ -14,6 +14,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { CreatePostComponent } from './create-post/create-post.component';
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
     selector: 'app-manage-publications',
@@ -23,6 +24,7 @@ import { CreatePostComponent } from './create-post/create-post.component';
         MatTableModule,
         MatButtonModule,
         MatIconModule,
+        MatCardModule
     ],
     templateUrl: './manage-publications.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush

@@ -21,24 +21,30 @@ import { MatIconModule } from '@angular/material/icon';
 import { forkJoin, switchMap } from 'rxjs';
 
 import { PostService } from '../../../services/post.service';
+import {
+  FileUploadComponent,
+  SecureImageUploaderComponent,
+} from '../../../../../shared';
 
 @Component({
-    selector: 'app-create-post',
-    imports: [
-        ReactiveFormsModule,
-        MatDialogModule,
-        MatButtonModule,
-        MatIconModule,
-        MatFormFieldModule,
-        MatSelectModule,
-        MatInputModule,
-        MatListModule,
-        MatRadioModule,
-        MatDatepickerModule,
-    ],
-    templateUrl: './create-post.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    providers: [provideNativeDateAdapter()]
+  selector: 'app-create-post',
+  imports: [
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatInputModule,
+    MatListModule,
+    MatRadioModule,
+    MatDatepickerModule,
+    SecureImageUploaderComponent,
+    FileUploadComponent,
+  ],
+  templateUrl: './create-post.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [provideNativeDateAdapter()],
 })
 export class CreatePostComponent {
   private formBuilder = inject(FormBuilder);
@@ -58,6 +64,7 @@ export class CreatePostComponent {
     title: ['', Validators.required],
     content: ['', Validators.required],
     priority: [0, Validators.required],
+    startDate: [this.minDate, Validators.required],
     expirationDate: [this.minDate, Validators.required],
   });
 

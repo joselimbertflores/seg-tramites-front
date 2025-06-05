@@ -166,6 +166,8 @@ export const routes: Routes = [
       },
       {
         path: 'resources',
+        title: 'Recursos',
+        data: { animation: 'ResourcesPage' },
         loadComponent: () =>
           import(
             './resources/presentation/pages/resources/resources.component'

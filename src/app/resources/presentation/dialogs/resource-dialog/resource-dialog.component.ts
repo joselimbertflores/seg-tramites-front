@@ -4,20 +4,22 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { toSignal } from '@angular/core/rxjs-interop';
+
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { forkJoin, map, switchMap } from 'rxjs';
+
 import {
   AutocompleteComponent,
-  AutocompleteOption,
   FileUploadComponent,
   FileUploadService,
 } from '../../../../shared';
-import { MatInputModule } from '@angular/material/input';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { ResourceService } from '../../services/resource.service';
-import { forkJoin, map, switchMap } from 'rxjs';
-import { CommonModule } from '@angular/common';
+
 
 @Component({
   selector: 'app-resource-dialog',
@@ -40,6 +42,7 @@ import { CommonModule } from '@angular/common';
           placeholder="Ingrese la categoria"
           title="Categoria"
           (onTyped)="onAutocompleteTyped($event)"
+          (onSelect)="onSelectAutoCompleteOption($event)"
         />
       </div>
       <file-upload
@@ -102,6 +105,10 @@ export class ResourceDialogComponent {
       .subscribe((data) => {
         this.dialogRef.close(data);
       });
+  }
+
+  onSelectAutoCompleteOption(option: string) {
+    this.category.setValue(option);
   }
 
   onAutocompleteTyped(term: string) {

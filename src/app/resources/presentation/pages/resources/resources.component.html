@@ -13,7 +13,11 @@
     Agregar
   </button>
 </mat-toolbar>
+
 <div class="mx-auto max-w-4xl py-4 px-2">
+  @if(isLoading()){
+  <p class="text-xl py-4">Cargando contenido...</p>
+  } @else {
   <div
     class="flex flex-col sm:flex-row items-center sm:justify-between mb-6 gap-2"
   >
@@ -35,10 +39,7 @@
     </div>
   </div>
   <mat-accordion multi>
-    @if (isLoading()) {
-    <p>Cargado</p>
-    } @else { @for (item of filteredGroupedResources(); track item; let i =
-    $index) {
+    @for (item of filteredGroupedResources(); track item; let i = $index) {
     <mat-expansion-panel>
       <mat-expansion-panel-header>
         <div class="flex items-center gap-x-4">
@@ -83,9 +84,9 @@
         </ul>
       </div>
     </mat-expansion-panel>
-
     } @empty {
-    <p class="text-xl p-4">Sin elementos</p>
-    } }
+    <li class="py-2">Sin elementos</li>
+    }
   </mat-accordion>
+  }
 </div>
