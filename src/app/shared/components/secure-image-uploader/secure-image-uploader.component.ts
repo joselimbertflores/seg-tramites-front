@@ -1,11 +1,10 @@
 import {
   ChangeDetectionStrategy,
-  Component,
   DestroyRef,
+  Component,
   inject,
   input,
   model,
-  output,
   signal,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -20,13 +19,11 @@ import { FileUploadService } from '../../services/file-upload.service';
   template: `
     <div class="flex flex-col border border-slate-500 p-3 rounded-xl">
       @if(imageDataUrl()){
-      <figure
-        class="flex justify-center items-center rounded-2xl mb-4 bg-slate-100"
-      >
+      <figure class="flex justify-center items-center rounded-2xl mb-4">
         <img
           [src]="imageDataUrl()"
           alt="Image preview"
-          class="object-contain rounded-2xl max-w-[400px] max-h-[600px] aspect-square"
+          class="object-contain rounded-2xl max-h-[350px]"
         />
       </figure>
       }
@@ -69,13 +66,8 @@ export class SecureImageUploaderComponent {
   private fileUploadService = inject(FileUploadService);
   private destroyRef = inject(DestroyRef);
 
+  file = model<File | null>();
   initialImageUrl = input<string | null>(null);
-
-  preview = input<string | null | undefined>(null);
-  onImageRemoved = output<void>();
-
-  url = signal<string | null>(null);
-  file = model<File>();
   imageDataUrl = signal<string | null>(null);
 
   constructor() {
@@ -93,9 +85,7 @@ export class SecureImageUploaderComponent {
   }
 
   removeImage(): void {
-    this.file.set(undefined);
-    this.url.set(null);
-    this.onImageRemoved.emit();
+    this.file.set(null);
     this.imageDataUrl.set(null);
   }
 

@@ -12,7 +12,7 @@ export * from './components/alerts/alert-message/alert-message.component';
 export * from './components/badge/badge.component';
 export * from './components/progress-bar/progress-bar.component';
 export * from './components/pdf-display/pdf-display.component';
-export * from './components/file-upload/file-upload.component';
+export * from './components/file-uploader/file-uploader.component';
 export * from './components/secure-image-uploader/secure-image-uploader.component';
 
 export * from './services/cache.service';

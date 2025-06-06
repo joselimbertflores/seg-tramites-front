@@ -1,16 +1,17 @@
 import { inject, Injectable } from '@angular/core';
-import { environment } from '../../../../environments/environment';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { publication } from '../../infrastructure/interfaces/publications.interface';
 
-interface attachmentProps {
-  title: string;
-  filename: string;
+import { environment } from '../../../../environments/environment';
+import { publication } from '../../infrastructure/interfaces/publications.interface';
+import { attachmentFile } from '../../domain';
+
+interface updatePublicationProps {
+  id: string;
+  form: Object;
+  image: string | null;
+  attachments: attachmentFile[];
 }
-interface paginationParams {
-  limit: number;
-  offset: number;
-}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -19,17 +20,20 @@ export class PostService {
   private http = inject(HttpClient);
   constructor() {}
 
-  uploadFile(file: File) {
-    const formData = new FormData();
-    formData.append('file', file);
-    return this.http.post<attachmentProps>(
-      `${environment.base_url}/files/post`,
-      formData
-    );
+  create(form: Object, image: string | null, attachments: attachmentFile[]) {
+    return this.http.post<publication>(this.url, {
+      ...form,
+      image,
+      attachments,
+    });
   }
 
-  create(form: Object, attachments: attachmentProps[]) {
-    return this.http.post<publication>(this.url, { ...form, attachments });
+  update({ id, attachments, image, form }: updatePublicationProps) {
+    return this.http.patch<publication>(`${this.url}/${id}`, {
+      ...form,
+      image,
+      attachments,
+    });
   }
 
   findAll(limit: number = 10, offset: number = 0) {

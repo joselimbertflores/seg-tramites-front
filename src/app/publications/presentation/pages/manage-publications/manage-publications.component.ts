@@ -17,17 +17,17 @@ import { CreatePostComponent } from './create-post/create-post.component';
 import { MatCardModule } from '@angular/material/card';
 
 @Component({
-    selector: 'app-manage-publications',
-    imports: [
-        CommonModule,
-        MatToolbarModule,
-        MatTableModule,
-        MatButtonModule,
-        MatIconModule,
-        MatCardModule
-    ],
-    templateUrl: './manage-publications.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'app-manage-publications',
+  imports: [
+    CommonModule,
+    MatToolbarModule,
+    MatTableModule,
+    MatButtonModule,
+    MatIconModule,
+    MatCardModule,
+  ],
+  templateUrl: './manage-publications.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class ManagePublicationsComponent implements OnInit {
   private publicationService = inject(PostService);
@@ -56,6 +56,23 @@ export default class ManagePublicationsComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (!result) return;
       this.datasource.update((values) => [result, ...values]);
+    });
+  }
+
+  update(publication: publication): void {
+    console.log(publication);
+    const dialogRef = this.dialogRef.open(CreatePostComponent, {
+      minWidth: '800px',
+      data: publication,
+      autoFocus: false,
+    });
+    dialogRef.afterClosed().subscribe((result: publication) => {
+      if (!result) return;
+      this.datasource.update((values) => {
+        const index = values.findIndex((el) => el._id === result._id);
+        values[index] = result;
+        return [...values];
+      });
     });
   }
 }

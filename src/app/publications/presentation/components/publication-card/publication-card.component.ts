@@ -37,10 +37,10 @@ import { PostService } from '../../services/post.service';
           @for (item of publication().attachments; track $index) {
           <li>
             <span
-              (click)="openFile(item.filename)"
+              (click)="openFile(item.fileName)"
               class="text-blue-500 underline cursor-pointer"
             >
-              {{ item.title }}
+              {{ item.originalName }}
             </span>
           </li>
           }

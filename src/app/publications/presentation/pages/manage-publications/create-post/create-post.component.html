@@ -1,67 +1,72 @@
 <h2 mat-dialog-title>Crear Publicacion</h2>
 <mat-dialog-content>
-  <form [formGroup]="form" class="py-2">
-    <div class="grid grid-cols-2 gap-x-2">
-      <div class="col-span-2 border-1">
-        <mat-form-field class="min-w-full">
-          <mat-label>Titulo</mat-label>
-          <input matInput formControlName="title" />
-        </mat-form-field>
+  <div class="py-2 space-y-2">
+    <form [formGroup]="form">
+      <div class="grid grid-cols-2 gap-x-2">
+        <div class="col-span-2 border-1">
+          <mat-form-field class="min-w-full">
+            <mat-label>Titulo</mat-label>
+            <input matInput formControlName="title" />
+          </mat-form-field>
+        </div>
+        <div class="col-span-2">
+          <mat-form-field>
+            <mat-label>Contenido</mat-label>
+            <textarea matInput formControlName="content"></textarea>
+          </mat-form-field>
+        </div>
+        <div>
+          <mat-form-field>
+            <mat-label>Mostrar en rango</mat-label>
+            <mat-date-range-input [rangePicker]="picker" [min]="null">
+              <input
+                matStartDate
+                formControlName="startDate"
+                placeholder="Desde"
+              />
+              <input
+                matEndDate
+                formControlName="expirationDate"
+                placeholder="Hasta"
+              />
+            </mat-date-range-input>
+            <mat-datepicker-toggle
+              matIconSuffix
+              [for]="picker"
+            ></mat-datepicker-toggle>
+            <mat-date-range-picker #picker></mat-date-range-picker>
+          </mat-form-field>
+        </div>
+        <div>
+          <mat-form-field>
+            <mat-label>Prioridad</mat-label>
+            <mat-select formControlName="priority">
+              @for (priority of prioritys; track $index) {
+              <mat-option [value]="priority.value">{{
+                priority.label
+              }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
       </div>
-      <div class="col-span-2">
-        <mat-form-field>
-          <mat-label>Contenido</mat-label>
-          <textarea matInput formControlName="content"></textarea>
-        </mat-form-field>
-      </div>
-      <div>
-        <mat-form-field>
-          <mat-label>Mostrar en rango</mat-label>
-          <mat-date-range-input [rangePicker]="picker" [min]="null">
-            <input
-              matStartDate
-              formControlName="startDate"
-              placeholder="Desde"
-            />
-            <input
-              matEndDate
-              formControlName="expirationDate"
-              placeholder="Hasta"
-            />
-          </mat-date-range-input>
-          <mat-datepicker-toggle
-            matIconSuffix
-            [for]="picker"
-          ></mat-datepicker-toggle>
-          <mat-date-range-picker #picker></mat-date-range-picker>
-        </mat-form-field>
-      </div>
-      <div>
-        <mat-form-field>
-          <mat-label>Prioridad</mat-label>
-          <mat-select formControlName="priority">
-            @for (priority of prioritys; track $index) {
-            <mat-option [value]="priority.value">{{
-              priority.label
-            }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-      </div>
+    </form>
+    <div>
+      <secure-image-uploader
+        [(file)]="image"
+        [initialImageUrl]="uploadedFiles().image"
+      />
     </div>
-  </form>
-  <div>
-    <secure-image-uploader />
-  </div>
-  <div>
-    <file-upload />
-    <!-- <file-upload
-      [(files)]="attachmentsFiles"
-      [(attachments)]="uploaded().attachments"
-    /> -->
+    <div>
+      <file-uploader
+        [multiple]="true"
+        [allowedExtensions]="EXTENSIONS"
+        [(files)]="files"
+      />
+    </div>
   </div>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button mat-button mat-dialog-close>Cancelar</button>
-  <button mat-button (click)="create()">Aceptar</button>
+  <button mat-button (click)="save()">Aceptar</button>
 </mat-dialog-actions>

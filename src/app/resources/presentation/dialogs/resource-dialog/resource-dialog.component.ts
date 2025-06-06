@@ -15,7 +15,7 @@ import { forkJoin, map, switchMap } from 'rxjs';
 
 import {
   AutocompleteComponent,
-  FileUploadComponent,
+  FileUploaderComponent,
   FileUploadService,
 } from '../../../../shared';
 import { ResourceService } from '../../services/resource.service';
@@ -28,7 +28,7 @@ import { ResourceService } from '../../services/resource.service';
     ReactiveFormsModule,
     MatDialogModule,
     MatButtonModule,
-    FileUploadComponent,
+    FileUploaderComponent,
     MatInputModule,
     AutocompleteComponent,
   ],
@@ -45,7 +45,7 @@ import { ResourceService } from '../../services/resource.service';
           (onSelect)="onSelectAutoCompleteOption($event)"
         />
       </div>
-      <file-upload
+      <file-uploader
         [multiple]="true"
         [(files)]="files"
         [allowedExtensions]="VALID_EXTENSIONS"

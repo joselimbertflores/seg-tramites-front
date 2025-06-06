@@ -8,22 +8,15 @@ import {
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatListModule } from '@angular/material/list';
 
 import { FileIconPipe } from '../../pipes/file-icon.pipe';
 
 @Component({
-  selector: 'file-upload',
-  imports: [
-    CommonModule,
-    MatButtonModule,
-    MatIconModule,
-    MatListModule,
-    FileIconPipe,
-  ],
+  selector: 'file-uploader',
+  imports: [CommonModule, MatButtonModule, MatIconModule, FileIconPipe],
   template: `
     <div class="flex justify-between items-center p-2">
-      <span class="text-lg">Archivos:</span>
+      <span class="text-lg">Listado de archivos:</span>
       <button mat-mini-fab aria-label="Attach file" (click)="fileInput.click()">
         <mat-icon>attach_file</mat-icon>
       </button>
@@ -37,17 +30,17 @@ import { FileIconPipe } from '../../pipes/file-icon.pipe';
       />
     </div>
 
-    <ul class="mt-2 space-y-2 max-h-[300px] overflow-y-auto p-2">
+    <ul class="space-y-2 mt-2">
       @for (item of displayFiles(); track $index) {
-      <li class="flex items-center justify-between p-2 border rounded-xl">
+      <li class="flex items-center justify-between p-2 border border-slate-300 rounded-xl">
         <div class="flex items-center space-x-3">
           <img
-            class="size-6"
+            class="size-8"
             [src]="item.file.name | fileIcon"
             alt="Icon file"
           />
           <div>
-            <p class="text-gray-700 text-sm font-medium">
+            <p class="text-sm font-medium">
               {{ item.file.name }}
             </p>
             <p class="text-xs font-light">{{ item.size }}</p>
@@ -61,15 +54,14 @@ import { FileIconPipe } from '../../pipes/file-icon.pipe';
           <mat-icon class="text-red-600">close</mat-icon>
         </button>
       </li>
-      }
-      @empty {
-        <li>Sin elementos</li>
+      } @empty {
+      <li class="px-4">Sin elementos</li>
       }
     </ul>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FileUploadComponent {
+export class FileUploaderComponent {
   files = model<File[]>([]);
   multiple = input(false);
   allowedExtensions = input<string[]>([]);

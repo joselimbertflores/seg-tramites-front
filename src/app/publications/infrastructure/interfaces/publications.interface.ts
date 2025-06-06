@@ -10,8 +10,8 @@ export interface publication {
 }
 
 export interface Attachment {
-  title: string;
-  filename: string;
+  originalName: string;
+  fileName: string;
 }
 
 export interface user {
