@@ -27,8 +27,8 @@ import { forkJoin, of, switchMap } from 'rxjs';
 
 import { PostService } from '../../../services/post.service';
 import {
-  FileUploaderComponent,
   FileUploadService,
+  FileUploaderComponent,
   SecureImageUploaderComponent,
 } from '../../../../../shared';
 import { attachmentFile } from '../../../../domain';
@@ -38,7 +38,7 @@ interface uploadedFiles {
   image: string | null;
 }
 @Component({
-  selector: 'app-create-post',
+  selector: 'app-publication-dialog',
   imports: [
     ReactiveFormsModule,
     MatDialogModule,
@@ -50,18 +50,18 @@ interface uploadedFiles {
     MatListModule,
     MatRadioModule,
     MatDatepickerModule,
-    SecureImageUploaderComponent,
     FileUploaderComponent,
+    SecureImageUploaderComponent,
   ],
-  templateUrl: './create-post.component.html',
+  templateUrl: './publication-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [provideNativeDateAdapter()],
 })
-export class CreatePostComponent implements OnInit {
+export class PublicationDialogComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
   private postService = inject(PostService);
   private fileUploadService = inject(FileUploadService);
-  private readonly dialogRef = inject(MatDialogRef<CreatePostComponent>);
+  private readonly dialogRef = inject(MatDialogRef<PublicationDialogComponent>);
 
   readonly minDate = new Date();
   readonly prioritys = [
@@ -102,6 +102,13 @@ export class CreatePostComponent implements OnInit {
       this.dialogRef.close(resp);
     });
   }
+  
+  private loadFormData() {
+    if (!this.data) return;
+    const { image, attachments, ...props } = this.data;
+    this.form.patchValue(props);
+    this.uploadedFiles.set({ attachments: [...attachments], image });
+  }
 
   private buildFileUploadTask() {
     return forkJoin([
@@ -114,28 +121,25 @@ export class CreatePostComponent implements OnInit {
     ]);
   }
 
-  private buildSaveMethod(image: string | null, attachments: attachmentFile[]) {
-    return this.postService.create(this.form.value, image, attachments);
+  private buildSaveMethod(
+    newImage: string | null,
+    newAttachments: attachmentFile[]
+  ) {
     if (!this.data) {
+      return this.postService.create(this.form.value, newImage, newAttachments);
     }
+    // * If image is null, send uploaded file
     return this.postService.update({
       id: this.data._id,
       form: this.form.value,
+      image: newImage ?? this.uploadedFiles().image?.split('/').pop() ?? null,
       attachments: [
         ...this.uploadedFiles().attachments.map((item) => ({
           fileName: item.fileName.split('/').pop()!,
           originalName: item.originalName,
         })),
-        ...attachments,
+        ...newAttachments,
       ],
-      image: image ?? this.uploadedFiles().image?.split('/').pop()!,
     });
-  }
-
-  private loadFormData() {
-    if (!this.data) return;
-    const { image, attachments, ...props } = this.data;
-    this.form.patchValue(props);
-    this.uploadedFiles.set({ attachments: [...attachments], image });
   }
 }

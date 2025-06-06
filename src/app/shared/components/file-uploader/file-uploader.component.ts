@@ -10,6 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
 import { FileIconPipe } from '../../pipes/file-icon.pipe';
+import { attachmentFile } from '../../../publications/domain';
 
 @Component({
   selector: 'file-uploader',
@@ -32,7 +33,9 @@ import { FileIconPipe } from '../../pipes/file-icon.pipe';
 
     <ul class="space-y-2 mt-2">
       @for (item of displayFiles(); track $index) {
-      <li class="flex items-center justify-between p-2 border border-slate-300 rounded-xl">
+      <li
+        class="flex items-center justify-between p-2 border border-slate-300 rounded-xl"
+      >
         <div class="flex items-center space-x-3">
           <img
             class="size-8"
@@ -54,8 +57,35 @@ import { FileIconPipe } from '../../pipes/file-icon.pipe';
           <mat-icon class="text-red-600">close</mat-icon>
         </button>
       </li>
-      } @empty {
-      <li class="px-4">Sin elementos</li>
+      }  
+      @for (item of uploadedFiles(); track $index) {
+      <li
+        class="flex items-center justify-between p-2 border border-slate-300 rounded-xl"
+      >
+        <div class="flex items-center space-x-3">
+          <img
+            class="size-8"
+            [src]="item.fileName | fileIcon"
+            alt="Icon file"
+          />
+          <div>
+            <p class="text-sm font-medium">
+              {{ item.originalName }}
+            </p>
+            <p class="text-xs font-medium text-green-600">Subido</p>
+          </div>
+        </div>
+        <button
+          mat-icon-button
+          aria-label="Remive file"
+          (click)="removeUploadedFile($index)"
+        >
+          <mat-icon class="text-red-600">close</mat-icon>
+        </button>
+      </li>
+      }
+      @if(displayFiles().length === 0 && this.uploadedFiles().length === 0){
+        <li class="px-4 text-lg">Sin elementos</li>
       }
     </ul>
   `,
@@ -79,6 +109,9 @@ export class FileUploaderComponent {
     }))
   );
 
+  // * Optional, for manage uploaded files
+  uploadedFiles = model<attachmentFile[]>([]);
+
   add(event: Event): void {
     const selectedFiles = this.onInputFileSelect(event);
     const newFiles = selectedFiles.filter((file) => !this.isDuplicate(file));
@@ -88,6 +121,13 @@ export class FileUploaderComponent {
 
   remove(index: number) {
     this.files.update((values) => {
+      values.splice(index, 1);
+      return [...values];
+    });
+  }
+
+  removeUploadedFile(index: number) {
+    this.uploadedFiles.update((values) => {
       values.splice(index, 1);
       return [...values];
     });
@@ -107,7 +147,7 @@ export class FileUploaderComponent {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 
-  isDuplicate(file: File): boolean {
+  private isDuplicate(file: File): boolean {
     return this.files().some((uploadedFile) => uploadedFile.name === file.name);
   }
 }

@@ -67,8 +67,10 @@ export class SecureImageUploaderComponent {
   private destroyRef = inject(DestroyRef);
 
   file = model<File | null>();
-  initialImageUrl = input<string | null>(null);
   imageDataUrl = signal<string | null>(null);
+
+  // * Optional, for manage image uplaodes
+  uploadedImage = model<string | null>(null);
 
   constructor() {
     this.destroyRef.onDestroy(() => {
@@ -87,6 +89,7 @@ export class SecureImageUploaderComponent {
   removeImage(): void {
     this.file.set(null);
     this.imageDataUrl.set(null);
+    this.uploadedImage.set(null);
   }
 
   onFileChange(event: Event) {
@@ -104,11 +107,9 @@ export class SecureImageUploaderComponent {
 
   private loadProtectedImage() {
     // * Load image from server protected jwt
-    if (!this.initialImageUrl()) return;
-    this.fileUploadService
-      .getFile(this.initialImageUrl()!)
-      .subscribe((blob) => {
-        this.imageDataUrl.set(URL.createObjectURL(blob));
-      });
+    if (!this.uploadedImage()) return;
+    this.fileUploadService.getFile(this.uploadedImage()!).subscribe((blob) => {
+      this.imageDataUrl.set(URL.createObjectURL(blob));
+    });
   }
 }

@@ -87,10 +87,14 @@
     <div
       class="flex items-center gap-4 p-4 border border-gray-200 rounded-md hover:bg-gray-50"
     >
-      <img [src]="'images/avatar.png'" class="w-16 h-16 object-cover rounded" />
+      <!-- <img [src]="'images/avatar.png'" class="w-16 h-16 object-cover rounded" /> -->
+       @if(item.image){
+        <secure-image-viewer [imageUrl]="testImage()"/>
+       }
+       
 
       <div class="flex-1">
-        <h3 class="font-semibold text-gray-800">Titulo</h3>
+        <h3 class="font-semibold text-gray-800">{{item.title}}</h3>
         <p class="text-sm text-gray-500">Fecha</p>
       </div>
 

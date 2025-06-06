@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 
 import { environment } from '../../../environments/environment';
+import { catchError } from 'rxjs';
 
 type fileGroup = 'resource' | 'post';
 interface uploadedFile {
@@ -16,7 +17,7 @@ export class FileUploadService {
   private readonly URL = `${environment.base_url}/files`;
 
   getFile(url: string) {
-    return this.http.get(url, { responseType: 'blob' });
+    return this.http.get(url, { responseType: 'blob' })
   }
 
   uploadFile(file: File, group: fileGroup) {

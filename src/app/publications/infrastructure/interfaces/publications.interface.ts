@@ -4,9 +4,12 @@ export interface publication {
   title: string;
   content: string;
   attachments: Attachment[];
-  priority: string;
-  createdAt: Date;
-  updatedAt: Date;
+  priority: number;
+  createdAt: string;
+  updatedAt: string;
+  image: string | null;
+  startDate: string;
+  expirationDate: string;
 }
 
 export interface Attachment {

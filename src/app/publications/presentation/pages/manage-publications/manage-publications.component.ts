@@ -13,8 +13,9 @@ import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
-import { CreatePostComponent } from './create-post/create-post.component';
+import { PublicationDialogComponent } from './publication-dialog/publication-dialog.component';
 import { MatCardModule } from '@angular/material/card';
+import { SecureImageViewerComponent } from '../../../../shared';
 
 @Component({
   selector: 'app-manage-publications',
@@ -25,6 +26,7 @@ import { MatCardModule } from '@angular/material/card';
     MatButtonModule,
     MatIconModule,
     MatCardModule,
+    SecureImageViewerComponent,
   ],
   templateUrl: './manage-publications.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -36,6 +38,11 @@ export default class ManagePublicationsComponent implements OnInit {
   datasource = signal<publication[]>([]);
   displayedColumns: string[] = ['title', 'priority', 'options'];
   length = signal<number>(0);
+
+  testImage = signal<string>(
+    'http://localhost:4200/8fdd7d0f-5194-422d-bfcb-2d489fec0717'
+  );
+
   ngOnInit(): void {
     this.getPublications();
   }
@@ -50,7 +57,7 @@ export default class ManagePublicationsComponent implements OnInit {
   }
 
   create(): void {
-    const dialogRef = this.dialogRef.open(CreatePostComponent, {
+    const dialogRef = this.dialogRef.open(PublicationDialogComponent, {
       minWidth: '700px',
     });
     dialogRef.afterClosed().subscribe((result) => {
@@ -61,7 +68,8 @@ export default class ManagePublicationsComponent implements OnInit {
 
   update(publication: publication): void {
     console.log(publication);
-    const dialogRef = this.dialogRef.open(CreatePostComponent, {
+    this.testImage.set('Prueba de cambio');
+    const dialogRef = this.dialogRef.open(PublicationDialogComponent, {
       minWidth: '800px',
       data: publication,
       autoFocus: false,

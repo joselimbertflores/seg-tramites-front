@@ -54,7 +54,7 @@
     <div>
       <secure-image-uploader
         [(file)]="image"
-        [initialImageUrl]="uploadedFiles().image"
+        [(uploadedImage)]="uploadedFiles().image"
       />
     </div>
     <div>
@@ -62,6 +62,7 @@
         [multiple]="true"
         [allowedExtensions]="EXTENSIONS"
         [(files)]="files"
+        [(uploadedFiles)]="uploadedFiles().attachments"
       />
     </div>
   </div>
