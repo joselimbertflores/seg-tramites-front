@@ -51,7 +51,7 @@ import { FileUploadService } from '../../services/file-upload.service';
             matMiniFab
             aria-label="Remove image"
             matTooltip="Remover imagen"
-            (click)="removeImage()"
+            (click)="removeImage(imageInput)"
           >
             <mat-icon>close</mat-icon>
           </button>
@@ -86,10 +86,11 @@ export class SecureImageUploaderComponent {
     this.loadProtectedImage();
   }
 
-  removeImage(): void {
+  removeImage(fileInput: HTMLInputElement): void {
     this.file.set(null);
     this.imageDataUrl.set(null);
     this.uploadedImage.set(null);
+    fileInput.value = '';
   }
 
   onFileChange(event: Event) {

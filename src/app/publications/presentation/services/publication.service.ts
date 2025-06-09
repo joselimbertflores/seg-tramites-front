@@ -15,13 +15,13 @@ interface updatePublicationProps {
 @Injectable({
   providedIn: 'root',
 })
-export class PostService {
-  private readonly url = `${environment.base_url}/posts`;
+export class PublicationService {
+  private readonly URL = `${environment.base_url}/posts`;
   private http = inject(HttpClient);
   constructor() {}
 
   create(form: Object, image: string | null, attachments: attachmentFile[]) {
-    return this.http.post<publication>(this.url, {
+    return this.http.post<publication>(this.URL, {
       ...form,
       image,
       attachments,
@@ -29,27 +29,33 @@ export class PostService {
   }
 
   update({ id, attachments, image, form }: updatePublicationProps) {
-    console.log( {
+    console.log({
       ...form,
       image,
       attachments,
     });
-    return this.http.patch<publication>(`${this.url}/${id}`, {
+    return this.http.patch<publication>(`${this.URL}/${id}`, {
       ...form,
       image,
       attachments,
     });
+  }
+
+  delete(id: string) {
+    return this.http.delete<{ message: string }>(`${this.URL}/${id}`);
   }
 
   findAll(limit: number = 10, offset: number = 0) {
     const params = new HttpParams({ fromObject: { limit, offset } });
-    return this.http.get<publication[]>(this.url, { params });
+    return this.http.get<publication[]>(this.URL, { params });
   }
 
-  findByUser() {
-    const params = new HttpParams({ fromObject: { limit: 10, offset: 0 } });
+  findByUser(term?: string) {
+    const params = new HttpParams({
+      fromObject: { limit: 10, offset: 0, ...(term && { term }) },
+    });
     return this.http.get<{ publications: publication[]; length: number }>(
-      `${this.url}/user`,
+      `${this.URL}/user`,
       { params }
     );
   }
@@ -58,7 +64,7 @@ export class PostService {
     const params = new HttpParams({
       fromObject: { limit: limit, offset: offset },
     });
-    return this.http.get<publication[]>(`${this.url}/news`, { params });
+    return this.http.get<publication[]>(`${this.URL}/news`, { params });
   }
 
   getFile(url: string) {

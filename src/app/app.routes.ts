@@ -257,7 +257,7 @@ export const routes: Routes = [
             path: 'manage',
             loadComponent: () =>
               import(
-                './publications/presentation/pages/manage-publications/manage-publications.component'
+                './publications/presentation/pages/publications-manage/publications-manage.component'
               ),
           },
         ],

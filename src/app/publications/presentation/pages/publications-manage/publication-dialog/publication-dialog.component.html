@@ -18,7 +18,7 @@
         <div>
           <mat-form-field>
             <mat-label>Mostrar en rango</mat-label>
-            <mat-date-range-input [rangePicker]="picker" [min]="null">
+            <mat-date-range-input [rangePicker]="picker" [min]="minDate">
               <input
                 matStartDate
                 formControlName="startDate"
@@ -42,9 +42,9 @@
             <mat-label>Prioridad</mat-label>
             <mat-select formControlName="priority">
               @for (priority of prioritys; track $index) {
-              <mat-option [value]="priority.value">{{
-                priority.label
-              }}</mat-option>
+              <mat-option [value]="priority.value">
+                {{ priority.label }}
+              </mat-option>
               }
             </mat-select>
           </mat-form-field>
@@ -69,5 +69,5 @@
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button mat-button mat-dialog-close>Cancelar</button>
-  <button mat-button (click)="save()">Aceptar</button>
+  <button mat-button (click)="save()" [disabled]="form.invalid">Aceptar</button>
 </mat-dialog-actions>

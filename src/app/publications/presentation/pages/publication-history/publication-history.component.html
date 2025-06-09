@@ -1,12 +1,25 @@
 <div class="flex flex-col h-full">
   <mat-toolbar>
-    <span>Publicaciones</span>
+    <span>Historial Publicaciones</span>
   </mat-toolbar>
-  <div class="flex-1 overflow-scroll rounded-xl m-4" #containerRef>
-    <publication-list
+  <div class="flex-1 overflow-y-auto mx-auto max-w-6xl m-3 px-2" #containerRef>
+    <infinite-scroll-wrapper
       [containerRef]="containerRef"
-      [publications]="publications()"
       (onScroll)="loadMorePublications()"
-    />
+    >
+      <div class="flex flex-col gap-y-4">
+        @for (pulication of publications(); track $index) {
+        <publication-card [publication]="pulication" />
+        } @if (isLoading()) {
+        <div class="flex w-full gap-x-4 justify-center items-center">
+          <mat-spinner [diameter]="40" />
+          <span class="sm:text-xl">Cargando contenido...</span>
+        </div>
+        }
+      </div>
+    </infinite-scroll-wrapper>
+    @if(publications().length===0 && !isLoading()){
+    <p class="p-4 text-lg ">No se realizaron publicaciones.</p>
+    }
   </div>
 </div>

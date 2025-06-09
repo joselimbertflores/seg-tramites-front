@@ -14,11 +14,13 @@ html {
       density: -2,
     )
   );
-  .tonal{
+  .tonal {
     background-color: var(--mat-sys-primary);
-  } 
+  }
   font-size: 15px;
+  height: 100%;
 }
+
 
 body {
   height: 100%;
@@ -42,8 +44,6 @@ body {
     )
   );
 }
-
-
 
 mat-form-field {
   width: 100%;

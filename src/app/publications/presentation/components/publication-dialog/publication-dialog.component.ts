@@ -7,29 +7,38 @@ import {
   signal,
 } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 
-import { PostService } from '../../services/post.service';
+import { PublicationCardComponent } from '../publication-card/publication-card.component';
+import { PublicationService } from '../../services/publication.service';
 import { publication } from '../../../infrastructure';
-import { PublicationListComponent } from '..';
 
 @Component({
-    selector: 'app-publication-dialog',
-    imports: [
-        CommonModule,
-        MatDialogModule,
-        MatButtonModule,
-        PublicationListComponent,
-    ],
-    template: `
-    <h2 mat-dialog-title>Publicaciones</h2>
+  selector: 'app-publication-dialog',
+  imports: [
+    CommonModule,
+    MatDialogModule,
+    MatButtonModule,
+    PublicationCardComponent,
+    MatProgressSpinnerModule,
+  ],
+  template: `
+    <h2 mat-dialog-title class="header-news text-center">
+      Comunicados ({{ data.length }})
+    </h2>
     <mat-dialog-content>
-      <div class="h-full overflow-scroll" #containerRef>
-        <publication-list
-          [containerRef]="containerRef"
-          [publications]="publications()"
-          (onScroll)="loadMorePublications()"
-        ></publication-list>
+      <div>
+        <div class="flex flex-col gap-y-4">
+          @for (pulication of publications(); track $index) {
+          <publication-card [publication]="pulication" />
+          } @if (isLoading()) {
+          <div class="flex w-full gap-x-4 justify-center items-center">
+            <mat-spinner [diameter]="40" />
+            <span class="sm:text-xl">Cargando contenido...</span>
+          </div>
+          }
+        </div>
       </div>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
@@ -38,10 +47,17 @@ import { PublicationListComponent } from '..';
       </button>
     </mat-dialog-actions>
   `,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  styles: `
+    .header-news{
+      background-color:var(--mat-sys-primary);
+      color:white;
+    }
+    .mdc-dialog__title::before { display: none !important; }
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PublicationDialogComponent {
-  private publicationService = inject(PostService);
+  private publicationService = inject(PublicationService);
   data = inject<publication[]>(MAT_DIALOG_DATA);
 
   publications = signal<publication[]>([]);
@@ -53,7 +69,6 @@ export class PublicationDialogComponent {
 
   constructor() {
     this.publications.set(this.data);
-
   }
 
   loadMorePublications() {

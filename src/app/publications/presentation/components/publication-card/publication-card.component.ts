@@ -6,65 +6,82 @@ import {
   input,
 } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
-import { publication } from '../../../infrastructure/interfaces/publications.interface';
-import { PostService } from '../../services/post.service';
+
+import { PublicationService } from '../../services/publication.service';
+import { SecureImageViewerComponent } from '../../../../shared';
 
 @Component({
-    selector: 'publication-card',
-    imports: [CommonModule, MatCardModule],
-    template: `
-    <mat-card class="w-full" appearance="outlined">
+  selector: 'publication-card',
+  imports: [CommonModule, MatCardModule, SecureImageViewerComponent],
+  template: `
+    <mat-card appearance="outlined">
       <mat-card-header>
-        <img mat-card-avatar src="/assets/img/account.png" />
-        @if(publication().user.funcionario){
-        <mat-card-title>
-          {{ publication().user.funcionario.nombre }}
-          {{ publication().user.funcionario.paterno }}
-          {{ publication().user.funcionario.materno }}
+        <img mat-card-avatar src="images/icons/account.png" />
+        <mat-card-title class="font-bold">
+          {{ publication().user.fullname | titlecase }}
         </mat-card-title>
-
-        } @else {
-        <mat-card-title> Administrador </mat-card-title>
-        }
-        <mat-card-subtitle>
-          <span class="text-sm">{{ publication().user.jobtitle }}</span>
-        </mat-card-subtitle>
       </mat-card-header>
+
       <mat-card-content>
-        <p class="text-2xl">{{ publication().title }}</p>
-        <p>{{ publication().content }}</p>
-        <ul class="list-disc px-4">
-          @for (item of publication().attachments; track $index) {
-          <li>
-            <span
-              (click)="openFile(item.fileName)"
-              class="text-blue-500 underline cursor-pointer"
-            >
-              {{ item.originalName }}
-            </span>
-          </li>
+        <div class="space-y-4">
+          <h3 class="text-2xl font-medium">{{ publication().title }}</h3>
+          <p class="text-justify">{{ publication().content }}</p>
+          @if(publication().image){
+          <div class="flex justify-center w-full">
+            <figure class="h-auto sm:h-[400px]">
+              <secure-image-viewer [imageUrl]="publication().image" />
+            </figure>
+          </div>
+          } @if(publication().attachments.length > 0){
+          <ul class="list-disc px-6">
+            @for (item of publication().attachments; track $index) {
+            <li>
+              <a
+                (click)="openFile(item.fileName)"
+                class="text-blue-600 hover:underline cursor-pointer"
+              >
+                {{ item.originalName }}
+              </a>
+            </li>
+            }
+          </ul>
           }
-        </ul>
+        </div>
       </mat-card-content>
-      <mat-card-actions>
-        <span class="px-2 mt-4">
-          {{ publication().createdAt | date : 'medium' }}
-        </span>
-      </mat-card-actions>
+      <mat-card-footer>
+        <div class="p-4 font-light">
+          Creado el {{ publication().createdAt | date : 'short' }}
+        </div>
+      </mat-card-footer>
     </mat-card>
   `,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PublicationCardComponent {
-  private postService = inject(PostService);
+  private postService = inject(PublicationService);
 
-  publication = input.required<publication>();
+  publication = input.required<any>();
 
   openFile(url: string): void {
     this.postService.getFile(url).subscribe((blob) => {
-      const url = window.URL.createObjectURL(blob);
-      window.open(url, '_blank');
-      window.URL.revokeObjectURL(url);
+      const fileURL = window.URL.createObjectURL(blob);
+      const mime = blob.type;
+      if (mime === 'application/pdf' || mime.startsWith('image/')) {
+        window.open(fileURL, '_blank');
+      } else {
+        const a = document.createElement('a');
+        a.href = fileURL;
+        a.download = this.extractFileNameFromUrl(url);
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+
+      setTimeout(() => window.URL.revokeObjectURL(fileURL), 1000);
     });
+  }
+
+  private extractFileNameFromUrl(url: string): string {
+    return url.split('/').pop() || 'archivo';
   }
 }

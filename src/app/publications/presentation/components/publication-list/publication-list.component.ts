@@ -9,12 +9,18 @@ import {
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { PublicationCardComponent } from '../publication-card/publication-card.component';
 import { publication } from '../../../infrastructure/interfaces/publications.interface';
+import { InfiniteScrollWrapperComponent } from '../../../../shared';
 
 @Component({
-    selector: 'publication-list',
-    imports: [CommonModule, InfiniteScrollModule, PublicationCardComponent],
-    template: `
-    <div
+  selector: 'publication-list',
+  imports: [
+    CommonModule,
+    InfiniteScrollModule,
+    PublicationCardComponent,
+    InfiniteScrollWrapperComponent,
+  ],
+  template: `
+    <!-- <div
       infiniteScroll
       [infiniteScrollDistance]="0.5"
       [infiniteScrollThrottle]="500"
@@ -26,9 +32,11 @@ import { publication } from '../../../infrastructure/interfaces/publications.int
         <publication-card [publication]="pulication" />
         }
       </div>
-    </div>
+    </div> -->
+
+  
   `,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PublicationListComponent implements OnInit {
   containerRef = input.required<HTMLDivElement>();

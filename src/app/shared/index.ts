@@ -15,6 +15,7 @@ export * from './components/pdf-display/pdf-display.component';
 export * from './components/file-uploader/file-uploader.component';
 export * from './components/secure-image-uploader/secure-image-uploader.component';
 export * from './components/secure-image-viewer/secure-image-viewer.component';
+export * from './components/infinite-scroll-wrapper/infinite-scroll-wrapper.component';
 
 export * from './services/cache.service';
 export * from './services/alert.service';

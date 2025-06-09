@@ -9,8 +9,8 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
-import { FileIconPipe } from '../../pipes/file-icon.pipe';
 import { attachmentFile } from '../../../publications/domain';
+import { FileIconPipe } from '../../pipes/file-icon.pipe';
 
 @Component({
   selector: 'file-uploader',
@@ -52,13 +52,12 @@ import { attachmentFile } from '../../../publications/domain';
         <button
           mat-icon-button
           aria-label="Remive file"
-          (click)="remove($index)"
+          (click)="remove($index, fileInput)"
         >
           <mat-icon class="text-red-600">close</mat-icon>
         </button>
       </li>
-      }  
-      @for (item of uploadedFiles(); track $index) {
+      } @for (item of uploadedFiles(); track $index) {
       <li
         class="flex items-center justify-between p-2 border border-slate-300 rounded-xl"
       >
@@ -72,7 +71,7 @@ import { attachmentFile } from '../../../publications/domain';
             <p class="text-sm font-medium">
               {{ item.originalName }}
             </p>
-            <p class="text-xs font-medium text-green-600">Subido</p>
+            <p class="text-xs font-medium text-green-600">Adjuntado</p>
           </div>
         </div>
         <button
@@ -83,9 +82,8 @@ import { attachmentFile } from '../../../publications/domain';
           <mat-icon class="text-red-600">close</mat-icon>
         </button>
       </li>
-      }
-      @if(displayFiles().length === 0 && this.uploadedFiles().length === 0){
-        <li class="px-4 text-lg">Sin elementos</li>
+      } @if(displayFiles().length === 0 && this.uploadedFiles().length === 0){
+      <li class="px-4 text-lg">Sin elementos</li>
       }
     </ul>
   `,
@@ -119,11 +117,12 @@ export class FileUploaderComponent {
     this.files.update((values) => [...newFiles, ...values]);
   }
 
-  remove(index: number) {
+  remove(index: number, fileInput: HTMLInputElement) {
     this.files.update((values) => {
       values.splice(index, 1);
       return [...values];
     });
+    fileInput.value = '';
   }
 
   removeUploadedFile(index: number) {
@@ -148,6 +147,11 @@ export class FileUploaderComponent {
   }
 
   private isDuplicate(file: File): boolean {
-    return this.files().some((uploadedFile) => uploadedFile.name === file.name);
+    return this.files().some(
+      (uploadedFile) =>
+        uploadedFile.name === file.name &&
+        uploadedFile.size === file.size &&
+        uploadedFile.lastModified === file.lastModified
+    );
   }
 }

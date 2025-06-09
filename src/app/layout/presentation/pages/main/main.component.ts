@@ -8,7 +8,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 
 import { PublicationDialogComponent } from '../../../../publications/presentation/components';
-import { PostService } from '../../../../publications/presentation/services/post.service';
+import { PublicationService } from '../../../../publications/presentation/services/publication.service';
 import { AuthService } from '../../../../auth/presentation/services/auth.service';
 
 @Component({
@@ -36,7 +36,7 @@ import { AuthService } from '../../../../auth/presentation/services/auth.service
 })
 export default class MainComponent implements OnInit {
   private dialogRef = inject(MatDialog);
-  private publicationService = inject(PostService);
+  private publicationService = inject(PublicationService);
 
   userName = inject(AuthService).user()?.fullname.split(' ')[0].toUpperCase();
 

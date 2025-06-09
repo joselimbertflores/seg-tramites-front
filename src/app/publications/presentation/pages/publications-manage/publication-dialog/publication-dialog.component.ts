@@ -6,7 +6,12 @@ import {
   signal,
 } from '@angular/core';
 
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 
 import {
   MAT_DIALOG_DATA,
@@ -18,20 +23,18 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
-import { MatRadioModule } from '@angular/material/radio';
 import { MatInputModule } from '@angular/material/input';
-import { MatListModule } from '@angular/material/list';
-import { MatIconModule } from '@angular/material/icon';
 
 import { forkJoin, of, switchMap } from 'rxjs';
 
-import { PostService } from '../../../services/post.service';
+import { PublicationService } from '../../../services/publication.service';
 import {
   FileUploadService,
   FileUploaderComponent,
   SecureImageUploaderComponent,
 } from '../../../../../shared';
 import { attachmentFile } from '../../../../domain';
+import { publication } from '../../../../infrastructure';
 
 interface uploadedFiles {
   attachments: attachmentFile[];
@@ -43,12 +46,9 @@ interface uploadedFiles {
     ReactiveFormsModule,
     MatDialogModule,
     MatButtonModule,
-    MatIconModule,
     MatFormFieldModule,
     MatSelectModule,
     MatInputModule,
-    MatListModule,
-    MatRadioModule,
     MatDatepickerModule,
     FileUploaderComponent,
     SecureImageUploaderComponent,
@@ -59,22 +59,21 @@ interface uploadedFiles {
 })
 export class PublicationDialogComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
-  private postService = inject(PostService);
+  private postService = inject(PublicationService);
   private fileUploadService = inject(FileUploadService);
   private readonly dialogRef = inject(MatDialogRef<PublicationDialogComponent>);
-
   readonly minDate = new Date();
   readonly prioritys = [
     { value: 0, label: 'Baja' },
     { value: 1, label: 'Media' },
     { value: 2, label: 'Alta' },
   ];
-  data?: any = inject(MAT_DIALOG_DATA);
+  data: publication | undefined = inject(MAT_DIALOG_DATA);
   files = signal<File[]>([]);
   image = signal<File | null>(null);
-  form = this.formBuilder.group({
-    title: ['', Validators.required],
-    content: ['', Validators.required],
+  form: FormGroup = this.formBuilder.group({
+    title: [''],
+    content: [''],
     priority: [0, Validators.required],
     startDate: [this.minDate, Validators.required],
     expirationDate: [this.minDate, Validators.required],
@@ -102,7 +101,7 @@ export class PublicationDialogComponent implements OnInit {
       this.dialogRef.close(resp);
     });
   }
-  
+
   private loadFormData() {
     if (!this.data) return;
     const { image, attachments, ...props } = this.data;

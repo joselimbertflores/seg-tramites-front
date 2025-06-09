@@ -11,7 +11,7 @@
       <button
         mat-icon-button
         matTooltip="Comunicados"
-        routerLink="/home/resources"
+        routerLink="/home/posts/history"
       >
         <mat-icon>campaign</mat-icon>
       </button>
@@ -68,7 +68,7 @@
     </mat-sidenav>
 
     <mat-sidenav-content>
-      <div [@routeAnimations]="prepareRoute()">
+      <div [@routeAnimations]="prepareRoute()" class="h-full">
         <router-outlet />
       </div>
     </mat-sidenav-content>
