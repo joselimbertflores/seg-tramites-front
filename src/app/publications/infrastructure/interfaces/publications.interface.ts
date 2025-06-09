@@ -1,6 +1,6 @@
 export interface publication {
   _id: string;
-  user: string | user;
+  user: user;
   title: string;
   content: string;
   attachments: Attachment[];
@@ -12,13 +12,12 @@ export interface publication {
   expirationDate: string;
 }
 
-
-
 export interface Attachment {
   originalName: string;
   fileName: string;
 }
 
 export interface user {
+  _id: string;
   fullname: string;
 }

@@ -4,10 +4,13 @@ import {
   inject,
   OnInit,
 } from '@angular/core';
+import { Router } from '@angular/router';
+
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatButtonModule } from '@angular/material/button';
 
 import { ReportListComponent } from '../../components';
+import { ReportCacheService } from '../../services';
 
 @Component({
   selector: 'app-report-home',
@@ -35,11 +38,22 @@ import { ReportListComponent } from '../../components';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class ReportHomeComponent implements OnInit {
+  private router = inject(Router);
   private bottomSheet = inject(MatBottomSheet);
+  private reportCacheService = inject(ReportCacheService);
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.navigateToLastReportRoute()
+  }
 
   open() {
     this.bottomSheet.open(ReportListComponent);
+  }
+
+  navigateToLastReportRoute() {
+    const lastPath = this.reportCacheService.getLastReportPath();
+    if (lastPath && lastPath !== this.router.url) {
+      this.router.navigateByUrl(lastPath, { replaceUrl: true });
+    }
   }
 }

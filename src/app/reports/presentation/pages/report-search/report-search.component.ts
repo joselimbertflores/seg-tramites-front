@@ -7,13 +7,14 @@ import {
   Validators,
 } from '@angular/forms';
 
-import { MatFormFieldModule } from '@angular/material/form-field';
+import { Router } from '@angular/router';
 
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
@@ -33,7 +34,7 @@ import {
   PdfService,
 } from '../../../../shared';
 import { ReportCacheService } from '../../services';
-import { Router } from '@angular/router';
+
 
 interface cache {
   datasource: tableProcedureData[];
@@ -115,7 +116,6 @@ export default class ReportSearchComponent {
   readonly STATES = Object.values(procedureState).map((value) => value);
 
   constructor() {
-
     this.reportCacheService.setLastReportPath(this.router.url);
   }
 

@@ -37,8 +37,10 @@ import { AuthService } from '../../../../auth/presentation/services/auth.service
 export default class MainComponent implements OnInit {
   private dialogRef = inject(MatDialog);
   private publicationService = inject(PublicationService);
+  private authService=inject(AuthService)
 
-  userName = inject(AuthService).user()?.fullname.split(' ')[0].toUpperCase();
+  userName = this.authService.user()?.fullname.split(' ')[0].toUpperCase();
+
 
   ngOnInit(): void {
     this.showNews();

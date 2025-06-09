@@ -2,7 +2,7 @@
   <mat-toolbar>
     <span>Historial Publicaciones</span>
   </mat-toolbar>
-  <div class="flex-1 overflow-y-auto mx-auto max-w-6xl m-3 px-2" #containerRef>
+  <div class="flex-1 overflow-y-auto mx-auto w-full sm:w-8/12 m-3 px-2" #containerRef>
     <infinite-scroll-wrapper
       [containerRef]="containerRef"
       (onScroll)="loadMorePublications()"

@@ -17,6 +17,7 @@ import { AuthService } from '../../../../auth/presentation/services/auth.service
 import { RestoreScrollDirective } from '../../../../shared';
 import { ReportListComponent } from '../../components';
 import { ReportCacheService } from '../../services';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-report-dashboard',
@@ -27,6 +28,7 @@ import { ReportCacheService } from '../../services';
     MatListModule,
     MatButtonModule,
     MatToolbarModule,
+    MatTooltipModule,
     RestoreScrollDirective,
   ],
   templateUrl: './report-dashboard.component.html',
@@ -61,7 +63,7 @@ export default class ReportDashboardComponent implements OnInit {
   private route = inject(ActivatedRoute);
   isLoading = signal<boolean>(false);
 
-  private _bottomSheet = inject(MatBottomSheet);
+  private bottomSheet = inject(MatBottomSheet);
 
   constructor() {}
 
@@ -80,16 +82,17 @@ export default class ReportDashboardComponent implements OnInit {
   }
 
   openBottomSheet(): void {
-    this._bottomSheet.open(ReportListComponent, { hasBackdrop: true });
+    this.bottomSheet.open(ReportListComponent, { hasBackdrop: true });
   }
 
   private navigateToLastReport() {
     const lastPath = this.reportCacheService.getLastReportPath();
-
-    const isInReportHome = this.route.firstChild?.routeConfig?.path === 'home';
-
-    if (isInReportHome && lastPath && lastPath !== this.router.url) {
-      this.router.navigateByUrl(lastPath);
+    if (this.route.snapshot.children.length === 0) {
+      if (lastPath) {
+        this.router.navigateByUrl(lastPath, { replaceUrl: true });
+      } else {
+        this.router.navigate(['home'], { relativeTo: this.route });
+      }
     }
   }
 }

@@ -10,6 +10,8 @@ import { ClientsComponent } from './presentation/pages/groupware/clients/clients
 
 import { InfoComponent } from './layout/presentation/pages/info/info.component';
 import { accountGuard } from './administration/presentation/guards/account.guard';
+import { permissionGuard } from './auth/presentation/guards';
+import { reportPermissionGuard } from './reports/presentation/guards/report-permission.guard';
 
 export const routes: Routes = [
   {
@@ -175,14 +177,17 @@ export const routes: Routes = [
       },
       {
         path: 'reports',
-        canActivate: [updatedPasswordGuard],
+        canActivate: [permissionGuard],
         loadComponent: () =>
           import(
             './reports/presentation/layouts/report-dashboard/report-dashboard.component'
           ),
         children: [
+          { path: '', pathMatch: 'full', redirectTo: 'home' },
           {
             path: 'applicant',
+            data: { action: 'applicant' },
+            canActivate: [reportPermissionGuard],
             loadComponent: () =>
               import(
                 './reports/presentation/pages/report-applicant/report-applicant.component'
@@ -190,6 +195,8 @@ export const routes: Routes = [
           },
           {
             path: 'search',
+            data: { action: 'search' },
+            canActivate: [reportPermissionGuard],
             loadComponent: () =>
               import(
                 './reports/presentation/pages/report-search/report-search.component'
@@ -209,21 +216,6 @@ export const routes: Routes = [
             loadComponent: () =>
               import('./procedures/presentation/pages/detail/detail.component'),
           },
-          { path: '', pathMatch: 'full', redirectTo: 'home' },
-
-          // {
-          //   path: 'dependents',
-          //   component: ReportDependentsComponent,
-          // },
-          // {
-          //   path: 'unit',
-          //   component: ReportUnitComponent,
-          // },
-          // {
-          //   path: '',
-          //   redirectTo: '/home/reports/search',
-          //   pathMatch: 'full',
-          // },
         ],
       },
       // {
@@ -244,23 +236,18 @@ export const routes: Routes = [
         ],
       },
       {
-        path: 'posts',
-        children: [
-          {
-            path: 'history',
-            loadComponent: () =>
-              import(
-                './publications/presentation/pages/publication-history/publication-history.component'
-              ),
-          },
-          {
-            path: 'manage',
-            loadComponent: () =>
-              import(
-                './publications/presentation/pages/publications-manage/publications-manage.component'
-              ),
-          },
-        ],
+        path: 'posts/history',
+        loadComponent: () =>
+          import(
+            './publications/presentation/pages/publication-history/publication-history.component'
+          ),
+      },
+      {
+        path: 'posts/manage',
+        loadComponent: () =>
+          import(
+            './publications/presentation/pages/publications-manage/publications-manage.component'
+          ),
       },
       {
         path: 'main',

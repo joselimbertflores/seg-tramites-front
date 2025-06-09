@@ -105,9 +105,12 @@ export default class HomeComponent {
   ngOnInit(): void {
     this.listenUserConnections();
     this.handleExpelClient();
-    this.socketService.listNews().subscribe((pub) => {
+    this.socketService.listNews().subscribe((publication) => {
+      if (publication.user._id === this.authService.user()?.userId) {
+        return;
+      }
       this.dialogRef.open(PublicationDialogComponent, {
-        data: [pub],
+        data: [publication],
         minWidth: '900px',
         height: '600px',
       });

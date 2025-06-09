@@ -93,6 +93,10 @@ export class AuthService {
     return actions.some((action) => entry.includes(action));
   }
 
+  hasResource(resource: validResource): boolean {
+    return !!this.permissions()[resource];
+  }
+
   private _setAuthentication(token: string): boolean {
     this._user.set(jwtDecode(token));
     localStorage.setItem('token', token);
