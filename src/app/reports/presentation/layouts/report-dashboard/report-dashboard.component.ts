@@ -2,11 +2,17 @@ import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   OnInit,
   inject,
   signal,
 } from '@angular/core';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import {
+  ActivatedRoute,
+  NavigationEnd,
+  Router,
+  RouterModule,
+} from '@angular/router';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -18,6 +24,8 @@ import { RestoreScrollDirective } from '../../../../shared';
 import { ReportListComponent } from '../../components';
 import { ReportCacheService } from '../../services';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { filter, takeUntil } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-report-dashboard',
@@ -35,6 +43,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class ReportDashboardComponent implements OnInit {
+  private destroyRef = inject(DestroyRef);
   private readonly authService = inject(AuthService);
   private reportCacheService = inject(ReportCacheService);
   private readonly permissionMappings: Record<string, any> = {
@@ -69,7 +78,7 @@ export default class ReportDashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadMenu();
-    this.navigateToLastReport();
+    this.listenReportRoutes();
   }
 
   private loadMenu() {
@@ -85,14 +94,17 @@ export default class ReportDashboardComponent implements OnInit {
     this.bottomSheet.open(ReportListComponent, { hasBackdrop: true });
   }
 
-  private navigateToLastReport() {
-    const lastPath = this.reportCacheService.getLastReportPath();
-    if (this.route.snapshot.children.length === 0) {
-      if (lastPath) {
-        this.router.navigateByUrl(lastPath, { replaceUrl: true });
-      } else {
-        this.router.navigate(['home'], { relativeTo: this.route });
-      }
-    }
+  private listenReportRoutes() {
+    this.router.events
+      .pipe(
+        filter(
+          (event): event is NavigationEnd => event instanceof NavigationEnd
+        ),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((event) => {
+        const url = event.urlAfterRedirects;
+        this.reportCacheService.setLastReportPath(url);
+      });
   }
 }

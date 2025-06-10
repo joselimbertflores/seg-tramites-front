@@ -12,6 +12,8 @@ import { InfoComponent } from './layout/presentation/pages/info/info.component';
 import { accountGuard } from './administration/presentation/guards/account.guard';
 import { permissionGuard } from './auth/presentation/guards';
 import { reportPermissionGuard } from './reports/presentation/guards/report-permission.guard';
+import { inject } from '@angular/core';
+import { ReportCacheService } from './reports/presentation/services';
 
 export const routes: Routes = [
   {
@@ -183,7 +185,22 @@ export const routes: Routes = [
             './reports/presentation/layouts/report-dashboard/report-dashboard.component'
           ),
         children: [
-          { path: '', pathMatch: 'full', redirectTo: 'home' },
+          {
+            path: '',
+            pathMatch: 'full',
+            redirectTo: () => {
+              const reportService = inject(ReportCacheService);
+              const lastPath = reportService.getLastReportPath();
+              return lastPath || 'home';
+            },
+          },
+          {
+            path: 'home',
+            loadComponent: () =>
+              import(
+                './reports/presentation/pages/report-home/report-home.component'
+              ),
+          },
           {
             path: 'applicant',
             data: { action: 'applicant' },
@@ -203,13 +220,6 @@ export const routes: Routes = [
               ),
           },
           {
-            path: 'home',
-            loadComponent: () =>
-              import(
-                './reports/presentation/pages/report-home/report-home.component'
-              ),
-          },
-          {
             path: ':group/:id',
             title: 'Detalle',
             data: { animation: 'slide' },
@@ -218,13 +228,6 @@ export const routes: Routes = [
           },
         ],
       },
-      // {
-      //   path: ':from/:group/:id',
-      //   title: 'Detalle',
-      //   data: { animation: 'slide' },
-      //   loadComponent: () =>
-      //     import('./procedures/presentation/pages/detail/detail.component'),
-      // },
       {
         path: 'groupware',
         data: { resource: 'groupware' },
