@@ -91,7 +91,7 @@ export default class ReportDashboardComponent implements OnInit {
   }
 
   openBottomSheet(): void {
-    this.bottomSheet.open(ReportListComponent, { hasBackdrop: true });
+    this.bottomSheet.open(ReportListComponent, { hasBackdrop: true, autoFocus:false });
   }
 
   private listenReportRoutes() {

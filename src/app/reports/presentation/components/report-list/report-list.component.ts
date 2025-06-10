@@ -4,13 +4,13 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { RouterModule } from '@angular/router';
+
 import { MatListModule } from '@angular/material/list';
 import {
-  MatBottomSheet,
-  MatBottomSheetModule,
   MatBottomSheetRef,
+  MatBottomSheetModule,
 } from '@angular/material/bottom-sheet';
-import { RouterModule } from '@angular/router';
 
 interface menu {
   label: string;
@@ -30,22 +30,6 @@ interface menu {
       </a>
       }
     </mat-nav-list>
-
-
-    <!-- <mat-nav-list>
-      @for (item of menu(); track $index) {
-      <mat-list-item
-        routerLinkActive
-        #link="routerLinkActive"
-        [activated]="link.isActive"
-        (click)="navigateTo(item.link, drawer)"
-      >
-        <div class="label" matListItemTitle>{{ item.label }}</div>
-        <span matListItemLine>{{ item.description }}</span>
-      </mat-list-item>
-
-      }
-    </mat-nav-list> -->
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -61,6 +45,11 @@ export class ReportListComponent {
       label: 'Solicitante',
       link: 'home/reports/applicant',
       description: 'Buscar por contribuyente',
+    },
+    {
+      label: 'Unidad',
+      link: 'home/reports/unit',
+      description: 'Detalle de la unidad',
     },
   ]);
 

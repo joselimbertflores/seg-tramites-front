@@ -220,6 +220,15 @@ export const routes: Routes = [
               ),
           },
           {
+            path: 'unit',
+            data: { action: 'unit' },
+            canActivate: [reportPermissionGuard],
+            loadComponent: () =>
+              import(
+                './reports/presentation/pages/report-dependents/report-dependents.component'
+              ),
+          },
+          {
             path: ':group/:id',
             title: 'Detalle',
             data: { animation: 'slide' },
