@@ -101,11 +101,15 @@ export class ProcedureReportService {
     ...props
   }: getTotalCommunicationsByUnitParams) {
     return this.http
-      .post<totalCommunicationsByUnitResponse[]>(`${this.url}/unit`, {
-        startDate: startDate.toString(),
-        endDate: endDate.toString(),
-        ...props,
-      })
+      .post<totalCommunicationsByUnitResponse[]>(
+        `${this.url}/unit`,
+        {
+          startDate: startDate.toString(),
+          endDate: endDate.toString(),
+          ...props,
+        },
+        { context: skipUploadIndicator() }
+      )
       .pipe(
         map((resp) => {
           console.log(resp);

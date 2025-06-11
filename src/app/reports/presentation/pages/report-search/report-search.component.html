@@ -52,7 +52,7 @@
                 <mat-label>Rango de registro</mat-label>
                 <mat-date-range-input
                   [rangePicker]="picker"
-                  [max]="CURRENT_DATE"
+                  [min]="CURRENT_DATE"
                 >
                   <input
                     matStartDate
@@ -122,7 +122,9 @@
             <mat-icon>print</mat-icon>
           </button>
           <button mat-button (click)="clear()">Limpiar</button>
-          <button mat-button [disabled]="!isFormValid" (click)="getData()">Buscar</button>
+          <button mat-button [disabled]="!isFormValid" (click)="getData()">
+            Buscar
+          </button>
         </mat-action-row>
       </mat-expansion-panel>
     </mat-accordion>
@@ -134,26 +136,23 @@
       <div class="px-6 py-2">
         <mat-progress-bar mode="indeterminate" />
       </div>
-      }
-      @if (!isLoading() && !hasSearched()){
+      } @if (!isLoading() && !hasSearched()){
       <div class="py-4 italic">
-        "Seleccione un grupo de tramite e ingrese alguno de los otros campos para realizar la busqueda"
+        "Seleccione un grupo de tramite e ingrese alguno de los otros campos
+        para realizar la busqueda"
       </div>
-      }
-       @if(!isLoading() && hasSearched() && datasource().length > 0){
-        <report-procedure-table [datasource]="datasource()" [columns]="COLUMNS" />
-        @if (limit() < datasize()){
-          <mat-paginator
-            showFirstLastButtons
-            [pageSizeOptions]="[10, 20, 30, 50]"
-            [pageSize]="limit()"
-            [pageIndex]="index()"
-            [length]="datasize()"
-            (page)="onPageChange($event)"
-          />
-        }
-      } 
-      @if(!isLoading() && hasSearched() && datasource().length === 0){
+      } @if(!isLoading() && hasSearched() && datasource().length > 0){
+      <report-procedure-table [datasource]="datasource()" [columns]="COLUMNS" />
+      @if (limit() < datasize()){
+      <mat-paginator
+        showFirstLastButtons
+        [pageSizeOptions]="[10, 20, 30, 50]"
+        [pageSize]="limit()"
+        [pageIndex]="index()"
+        [length]="datasize()"
+        (page)="onPageChange($event)"
+      />
+      } } @if(!isLoading() && hasSearched() && datasource().length === 0){
       <alert-message
         title="Sin resultados"
         message="Revise los parametros ingresados"

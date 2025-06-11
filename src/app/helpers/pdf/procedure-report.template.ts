@@ -13,8 +13,10 @@ interface column {
   width?: 'auto' | '*';
 }
 export class ProcedureReportTemplate {
-  static async reportTable( data: reportTableProps): Promise<TDocumentDefinitions> {
-    const rightImage = await imageToBase64( 'images/institution/alcaldia.jpeg');
+  static async reportTable(
+    data: reportTableProps
+  ): Promise<TDocumentDefinitions> {
+    const rightImage = await imageToBase64('images/institution/alcaldia.jpeg');
     const leftImage = await imageToBase64('images/institution/slogan.png');
     return {
       header: {
@@ -28,9 +30,10 @@ export class ProcedureReportTemplate {
           },
           {
             width: '*',
-            text: [{ text: `\n${data.title}` }],
-            bold: true,
-            fontSize: 14,
+            text: [
+              { text: 'Sistema de Seguimiento de Tramites' },
+              { text: `\n${data.title}`, fontSize: 14, bold: true },
+            ],
           },
           {
             width: 120,
@@ -109,7 +112,7 @@ export class ProcedureReportTemplate {
       layout: 'lightHorizontalLines',
       table: {
         headerRows: 1,
-        dontBreakRows:true,
+        dontBreakRows: true,
         widths: columns.map((column) => column.width ?? 'auto'),
         body: [
           [
