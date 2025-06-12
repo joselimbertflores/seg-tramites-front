@@ -1,8 +1,8 @@
 import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
   signal,
+  inject,
+  Component,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
@@ -22,11 +22,19 @@ interface menu {
   selector: 'app-report-list',
   imports: [RouterModule, MatListModule, MatBottomSheetModule],
   template: `
+    <div class="py-2 text-lg">Reportes disponibles</div>
     <mat-nav-list>
       @for (item of menu(); track $index) {
-      <a [routerLink]="item.link" mat-list-item (click)="openLink($event)">
+      <a
+        [routerLink]="item.link"
+        routerLinkActive
+        #link="routerLinkActive"
+        [activated]="link.isActive"
+        mat-list-item
+        (click)="openLink($event)"
+      >
         <span matListItemTitle>{{ item.label }}</span>
-        <span matLine>{{ item.description }}</span>
+        <span matListItemLine>{{ item.description }}</span>
       </a>
       }
     </mat-nav-list>
