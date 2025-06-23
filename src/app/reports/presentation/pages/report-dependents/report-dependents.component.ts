@@ -53,11 +53,6 @@ export default class ReportDependentsComponent implements OnInit {
   private pdfService = inject(PdfService);
   private formBuilder = inject(FormBuilder);
 
-  readonly PARTICIPANT_MAP: Record<string, string> = {
-    sender: 'Correspondencia enviada',
-    recipient: 'Correspondencia recibida',
-  };
-
   readonly PROCEDURE_GROUP_MAP = {
     [procedureGroup.External]: 'Tramites Externos',
     [procedureGroup.Internal]: 'Tramites Internos',
@@ -65,13 +60,10 @@ export default class ReportDependentsComponent implements OnInit {
   };
 
   readonly columnsToDisplay = [
-    { columnDef: sendStatus.Archived, header: 'Archivados' },
-    { columnDef: sendStatus.AutoRejected, header: 'Expirados' },
-    { columnDef: sendStatus.Completed, header: 'Enviados' },
-    { columnDef: sendStatus.Forwarding, header: 'Reenviados' },
-    { columnDef: sendStatus.Pending, header: 'Sin aceptar' },
+    { columnDef: sendStatus.Pending, header: 'Pendientes' },
     { columnDef: sendStatus.Received, header: 'Recibidos' },
     { columnDef: sendStatus.Rejected, header: 'Rechazados' },
+    { columnDef: sendStatus.Archived, header: 'Archivados' },
   ];
   readonly currentDate = new Date();
 
@@ -86,7 +78,6 @@ export default class ReportDependentsComponent implements OnInit {
 
   form: FormGroup = this.formBuilder.group({
     group: [null],
-    participant: ['', Validators.required],
     startDate: ['', Validators.required],
     endDate: [this.currentDate, Validators.required],
   });
@@ -95,7 +86,6 @@ export default class ReportDependentsComponent implements OnInit {
     group: 'Grupo',
     startDate: 'Fecha inicio',
     endDate: 'Fecha fin',
-    participant: 'Tipo correspondencia',
   } as const;
 
   ngOnInit(): void {}
@@ -133,7 +123,6 @@ export default class ReportDependentsComponent implements OnInit {
         params: this.form.value,
         labelsMap: this.LABELS_MAP,
         valuesMap: {
-          participant: this.PARTICIPANT_MAP,
           group: this.PROCEDURE_GROUP_MAP,
         },
       },
@@ -142,13 +131,6 @@ export default class ReportDependentsComponent implements OnInit {
 
   clear() {
     this.form.reset();
-  }
-
-  get participants() {
-    return Object.entries(this.PARTICIPANT_MAP).map(([value, label]) => ({
-      value,
-      label,
-    }));
   }
 
   get procedureGroups() {

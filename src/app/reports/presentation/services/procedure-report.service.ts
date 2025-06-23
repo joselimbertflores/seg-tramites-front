@@ -112,7 +112,6 @@ export class ProcedureReportService {
       )
       .pipe(
         map((resp) => {
-          console.log(resp);
           const allStatuses = Object.values(sendStatus);
           return resp.map((item) => {
             const counts: Record<string, number> = {};

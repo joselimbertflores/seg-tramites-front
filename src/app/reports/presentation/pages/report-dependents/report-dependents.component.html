@@ -31,16 +31,6 @@
             </div>
             <div class="w-1/3">
               <mat-form-field>
-                <mat-label>Tipo de correspondencia</mat-label>
-                <mat-select formControlName="participant">
-                  @for (item of participants; track $index) {
-                  <mat-option [value]="item.value">{{ item.label }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-            </div>
-            <div class="w-1/3">
-              <mat-form-field>
                 <mat-label>Grupo tramite</mat-label>
                 <mat-select formControlName="group">
                   @for (item of procedureGroups; track $index) {

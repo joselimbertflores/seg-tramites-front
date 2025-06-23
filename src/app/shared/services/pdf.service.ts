@@ -65,7 +65,8 @@ export class PdfService {
       title: config.title,
       parameters: this.filtreAndTranslateParams(
         config.filterParams.params,
-        config.filterParams.labelsMap
+        config.filterParams.labelsMap,
+        config.filterParams.valuesMap
       ),
     });
     pdfMake.createPdf(doc).print();
@@ -78,7 +79,7 @@ export class PdfService {
       title: config.title,
       parameters: this.filtreAndTranslateParams(
         config.filterParams.params,
-        config.filterParams.labelsMap,
+        config.filterParams.labelsMap
       ),
     });
     pdfMake.createPdf(doc).print();
@@ -89,11 +90,13 @@ export class PdfService {
     labelMap: Record<string, string>,
     valueMap?: Record<string, Record<string, string>>
   ) {
+    console.log(valueMap);
     return Object.entries(params)
       .filter((item) => item[1])
       .reduce((acc, [key, value]) => {
         const label = labelMap[key] || key;
-        const valueTranslated = valueMap?.[key]?.[value] ?? this.toValueString(value);
+        const valueTranslated =
+          valueMap?.[key]?.[value] ?? this.toValueString(value);
         return {
           ...acc,
           [label]: valueTranslated,
