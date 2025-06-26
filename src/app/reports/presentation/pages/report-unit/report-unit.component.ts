@@ -6,83 +6,287 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { SimpleSelectSearchComponent } from '../../../components';
-import { MaterialModule } from '../../../../material.module';
+import {
+  FormGroup,
+  Validators,
+  FormBuilder,
+  ReactiveFormsModule,
+} from '@angular/forms';
+import { provideNativeDateAdapter } from '@angular/material/core';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTableModule } from '@angular/material/table';
+import { MatIconModule } from '@angular/material/icon';
+import { finalize } from 'rxjs';
+
+import { AlertMessageComponent, PdfService } from '../../../../shared';
+import { procedureGroup } from '../../../../procedures/domain';
+import { sendStatus } from '../../../../communications/domain';
+import { CommunicationReportService } from '../../services';
 
 @Component({
-    selector: 'app-report-unit',
-    imports: [CommonModule, SimpleSelectSearchComponent, MaterialModule],
-    templateUrl: './report-unit.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'app-report-unit',
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatDatepickerModule,
+    MatExpansionModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatTableModule,
+    MatIconModule,
+    MatProgressBarModule,
+    AlertMessageComponent,
+  ],
+  template: `
+    <div class="p-2 sm:p-4">
+      <div class="flex flex-col gap-y-6">
+        <mat-accordion>
+          <mat-expansion-panel expanded="true">
+            <mat-expansion-panel-header>
+              <mat-panel-title>PARAMENTROS BUSQUEDA </mat-panel-title>
+            </mat-expansion-panel-header>
+            <form [formGroup]="form" class="mt-2">
+              <div class="flex gap-2 items-center">
+                <div class="w-1/3">
+                  <mat-form-field>
+                    <mat-label>Ingrese un rango</mat-label>
+                    <mat-date-range-input [rangePicker]="picker">
+                      <input
+                        matStartDate
+                        placeholder="Fecha inicio"
+                        formControlName="startDate"
+                      />
+                      <input
+                        matEndDate
+                        placeholder="Fecha fin"
+                        formControlName="endDate"
+                      />
+                    </mat-date-range-input>
+                    <mat-datepicker-toggle
+                      matIconSuffix
+                      [for]="picker"
+                    ></mat-datepicker-toggle>
+                    <mat-date-range-picker #picker></mat-date-range-picker>
+                  </mat-form-field>
+                </div>
+                <div class="w-1/3">
+                  <mat-form-field>
+                    <mat-label>Grupo tramite</mat-label>
+                    <mat-select formControlName="group">
+                      @for (item of procedureGroups; track $index) {
+                      <mat-option [value]="item.value">{{
+                        item.label
+                      }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+            </form>
+            <mat-action-row>
+              <button mat-icon-button (click)="print()">
+                <mat-icon>print</mat-icon>
+              </button>
+              <button mat-button (click)="clear()">Limpiar</button>
+              <button
+                mat-button
+                [disabled]="isLoading() || form.invalid"
+                (click)="generate()"
+              >
+                Buscar
+              </button>
+            </mat-action-row>
+          </mat-expansion-panel>
+        </mat-accordion>
+
+        <p class="text-xl tracking-wide">Resultados</p>
+
+        @if(isLoading()){
+        <div class="px-6 py-2">
+          <mat-progress-bar mode="indeterminate" />
+        </div>
+        } @if(!isLoading() && hasSearched() && dataSource().length === 0){
+        <alert-message
+          severity="warning"
+          title="Sin resultados"
+          message="Revise los paremetros ingresados"
+        />
+        } @if(!isLoading() && !hasSearched()){
+        <div
+          class="p-3 rounded-md"
+          style="background-color: var(--mat-sys-surface-container-high);"
+        >
+          💡<span class="ml-2 text-base leading-6"
+            >Seleccione el rango y el tipo de correspondencia</span
+          >
+        </div>
+        } @if(!isLoading() && dataSource().length > 0){
+        <table mat-table [dataSource]="dataSource()">
+          <ng-container matColumnDef="officer">
+            <th mat-header-cell *matHeaderCellDef>Usuario</th>
+            <td mat-cell *matCellDef="let element">
+              <div class="block font-medium text-base">
+                @if(element.fullName){
+                {{ element.fullName | titlecase }}
+                } @else {
+                <span class="text-red-600">Sin asignar</span>
+                }
+              </div>
+              <div class="block text-xs">{{ element.jobTitle }}</div>
+            </td>
+          </ng-container>
+
+          @for (column of statusColumnsToDisplay; track $index) {
+          <ng-container [matColumnDef]="column.columnDef">
+            <th mat-header-cell *matHeaderCellDef>{{ column.header }}</th>
+            <td mat-cell *matCellDef="let element" class="w-32">
+              {{ element[column.columnDef] }}
+            </td>
+          </ng-container>
+          }
+
+          <ng-container matColumnDef="total">
+            <th mat-header-cell *matHeaderCellDef>Total</th>
+            <td mat-cell *matCellDef="let element">{{ element.total }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="options">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let element" class="w-44">
+              <button matButton (click)="getInbox(element)">
+                <mat-icon>print</mat-icon>
+                Pendientes
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+        }
+      </div>
+    </div>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [provideNativeDateAdapter()],
 })
-export class ReportUnitComponent implements OnInit {
-  // private reporteService = inject(ReportService);
-  // private pdfService = inject(PdfService);
-  dependencies = signal<{ text: string; value: string }[]>([]);
-  institutions = signal<{ text: string; value: string }[]>([]);
+export default class ReportUnitComponent implements OnInit {
+  private reportService = inject(CommunicationReportService);
+  private pdfService = inject(PdfService);
+  private formBuilder = inject(FormBuilder);
+
+  readonly PROCEDURE_GROUP_MAP = {
+    [procedureGroup.External]: 'Tramites Externos',
+    [procedureGroup.Internal]: 'Tramites Internos',
+    [procedureGroup.Procurement]: 'Tramites de Contrataciones',
+  };
+
+  readonly statusColumnsToDisplay = [
+    { columnDef: sendStatus.Pending, header: 'Pendientes' },
+    { columnDef: sendStatus.Received, header: 'Recibidos' },
+    { columnDef: sendStatus.Rejected, header: 'Rechazados' },
+    { columnDef: sendStatus.Archived, header: 'Archivados' },
+  ];
+  readonly currentDate = new Date();
+
   displayedColumns: string[] = [
     'officer',
-    'pending',
-    'received',
-    'rejected',
-    'completed',
-    'archived',
+    ...this.statusColumnsToDisplay.map((item) => item.columnDef),
+    'total',
     'options',
   ];
-  dataSource = signal<any[]>([]);
+  dataSource = signal<object[]>([]);
+  isLoading = signal(false);
+  hasSearched = signal(false);
 
-  public displaycolums: any[] = [
-    { columnDef: 'code', header: 'Alterno' },
-    { columnDef: 'reference', header: 'Referencia' },
-    { columnDef: 'state', header: 'Estado' },
-    { columnDef: 'applicant', header: 'Fecha' },
-    { columnDef: 'startDate', header: 'Emisor' },
-  ];
+  form: FormGroup = this.formBuilder.group({
+    group: [null],
+    startDate: ['', Validators.required],
+    endDate: [this.currentDate, Validators.required],
+  });
 
-  ngOnInit(): void {
-    this.getInsitutions();
+  ngOnInit(): void {}
+
+  getData() {
+    this.isLoading.set(true);
+    this.hasSearched.set(true);
+    this.reportService
+      .getTotalByUnit(this.form.value)
+      .pipe(
+        finalize(() => {
+          this.isLoading.set(false);
+        })
+      )
+      .subscribe((resp) => {
+        this.dataSource.set(resp);
+      });
   }
 
-  getInsitutions() {
-    // this.reporteService.getInstitutions().subscribe((data) => {
-    //   this.institutions.set(
-    //     data.map(({ _id, nombre }) => ({ value: _id, text: nombre }))
-    //   );
-    // });
+  generate() {
+    this.getData();
   }
 
-  onSelectInstitution(id: string) {
-    this.dataSource.set([]);
-    this.getDependencyByInstitution(id);
+  print() {
+    this.pdfService.tableReportShet({
+      title: 'Reporte "Dependientes"',
+      datasource: this.dataSource(),
+      columns: [
+        { columnDef: 'fullName', header: 'Funcionario', width: '*' },
+        { columnDef: 'jobTitle', header: 'Cargo', width: '*' },
+        ...this.statusColumnsToDisplay,
+        { columnDef: 'total', header: 'Total' },
+      ],
+      filterParams: {
+        params: this.form.value,
+        labelsMap: {
+          group: 'Grupo',
+          startDate: 'Fecha inicio',
+          endDate: 'Fecha fin',
+        },
+        valuesMap: {
+          group: this.PROCEDURE_GROUP_MAP,
+        },
+      },
+    });
   }
 
-  onSelectDependency(id: string) {
-    // this.reporteService.getPendingsByUnit(id).subscribe((data) => {
-    //   this.dataSource.set(data);
-    // });
-  }
-  getDependencyByInstitution(id: string) {
-    // this.reporteService.getDependencies(id).subscribe((data) => {
-    //   this.dependencies.set(
-    //     data.map(({ _id, nombre }) => ({ value: _id, text: nombre }))
-    //   );
-    // });
+  getInbox(account: { id: string; fullName?: string; jobTitle: string }) {
+    this.reportService.getInboxByAccount(account.id).subscribe((data) => {
+      this.pdfService.tableReportShet({
+        title: 'Reporte "Dependientes" - Bandeja de entrada',
+        datasource: data,
+        columns: [
+          { columnDef: 'senderFullName', header: 'Emisor' },
+          { columnDef: 'code', header: 'Alterno' },
+          { columnDef: 'reference', header: 'Refenrecia', width: '*' },
+          { columnDef: 'sentDate', header: 'Fecha envio' },
+          { columnDef: 'received', header: 'Recibido' },
+        ],
+        filterParams: {
+          params: {
+            Funcionario: `${account.fullName ?? 'SIN ASIGNAR'}  --  ${
+              account.jobTitle
+            }`,
+          },
+        },
+      });
+    });
   }
 
-  getInbox(accountId: string) {
-    // this.reporteService.getInboxAccount(accountId).subscribe((data) => {
-    //   const fullname = data[0].receiver.fullname ?? 'NO SELECCIONADO';
-    //   this.pdfService.GenerateReportSheet({
-    //     title: `TRAMITES PENDIENTES: ${fullname}`,
-    //     results: data.map((el) => ({
-    //       code: el.procedure.code,
-    //       reference: el.procedure.reference,
-    //       state: el.procedure.state,
-    //       applicant: el.emitter.fullname,
-    //       startDate: el.outboundDate,
-    //     })),
-    //     columns: this.displaycolums,
-    //   });
-    // });
+  clear() {
+    this.form.reset();
+  }
+
+  get procedureGroups() {
+    return Object.entries(this.PROCEDURE_GROUP_MAP).map(([value, label]) => ({
+      value,
+      label,
+    }));
   }
 }

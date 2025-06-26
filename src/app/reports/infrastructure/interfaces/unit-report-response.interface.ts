@@ -1,9 +1,9 @@
 export interface totalCommunicationsByUnitResponse {
+  id: string;
+  fullName?: string;
+  jobTitle: string;
   statusCounts: statusCount[];
   total: number;
-  accountId: string;
-  officer: string | null;
-  jobTitle: string;
 }
 
 interface statusCount {

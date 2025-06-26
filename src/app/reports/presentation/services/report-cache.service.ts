@@ -1,12 +1,50 @@
-import { Injectable } from '@angular/core';
+import { computed, inject, Injectable } from '@angular/core';
+
+import { AuthService } from '../../../auth/presentation/services/auth.service';
+import { validResource } from '../../../auth/infrastructure';
+
+export interface reportMenu {
+  label: string;
+  link: string;
+  description: string;
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class ReportCacheService {
+  private authService = inject(AuthService);
   private lastReportPath: string | null = null;
 
-  constructor() {}
+  private readonly permissionMappings: Record<string, reportMenu> = {
+    search: {
+      label: 'Busquedas',
+      link: 'home/reports/search',
+      description: 'Buscar cualquier tramite',
+    },
+    applicant: {
+      label: 'Solicitante',
+      link: 'home/reports/applicant',
+      description: 'Buscar por contribuyente',
+    },
+    dependents: {
+      label: 'Dependientes',
+      link: 'home/reports/dependents',
+      description: 'Buscar por contribuyente',
+    },
+    unit: {
+      label: 'Unidades',
+      link: 'home/reports/unit',
+      description: 'Listado por unidad',
+    },
+  };
+
+  menu = computed(() => {
+    const actions = this.authService.permissions()[validResource.reports] ?? [];
+    return actions
+      .map((action) => this.permissionMappings[action])
+      .filter((item) => !!item);
+  });
 
   setLastReportPath(path: string) {
     this.lastReportPath = path;

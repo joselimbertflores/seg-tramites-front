@@ -24,7 +24,7 @@ interface procedureListProps {
 
 interface filterParams {
   params: Record<string, any>;
-  labelsMap: Record<string, string>;
+  labelsMap?: Record<string, string>;
   valuesMap?: Record<string, Record<string, string>>;
 }
 
@@ -87,14 +87,13 @@ export class PdfService {
 
   private filtreAndTranslateParams(
     params: Object,
-    labelMap: Record<string, string>,
+    labelMap?: Record<string, string>,
     valueMap?: Record<string, Record<string, string>>
   ) {
-    console.log(valueMap);
     return Object.entries(params)
       .filter((item) => item[1])
       .reduce((acc, [key, value]) => {
-        const label = labelMap[key] || key;
+        const label = labelMap ? labelMap[key] : key;
         const valueTranslated =
           valueMap?.[key]?.[value] ?? this.toValueString(value);
         return {
@@ -107,6 +106,7 @@ export class PdfService {
   private toValueString(value: any): string {
     if (value instanceof Date) return value.toLocaleDateString();
     if (typeof value === 'object') return 'objeto';
+    if (!value) return '';
     return value;
   }
 }

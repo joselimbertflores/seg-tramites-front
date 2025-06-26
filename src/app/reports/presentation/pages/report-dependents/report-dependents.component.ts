@@ -24,10 +24,10 @@ import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { finalize } from 'rxjs';
 
+import { AlertMessageComponent, PdfService } from '../../../../shared';
 import { procedureGroup } from '../../../../procedures/domain';
 import { sendStatus } from '../../../../communications/domain';
-import { AlertMessageComponent, PdfService } from '../../../../shared';
-import { ProcedureReportService } from '../../services';
+import { CommunicationReportService } from '../../services';
 
 @Component({
   selector: 'app-report-dependents',
@@ -44,12 +44,141 @@ import { ProcedureReportService } from '../../services';
     MatProgressBarModule,
     AlertMessageComponent,
   ],
-  templateUrl: './report-dependents.component.html',
+  template: `
+    <div class="p-2 sm:p-4">
+      <div class="flex flex-col gap-y-6">
+        <mat-accordion>
+          <mat-expansion-panel expanded="true">
+            <mat-expansion-panel-header>
+              <mat-panel-title>PARAMENTROS BUSQUEDA </mat-panel-title>
+            </mat-expansion-panel-header>
+            <form [formGroup]="form" class="mt-2">
+              <div class="flex gap-2 items-center">
+                <div class="w-1/3">
+                  <mat-form-field>
+                    <mat-label>Ingrese un rango</mat-label>
+                    <mat-date-range-input [rangePicker]="picker">
+                      <input
+                        matStartDate
+                        placeholder="Fecha inicio"
+                        formControlName="startDate"
+                      />
+                      <input
+                        matEndDate
+                        placeholder="Fecha fin"
+                        formControlName="endDate"
+                      />
+                    </mat-date-range-input>
+                    <mat-datepicker-toggle
+                      matIconSuffix
+                      [for]="picker"
+                    ></mat-datepicker-toggle>
+                    <mat-date-range-picker #picker></mat-date-range-picker>
+                  </mat-form-field>
+                </div>
+                <div class="w-1/3">
+                  <mat-form-field>
+                    <mat-label>Grupo tramite</mat-label>
+                    <mat-select formControlName="group">
+                      @for (item of procedureGroups; track $index) {
+                      <mat-option [value]="item.value">{{
+                        item.label
+                      }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+            </form>
+            <mat-action-row>
+              <button mat-icon-button (click)="print()">
+                <mat-icon>print</mat-icon>
+              </button>
+              <button mat-button (click)="clear()">Limpiar</button>
+              <button
+                mat-button
+                [disabled]="isLoading() || form.invalid"
+                (click)="generate()"
+              >
+                Buscar
+              </button>
+            </mat-action-row>
+          </mat-expansion-panel>
+        </mat-accordion>
+
+        <p class="text-xl tracking-wide">Resultados</p>
+
+        @if(isLoading()){
+        <div class="px-6 py-2">
+          <mat-progress-bar mode="indeterminate" />
+        </div>
+        } @if(!isLoading() && hasSearched() && dataSource().length === 0){
+        <alert-message
+          severity="warning"
+          title="Sin resultados"
+          message="Revise los paremetros ingresados"
+        />
+        } @if(!isLoading() && !hasSearched()){
+        <div
+          class="p-3 rounded-md"
+          style="background-color: var(--mat-sys-surface-container-high);"
+        >
+          💡<span class="ml-2 text-base leading-6"
+            >Seleccione el rango y el tipo de correspondencia</span
+          >
+        </div>
+        } @if(!isLoading() && dataSource().length > 0){
+        <table mat-table [dataSource]="dataSource()">
+          <ng-container matColumnDef="officer">
+            <th mat-header-cell *matHeaderCellDef>Usuario</th>
+            <td mat-cell *matCellDef="let element">
+              <div class="block font-medium text-base">
+                @if(element.fullName){
+                {{ element.fullName | titlecase }}
+                } @else {
+                <span class="text-red-600">Sin asignar</span>
+                }
+              </div>
+              <div class="block text-xs">{{ element.jobTitle }}</div>
+            </td>
+          </ng-container>
+
+          @for (column of statusColumnsToDisplay; track $index) {
+          <ng-container [matColumnDef]="column.columnDef">
+            <th mat-header-cell *matHeaderCellDef>{{ column.header }}</th>
+            <td mat-cell *matCellDef="let element" class="w-32">
+              {{ element[column.columnDef] }}
+            </td>
+          </ng-container>
+          }
+
+          <ng-container matColumnDef="total">
+            <th mat-header-cell *matHeaderCellDef>Total</th>
+            <td mat-cell *matCellDef="let element">{{ element.total }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="options">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let element" class="w-44">
+              <button matButton (click)="getInbox(element)">
+                <mat-icon>print</mat-icon>
+                Pendientes
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+        }
+      </div>
+    </div>
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [provideNativeDateAdapter()],
 })
 export default class ReportDependentsComponent implements OnInit {
-  private procedureReportService = inject(ProcedureReportService);
+  private reportService = inject(CommunicationReportService);
   private pdfService = inject(PdfService);
   private formBuilder = inject(FormBuilder);
 
@@ -59,7 +188,7 @@ export default class ReportDependentsComponent implements OnInit {
     [procedureGroup.Procurement]: 'Tramites de Contrataciones',
   };
 
-  readonly columnsToDisplay = [
+  readonly statusColumnsToDisplay = [
     { columnDef: sendStatus.Pending, header: 'Pendientes' },
     { columnDef: sendStatus.Received, header: 'Recibidos' },
     { columnDef: sendStatus.Rejected, header: 'Rechazados' },
@@ -69,8 +198,9 @@ export default class ReportDependentsComponent implements OnInit {
 
   displayedColumns: string[] = [
     'officer',
-    ...this.columnsToDisplay.map((item) => item.columnDef),
+    ...this.statusColumnsToDisplay.map((item) => item.columnDef),
     'total',
+    'options',
   ];
   dataSource = signal<object[]>([]);
   isLoading = signal(false);
@@ -82,19 +212,13 @@ export default class ReportDependentsComponent implements OnInit {
     endDate: [this.currentDate, Validators.required],
   });
 
-  readonly LABELS_MAP = {
-    group: 'Grupo',
-    startDate: 'Fecha inicio',
-    endDate: 'Fecha fin',
-  } as const;
-
   ngOnInit(): void {}
 
   getData() {
     this.isLoading.set(true);
     this.hasSearched.set(true);
-    this.procedureReportService
-      .getTotalCommunicationsByUnit(this.form.value)
+    this.reportService
+      .getTotalByUnit(this.form.value)
       .pipe(
         finalize(() => {
           this.isLoading.set(false);
@@ -114,18 +238,45 @@ export default class ReportDependentsComponent implements OnInit {
       title: 'Reporte "Dependientes"',
       datasource: this.dataSource(),
       columns: [
-        { columnDef: 'officer', header: 'Funcionario', width: '*' },
+        { columnDef: 'fullName', header: 'Funcionario', width: '*' },
         { columnDef: 'jobTitle', header: 'Cargo', width: '*' },
-        ...this.columnsToDisplay,
+        ...this.statusColumnsToDisplay,
         { columnDef: 'total', header: 'Total' },
       ],
       filterParams: {
         params: this.form.value,
-        labelsMap: this.LABELS_MAP,
+        labelsMap: {
+          group: 'Grupo',
+          startDate: 'Fecha inicio',
+          endDate: 'Fecha fin',
+        },
         valuesMap: {
           group: this.PROCEDURE_GROUP_MAP,
         },
       },
+    });
+  }
+
+  getInbox(account: { id: string; fullName?: string; jobTitle: string }) {
+    this.reportService.getInboxByAccount(account.id).subscribe((data) => {
+      this.pdfService.tableReportShet({
+        title: 'Reporte "Dependientes" - Bandeja de entrada',
+        datasource: data,
+        columns: [
+          { columnDef: 'senderFullName', header: 'Emisor' },
+          { columnDef: 'code', header: 'Alterno' },
+          { columnDef: 'reference', header: 'Refenrecia', width: '*' },
+          { columnDef: 'sentDate', header: 'Fecha envio' },
+          { columnDef: 'received', header: 'Recibido' },
+        ],
+        filterParams: {
+          params: {
+            Funcionario: `${account.fullName ?? 'SIN ASIGNAR'}  --  ${
+              account.jobTitle
+            }`,
+          },
+        },
+      });
     });
   }
 

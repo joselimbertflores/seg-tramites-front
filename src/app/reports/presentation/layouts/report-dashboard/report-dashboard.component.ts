@@ -1,31 +1,24 @@
 import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
-  Component,
   DestroyRef,
+  Component,
   OnInit,
   inject,
-  signal,
 } from '@angular/core';
-import {
-  ActivatedRoute,
-  NavigationEnd,
-  Router,
-  RouterModule,
-} from '@angular/router';
+import { NavigationEnd, Router, RouterModule } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
+import { filter } from 'rxjs';
 
-import { AuthService } from '../../../../auth/presentation/services/auth.service';
-import { RestoreScrollDirective } from '../../../../shared';
 import { ReportListComponent } from '../../components';
 import { ReportCacheService } from '../../services';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { filter, takeUntil } from 'rxjs';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-report-dashboard',
@@ -37,61 +30,39 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     MatButtonModule,
     MatToolbarModule,
     MatTooltipModule,
-    RestoreScrollDirective,
   ],
-  templateUrl: './report-dashboard.component.html',
+  template: `
+    <mat-toolbar>
+      <span>Reportes</span>
+      <span class="flex-1"></span>
+      <button
+        mat-mini-fab
+        aria-label="Menu reports"
+        matTooltip="Ver reportes"
+        (click)="openBottomSheet()"
+      >
+        <mat-icon>menu</mat-icon>
+      </button>
+    </mat-toolbar>
+    <router-outlet />
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class ReportDashboardComponent implements OnInit {
-  private destroyRef = inject(DestroyRef);
-  private readonly authService = inject(AuthService);
-  private reportCacheService = inject(ReportCacheService);
-  private readonly permissionMappings: Record<string, any> = {
-    search: {
-      label: 'Busquedas',
-      link: 'search',
-      description: 'Buscar cualquier tramite',
-    },
-    applicants: {
-      label: 'Solicitante',
-      link: 'applicant',
-      description: 'Buscar por contribuyente',
-    },
-    // dependents: {
-    //   label: 'Dependientes',
-    //   link: 'dependents',
-    //   description: 'Listado de unidad',
-    // },
-    // unit: {
-    //   label: 'Unidades',
-    //   link: 'unit',
-    //   description: 'Listado por unidad',
-    // },
-  };
   private router = inject(Router);
-  private route = inject(ActivatedRoute);
-  isLoading = signal<boolean>(false);
-
+  private destroyRef = inject(DestroyRef);
   private bottomSheet = inject(MatBottomSheet);
-
-  constructor() {}
+  private reportCacheService = inject(ReportCacheService);
 
   ngOnInit(): void {
-    this.loadMenu();
     this.listenReportRoutes();
   }
 
-  private loadMenu() {
-    // const menu = this.authService
-    //   .permissions()
-    //   [VALID_RESOURCES.reports].map((action) => this.permissionMappings[action])
-    //   .filter((item) => item);
-    // this.menu.set(menu);
-    // this.menu.set(Object.values(this.permissionMappings));
-  }
-
   openBottomSheet(): void {
-    this.bottomSheet.open(ReportListComponent, { hasBackdrop: true, autoFocus:false });
+    this.bottomSheet.open(ReportListComponent, {
+      hasBackdrop: true,
+      autoFocus: false,
+    });
   }
 
   private listenReportRoutes() {

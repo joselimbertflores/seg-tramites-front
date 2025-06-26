@@ -11,6 +11,7 @@ interface column {
   header: string;
   columnDef: string;
   width?: 'auto' | '*';
+  backgroundColo?: string;
 }
 export class ProcedureReportTemplate {
   static async reportTable(

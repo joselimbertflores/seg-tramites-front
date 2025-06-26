@@ -16,6 +16,7 @@ import {
 } from '../../infrastructure';
 import { procedureGroup } from '../../../procedures/domain';
 import { sendStatus } from '../../../communications/domain';
+import { communication } from '../../../communications/infrastructure';
 
 type procedureResponse = external | internal | procurement;
 
@@ -27,12 +28,6 @@ interface searchApplicantProps {
   typeProcedure?: string;
 }
 
-interface getTotalCommunicationsByUnitParams {
-  startDate: Date;
-  endDate: Date;
-  participant: 'sender' | 'recipient';
-  group: string;
-}
 
 @Injectable({
   providedIn: 'root',
@@ -92,44 +87,6 @@ export class ProcedureReportService {
           procedures: this.responseToProcedureTableData(resp.procedures),
           length: resp.length,
         }))
-      );
-  }
-
-  getTotalCommunicationsByUnit({
-    startDate,
-    endDate,
-    ...props
-  }: getTotalCommunicationsByUnitParams) {
-    return this.http
-      .post<totalCommunicationsByUnitResponse[]>(
-        `${this.url}/unit`,
-        {
-          startDate: startDate.toString(),
-          endDate: endDate.toString(),
-          ...props,
-        },
-        { context: skipUploadIndicator() }
-      )
-      .pipe(
-        map((resp) => {
-          const allStatuses = Object.values(sendStatus);
-          return resp.map((item) => {
-            const counts: Record<string, number> = {};
-            for (const status of allStatuses) {
-              counts[status] = 0;
-            }
-            for (const statusCount of item.statusCounts) {
-              counts[statusCount.status] = statusCount.count;
-            }
-            return {
-              officer: item.officer,
-              jobTitle: item.jobTitle,
-              accountId: item.accountId,
-              total: item.total,
-              ...counts,
-            };
-          });
-        })
       );
   }
 

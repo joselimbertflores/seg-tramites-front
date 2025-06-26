@@ -1,8 +1,9 @@
 import {
-  signal,
   inject,
   Component,
   ChangeDetectionStrategy,
+  Inject,
+  OnInit,
 } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
@@ -10,9 +11,11 @@ import { MatListModule } from '@angular/material/list';
 import {
   MatBottomSheetRef,
   MatBottomSheetModule,
+  MAT_BOTTOM_SHEET_DATA,
 } from '@angular/material/bottom-sheet';
+import { ReportCacheService } from '../../services';
 
-interface menu {
+export interface reportMenu {
   label: string;
   link: string;
   description: string;
@@ -43,23 +46,7 @@ interface menu {
 })
 export class ReportListComponent {
   private _bottomSheetRef = inject(MatBottomSheetRef);
-  menu = signal<menu[]>([
-    {
-      label: 'Busquedas',
-      link: 'home/reports/search',
-      description: 'Buscar cualquier tramite',
-    },
-    {
-      label: 'Solicitante',
-      link: 'home/reports/applicant',
-      description: 'Buscar por contribuyente',
-    },
-    {
-      label: 'Unidad',
-      link: 'home/reports/unit',
-      description: 'Detalle de la unidad',
-    },
-  ]);
+  menu = inject(ReportCacheService).menu;
 
   openLink(event: MouseEvent): void {
     this._bottomSheetRef.dismiss();

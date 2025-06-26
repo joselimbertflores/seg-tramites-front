@@ -220,12 +220,21 @@ export const routes: Routes = [
               ),
           },
           {
+            path: 'dependents',
+            data: { action: 'dependents' },
+            canActivate: [reportPermissionGuard],
+            loadComponent: () =>
+              import(
+                './reports/presentation/pages/report-dependents/report-dependents.component'
+              ),
+          },
+          {
             path: 'unit',
             data: { action: 'unit' },
             canActivate: [reportPermissionGuard],
             loadComponent: () =>
               import(
-                './reports/presentation/pages/report-dependents/report-dependents.component'
+                './reports/presentation/pages/report-unit/report-unit.component'
               ),
           },
           {
