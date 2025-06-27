@@ -219,15 +219,7 @@ export const routes: Routes = [
                 './reports/presentation/pages/report-search/report-search.component'
               ),
           },
-          {
-            path: 'dependents',
-            data: { action: 'dependents' },
-            canActivate: [reportPermissionGuard],
-            loadComponent: () =>
-              import(
-                './reports/presentation/pages/report-dependents/report-dependents.component'
-              ),
-          },
+
           {
             path: 'unit',
             data: { action: 'unit' },

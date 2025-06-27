@@ -1,10 +1,9 @@
 import { CommonModule } from '@angular/common';
 import {
-  ChangeDetectionStrategy,
-  Component,
   inject,
-  OnInit,
   signal,
+  Component,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import {
   FormGroup,
@@ -12,6 +11,7 @@ import {
   FormBuilder,
   ReactiveFormsModule,
 } from '@angular/forms';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -21,12 +21,25 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
-import { finalize } from 'rxjs';
+import { finalize, map } from 'rxjs';
 
-import { AlertMessageComponent, PdfService } from '../../../../shared';
+import {
+  PdfService,
+  selectOption,
+  SelectSearchComponent,
+  AlertMessageComponent,
+} from '../../../../shared';
+
 import { procedureGroup } from '../../../../procedures/domain';
 import { sendStatus } from '../../../../communications/domain';
-import { CommunicationReportService } from '../../services';
+import {
+  CommonReportService,
+  CommunicationReportService,
+} from '../../services';
+import {
+  dependency,
+  institution,
+} from '../../../../administration/infrastructure';
 
 @Component({
   selector: 'app-report-unit',
@@ -42,6 +55,7 @@ import { CommunicationReportService } from '../../services';
     MatIconModule,
     MatProgressBarModule,
     AlertMessageComponent,
+    SelectSearchComponent,
   ],
   template: `
     <div class="p-2 sm:p-4">
@@ -52,8 +66,24 @@ import { CommunicationReportService } from '../../services';
               <mat-panel-title>PARAMENTROS BUSQUEDA </mat-panel-title>
             </mat-expansion-panel-header>
             <form [formGroup]="form" class="mt-2">
-              <div class="flex gap-2 items-center">
-                <div class="w-1/3">
+              <div class="grid grid-cols-1 sm:grid-cols-5 gap-4">
+                <div>
+                  <select-search
+                    [items]="institutions()"
+                    title="Institucion"
+                    placeholder="Seleccione una institucion"
+                    (onSelect)="onSelectInstitution($event)"
+                  />
+                </div>
+                <div class="sm:col-span-2">
+                  <select-search
+                    [items]="dependencies()"
+                    title="Dependencia"
+                    placeholder="Seleccione una deoendencia"
+                    (onSelect)="onSelectDependency($event)"
+                  />
+                </div>
+                <div>
                   <mat-form-field>
                     <mat-label>Ingrese un rango</mat-label>
                     <mat-date-range-input [rangePicker]="picker">
@@ -75,7 +105,7 @@ import { CommunicationReportService } from '../../services';
                     <mat-date-range-picker #picker></mat-date-range-picker>
                   </mat-form-field>
                 </div>
-                <div class="w-1/3">
+                <div>
                   <mat-form-field>
                     <mat-label>Grupo tramite</mat-label>
                     <mat-select formControlName="group">
@@ -176,8 +206,9 @@ import { CommunicationReportService } from '../../services';
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [provideNativeDateAdapter()],
 })
-export default class ReportUnitComponent implements OnInit {
+export default class ReportUnitComponent {
   private reportService = inject(CommunicationReportService);
+  private commonService = inject(CommonReportService);
   private pdfService = inject(PdfService);
   private formBuilder = inject(FormBuilder);
 
@@ -206,12 +237,16 @@ export default class ReportUnitComponent implements OnInit {
   hasSearched = signal(false);
 
   form: FormGroup = this.formBuilder.group({
-    group: [null],
+    dependencyId: ['', Validators.required],
     startDate: ['', Validators.required],
     endDate: [this.currentDate, Validators.required],
+    group: [null],
   });
 
-  ngOnInit(): void {}
+  institutions = toSignal(this.getInstitutions(), { initialValue: [] });
+  dependencies = signal<selectOption<dependency>[]>([]);
+
+  searcProperties: Record<string, string> = {};
 
   getData() {
     this.isLoading.set(true);
@@ -234,7 +269,7 @@ export default class ReportUnitComponent implements OnInit {
 
   print() {
     this.pdfService.tableReportShet({
-      title: 'Reporte "Dependientes"',
+      title: 'Reporte "Pendientes por Unidad"',
       datasource: this.dataSource(),
       columns: [
         { columnDef: 'fullName', header: 'Funcionario', width: '*' },
@@ -243,11 +278,12 @@ export default class ReportUnitComponent implements OnInit {
         { columnDef: 'total', header: 'Total' },
       ],
       filterParams: {
-        params: this.form.value,
+        params: { ...this.form.value, ...this.searcProperties },
         labelsMap: {
           group: 'Grupo',
-          startDate: 'Fecha inicio',
           endDate: 'Fecha fin',
+          startDate: 'Fecha inicio',
+          dependencyId: 'Dependencia',
         },
         valuesMap: {
           group: this.PROCEDURE_GROUP_MAP,
@@ -279,6 +315,24 @@ export default class ReportUnitComponent implements OnInit {
     });
   }
 
+  onSelectInstitution(option: institution): void {
+    console.log('GETTING DEPENDENCIES');
+    this.commonService
+      .getDependencies(option._id)
+      .pipe(
+        map((resp) => resp.map((item) => ({ value: item, label: item.nombre })))
+      )
+      .subscribe((resp) => {
+        this.dependencies.set(resp);
+        this.searcProperties['Institucion'] = option.nombre;
+      });
+  }
+
+  onSelectDependency(option: dependency): void {
+    this.form.patchValue({ dependencyId: option._id });
+    this.searcProperties['dependencyId'] = option.nombre;
+  }
+
   clear() {
     this.form.reset();
   }
@@ -288,5 +342,13 @@ export default class ReportUnitComponent implements OnInit {
       value,
       label,
     }));
+  }
+
+  private getInstitutions() {
+    return this.commonService
+      .getInstitutions()
+      .pipe(
+        map((resp) => resp.map((item) => ({ value: item, label: item.nombre })))
+      );
   }
 }

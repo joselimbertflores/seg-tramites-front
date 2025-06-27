@@ -8,10 +8,11 @@ import { environment } from '../../../../environments/environment';
 import { sendStatus } from '../../../communications/domain';
 import { skipUploadIndicator } from '../../../helpers';
 
-interface getTotalCommunicationsByUnitParams {
+interface totalCommunicationsByUnitParams {
   startDate: Date;
   endDate: Date;
   group: string;
+  dependencyId: string;
 }
 
 @Injectable({
@@ -22,11 +23,11 @@ export class CommunicationReportService {
   private readonly URL = `${environment.base_url}/report-communications`;
   constructor() {}
 
-  getTotalByUnit({
+  getTotalDependents({
     startDate,
     endDate,
     ...props
-  }: getTotalCommunicationsByUnitParams) {
+  }: totalCommunicationsByUnitParams) {
     const body = {
       startDate: startDate.toString(),
       endDate: endDate.toString(),
@@ -35,6 +36,45 @@ export class CommunicationReportService {
     return this.http
       .post<totalCommunicationsByUnitResponse[]>(
         `${this.URL}/dependents`,
+        body,
+        {
+          context: skipUploadIndicator(),
+        }
+      )
+      .pipe(
+        map((resp) => {
+          const statusList = Object.values(sendStatus);
+          return resp.map(({ statusCounts, ...props }) => {
+            const statusMap = new Map(
+              statusCounts.map(({ status, count }) => [status, count])
+            );
+            const flatStatusCounts = statusList.reduce((acc, current) => {
+              acc[current] = statusMap.get(current) || 0;
+              return acc;
+            }, {} as Record<string, number>);
+            return {
+              ...props,
+              ...flatStatusCounts,
+            };
+          });
+        })
+      );
+  }
+
+  getTotalByUnit({
+    dependencyId,
+    startDate,
+    endDate,
+    group,
+  }: totalCommunicationsByUnitParams) {
+    const body = {
+      startDate: startDate.toString(),
+      endDate: endDate.toString(),
+      group,
+    };
+    return this.http
+      .post<totalCommunicationsByUnitResponse[]>(
+        `${this.URL}/unit/${dependencyId}`,
         body,
         {
           context: skipUploadIndicator(),

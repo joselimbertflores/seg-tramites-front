@@ -93,7 +93,7 @@ export class PdfService {
     return Object.entries(params)
       .filter((item) => item[1])
       .reduce((acc, [key, value]) => {
-        const label = labelMap ? labelMap[key] : key;
+        const label = labelMap ? labelMap[key] ?? key : key;
         const valueTranslated =
           valueMap?.[key]?.[value] ?? this.toValueString(value);
         return {

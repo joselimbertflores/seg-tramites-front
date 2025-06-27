@@ -27,15 +27,10 @@ export class ReportCacheService {
       link: 'home/reports/applicant',
       description: 'Buscar por contribuyente',
     },
-    dependents: {
-      label: 'Dependientes',
-      link: 'home/reports/dependents',
-      description: 'Buscar por contribuyente',
-    },
     unit: {
       label: 'Unidades',
       link: 'home/reports/unit',
-      description: 'Listado por unidad',
+      description: 'Listado de tramites pendientes por unidad',
     },
   };
 
