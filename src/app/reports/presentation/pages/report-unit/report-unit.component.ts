@@ -12,8 +12,8 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -71,6 +71,7 @@ import {
                   <select-search
                     [items]="institutions()"
                     title="Institucion"
+                    [required]="true"
                     placeholder="Seleccione una institucion"
                     (onSelect)="onSelectInstitution($event)"
                   />
@@ -79,6 +80,7 @@ import {
                   <select-search
                     [items]="dependencies()"
                     title="Dependencia"
+                    [required]="true"
                     placeholder="Seleccione una deoendencia"
                     (onSelect)="onSelectDependency($event)"
                   />
@@ -316,7 +318,6 @@ export default class ReportUnitComponent {
   }
 
   onSelectInstitution(option: institution): void {
-    console.log('GETTING DEPENDENCIES');
     this.commonService
       .getDependencies(option._id)
       .pipe(

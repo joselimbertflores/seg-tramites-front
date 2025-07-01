@@ -219,7 +219,6 @@ export const routes: Routes = [
                 './reports/presentation/pages/report-search/report-search.component'
               ),
           },
-
           {
             path: 'unit',
             data: { action: 'unit' },
@@ -227,6 +226,15 @@ export const routes: Routes = [
             loadComponent: () =>
               import(
                 './reports/presentation/pages/report-unit/report-unit.component'
+              ),
+          },
+          {
+            path: 'segments',
+            // data: { action: 'unit' },
+            // canActivate: [reportPermissionGuard],
+            loadComponent: () =>
+              import(
+                './reports/presentation/pages/report-segments/report-segments.component'
               ),
           },
           {

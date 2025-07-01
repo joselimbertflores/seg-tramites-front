@@ -12,11 +12,9 @@ import {
 import { typeProcedure } from '../../../administration/infrastructure';
 import {
   tableProcedureData,
-  totalCommunicationsByUnitResponse,
+  totalProcedureBySegmentResponse,
 } from '../../infrastructure';
-import { procedureGroup } from '../../../procedures/domain';
-import { sendStatus } from '../../../communications/domain';
-import { communication } from '../../../communications/infrastructure';
+import { procedureGroup, procedureState } from '../../../procedures/domain';
 
 type procedureResponse = external | internal | procurement;
 
@@ -28,12 +26,18 @@ interface searchApplicantProps {
   typeProcedure?: string;
 }
 
+interface getTotalBySegmentProps {
+  institutionId: string;
+  startDate: Date;
+  endDate: Date;
+  group: procedureGroup;
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProcedureReportService {
-  private readonly url = `${environment.base_url}/reports`;
+  private readonly url = `${environment.base_url}/report-procedures`;
   private http = inject(HttpClient);
 
   getTypeProcedures(term?: string) {
@@ -88,6 +92,13 @@ export class ProcedureReportService {
           length: resp.length,
         }))
       );
+  }
+
+  getTotalBySegments(filterProps: getTotalBySegmentProps) {
+    return this.http.post<totalProcedureBySegmentResponse>(
+      `${this.url}/segments`,
+      filterProps
+    );
   }
 
   private removeEmptyValuesFromObject(value: Object) {
