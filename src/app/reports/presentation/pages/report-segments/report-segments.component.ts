@@ -26,10 +26,12 @@ import {
 } from '../../../../shared';
 import { procedureGroup, procedureState } from '../../../../procedures/domain';
 import { totalProcedureBySegmentResponse } from '../../../infrastructure';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-report-segments',
   imports: [
+    CommonModule,
     ReactiveFormsModule,
     MatDatepickerModule,
     MatSelectModule,
@@ -90,7 +92,7 @@ import { totalProcedureBySegmentResponse } from '../../../infrastructure';
       </div>
     </div>
 
-    <div class="overflow-x-auto">
+    <!-- <div class="overflow-x-auto">
       <div class="p-1.5 min-w-full inline-block align-middle">
         <div class="overflow-hidden">
           <table class="min-w-full divide-y divide-gray-200">
@@ -122,6 +124,98 @@ import { totalProcedureBySegmentResponse } from '../../../infrastructure';
             </tbody>
           </table>
         </div>
+      </div>
+    </div> -->
+    <div class="container mx-auto p-4">
+      <h1 class="text-3xl font-bold mb-6 text-gray-800">
+        Dashboard de Control - Institución:
+        <!-- <span class="text-blue-600">{{ data.institutionId }}</span> -->
+      </h1>
+
+      <div class="bg-blue-100 p-6 rounded-lg shadow-md mb-8">
+        <h2 class="text-2xl font-semibold text-blue-800 mb-4">
+          Totales Globales
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="flex items-center bg-white p-4 rounded-md shadow-sm">
+            <span class="text-xl font-medium text-gray-700 mr-2"
+              >Pendientes:</span
+            >
+            <!-- <span class="text-2xl font-bold text-orange-500">{{
+              data.globalTotals.pending
+            }}</span> -->
+          </div>
+          <div class="flex items-center bg-white p-4 rounded-md shadow-sm">
+            <span class="text-xl font-medium text-gray-700 mr-2"
+              >Completados:</span
+            >
+            <!-- <span class="text-2xl font-bold text-green-600">{{
+              data.globalTotals.completed
+            }}</span> -->
+          </div>
+        </div>
+      </div>
+
+      <h2 class="text-2xl font-semibold text-gray-800 mb-6">
+        Detalle por Segmento
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <ng-container
+          *ngIf="results()?.segments ; else noSegments"
+        >
+          @for (segmentData of results()?.segments; track $index) {
+          <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+            <h3 class="text-xl font-bold text-gray-700 mb-4 border-b pb-2">
+              Segmento:
+              <span class="text-purple-600">{{ segmentData.prefix }}</span>
+            </h3>
+
+            <div class="mb-4">
+              <p class="text-lg font-semibold text-gray-600">
+                Total General:
+                <span class="text-indigo-700">{{ segmentData.total }}</span>
+              </p>
+              <div class="flex justify-between items-center mt-2">
+                <span class="text-md text-gray-600"
+                  >Pendientes:
+                  <span class="font-bold text-orange-500">{{
+                    segmentData.totals.pending
+                  }}</span></span
+                >
+                <span class="text-md text-gray-600"
+                  >Completados:
+                  <span class="font-bold text-green-600">{{
+                    segmentData.totals.completed
+                  }}</span></span
+                >
+              </div>
+            </div>
+
+            <h4 class="text-lg font-semibold text-gray-700 mb-3">
+              Desglose por Estado:
+            </h4>
+            <ul class="space-y-2">
+              <li
+                *ngFor="let item of segmentData.breakdown"
+                class="flex justify-between items-center p-2 rounded-md"
+                [ngClass]="{
+                  'bg-green-50 text-green-800': item.status === 'completed',
+                  'bg-orange-50 text-orange-800': item.status === 'pending'
+                }"
+              >
+                <span class="font-medium">{{ item.state | titlecase }}</span>
+                <span class="font-bold text-lg">{{ item.count }}</span>
+              </li>
+            </ul>
+          </div>
+
+          }
+        </ng-container>
+        <ng-template #noSegments>
+          <p class="text-gray-600 col-span-full">
+            No hay segmentos para mostrar.
+          </p>
+        </ng-template>
       </div>
     </div>
   `,
@@ -182,5 +276,4 @@ export default class ReportSegmentsComponent {
         )
       );
   }
-
 }
