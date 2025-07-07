@@ -270,10 +270,10 @@ export default class ReportUnitComponent {
   }
 
   print() {
-    this.pdfService.tableReportShet({
+    this.pdfService.tableSheet({
       title: 'Reporte "Pendientes por Unidad"',
-      datasource: this.dataSource(),
-      columns: [
+      dataSource: this.dataSource(),
+      displayColumns: [
         { columnDef: 'fullName', header: 'Funcionario', width: '*' },
         { columnDef: 'jobTitle', header: 'Cargo', width: '*' },
         ...this.statusColumnsToDisplay,
@@ -296,10 +296,10 @@ export default class ReportUnitComponent {
 
   getInbox(account: { id: string; fullName?: string; jobTitle: string }) {
     this.reportService.getInboxByAccount(account.id).subscribe((data) => {
-      this.pdfService.tableReportShet({
+      this.pdfService.tableSheet({
         title: 'Reporte "Dependientes" - Bandeja de entrada',
-        datasource: data,
-        columns: [
+        dataSource: data,
+        displayColumns: [
           { columnDef: 'senderFullName', header: 'Emisor' },
           { columnDef: 'code', header: 'Alterno' },
           { columnDef: 'reference', header: 'Refenrecia', width: '*' },

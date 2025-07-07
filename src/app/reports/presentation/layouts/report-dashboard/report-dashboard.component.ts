@@ -6,7 +6,7 @@ import {
   OnInit,
   inject,
 } from '@angular/core';
-import { NavigationEnd, Router, RouterModule } from '@angular/router';
+import { NavigationEnd, RouterModule, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
@@ -15,7 +15,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
-import { filter } from 'rxjs';
+import { filter, tap } from 'rxjs';
 
 import { ReportListComponent } from '../../components';
 import { ReportCacheService } from '../../services';
@@ -54,6 +54,7 @@ export default class ReportDashboardComponent implements OnInit {
   private bottomSheet = inject(MatBottomSheet);
   private reportCacheService = inject(ReportCacheService);
 
+
   ngOnInit(): void {
     this.listenReportRoutes();
   }
@@ -68,6 +69,7 @@ export default class ReportDashboardComponent implements OnInit {
   private listenReportRoutes() {
     this.router.events
       .pipe(
+        tap((eve) => console.log(eve)),
         filter(
           (event): event is NavigationEnd => event instanceof NavigationEnd
         ),

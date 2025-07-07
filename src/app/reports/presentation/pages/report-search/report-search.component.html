@@ -142,7 +142,7 @@
         para realizar la busqueda"
       </div>
       } @if(!isLoading() && hasSearched() && datasource().length > 0){
-      <report-procedure-table [datasource]="datasource()" [columns]="COLUMNS" />
+      <report-procedure-table [data]="datasource()" [columns]="COLUMNS" />
       @if (limit() < datasize()){
       <mat-paginator
         showFirstLastButtons

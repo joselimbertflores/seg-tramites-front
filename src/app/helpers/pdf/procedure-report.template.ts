@@ -1,24 +1,26 @@
 import { Content, TDocumentDefinitions } from 'pdfmake/interfaces';
 import { imageToBase64 } from '../image-base64.helper';
 
-interface reportTableProps {
+interface tableProps {
   title: string;
-  rows: any[];
-  columns: column[];
-  parameters: Object;
+  dataSource: any[];
+  parameters?: Object;
+  displayColumns: column[];
 }
 interface column {
   header: string;
   columnDef: string;
-  width?: 'auto' | '*';
-  backgroundColo?: string;
+  width?: 'auto' | '*' | number;
 }
 export class ProcedureReportTemplate {
-  static async reportTable(
-    data: reportTableProps
-  ): Promise<TDocumentDefinitions> {
+  static async reportTable(data: tableProps): Promise<TDocumentDefinitions> {
+    const { title, dataSource, displayColumns, parameters } = data;
+
     const rightImage = await imageToBase64('images/institution/alcaldia.jpeg');
     const leftImage = await imageToBase64('images/institution/slogan.png');
+
+    const parametersList = parameters ? Object.entries(parameters) : null;
+
     return {
       header: {
         alignment: 'center',
@@ -33,7 +35,7 @@ export class ProcedureReportTemplate {
             width: '*',
             text: [
               { text: 'Sistema de Seguimiento de Tramites' },
-              { text: `\n${data.title}`, fontSize: 14, bold: true },
+              { text: `\n${title}`, fontSize: 14, bold: true },
             ],
           },
           {
@@ -66,16 +68,59 @@ export class ProcedureReportTemplate {
       pageOrientation: 'landscape',
       pageMargins: [30, 60, 40, 40],
       content: [
-        {
-          text: 'Parametros busqueda:',
-          style: 'subtitle',
-        },
-        this.sectionParameters(data.parameters),
+        ...(parametersList
+          ? [
+              {
+                text: 'Parametros busqueda:',
+                style: 'subtitle',
+              },
+              {
+                fontSize: 9,
+                layout: 'noBorders',
+                table: {
+                  widths: [100, '*'],
+                  body: [
+                    ...(parametersList.length > 0
+                      ? parametersList.map(([key, value]) => [
+                          { text: `${key}:`, bold: true },
+                          value,
+                        ])
+                      : [[{ text: 'Sin parametros', colSpan: 2 }, '']]),
+                  ],
+                },
+              },
+            ]
+          : []),
         {
           text: 'Resultados:',
           style: 'subtitle',
         },
-        this.sectionResults(data),
+        ...(dataSource.length > 0
+          ? [
+              {
+                fontSize: 7,
+                layout: 'lightHorizontalLines',
+                table: {
+                  headerRows: 1,
+                  dontBreakRows: true,
+                  widths: displayColumns.map(
+                    (column) => column.width ?? 'auto'
+                  ),
+                  body: [
+                    [
+                      ...displayColumns.map((colum) => ({
+                        text: colum.header.toUpperCase(),
+                        bold: true,
+                      })),
+                    ],
+                    ...dataSource.map((row) =>
+                      displayColumns.map((col) => [row[col.columnDef]])
+                    ),
+                  ],
+                },
+              },
+            ]
+          : [{ text: 'No se encontraron resultados.' }]),
       ],
       styles: {
         subtitle: {
@@ -83,47 +128,6 @@ export class ProcedureReportTemplate {
           fontSize: 10,
           margin: [0, 20, 0, 5],
         },
-      },
-    };
-  }
-
-  private static sectionParameters(params: Object): Content {
-    const fields = Object.entries(params);
-    return {
-      fontSize: 9,
-      layout: 'noBorders',
-      table: {
-        widths: [100, '*'],
-        body: [
-          ...(fields.length > 0
-            ? fields.map(([key, value]) => [
-                { text: `${key}:`, bold: true },
-                value,
-              ])
-            : [[{ text: 'Sin parametros', colSpan: 2 }, '']]),
-        ],
-      },
-    };
-  }
-
-  private static sectionResults({ columns, rows }: reportTableProps): Content {
-    if (rows.length === 0) return { text: 'No se encontraron resultados.' };
-    return {
-      fontSize: 7,
-      layout: 'lightHorizontalLines',
-      table: {
-        headerRows: 1,
-        dontBreakRows: true,
-        widths: columns.map((column) => column.width ?? 'auto'),
-        body: [
-          [
-            ...columns.map((colum) => ({
-              text: colum.header.toUpperCase(),
-              bold: true,
-            })),
-          ],
-          ...rows.map((row) => columns.map((col) => [row[col.columnDef]])),
-        ],
       },
     };
   }

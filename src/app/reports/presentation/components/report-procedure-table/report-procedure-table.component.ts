@@ -14,16 +14,11 @@ import {
 } from '../../../infrastructure';
 import { procedureGroup } from '../../../../procedures/domain';
 
-export interface ProcedureTableColumns {
-  columnDef: string;
-  header: string;
-}
-
 @Component({
   selector: 'report-procedure-table',
   imports: [CommonModule, MatTableModule, RouterModule],
   template: `
-    <table mat-table [dataSource]="datasource()">
+    <table mat-table [dataSource]="data()">
       @for (item of columns(); track $index) {
       <ng-container matColumnDef="{{ item.columnDef }}">
         <th mat-header-cell *matHeaderCellDef>{{ item.header }}</th>
@@ -81,7 +76,7 @@ export interface ProcedureTableColumns {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReportProcedureTableComponent {
-  datasource = input.required<tableProcedureData[]>();
+  data = input.required<tableProcedureData[]>();
   columns = input.required<tableProcedureColums[]>();
 
   displayedColumns = computed(() =>

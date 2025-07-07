@@ -238,6 +238,24 @@ export const routes: Routes = [
               ),
           },
           {
+            path: 'history',
+            // data: { action: 'unit' },
+            // canActivate: [reportPermissionGuard],
+            loadComponent: () =>
+              import(
+                './reports/presentation/pages/report-history-communication/report-history-communication.component'
+              ),
+          },
+          {
+            path: 'unlink',
+            // data: { action: 'unit' },
+            // canActivate: [reportPermissionGuard],
+            loadComponent: () =>
+              import(
+                './reports/presentation/pages/report-unlink/report-unlink.component'
+              ),
+          },
+          {
             path: ':group/:id',
             title: 'Detalle',
             data: { animation: 'slide' },

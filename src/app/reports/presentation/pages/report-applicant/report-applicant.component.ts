@@ -187,13 +187,13 @@ export default class ReportApplicantComponent {
   }
 
   print() {
-    this.pdfService.procedureListSheet({
+    this.pdfService.tableSheet({
       title: 'Reporte Solicitante',
-      datasource: this.datasource().map((item) => ({
+      dataSource: this.datasource().map((item) => ({
         ...item,
         group: 'Externo',
       })),
-      columns: this.COLUMNS,
+      displayColumns: this.COLUMNS,
       filterParams: {
         params: {
           'Tipo de tramite': this.selectedTypeProcedure()?.name,

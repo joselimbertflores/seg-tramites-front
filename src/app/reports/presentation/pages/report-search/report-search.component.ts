@@ -150,21 +150,21 @@ export default class ReportSearchComponent {
   }
 
   print() {
-    this.pdfService.procedureListSheet({
-      title: 'Reporte busqueda',
-      datasource: this.datasource().map(({ group, ...values }) => ({
-        group: this.translateProcedureGroup(group),
-        ...values,
-      })),
-      columns: this.COLUMNS,
-      filterParams: {
-        params: {
-          ...this.form().value,
-          group: this.GROUP_LABELS[this.form().get('group')?.value],
-        },
-        labelsMap: this.LABELS_MAP,
-      },
-    });
+    // this.pdfService.procedureListSheet({
+    //   title: 'Reporte busqueda',
+    //   datasource: this.datasource().map(({ group, ...values }) => ({
+    //     group: this.translateProcedureGroup(group),
+    //     ...values,
+    //   })),
+    //   columns: this.COLUMNS,
+    //   filterParams: {
+    //     params: {
+    //       ...this.form().value,
+    //       group: this.GROUP_LABELS[this.form().get('group')?.value],
+    //     },
+    //     labelsMap: this.LABELS_MAP,
+    //   },
+    // });
   }
 
   selectSearchMode(isAdvancedMode: boolean) {

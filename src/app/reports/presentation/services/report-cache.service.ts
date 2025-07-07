@@ -32,6 +32,11 @@ export class ReportCacheService {
       link: 'home/reports/unit',
       description: 'Listado de tramites pendientes por unidad',
     },
+    segments: {
+      label: 'Segmentos',
+      link: 'home/reports/segments',
+      description: 'Total de tramites por segmento',
+    },
   };
 
   menu = computed(() => {
@@ -40,6 +45,10 @@ export class ReportCacheService {
       .map((action) => this.permissionMappings[action])
       .filter((item) => !!item);
   });
+
+  constructor() {
+    console.log(this.authService.user());
+  }
 
   setLastReportPath(path: string) {
     this.lastReportPath = path;

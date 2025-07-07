@@ -5,22 +5,11 @@ import { Observable } from 'rxjs';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 
-import { Procedure } from '../../procedures/domain';
 import { ProcedureReportTemplate, RouteSheetBuilder } from '../../helpers';
-
-import {
-  tableProcedureColums,
-  tableProcedureData,
-} from '../../reports/infrastructure';
 import { workflow } from '../../communications/infrastructure';
+import { Procedure } from '../../procedures/domain';
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
-interface procedureListProps {
-  title: string;
-  datasource: tableProcedureData[];
-  columns: tableProcedureColums[];
-  filterParams: filterParams;
-}
 
 interface filterParams {
   params: Record<string, any>;
@@ -30,13 +19,15 @@ interface filterParams {
 
 interface tableReportShetProps {
   title: string;
-  datasource: object[];
-  columns: {
-    header: string;
-    columnDef: string;
-    width?: 'auto' | '*';
-  }[];
-  filterParams: filterParams;
+  dataSource: object[];
+  displayColumns: displayColumns[];
+  filterParams?: filterParams;
+}
+
+interface displayColumns {
+  header: string;
+  columnDef: string;
+  width?: 'auto' | '*' | number;
 }
 
 @Injectable({
@@ -58,54 +49,43 @@ export class PdfService {
     });
   }
 
-  async tableReportShet(config: tableReportShetProps) {
-    const doc = await ProcedureReportTemplate.reportTable({
-      rows: config.datasource,
-      columns: config.columns,
-      title: config.title,
-      parameters: this.filtreAndTranslateParams(
-        config.filterParams.params,
-        config.filterParams.labelsMap,
-        config.filterParams.valuesMap
-      ),
+  tableSheet({ filterParams, ...props }: tableReportShetProps) {
+    return new Observable<pdfMake.TCreatedPdf>((observer) => {
+      ProcedureReportTemplate.reportTable({
+        ...props,
+        ...(filterParams && {
+          parameters: this.filtreAndTranslateParams(filterParams),
+        }),
+      })
+        .then((docDefinition) => {
+          const pdf = pdfMake.createPdf(docDefinition);
+          observer.next(pdf);
+          observer.complete();
+        })
+        .catch((error) => {
+          observer.error(error);
+        });
     });
-    pdfMake.createPdf(doc).print();
   }
 
-  async procedureListSheet(config: procedureListProps) {
-    const doc = await ProcedureReportTemplate.reportTable({
-      rows: config.datasource,
-      columns: config.columns,
-      title: config.title,
-      parameters: this.filtreAndTranslateParams(
-        config.filterParams.params,
-        config.filterParams.labelsMap
-      ),
-    });
-    pdfMake.createPdf(doc).print();
-  }
-
-  private filtreAndTranslateParams(
-    params: Object,
-    labelMap?: Record<string, string>,
-    valueMap?: Record<string, Record<string, string>>
-  ) {
+  private filtreAndTranslateParams(params: filterParams) {
+    const { labelsMap, valuesMap } = params;
     return Object.entries(params)
       .filter((item) => item[1])
       .reduce((acc, [key, value]) => {
-        const label = labelMap ? labelMap[key] ?? key : key;
-        const valueTranslated =
-          valueMap?.[key]?.[value] ?? this.toValueString(value);
+        const label = labelsMap ? labelsMap[key] ?? key : key;
+        const translated =
+          valuesMap?.[key]?.[value] ?? this.toValueString(value);
         return {
           ...acc,
-          [label]: valueTranslated,
+          [label]: translated,
         };
       }, {});
   }
 
   private toValueString(value: any): string {
     if (value instanceof Date) return value.toLocaleDateString();
-    if (typeof value === 'object') return 'objeto';
+    if (typeof value === 'object') return '{}';
     if (!value) return '';
     return value;
   }
