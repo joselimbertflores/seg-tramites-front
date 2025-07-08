@@ -91,6 +91,7 @@ import {
         color: white;
         font-weight: bold;
       }
+      
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -124,6 +125,7 @@ export default class InboxComponent implements OnInit {
 
   readonly displayedColumns: string[] = [
     'select',
+    'priority',
     'group',
     'code',
     'reference',

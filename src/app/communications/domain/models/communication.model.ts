@@ -14,6 +14,7 @@ interface communicationProps {
   isOriginal: boolean;
   actionLog?: actionLog;
   remainingTime?: number;
+  priority: number;
 }
 interface worker {
   account: string;
@@ -66,6 +67,7 @@ export class Communication implements communicationProps {
   isOriginal: boolean;
   actionLog?: actionLog;
   remainingTime?: number;
+  priority: number;
 
   constructor({
     id,
@@ -81,6 +83,7 @@ export class Communication implements communicationProps {
     status,
     isOriginal,
     remainingTime,
+    priority,
   }: communicationProps) {
     this.id = id;
     this.sender = sender;
@@ -95,6 +98,7 @@ export class Communication implements communicationProps {
     this.isOriginal = isOriginal;
     this.actionLog = actionLog;
     this.remainingTime = remainingTime;
+    this.priority = priority;
   }
 
   public copyWith(modifyObject: Partial<communicationProps>): Communication {

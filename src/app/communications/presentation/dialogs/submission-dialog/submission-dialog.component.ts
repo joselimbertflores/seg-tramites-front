@@ -35,6 +35,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSelectModule } from '@angular/material/select';
 
 import {
   distinctUntilChanged,
@@ -85,13 +86,14 @@ export type communicationMode = 'initiate' | 'forward' | 'resend';
     CommonModule,
     MatIconModule,
     MatInputModule,
+    MatChipsModule,
     MatButtonModule,
     MatDialogModule,
+    MatSelectModule,
+    MatFormFieldModule,
+    MatAutocompleteModule,
     NgxMatSelectSearchModule,
     SelectSearchComponent,
-    MatAutocompleteModule,
-    MatFormFieldModule,
-    MatChipsModule,
   ],
   template: `
     <h2 mat-dialog-title>Remision Tramite</h2>
@@ -115,7 +117,7 @@ export type communicationMode = 'initiate' | 'forward' | 'resend';
       </div>
 
       <form [formGroup]="formSubmission">
-        <div class="grid grid-cols-3 gap-x-2 mt-2">
+        <div class="grid grid-cols-3 gap-3 mt-2 mb-4">
           <div class="col-span-3">
             <mat-form-field>
               <mat-label>Instruccion / Proveido</mat-label>
@@ -141,6 +143,18 @@ export type communicationMode = 'initiate' | 'forward' | 'resend';
             <mat-form-field>
               <mat-label>Numero de registro interno</mat-label>
               <input formControlName="internalNumber" matInput />
+            </mat-form-field>
+          </div>
+          <div>
+            <mat-form-field>
+              <mat-label>Prioridad</mat-label>
+              <mat-select formControlName="priority">
+                @for (item of prioritys; track $index) {
+                <mat-option [value]="item.value">
+                  {{ item.label }}
+                </mat-option>
+                }
+              </mat-select>
             </mat-form-field>
           </div>
         </div>
@@ -265,9 +279,10 @@ export class SubmissionDialogComponent implements OnInit {
   dependencyId = signal<string | null>(null);
 
   formSubmission: FormGroup = this._formBuilder.group({
-    reference: ['PARA SU ATENCION', Validators.required],
+    reference: ['', Validators.required],
     attachmentsCount: [this.data.attachmentsCount, Validators.required],
     internalNumber: [''],
+    priority:[0, Validators.required]
   });
   recipients = signal<recipient[]>([]);
 
@@ -295,6 +310,11 @@ export class SubmissionDialogComponent implements OnInit {
   });
 
   public selectedReceivers = signal<any[]>([]);
+
+  readonly prioritys = [
+    { value: 0, label: 'Normal' },
+    { value: 1, label: 'Urgente' },
+  ];
 
   constructor() {
     effect(() => {

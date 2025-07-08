@@ -13,6 +13,7 @@ export interface communication {
   isOriginal: boolean;
   remainingTime?: number;
   parentId?: string;
+  priority: number;
 }
 
 interface officer {

@@ -4,6 +4,7 @@ import { map, Observable } from 'rxjs';
 
 import {
   tableProcedureData,
+  unlinkDataResponse,
   totalCommunicationsByUnitResponse,
 } from '../../infrastructure';
 import { communication } from '../../../communications/infrastructure';
@@ -113,5 +114,9 @@ export class CommunicationReportService {
           })),
         }))
       );
+  }
+
+  getUnlinkData() {
+    return this.http.get<unlinkDataResponse>(`${this.URL}/unlink`);
   }
 }

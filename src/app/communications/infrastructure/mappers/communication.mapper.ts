@@ -25,6 +25,7 @@ export class CommunicationMapper {
       attachmentsCount: response.attachmentsCount,
       internalNumber: response.internalNumber,
       remainingTime: response.remainingTime,
+      priority:response.priority
     });
   }
 }

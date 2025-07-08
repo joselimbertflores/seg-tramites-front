@@ -124,6 +124,20 @@
         </td>
       </ng-container>
 
+      <ng-container matColumnDef="priority">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let row" class="w-8">
+          @switch (row.priority) {
+            @case (0) {
+              <mat-icon style="color: #CED4DA">label_important</mat-icon>
+            }
+            @default {
+              <mat-icon style="color: #FFA200">label_important</mat-icon>
+            }
+          }
+        </td>
+      </ng-container>
+
       <ng-container matColumnDef="group">
         <th mat-header-cell *matHeaderCellDef>Documento</th>
         <td mat-cell *matCellDef="let row" class="sm:w-32">
@@ -196,7 +210,7 @@
               Archivar
             </button>
             }
-             <button (click)="generateRouteSheet(row)" mat-menu-item>
+            <button (click)="generateRouteSheet(row)" mat-menu-item>
               <mat-icon>description</mat-icon>
               <span>Hoja de ruta</span>
             </button>

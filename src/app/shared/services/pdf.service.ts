@@ -5,9 +5,14 @@ import { Observable } from 'rxjs';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 
-import { ProcedureReportTemplate, RouteSheetBuilder } from '../../helpers';
+import {
+  buildUnlinkSheet,
+  ProcedureReportTemplate,
+  RouteSheetBuilder,
+} from '../../helpers';
 import { workflow } from '../../communications/infrastructure';
 import { Procedure } from '../../procedures/domain';
+import { unlinkDataResponse } from '../../reports/infrastructure';
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
@@ -57,6 +62,20 @@ export class PdfService {
           parameters: this.filtreAndTranslateParams(filterParams),
         }),
       })
+        .then((docDefinition) => {
+          const pdf = pdfMake.createPdf(docDefinition);
+          observer.next(pdf);
+          observer.complete();
+        })
+        .catch((error) => {
+          observer.error(error);
+        });
+    });
+  }
+
+  unlinkSheet(data: unlinkDataResponse) {
+    return new Observable<pdfMake.TCreatedPdf>((observer) => {
+      buildUnlinkSheet(data)
         .then((docDefinition) => {
           const pdf = pdfMake.createPdf(docDefinition);
           observer.next(pdf);

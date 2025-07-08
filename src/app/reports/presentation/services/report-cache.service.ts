@@ -37,6 +37,11 @@ export class ReportCacheService {
       link: 'home/reports/segments',
       description: 'Total de tramites por segmento',
     },
+    unlink: {
+      label: 'Desvinculacion',
+      description: 'Generacacion del formulario de baja de usuario',
+      link: 'home/reports/unlink',
+    },
   };
 
   menu = computed(() => {
@@ -46,9 +51,7 @@ export class ReportCacheService {
       .filter((item) => !!item);
   });
 
-  constructor() {
-    console.log(this.authService.user());
-  }
+  constructor() {}
 
   setLastReportPath(path: string) {
     this.lastReportPath = path;
