@@ -1,7 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { ThemeService } from './layout/presentation/services';
 import { NgxSonnerToaster } from 'ngx-sonner';
+
+import { ThemeService } from './layout/presentation/services';
 
 @Component({
   selector: 'app-root',

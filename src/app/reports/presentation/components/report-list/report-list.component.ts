@@ -8,12 +8,6 @@ import {
 
 import { ReportCacheService } from '../../services';
 
-export interface reportMenu {
-  label: string;
-  link: string;
-  description: string;
-}
-
 @Component({
   selector: 'app-report-list',
   imports: [RouterModule, MatListModule, MatBottomSheetModule],
@@ -22,8 +16,8 @@ export interface reportMenu {
     <mat-nav-list>
       @for (item of menu(); track $index) {
       <a
-        [routerLink]="item.link"
         routerLinkActive
+        [routerLink]="item.link"
         #link="routerLinkActive"
         [activated]="link.isActive"
         mat-list-item

@@ -1,5 +1,9 @@
 import { registerLocaleData } from '@angular/common';
-import { provideRouter, withComponentInputBinding } from '@angular/router';
+import {
+  provideRouter,
+  withViewTransitions,
+  withComponentInputBinding,
+} from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { LOCALE_ID } from '@angular/core';
 
@@ -10,13 +14,15 @@ import { ApplicationConfig } from '@angular/core';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { provideToastr } from 'ngx-toastr';
 
+import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
+
 import { loggingInterceptor } from './core/interceptors/interceptor';
 import { routes } from './app.routes';
 registerLocaleData(localeEs, 'es');
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideRouter(routes, withComponentInputBinding()),
+    provideRouter(routes, withComponentInputBinding(), withViewTransitions()),
     provideHttpClient(withInterceptors([loggingInterceptor])),
     provideAnimations(),
     provideToastr(),
@@ -25,5 +31,6 @@ export const appConfig: ApplicationConfig = {
       provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
       useValue: { appearance: 'outline' },
     },
+    provideCharts(withDefaultRegisterables()),
   ],
 };

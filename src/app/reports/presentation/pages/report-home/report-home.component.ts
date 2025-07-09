@@ -16,7 +16,7 @@ import { ReportListComponent } from '../../components';
       <div class="max-w-2xl px-2">
         <div class="text-center mb-4">
           <h1 class="text-xl tracking-wide text-balance sm:text-4xl">
-            Seccion de reportes
+            Sección de reportes
           </h1>
           <p class="mt-2 text-lg text-pretty sm:text-lg/8">
             Seleccione uno de los reportes disponibles para comenzar

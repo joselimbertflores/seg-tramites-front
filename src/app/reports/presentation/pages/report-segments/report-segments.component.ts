@@ -15,14 +15,19 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
-import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
 import { finalize, map, Observable } from 'rxjs';
 
 import { procedureGroup, procedureState } from '../../../../procedures/domain';
 import { CommonReportService, ProcedureReportService } from '../../services';
 import { totalProcedureBySegmentResponse } from '../../../infrastructure';
-import { selectOption, SelectSearchComponent } from '../../../../shared';
+import {
+  GenericChartComponent,
+  SelectSearchComponent,
+  GeneriChartData,
+  selectOption,
+} from '../../../../shared';
 
 @Component({
   selector: 'app-report-segments',
@@ -34,6 +39,7 @@ import { selectOption, SelectSearchComponent } from '../../../../shared';
     MatButtonModule,
     SelectSearchComponent,
     MatProgressBarModule,
+    GenericChartComponent,
   ],
   template: `
     <div class="container mx-auto p-4">
@@ -92,99 +98,76 @@ import { selectOption, SelectSearchComponent } from '../../../../shared';
       </form>
 
       @if(isLoading()){
-      <div class="flex flex-col gap-y-1">
-        <p class="text-xl">Generando reporte....</p>
-        <mat-progress-bar mode="indeterminate" />
-      </div>
-      }
-
+        <div class="flex flex-col gap-y-1">
+          <p class="text-xl">Generando reporte....</p>
+          <mat-progress-bar mode="indeterminate" />
+        </div>
+      } 
+      
       @if(!isLoading() && results()?.segments?.length === 0){
         <div class="text-center p-8 text-lg">
           No se encontraron datos para los filtros seleccionados.
         </div>
-      }
-
+      }   
       @if(!isLoading() && (results()?.segments?.length ?? 0) > 0){
-        <div class="space-y-4">
-          <div class="shadow-sm border rounded-lg p-4">
-            <h2 class="text-xl font-medium mb-4">Total Registros</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="flex items-center  text-xl">
-                <span class="mr-2">Pendientes:</span>
-                <span class="font-bold text-orange-500">
-                {{ results()?.globalTotals?.pending }}
-              </span>
-            </div>
-            <div class="flex items-center text-xl">
-              <span class="mr-2">Completados:</span>
-              <span class="font-bold text-green-600">
-                {{ results()?.globalTotals?.completed }}
-              </span>
-            </div>
-          </div>
-          </div>
-          <div class="shadow-sm border rounded-lg p-4">
-            <h2 class="text-xl font-medium mb-4">Detalle Segmento</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              @for (segmentData of results()?.segments; track $index) {
-                <div class="p-6 rounded-lg shadow-md border border-gray-200">
-                  <h3 class="text-xl font-bold mb-4 border-b pb-2">
-                    Segmento:
-                    <span class="text-blue-600">{{ segmentData.prefix }}</span>
-                  </h3>
-                  
-                  <div class="mb-4">
-                    <p class="text-lg font-semibold">
-                      Total:
-                      <span class="text-indigo-700">{{ segmentData.total }}</span>
-                    </p>
-                    <div class="flex justify-between items-center mt-2">
-                      <span class="text-md text-gray-600"
-                      >Pendientes:
-                      <span class="font-bold text-orange-500">{{
-                        segmentData.totals.pending
-                      }}</span></span
-                      >
-                      <span class="text-md text-gray-600"
-                      >Completados:
-                      <span class="font-bold text-green-600">{{
-                        segmentData.totals.completed
-                      }}</span></span
-                      >
-                    </div>
-                  </div>
-                  
-                  <h4 class="text-lg font-semibold text-gray-700 mb-3">
-                    Desglose por Estado:
-                  </h4>
-                  <ul class="space-y-2">
-                    <li
-                    *ngFor="let item of segmentData.breakdown"
-                    class="flex justify-between items-center p-2 rounded-md"
-                    [ngClass]="{
-                      'bg-green-50 text-green-800': item.status === 'completed',
-                      'bg-orange-50 text-orange-800': item.status === 'pending'
-                    }"
-                    >
-                    <span class="font-medium">{{ item.state | titlecase }}</span>
-                    <span class="font-bold text-lg">{{ item.count }}</span>
-                  </li>
-                </ul>
-              </div>
-                }
-            </div>
-          </div>
+        <div class="mx-auto w-full sm:w-[500px] mb-6">
+          <generic-chart
+            title="Porcentaje Total de Trámites"
+            chartType="pie"
+            [chartData]="pieChartData()"
+          />
         </div>
-        }
-      </div>
-    `,
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y-2 divide-gray-200">
+            <thead>
+              <tr>
+                <th class="px-3 py-2 whitespace-nowrap text-start">SEGMENTO</th>
+                <th class="px-3 py-2 whitespace-nowrap text-start">PENDIENTES</th>
+                <th class="px-3 py-2 whitespace-nowrap text-start">
+                  FINALIZADOS
+                </th>
+                <th class="px-3 py-2 whitespace-nowrap text-start">TOTAL</th>
+              </tr>
+            </thead>
+
+            <tbody class="divide-y divide-gray-200">
+              @for (item of results()?.segments; track $index) {
+              <tr class="*:text-gray-900 *:first:font-medium">
+                <td class="px-3 py-2 whitespace-nowrap">{{ item.prefix }}</td>
+                <td class="px-3 py-2 whitespace-nowrap">
+                  {{ item.totals.pending }}
+                </td>
+                <td class="px-3 py-2 whitespace-nowrap">
+                  {{ item.totals.completed }}
+                </td>
+                <td class="px-3 py-2 whitespace-nowrap">{{ item.total }}</td>
+              </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr class="*:font-semibold *:px-3 *:py-2 *:text-gray-800">
+                <td class="text-left">TOTAL:</td>
+                <td class="text-left">
+                  {{ results()?.globalTotals?.totalPending }}
+                </td>
+                <td class="text-left">
+                  {{ results()?.globalTotals?.totalCompleted }}
+                </td>
+                <td>{{ results()?.globalTotals?.total }}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      }
+    </div>
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [provideNativeDateAdapter()],
 })
 export default class ReportSegmentsComponent {
   private reportService = inject(ProcedureReportService);
   private commonReportService = inject(CommonReportService);
-  
+
   readonly institutions = toSignal(this.getInstitutionsSubscription(), {
     initialValue: [],
   });
@@ -214,6 +197,16 @@ export default class ReportSegmentsComponent {
   results = signal<totalProcedureBySegmentResponse | null>(null);
   isLoading = signal(false);
 
+  pieChartData = signal<GeneriChartData>({
+    labels: [],
+    datasets: [],
+  });
+
+  barChartData = signal<GeneriChartData>({
+    labels: [],
+    datasets: [],
+  });
+
   getData() {
     this.isLoading.set(true);
     this.reportService
@@ -221,6 +214,24 @@ export default class ReportSegmentsComponent {
       .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe((data) => {
         this.results.set(data);
+        this.pieChartData.set({
+          labels: ['Pendientes', 'Finalizados'],
+          datasets: [
+            {
+              data: [
+                data.globalTotals.totalPending,
+                data.globalTotals.totalCompleted,
+              ],
+            },
+          ],
+        });
+        this.barChartData.set({
+          labels: Object.values(procedureState),
+          datasets: data.segments.map((item) => ({
+            label: item.prefix,
+            data: item.breakdown.map((value) => value.count),
+          })),
+        });
       });
   }
 

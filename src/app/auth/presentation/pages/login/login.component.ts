@@ -8,12 +8,13 @@ import {
 } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
+
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -27,19 +28,16 @@ import { AuthService } from '../../services/auth.service';
     MatInputModule,
     MatIconModule,
     MatButtonModule,
-    MatProgressSpinnerModule,
   ],
   template: `
-    <div
-      class="min-h-screen flex items-center justify-center w-full main-container"
-    >
-      <div
-        class="rounded-lg p-5 mx-2 sm:mx-0 w-full sm:w-[450px] login-container"
-        style="background-color: var(--mat-sys-surface); "
-      >
+    <div class="p-4 absolute top-0 left-0">
+      <img src="images/logos/gams.png" class="h-16 sm:h-24" />
+    </div>
+    <div class="h-screen flex items-center justify-center w-full main">
+      <div class="rounded-xl px-6 py-8 w-11/12 sm:w-[450px] box">
         <div class="sm:mx-auto mb-6">
           <img
-            class="mx-auto h-16 mb-2"
+            class="mx-auto h-16 mb-4"
             src="images/icons/app.png"
             alt="Icon app"
           />
@@ -78,15 +76,15 @@ import { AuthService } from '../../services/auth.service';
                 [attr.aria-label]="'Hide password'"
                 [attr.aria-pressed]="hidePassword"
               >
-                <mat-icon>{{
-                  hidePassword ? 'visibility_off' : 'visibility'
-                }}</mat-icon>
+                <mat-icon>
+                  {{ hidePassword ? 'visibility_off' : 'visibility' }}
+                </mat-icon>
               </button>
             </mat-form-field>
           </div>
           <div class="mb-4">
             <mat-checkbox formControlName="remember">
-              Recordar nombre usuario
+              Recordar Usuario
             </mat-checkbox>
           </div>
           <button type="submit" mat-flat-button class="w-full">Ingresar</button>
@@ -95,11 +93,12 @@ import { AuthService } from '../../services/auth.service';
     </div>
   `,
   styles: `
-  .main-container {
+  .main {
     background-color:var(--mat-sys-surface-container);
   }
-  .login-container {
-    box-shadow: var(--mat-sys-level1);
+  .box {
+    box-shadow: var(--mat-sys-level2);
+    background-color: var(--mat-sys-surface);
   }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -35,7 +35,7 @@ export class ReportCacheService {
     segments: {
       label: 'Segmentos',
       link: 'home/reports/segments',
-      description: 'Total de tramites por segmento',
+      description: 'Total de tramites agrupado segmento',
     },
     unlink: {
       label: 'Desvinculacion',

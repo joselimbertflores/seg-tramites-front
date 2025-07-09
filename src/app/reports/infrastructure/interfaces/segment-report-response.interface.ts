@@ -1,32 +1,30 @@
-import { procedureState } from "../../../procedures/domain";
+import { procedureState } from '../../../procedures/domain';
 
 export interface totalProcedureBySegmentResponse {
-  institutionId: string;
   segments: Segment[];
-  globalTotals: Totals;
+  globalTotals: GlobalTotals;
 }
 
-export interface Totals {
+interface Totals {
   pending: number;
   completed: number;
 }
 
-export interface Segment {
+interface GlobalTotals {
+  totalPending: number;
+  totalCompleted: number;
+  total: number;
+}
+
+interface Segment {
   breakdown: Breakdown[];
   total: number;
   totals: Totals;
   prefix: string;
 }
 
-export interface Breakdown {
+interface Breakdown {
   state: procedureState;
-  status: Status;
+  status: 'completed' | 'pending';
   count: number;
-}
-
-
-
-export enum Status {
-  Completed = 'completed',
-  Pending = 'pending',
 }

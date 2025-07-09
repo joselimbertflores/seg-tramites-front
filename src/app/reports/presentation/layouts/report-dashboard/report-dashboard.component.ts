@@ -13,7 +13,6 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
-import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { filter, tap } from 'rxjs';
 
@@ -26,7 +25,6 @@ import { ReportCacheService } from '../../services';
     RouterModule,
     CommonModule,
     MatIconModule,
-    MatListModule,
     MatButtonModule,
     MatToolbarModule,
     MatTooltipModule,
@@ -54,14 +52,12 @@ export default class ReportDashboardComponent implements OnInit {
   private bottomSheet = inject(MatBottomSheet);
   private reportCacheService = inject(ReportCacheService);
 
-
   ngOnInit(): void {
     this.listenReportRoutes();
   }
 
   openBottomSheet(): void {
     this.bottomSheet.open(ReportListComponent, {
-      hasBackdrop: true,
       autoFocus: false,
     });
   }
@@ -69,13 +65,13 @@ export default class ReportDashboardComponent implements OnInit {
   private listenReportRoutes() {
     this.router.events
       .pipe(
-        tap((eve) => console.log(eve)),
         filter(
           (event): event is NavigationEnd => event instanceof NavigationEnd
         ),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe((event) => {
+        console.log(event);
         const url = event.urlAfterRedirects;
         this.reportCacheService.setLastReportPath(url);
       });

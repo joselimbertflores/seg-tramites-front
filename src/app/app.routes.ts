@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { inject } from '@angular/core';
 
 import {
   isAuthenticatedGuard,
@@ -12,7 +13,6 @@ import { InfoComponent } from './layout/presentation/pages/info/info.component';
 import { accountGuard } from './administration/presentation/guards/account.guard';
 import { permissionGuard } from './auth/presentation/guards';
 import { reportPermissionGuard } from './reports/presentation/guards/report-permission.guard';
-import { inject } from '@angular/core';
 import { ReportCacheService } from './reports/presentation/services';
 
 export const routes: Routes = [
@@ -20,8 +20,7 @@ export const routes: Routes = [
     path: 'login',
     title: 'Autentificacion',
     canActivate: [isNotAuthenticatedGuard],
-    loadComponent: () =>
-      import('./auth/presentation/pages/login/login.component'),
+    loadComponent: () => import('./auth/presentation/pages/login/login.component'),
   },
   {
     path: 'home',
