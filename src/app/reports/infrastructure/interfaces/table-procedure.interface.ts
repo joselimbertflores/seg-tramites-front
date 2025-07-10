@@ -7,6 +7,6 @@ export interface tableProcedureData {
   id: string;
   group: string;
   code: string;
-  reference: string;
+  reference:string
   [key: string]: string | number;
 }

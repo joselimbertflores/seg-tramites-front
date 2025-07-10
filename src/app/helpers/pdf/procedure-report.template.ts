@@ -13,7 +13,7 @@ interface column {
   width?: 'auto' | '*' | number;
 }
 export class ProcedureReportTemplate {
-  static async reportTable(data: tableProps): Promise<TDocumentDefinitions> {
+  static async reportTable(data: tableProps, userName?:string): Promise<TDocumentDefinitions> {
     const { title, dataSource, displayColumns, parameters } = data;
 
     const rightImage = await imageToBase64('images/institution/alcaldia.jpeg');
@@ -52,7 +52,7 @@ export class ProcedureReportTemplate {
           columns: [
             {
               stack: [
-                { text: 'Generado por Juan Perez' },
+                { text: `Generado por: ${userName ?? "Desconocido"}` },
                 { text: `Fecha: ${new Date().toLocaleString()}` },
               ],
               alignment: 'left',

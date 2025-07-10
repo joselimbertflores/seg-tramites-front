@@ -1,6 +1,6 @@
 <div class="p-2 sm:p-4">
-  <div class="flex flex-col gap-y-6">
-    <mat-accordion>
+  <mat-accordion>
+    <form [formGroup]="filterForm()" (ngSubmit)="generate()">
       <mat-expansion-panel expanded="true">
         <mat-expansion-panel-header>
           <mat-panel-title>PROPIEDADES TRAMITE</mat-panel-title>
@@ -17,8 +17,8 @@
             </mat-button-toggle-group>
           </div>
         </div>
-        <form [formGroup]="form()">
-          @if(isAdvancedMode()){
+
+        @if(isAdvancedMode()){
           <div class="grid grid-cols-1 sm:grid-cols-4 gap-x-4">
             <mat-form-field>
               <mat-label>Grupo</mat-label>
@@ -50,10 +50,7 @@
             <div>
               <mat-form-field>
                 <mat-label>Rango de registro</mat-label>
-                <mat-date-range-input
-                  [rangePicker]="picker"
-                  [min]="CURRENT_DATE"
-                >
+                <mat-date-range-input [rangePicker]="picker" [min]="CURRENT_DATE">
                   <input
                     matStartDate
                     formControlName="start"
@@ -83,82 +80,82 @@
               </mat-form-field>
             </div>
           </div>
-          } @else {
-          <div class="grid grid-cols-1 sm:grid-cols-4 gap-x-2">
-            <div>
-              <mat-form-field>
-                <mat-label>Grupo</mat-label>
-                <mat-select formControlName="group">
-                  @for (item of GROUPS; track $index) {
-                  <mat-option [value]="item.value">
-                    {{ item.label }}
-                  </mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-            </div>
-            <div>
-              <mat-form-field>
-                <mat-label>Codigo</mat-label>
-                <input matInput formControlName="code" />
-              </mat-form-field>
-            </div>
-            <div class="sm:col-span-2">
-              <mat-form-field>
-                <mat-label>Referencia</mat-label>
-                <textarea
-                  matInput
-                  placeholder="Descripcion del tramite"
-                  formControlName="reference"
-                ></textarea>
-              </mat-form-field>
-            </div>
+        } @else {
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-x-2">
+          <div>
+            <mat-form-field>
+              <mat-label>Grupo</mat-label>
+              <mat-select formControlName="group">
+                @for (item of GROUPS; track $index) {
+                <mat-option [value]="item.value">
+                  {{ item.label }}
+                </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
           </div>
-          }
-        </form>
+          <div>
+            <mat-form-field>
+              <mat-label>Codigo</mat-label>
+              <input matInput formControlName="code" />
+            </mat-form-field>
+          </div>
+          <div class="sm:col-span-2">
+            <mat-form-field>
+              <mat-label>Referencia</mat-label>
+              <textarea
+                matInput
+                placeholder="Descripcion del tramite"
+                formControlName="reference"
+              ></textarea>
+            </mat-form-field>
+          </div>
+        </div>
+        }
 
         <mat-action-row>
-          <button mat-icon-button [disabled]="!hasSearched()" (click)="print()">
+          <button
+            type="button"
+            mat-icon-button
+            (click)="print()"
+          >
             <mat-icon>print</mat-icon>
           </button>
-          <button mat-button (click)="clear()">Limpiar</button>
-          <button mat-button [disabled]="!isFormValid" (click)="getData()">
+          <button type="button" mat-button (click)="clear()">Limpiar</button>
+          <button
+            type="submit"
+            matButton="filled"
+            [disabled]="!isFormValid"
+            (click)="generate()"
+          >
             Buscar
           </button>
         </mat-action-row>
       </mat-expansion-panel>
-    </mat-accordion>
+    </form>
+  </mat-accordion>
 
-    <p class="text-xl tracking-wide">Resultados</p>
-
-    <div>
-      @if (isLoading()){
-      <div class="px-6 py-2">
-        <mat-progress-bar mode="indeterminate" />
-      </div>
-      } @if (!isLoading() && !hasSearched()){
-      <div class="py-4 italic">
-        "Seleccione un grupo de tramite e ingrese alguno de los otros campos
-        para realizar la busqueda"
-      </div>
-      } @if(!isLoading() && hasSearched() && datasource().length > 0){
-      <report-procedure-table [data]="datasource()" [columns]="COLUMNS" />
-      @if (limit() < datasize()){
-      <mat-paginator
-        showFirstLastButtons
-        [pageSizeOptions]="[10, 20, 30, 50]"
-        [pageSize]="limit()"
-        [pageIndex]="index()"
-        [length]="datasize()"
-        (page)="onPageChange($event)"
-      />
-      } } @if(!isLoading() && hasSearched() && datasource().length === 0){
-      <alert-message
-        title="Sin resultados"
-        message="Revise los parametros ingresados"
-        severity="warning"
-      />
-      }
+  @if (isLoading()){
+    <div class="flex flex-col gap-y-1">
+      <p class="text-xl">Generando reporte....</p>
+      <mat-progress-bar mode="indeterminate" />
     </div>
-  </div>
+  } 
+
+  @if(!isLoading() && hasSearched() && datasource().length > 0){
+    <report-procedure-table [data]="datasource()" [columns]="COLUMNS" />
+    <mat-paginator
+      showFirstLastButtons
+      [pageSizeOptions]="[10, 20, 30, 50]"
+      [pageSize]="limit()"
+      [pageIndex]="index()"
+      [length]="datasize()"
+      (page)="onPageChange($event)"
+    />
+  } 
+  @if(!isLoading() && hasSearched() && datasource().length === 0){
+    <div class="text-center p-8 text-lg">
+      No se encontraron resultados para los filtros seleccionados.
+    </div>
+  }
 </div>

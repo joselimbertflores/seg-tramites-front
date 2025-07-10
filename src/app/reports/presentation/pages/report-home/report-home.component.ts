@@ -33,6 +33,10 @@ import { ReportListComponent } from '../../components';
 export default class ReportHomeComponent {
   private bottomSheet = inject(MatBottomSheet);
 
+  constructor() {
+    console.log('HOME LOGIN COMPONENT');
+  }
+
   open() {
     this.bottomSheet.open(ReportListComponent);
   }

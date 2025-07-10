@@ -1,0 +1,74 @@
+<div class="p-4 space-y-6">
+  <mat-accordion>
+    <mat-expansion-panel expanded="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title>PROPIEDADES FILTRO </mat-panel-title>
+      </mat-expansion-panel-header>
+      <form [formGroup]="filterForm">
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+          <div>
+            <mat-form-field appearance="outline">
+              <mat-label>Seleccione un rango</mat-label>
+              <mat-date-range-input [rangePicker]="picker" [max]="CURRENT_DATE">
+                <input
+                  matStartDate
+                  placeholder="Fecha inicio"
+                  formControlName="startDate"
+                />
+                <input
+                  matEndDate
+                  placeholder="Fecha fin"
+                  formControlName="endDate"
+                />
+              </mat-date-range-input>
+              <mat-datepicker-toggle
+                matIconSuffix
+                [for]="picker"
+              ></mat-datepicker-toggle>
+              <mat-date-range-picker #picker></mat-date-range-picker>
+            </mat-form-field>
+          </div>
+          <div>
+            <mat-form-field>
+              <mat-label>Codigo</mat-label>
+              <input matInput formControlName="term" />
+            </mat-form-field>
+          </div>
+        </div>
+      </form>
+      <mat-action-row>
+        <button mat-icon-button (click)="print()">
+          <mat-icon>print</mat-icon>
+        </button>
+        <button mat-button (click)="clear()">Limpiar</button>
+        <button
+          matButton="filled"
+          (click)="generate()"
+          [disabled]="isLoading()||filterForm.invalid"
+        >
+          Buscar
+        </button>
+      </mat-action-row>
+    </mat-expansion-panel>
+  </mat-accordion>
+
+  @if(!isLoading() && dataSource().length > 0){
+    <report-procedure-table [data]="dataSource()" [columns]="COLUMNS" />
+    @if (limit() < dataSize()){
+      <mat-paginator
+        showFirstLastButtons
+        [pageSizeOptions]="[10, 20, 30, 50]"
+        [pageSize]="limit()"
+        [pageIndex]="index()"
+        [length]="dataSize()"
+        (page)="onPageChange($event)"
+      />
+    } 
+  } 
+  
+ @if(!isLoading() && hasSearched() && dataSource().length === 0){
+    <div class="text-center p-8 text-lg">
+        No se encontraron resultados para los filtros seleccionados.
+    </div>
+ }
+</div>

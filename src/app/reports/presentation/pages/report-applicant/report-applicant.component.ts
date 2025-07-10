@@ -1,18 +1,18 @@
 import { CommonModule } from '@angular/common';
 import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  computed,
   inject,
   signal,
+  computed,
+  Component,
+  DestroyRef,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import {
-  FormBuilder,
   FormGroup,
+  Validators,
+  FormBuilder,
   FormsModule,
   ReactiveFormsModule,
-  Validators,
 } from '@angular/forms';
 
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -25,26 +25,24 @@ import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatIconModule } from '@angular/material/icon';
 
-
 import {
-  AlertMessageComponent,
-  SelectSearchComponent,
-  CacheService,
   PdfService,
   selectOption,
+  SelectSearchComponent,
 } from '../../../../shared';
-import { ProcedureReportService } from '../../services/procedure-report.service';
+
 import {
   tableProcedureColums,
   tableProcedureData,
 } from '../../../infrastructure';
+import { ProcedureReportService, ReportCacheService } from '../../services';
 import { ReportProcedureTableComponent } from '../../components';
 
 type validReportType = 'applicant' | 'representative';
 type typeApplicant = 'NATURAL' | 'JURIDICO';
 
 interface cache {
-  form: Object;
+  form: object;
   typeSearch: validReportType;
   typeApplicant: typeApplicant;
   datasource: tableProcedureData[];
@@ -66,7 +64,6 @@ interface typeProcedureOption {
   imports: [
     CommonModule,
     FormsModule,
-    AlertMessageComponent,
     MatProgressBarModule,
     ReactiveFormsModule,
     MatPaginatorModule,
@@ -85,13 +82,13 @@ interface typeProcedureOption {
 })
 export default class ReportApplicantComponent {
   private formBuilder = inject(FormBuilder);
-  private cacheService: CacheService<cache> = inject(CacheService);
+  private cacheService: ReportCacheService<cache> = inject(ReportCacheService);
   private reportService = inject(ProcedureReportService);
   private pdfService = inject(PdfService);
 
-  public typeSearch = signal<validReportType>('applicant');
-  public typeApplicant = signal<typeApplicant>('NATURAL');
-  public formApplicant = computed<FormGroup>(() => {
+  typeSearch = signal<validReportType>('applicant');
+  typeApplicant = signal<typeApplicant>('NATURAL');
+  formApplicant = computed<FormGroup>(() => {
     if (this.typeSearch() === 'representative') {
       return this.formByApplicatNatural();
     }
@@ -102,7 +99,7 @@ export default class ReportApplicantComponent {
 
   private readonly KEY_CACHE = 'report-applicant';
 
-  typeProcedures = signal<selectOption<typeProcedureOption>[]>([]);
+  typesProcedures = signal<selectOption<typeProcedureOption>[]>([]);
   selectedTypeProcedure = signal<typeProcedureOption | null>(null);
 
   datasource = signal<tableProcedureData[]>([]);
@@ -114,19 +111,20 @@ export default class ReportApplicantComponent {
   hasSearched = signal(false);
 
   readonly COLUMNS: tableProcedureColums[] = [
-    { columnDef: 'group', header: 'Grupo' },
-    { columnDef: 'code', header: 'Codigo' },
+    { columnDef: 'code', header: 'Codigo', width: 80 },
     { columnDef: 'reference', header: 'Referencia', width: '*' },
-    { columnDef: 'person', header: 'Solicitante' },
-    { columnDef: 'state', header: 'Estado' },
-    { columnDef: 'createdAt', header: 'Fecha' },
+    { columnDef: 'firstname', header: 'Nombre' },
+    { columnDef: 'lastname', header: 'Apellido Paterno' },
+    { columnDef: 'middlename', header: 'Apellido Materno' },
+    { columnDef: 'state', header: 'Estado', width:60 },
+    { columnDef: 'createdAt', header: 'Fecha', width:70 },
   ] as const;
 
   readonly LABELS_MAP = {
     firstname: 'Nombre',
     middlename: 'Apellido Paterno',
     lastname: 'Apellido Materno',
-    dni: 'Dni',
+    dni: 'Numero de CI.',
     phone: 'Telefono',
   } as const;
 
@@ -176,7 +174,7 @@ export default class ReportApplicantComponent {
   clear() {
     this.formApplicant().reset({});
     this.selectedTypeProcedure.set(null);
-    this.typeProcedures.set([]);
+    this.typesProcedures.set([]);
   }
 
   changeTypeSearch(type: validReportType) {
@@ -187,39 +185,38 @@ export default class ReportApplicantComponent {
   }
 
   print() {
-    this.pdfService.tableSheet({
-      title: 'Reporte Solicitante',
-      dataSource: this.datasource().map((item) => ({
-        ...item,
-        group: 'Externo',
-      })),
-      displayColumns: this.COLUMNS,
-      filterParams: {
-        params: {
-          'Tipo de tramite': this.selectedTypeProcedure()?.name,
-          'Busqueda por':
-            this.typeSearch() === 'applicant' ? 'Solicitante' : 'Representante',
-          'Tipo de solicitante': this.typeApplicant(),
-          ...this.formApplicant().value,
+    this.pdfService
+      .tableSheet({
+        title: 'Reporte Solicitante',
+        dataSource: this.datasource(),
+        displayColumns: this.COLUMNS,
+        filterParams: {
+          params: {
+            'Tipo de tramite': this.selectedTypeProcedure()?.name,
+            'Busqueda por':
+              this.typeSearch() === 'applicant'
+                ? 'Solicitante'
+                : 'Representante',
+            'Tipo de solicitante': this.typeApplicant(),
+            ...this.formApplicant().value,
+          },
+          labelsMap: this.LABELS_MAP,
         },
-        labelsMap: this.LABELS_MAP,
-      },
-    });
+      })
+      .subscribe((pdf) => {
+        pdf.open();
+      });
   }
 
   searchTypesProcedure(term: string) {
     this.reportService.getTypeProcedures(term).subscribe((values) => {
-      this.typeProcedures.set(
+      this.typesProcedures.set(
         values.map(({ label, value }) => ({
           label: label,
           value: { id: value, name: label },
         }))
       );
     });
-  }
-
-  selectTypeProcedure(option: typeProcedureOption | null) {
-    this.selectedTypeProcedure.set(option);
   }
 
   onPageChange({ pageIndex, pageSize }: PageEvent) {
@@ -259,27 +256,29 @@ export default class ReportApplicantComponent {
       typeApplicant: this.typeApplicant(),
       datasource: this.datasource(),
       datasize: this.datasize(),
-      typeProcedures: this.typeProcedures(),
+      typeProcedures: this.typesProcedures(),
       selectedTypeProcedure: this.selectedTypeProcedure(),
       limit: this.limit(),
-      index: this.offset(),
+      index: this.index(),
       hasSearched: this.hasSearched(),
     };
-    this.cacheService.save(this.KEY_CACHE, cache);
+    this.cacheService.saveCache(this.KEY_CACHE, cache);
   }
 
   private loadCache(): void {
-    const cache = this.cacheService.load(this.KEY_CACHE);
+    const cache = this.cacheService.loadCache(this.KEY_CACHE);
     if (!cache) return;
     this.datasource.set(cache.datasource);
     this.datasize.set(cache.datasize);
-    this.typeApplicant.set(cache.typeApplicant);
-    this.typeSearch.set(cache.typeSearch);
-    this.formApplicant().patchValue(cache.form);
     this.limit.set(cache.limit);
     this.index.set(cache.index);
-    this.typeProcedures.set(cache.typeProcedures);
     this.hasSearched.set(cache.hasSearched);
+    this.typesProcedures.set(cache.typeProcedures);
     this.selectedTypeProcedure.set(cache.selectedTypeProcedure);
+
+    // * Set config form by computed signal before patchValue
+    this.typeSearch.set(cache.typeSearch);
+    this.typeApplicant.set(cache.typeApplicant);
+    this.formApplicant().patchValue(cache.form);
   }
 }

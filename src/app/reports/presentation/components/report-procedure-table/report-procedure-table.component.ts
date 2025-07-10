@@ -41,7 +41,7 @@ import { procedureGroup } from '../../../../procedures/domain';
             @case ("code") {
               <td mat-cell *matCellDef="let element" class="sm:w-52">
                 <a
-                  [routerLink]="['/home/reports', element.group, element.id]"
+                  [routerLink]="['/home/reports/detail', element.group, element.id]"
                   class="text-blue-500"
                 >
                   {{ element['code'] }}
@@ -53,11 +53,11 @@ import { procedureGroup } from '../../../../procedures/domain';
                 <p class="truncate">{{ element['reference'] }}</p>
               </td>
             } 
-            @case ("createdAt") {
-              <td mat-cell *matCellDef="let element" class="sm:w-32">
+            <!-- @case ("createdAt") {
+              <td mat-cell *matCellDef="let element" class="sm:w-36">
                 {{ element['createdAt'] | date : 'short' : '-400' }}
               </td>
-            } 
+            }  -->
             @default {
               <td mat-cell *matCellDef="let element">
                 {{ element[item.columnDef] }}

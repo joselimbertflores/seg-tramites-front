@@ -14,7 +14,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { filter, tap } from 'rxjs';
+import { filter } from 'rxjs';
 
 import { ReportListComponent } from '../../components';
 import { ReportCacheService } from '../../services';
@@ -71,9 +71,9 @@ export default class ReportDashboardComponent implements OnInit {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe((event) => {
-        console.log(event);
         const url = event.urlAfterRedirects;
-        this.reportCacheService.setLastReportPath(url);
+        if (url.includes('/detail') || url.endsWith('/home')) return;
+        this.reportCacheService.lastReportPath.set(url);
       });
   }
 }

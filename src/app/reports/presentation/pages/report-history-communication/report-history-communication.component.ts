@@ -5,7 +5,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -20,10 +20,18 @@ import {
   tableProcedureData,
   tableProcedureColums,
 } from '../../../infrastructure';
+import { CommunicationReportService, ReportCacheService } from '../../services';
 import { ReportProcedureTableComponent } from '../../components';
-import { CommunicationReportService } from '../../services';
 import { PdfService } from '../../../../shared';
 
+interface cache {
+  dataSource: tableProcedureData[];
+  form: object;
+  limit: number;
+  index: number;
+  dataSize: number;
+  hasSearched:boolean
+}
 @Component({
   selector: 'app-report-history-communication',
   imports: [
@@ -37,81 +45,13 @@ import { PdfService } from '../../../../shared';
     MatPaginatorModule,
     ReportProcedureTableComponent,
   ],
-  template: `
-    <div class="p-4 space-y-6">
-      <mat-accordion>
-        <mat-expansion-panel expanded="true">
-          <mat-expansion-panel-header>
-            <mat-panel-title>PROPIEDADES FILTRO </mat-panel-title>
-          </mat-expansion-panel-header>
-
-          <form [formGroup]="filterForm">
-            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
-              <div>
-                <mat-form-field appearance="outline">
-                  <mat-label>Seleccione un rango</mat-label>
-                  <mat-date-range-input [rangePicker]="picker">
-                    <input
-                      matStartDate
-                      placeholder="Fecha inicio"
-                      formControlName="startDate"
-                    />
-                    <input
-                      matEndDate
-                      placeholder="Fecha fin"
-                      formControlName="endDate"
-                    />
-                  </mat-date-range-input>
-                  <mat-datepicker-toggle
-                    matIconSuffix
-                    [for]="picker"
-                  ></mat-datepicker-toggle>
-                  <mat-date-range-picker #picker></mat-date-range-picker>
-                </mat-form-field>
-              </div>
-              <div>
-                <mat-form-field>
-                  <mat-label>Codigo</mat-label>
-                  <input matInput formControlName="term" />
-                </mat-form-field>
-              </div>
-            </div>
-          </form>
-          <mat-action-row>
-            <button mat-icon-button (click)="print()">
-              <mat-icon>print</mat-icon>
-            </button>
-            <button mat-button (click)="clear()">Limpiar</button>
-            <button matButton="filled" (click)="generate()" [disabled]="isLoading()">Buscar</button>
-          </mat-action-row>
-        </mat-expansion-panel>
-      </mat-accordion>
-
-      @if(!isLoading() && dataSource().length > 0){
-        <report-procedure-table [data]="dataSource()" [columns]="COLUMNS" />
-        @if (limit() < dataSize()){
-          <mat-paginator
-            showFirstLastButtons
-            [pageSizeOptions]="[10, 20, 30, 50]"
-            [pageSize]="limit()"
-            [pageIndex]="index()"
-            [length]="dataSize()"
-            (page)="onPageChange($event)"
-          />
-        } 
-      } 
-      @if(!isLoading() && hasSearched() && dataSource().length === 0){
-        <div class="text-center p-8 text-lg">
-          No se encontraron resultados para los filtros seleccionados.
-        </div>
-      }
-    </div>
-  `,
+  templateUrl:"./report-history-communication.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [provideNativeDateAdapter()],
 })
 export default class ReportHistoryCommunicationComponent {
   private reportService = inject(CommunicationReportService);
+  private cacheService: ReportCacheService<cache> = inject(ReportCacheService);
   private pdfService = inject(PdfService);
 
   readonly CURRENT_DATE = new Date();
@@ -125,8 +65,8 @@ export default class ReportHistoryCommunicationComponent {
 
   filterForm: FormGroup = inject(FormBuilder).group({
     term: [''],
-    startDate: [null],
-    endDate: [this.CURRENT_DATE],
+    startDate: [null, Validators.required],
+    endDate: [this.CURRENT_DATE, Validators.required],
   });
 
   isLoading = signal<boolean>(false);
@@ -136,6 +76,10 @@ export default class ReportHistoryCommunicationComponent {
   offset = computed(() => this.limit() * this.index());
   dataSource = signal<tableProcedureData[]>([]);
   dataSize = signal(0);
+
+  constructor() {
+    this.loadCache()
+  }
 
   getData() {
     this.isLoading.set(true);
@@ -150,6 +94,15 @@ export default class ReportHistoryCommunicationComponent {
       .subscribe(({ data, length }) => {
         this.dataSource.set(data);
         this.dataSize.set(length);
+
+        this.cacheService.cache['report-history'] = {
+          dataSource: data,
+          form: this.filterForm.value,
+          limit: this.limit(),
+          index: this.index(),
+          hasSearched:this.hasSearched(),
+          dataSize: length,
+        };
       });
   }
 
@@ -172,7 +125,10 @@ export default class ReportHistoryCommunicationComponent {
     this.pdfService
       .tableSheet({
         title: 'Reporte: Historial de Envios',
-        dataSource: this.dataSource().map(({group,...props})=> ({...props, group:this.translateProcedureGroup(group)})),
+        dataSource: this.dataSource().map(({ group, ...props }) => ({
+          ...props,
+          group: this.translateProcedureGroup(group),
+        })),
         displayColumns: this.COLUMNS,
       })
       .subscribe((pdf) => {
@@ -180,7 +136,7 @@ export default class ReportHistoryCommunicationComponent {
       });
   }
 
-   private translateProcedureGroup(group: string) {
+  private translateProcedureGroup(group: string) {
     switch (group) {
       case 'ExternalProcedure':
         return 'Externo';
@@ -191,5 +147,16 @@ export default class ReportHistoryCommunicationComponent {
       default:
         return 'Sin definir';
     }
+  }
+
+  private loadCache() {
+    const cache = this.cacheService.cache['report-history'];
+    if (!cache) return;
+    this.filterForm.patchValue(cache.form)
+    this.dataSource.set(cache.dataSource);
+    this.dataSize.set(cache.dataSize);
+    this.limit.set(cache.limit);
+    this.index.set(cache.index);
+    this.hasSearched.set(cache.hasSearched)
   }
 }

@@ -51,29 +51,40 @@ export class ProcedureReportService {
       );
   }
 
-  searchProcedureByProperties(limit: number, offset: number, form: Object) {
+  searchProcedureByProperties(
+    limit: number,
+    offset: number,
+    form: Object
+  ): Observable<{ procedures: tableProcedureData[]; length: number }> {
     const params = new HttpParams({ fromObject: { limit, offset } });
     const properties = this.removeEmptyValuesFromObject(form);
     return this.http
       .post<{ procedures: procedureResponse[]; length: number }>(
-        `${this.url}/procedure`,
+        `${this.url}/search`,
         properties,
         { params, context: skipUploadIndicator() }
       )
       .pipe(
         map(({ procedures, length }) => ({
-          procedures: this.responseToProcedureTableData(procedures),
+          procedures: procedures.map((item) => ({
+            id: item._id,
+            group: item.group,
+            code: item.code,
+            reference: item.reference,
+            state: item.state,
+            createdAt: this.formatDate(item.createdAt),
+          })),
           length,
         }))
       );
   }
 
   searchProcedureByApplicant({
+    by,
     limit,
     offset,
-    typeProcedure,
-    by,
     form,
+    typeProcedure,
   }: searchApplicantProps): Observable<{
     procedures: tableProcedureData[];
     length: number;
@@ -87,9 +98,19 @@ export class ProcedureReportService {
         { params }
       )
       .pipe(
-        map((resp) => ({
-          procedures: this.responseToProcedureTableData(resp.procedures),
-          length: resp.length,
+        map(({ procedures, length }) => ({
+          procedures: procedures.map((item) => ({
+            id: item._id,
+            code: item.code,
+            group: item.group,
+            state:item.state,
+            reference: item.reference,
+            firstname: item.applicant.firstname,
+            lastname: item.applicant.lastname,
+            middlename: item.applicant.middlename,
+            createdAt: this.formatDate(item.createdAt),
+          })),
+          length,
         }))
       );
   }
@@ -108,38 +129,14 @@ export class ProcedureReportService {
     );
   }
 
-  private responseToProcedureTableData(
-    items: procedureResponse[]
-  ): tableProcedureData[] {
-    return items.map((item) => {
-      let person: string = '';
-      switch (item.group) {
-        case procedureGroup.External:
-          const { applicant } = item as external;
-          person = [
-            applicant.firstname,
-            applicant.lastname,
-            applicant.middlename,
-          ]
-            .filter((value) => value)
-            .join(' ');
-          break;
-        case procedureGroup.Internal:
-          const { sender } = item as internal;
-          person = sender.fullname;
-          break;
-        default:
-          break;
-      }
-      return {
-        id: item._id,
-        group: item.group,
-        state: item.state,
-        reference: item.reference,
-        createdAt: new Date(item.createdAt).toLocaleString(),
-        code: item.code,
-        person,
-      };
+  private formatDate(date: string) {
+    return new Date(date).toLocaleString('es-ES', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
     });
   }
 }

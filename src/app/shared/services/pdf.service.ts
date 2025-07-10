@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 
 import { Observable } from 'rxjs';
 
@@ -10,9 +10,10 @@ import {
   ProcedureReportTemplate,
   RouteSheetBuilder,
 } from '../../helpers';
+import { AuthService } from '../../auth/presentation/services/auth.service';
+import { unlinkDataResponse } from '../../reports/infrastructure';
 import { workflow } from '../../communications/infrastructure';
 import { Procedure } from '../../procedures/domain';
-import { unlinkDataResponse } from '../../reports/infrastructure';
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
@@ -39,6 +40,7 @@ interface displayColumns {
   providedIn: 'root',
 })
 export class PdfService {
+  private readonly userName=inject(AuthService).user()?.fullname
   routeSheet(procedure: Procedure, workflow: workflow[], isOriginal: boolean) {
     return new Observable<Blob>((observer) => {
       RouteSheetBuilder.build(procedure, workflow, isOriginal)
@@ -54,14 +56,14 @@ export class PdfService {
     });
   }
 
-  tableSheet({ filterParams, ...props }: tableReportShetProps) {
+  tableSheet({ filterParams, ...sheetProps }: tableReportShetProps) {
     return new Observable<pdfMake.TCreatedPdf>((observer) => {
       ProcedureReportTemplate.reportTable({
-        ...props,
-        ...(filterParams && {
-          parameters: this.filtreAndTranslateParams(filterParams),
-        }),
-      })
+        ...sheetProps,
+        parameters: filterParams
+          ? this.filtreAndTranslateParams(filterParams)
+          : {},
+      }, this.userName)
         .then((docDefinition) => {
           const pdf = pdfMake.createPdf(docDefinition);
           observer.next(pdf);
@@ -87,18 +89,14 @@ export class PdfService {
     });
   }
 
-  private filtreAndTranslateParams(params: filterParams) {
-    const { labelsMap, valuesMap } = params;
+  private filtreAndTranslateParams(filterParams: filterParams) {
+    const { params, labelsMap = {}, valuesMap = {} } = filterParams;
     return Object.entries(params)
-      .filter((item) => item[1])
+      .filter((property) => property[1])
       .reduce((acc, [key, value]) => {
-        const label = labelsMap ? labelsMap[key] ?? key : key;
-        const translated =
-          valuesMap?.[key]?.[value] ?? this.toValueString(value);
-        return {
-          ...acc,
-          [label]: translated,
-        };
+        const label = labelsMap[key] ?? key;
+        const translated = valuesMap[key]?.[value] ?? this.toValueString(value);
+        return { ...acc, [label]: translated };
       }, {});
   }
 

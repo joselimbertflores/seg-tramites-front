@@ -1,11 +1,8 @@
 import { Routes } from '@angular/router';
-import { inject } from '@angular/core';
 
 import {
   isAuthenticatedGuard,
   isNotAuthenticatedGuard,
-  roleGuard,
-  updatedPasswordGuard,
 } from './presentation/guards';
 import { ClientsComponent } from './presentation/pages/groupware/clients/clients.component';
 
@@ -13,14 +10,15 @@ import { InfoComponent } from './layout/presentation/pages/info/info.component';
 import { accountGuard } from './administration/presentation/guards/account.guard';
 import { permissionGuard } from './auth/presentation/guards';
 import { reportPermissionGuard } from './reports/presentation/guards/report-permission.guard';
-import { ReportCacheService } from './reports/presentation/services';
+import { reportsRedirectGuard } from './reports/presentation/guards/reports-redirect.guard';
 
 export const routes: Routes = [
   {
     path: 'login',
     title: 'Autentificacion',
     canActivate: [isNotAuthenticatedGuard],
-    loadComponent: () => import('./auth/presentation/pages/login/login.component'),
+    loadComponent: () =>
+      import('./auth/presentation/pages/login/login.component'),
   },
   {
     path: 'home',
@@ -178,89 +176,57 @@ export const routes: Routes = [
       },
       {
         path: 'reports',
+        title: "Reportes",
         canActivate: [permissionGuard],
-        loadComponent: () =>
-          import(
-            './reports/presentation/layouts/report-dashboard/report-dashboard.component'
-          ),
+        loadComponent: () => import('./reports/presentation/layouts/report-dashboard/report-dashboard.component'),
         children: [
           {
-            path: '',
-            pathMatch: 'full',
-            redirectTo: () => {
-              const reportService = inject(ReportCacheService);
-              const lastPath = reportService.getLastReportPath();
-              return lastPath || 'home';
-            },
-          },
-          {
             path: 'home',
-            loadComponent: () =>
-              import(
-                './reports/presentation/pages/report-home/report-home.component'
-              ),
+            canActivate: [reportsRedirectGuard],
+            loadComponent: () => import('./reports/presentation/pages/report-home/report-home.component'),
           },
           {
             path: 'applicant',
             data: { action: 'applicant' },
             canActivate: [reportPermissionGuard],
-            loadComponent: () =>
-              import(
-                './reports/presentation/pages/report-applicant/report-applicant.component'
-              ),
+            loadComponent: () => import('./reports/presentation/pages/report-applicant/report-applicant.component'),
           },
           {
             path: 'search',
             data: { action: 'search' },
             canActivate: [reportPermissionGuard],
-            loadComponent: () =>
-              import(
-                './reports/presentation/pages/report-search/report-search.component'
-              ),
+            loadComponent: () => import('./reports/presentation/pages/report-search/report-search.component'),
           },
           {
             path: 'unit',
             data: { action: 'unit' },
             canActivate: [reportPermissionGuard],
-            loadComponent: () =>
-              import(
-                './reports/presentation/pages/report-unit/report-unit.component'
-              ),
+            loadComponent: () => import('./reports/presentation/pages/report-unit/report-unit.component'),
           },
           {
             path: 'segments',
-            // data: { action: 'unit' },
-            // canActivate: [reportPermissionGuard],
-            loadComponent: () =>
-              import(
-                './reports/presentation/pages/report-segments/report-segments.component'
-              ),
+            data: { action: 'segments' },
+            canActivate: [reportPermissionGuard],
+            loadComponent: () => import('./reports/presentation/pages/report-segments/report-segments.component'),
           },
           {
             path: 'history',
-            // data: { action: 'unit' },
-            // canActivate: [reportPermissionGuard],
-            loadComponent: () =>
-              import(
-                './reports/presentation/pages/report-history-communication/report-history-communication.component'
-              ),
+            data: { action: 'history' },
+            canActivate: [reportPermissionGuard],  
+            loadComponent: () => import( './reports/presentation/pages/report-history-communication/report-history-communication.component'),
           },
           {
             path: 'unlink',
-            // data: { action: 'unit' },
-            // canActivate: [reportPermissionGuard],
-            loadComponent: () =>
-              import(
-                './reports/presentation/pages/report-unlink/report-unlink.component'
-              ),
+            data: { action: 'unit' },
+            canActivate: [reportPermissionGuard],
+            loadComponent: () => import('./reports/presentation/pages/report-unlink/report-unlink.component'),
           },
           {
-            path: ':group/:id',
-            title: 'Detalle',
+            path: 'detail/:group/:id',
             data: { animation: 'slide' },
-            loadComponent: () =>
-              import('./procedures/presentation/pages/detail/detail.component'),
+            loadComponent: () => import('./procedures/presentation/pages/detail/detail.component'),
           },
+          { path: '', redirectTo: 'home', pathMatch: 'full' },
         ],
       },
       {

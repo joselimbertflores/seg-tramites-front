@@ -1,13 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import {
-  FormBuilder,
   FormGroup,
-  ReactiveFormsModule,
   Validators,
+  FormBuilder,
+  ReactiveFormsModule,
 } from '@angular/forms';
-
-import { Router } from '@angular/router';
 
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -21,18 +19,14 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 
-import { ProcedureReportService } from '../../services/procedure-report.service';
 import { procedureGroup, procedureState } from '../../../../procedures/domain';
 import { ReportProcedureTableComponent } from '../../components';
 import {
   tableProcedureColums,
   tableProcedureData,
 } from '../../../infrastructure';
-import {
-  AlertMessageComponent,
-  CacheService,
-  PdfService,
-} from '../../../../shared';
+import { ProcedureReportService, ReportCacheService } from '../../services';
+import { PdfService } from '../../../../shared';
 
 interface cache {
   datasource: tableProcedureData[];
@@ -59,21 +53,19 @@ interface cache {
     MatDatepickerModule,
     MatProgressBarModule,
     MatButtonToggleModule,
-    AlertMessageComponent,
     ReportProcedureTableComponent,
   ],
   templateUrl: './report-search.component.html',
   providers: [provideNativeDateAdapter()],
 })
 export default class ReportSearchComponent {
-  private fb = inject(FormBuilder);
+  private formBuilder = inject(FormBuilder);
   private reportService = inject(ProcedureReportService);
-  private cacheService: CacheService<cache> = inject(CacheService);
+  private cacheService: ReportCacheService<cache> = inject(ReportCacheService);
   private pdfService = inject(PdfService);
-  private router = inject(Router);
 
   isAdvancedMode = signal<boolean>(false);
-  form = computed<FormGroup>(() =>
+  filterForm = computed<FormGroup>(() =>
     this.isAdvancedMode() ? this.createAdvancedForm() : this.createSimpleForm()
   );
   datasource = signal<tableProcedureData[]>([]);
@@ -112,10 +104,7 @@ export default class ReportSearchComponent {
 
   readonly STATES = Object.values(procedureState).map((value) => value);
 
-  constructor() {}
-
   ngOnInit(): void {
-    console.log('start nbew');
     this.loadCache();
   }
 
@@ -126,13 +115,14 @@ export default class ReportSearchComponent {
       .searchProcedureByProperties(
         this.limit(),
         this.offset(),
-        this.form().value
+        this.filterForm().value
       )
       .subscribe({
         next: (resp) => {
           this.datasource.set(resp.procedures);
           this.datasize.set(resp.length);
           this.isLoading.set(false);
+          this.saveCache();
         },
         error: () => {
           this.isLoading.set(false);
@@ -146,25 +136,25 @@ export default class ReportSearchComponent {
   }
 
   clear() {
-    this.form().reset({});
+    this.filterForm().reset({});
   }
 
   print() {
-    // this.pdfService.procedureListSheet({
-    //   title: 'Reporte busqueda',
-    //   datasource: this.datasource().map(({ group, ...values }) => ({
-    //     group: this.translateProcedureGroup(group),
-    //     ...values,
-    //   })),
-    //   columns: this.COLUMNS,
-    //   filterParams: {
-    //     params: {
-    //       ...this.form().value,
-    //       group: this.GROUP_LABELS[this.form().get('group')?.value],
-    //     },
-    //     labelsMap: this.LABELS_MAP,
-    //   },
-    // });
+    this.pdfService.tableSheet({
+      title: 'Reporte busqueda',
+      dataSource: this.datasource().map(({ group, ...values }) => ({
+        group: this.translateProcedureGroup(group),
+        ...values,
+      })),
+      displayColumns: this.COLUMNS,
+      filterParams: {
+        params: {
+          ...this.filterForm().value,
+          group: this.GROUP_LABELS[this.filterForm().get('group')?.value],
+        },
+        labelsMap: this.LABELS_MAP,
+      },
+    });
   }
 
   selectSearchMode(isAdvancedMode: boolean) {
@@ -179,8 +169,8 @@ export default class ReportSearchComponent {
 
   get isFormValid() {
     return (
-      this.form().valid &&
-      Object.values(this.form().value).filter((value) => value).length >= 2
+      this.filterForm().valid &&
+      Object.values(this.filterForm().value).filter((value) => value).length >= 2
     );
   }
 
@@ -193,7 +183,7 @@ export default class ReportSearchComponent {
 
   private saveCache() {
     const cache: cache = {
-      form: this.form().value,
+      form: this.filterForm().value,
       isAdvancedMode: this.isAdvancedMode(),
       datasource: this.datasource(),
       datasize: this.datasize(),
@@ -201,15 +191,15 @@ export default class ReportSearchComponent {
       limit: this.limit(),
       hasSearched: this.hasSearched(),
     };
-    this.cacheService.save('report-search', cache);
+    this.cacheService.saveCache('report-search', cache);
   }
 
   private loadCache() {
-    const cache = this.cacheService.load('report-search');
+    const cache = this.cacheService.loadCache('report-search');
     if (!cache) return;
     this.isAdvancedMode.set(cache.isAdvancedMode);
     this.datasource.set(cache.datasource);
-    this.form().patchValue(cache.form);
+    this.filterForm().patchValue(cache.form);
     this.datasize.set(cache.datasize);
     this.index.set(cache.index);
     this.limit.set(cache.limit);
@@ -217,7 +207,7 @@ export default class ReportSearchComponent {
   }
 
   private createSimpleForm(): FormGroup {
-    return this.fb.group({
+    return this.formBuilder.group({
       code: ['', Validators.minLength(4)],
       reference: ['', Validators.minLength(6)],
       group: ['', Validators.required],
@@ -225,7 +215,7 @@ export default class ReportSearchComponent {
   }
 
   private createAdvancedForm(): FormGroup {
-    return this.fb.group({
+    return this.formBuilder.group({
       code: ['', Validators.minLength(4)],
       state: [''],
       reference: ['', Validators.minLength(6)],

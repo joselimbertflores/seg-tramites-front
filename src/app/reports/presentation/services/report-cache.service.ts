@@ -1,4 +1,4 @@
-import { computed, inject, Injectable } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 
 import { AuthService } from '../../../auth/presentation/services/auth.service';
 import { validResource } from '../../../auth/infrastructure';
@@ -12,9 +12,12 @@ export interface reportMenu {
 @Injectable({
   providedIn: 'root',
 })
-export class ReportCacheService {
+export class ReportCacheService<T> {
   private authService = inject(AuthService);
-  private lastReportPath: string | null = null;
+
+  lastReportPath = signal<string | null>(null);
+
+  cache: Record<string, T> = {};
 
   private readonly permissionMappings: Record<string, reportMenu> = {
     search: {
@@ -37,6 +40,11 @@ export class ReportCacheService {
       link: 'home/reports/segments',
       description: 'Total de tramites agrupado segmento',
     },
+    history: {
+      label: 'Historial',
+      link: 'home/reports/history',
+      description: 'Listado de envios realizados',
+    },
     unlink: {
       label: 'Desvinculacion',
       description: 'Generacacion del formulario de baja de usuario',
@@ -51,13 +59,11 @@ export class ReportCacheService {
       .filter((item) => !!item);
   });
 
-  constructor() {}
-
-  setLastReportPath(path: string) {
-    this.lastReportPath = path;
+  saveCache(key: string, data: T) {
+    this.cache[key] = data;
   }
 
-  getLastReportPath(): string | null {
-    return this.lastReportPath;
+  loadCache(key: string): T | null {
+    return this.cache[key] ?? null;
   }
 }
