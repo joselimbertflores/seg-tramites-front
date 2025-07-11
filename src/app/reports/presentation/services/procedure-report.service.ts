@@ -11,10 +11,11 @@ import {
 } from '../../../procedures/infrastructure';
 import { typeProcedure } from '../../../administration/infrastructure';
 import {
+  procedureEfficiencyResponse,
   tableProcedureData,
   totalProcedureBySegmentResponse,
 } from '../../infrastructure';
-import { procedureGroup, procedureState } from '../../../procedures/domain';
+import { procedureGroup } from '../../../procedures/domain';
 
 type procedureResponse = external | internal | procurement;
 
@@ -103,7 +104,7 @@ export class ProcedureReportService {
             id: item._id,
             code: item.code,
             group: item.group,
-            state:item.state,
+            state: item.state,
             reference: item.reference,
             firstname: item.applicant.firstname,
             lastname: item.applicant.lastname,
@@ -113,6 +114,10 @@ export class ProcedureReportService {
           length,
         }))
       );
+  }
+
+  getProceduresEfficiency(filterParams: object) {
+    return this.http.post<procedureEfficiencyResponse>(`${this.url}/eficiency`, filterParams);
   }
 
   getTotalBySegments(filterProps: getTotalBySegmentProps) {

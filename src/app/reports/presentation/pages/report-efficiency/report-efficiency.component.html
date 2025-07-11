@@ -1,0 +1,157 @@
+<!-- Contenedor principal -->
+<div class="p-2 sm:p-6 max-w-7xl mx-auto">
+  <form [formGroup]="filterForm">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-4">
+      <div class="sm:col-span-2">
+        <select-search
+          title="Seleccione la institucion"
+          [items]="institutions()"
+          (onSelect)="selectInstitution($event)"
+        />
+      </div>
+      <div>
+        <mat-form-field appearance="outline">
+          <mat-label>Seleccione un rango</mat-label>
+          <mat-date-range-input [rangePicker]="picker" [max]="CURRENT_DATE">
+            <input
+              matStartDate
+              placeholder="Fecha inicio"
+              formControlName="startDate"
+            />
+            <input
+              matEndDate
+              placeholder="Fecha fin"
+              formControlName="endDate"
+            />
+          </mat-date-range-input>
+          <mat-datepicker-toggle matIconSuffix [for]="picker" />
+          <mat-date-range-picker #picker></mat-date-range-picker>
+        </mat-form-field>
+      </div>
+      <div class="sm:col-span-3">
+        <mat-form-field>
+          <mat-label>Tipos de trámite</mat-label>
+          <mat-chip-grid #chipGrid formControlName="types">
+            @for (type of selectedTypes(); track $index) {
+            <mat-chip-row [value]="type.value" (removed)="removeType(type)">
+              {{ type.label | titlecase }}
+              <button matChipRemove>
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </mat-chip-row>
+            }
+          </mat-chip-grid>
+          <input
+            placeholder="Buscar tipo de tramite..."
+            #filterInput
+            [matChipInputFor]="chipGrid"
+            [matAutocomplete]="auto"
+            [formControl]="filterInputTypes"
+          />
+          <mat-autocomplete
+            #auto="matAutocomplete"
+            (optionSelected)="addType($event); filterInput.value = ''"
+          >
+            @for (type of typesProcedures(); track $index) {
+            <mat-option [value]="type">
+              {{ type.label | titlecase }}
+            </mat-option>
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+      </div>
+    </div>
+  </form>
+
+  {{ filterForm.value | json }}
+
+  {{ results() | json }}
+
+  <!-- Botón de búsqueda -->
+  <div class="flex justify-end">
+    <button mat-flat-button color="primary" (click)="generate()">
+      Generar
+    </button>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="min-w-full divide-y-2 divide-gray-200">
+      <thead class="ltr:text-left rtl:text-right">
+        <tr class="*:font-medium *:text-gray-900">
+          <th class="px-3 py-2 whitespace-nowrap">Name</th>
+          <th class="px-3 py-2 whitespace-nowrap">DoB</th>
+          <th class="px-3 py-2 whitespace-nowrap">Role</th>
+          <th class="px-3 py-2 whitespace-nowrap">Salary</th>
+        </tr>
+      </thead>
+
+      <tbody class="divide-y divide-gray-200">
+        <tr class="*:text-gray-900 *:first:font-medium">
+          <td class="px-3 py-2 whitespace-nowrap">Nandor the Relentless</td>
+          <td class="px-3 py-2 whitespace-nowrap">04/06/1262</td>
+          <td class="px-3 py-2 whitespace-nowrap">Vampire Warrior</td>
+          <td class="px-3 py-2 whitespace-nowrap">$0</td>
+        </tr>
+
+        <tr class="*:text-gray-900 *:first:font-medium">
+          <td class="px-3 py-2 whitespace-nowrap">Laszlo Cravensworth</td>
+          <td class="px-3 py-2 whitespace-nowrap">19/10/1678</td>
+          <td class="px-3 py-2 whitespace-nowrap">Vampire Gentleman</td>
+          <td class="px-3 py-2 whitespace-nowrap">$0</td>
+        </tr>
+
+        <tr class="*:text-gray-900 *:first:font-medium">
+          <td class="px-3 py-2 whitespace-nowrap">Nadja</td>
+          <td class="px-3 py-2 whitespace-nowrap">15/03/1593</td>
+          <td class="px-3 py-2 whitespace-nowrap">Vampire Seductress</td>
+          <td class="px-3 py-2 whitespace-nowrap">$0</td>
+        </tr>
+
+        <tr class="*:text-gray-900 *:first:font-medium">
+          <td class="px-3 py-2 whitespace-nowrap">Colin Robinson</td>
+          <td class="px-3 py-2 whitespace-nowrap">01/09/1971</td>
+          <td class="px-3 py-2 whitespace-nowrap">Energy Vampire</td>
+          <td class="px-3 py-2 whitespace-nowrap">$53,000</td>
+        </tr>
+
+        <tr class="*:text-gray-900 *:first:font-medium">
+          <td class="px-3 py-2 whitespace-nowrap">Guillermo de la Cruz</td>
+          <td class="px-3 py-2 whitespace-nowrap">18/11/1991</td>
+          <td class="px-3 py-2 whitespace-nowrap">Familiar/Vampire Hunter</td>
+          <td class="px-3 py-2 whitespace-nowrap">$0</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Tabla de resultados -->
+  <div *ngIf="resultados?.length">
+    <table mat-table [dataSource]="resultados" class="w-full mat-elevation-z2">
+      <!-- Columnas -->
+      <ng-container matColumnDef="nombre">
+        <th mat-header-cell *matHeaderCellDef>Tipo de trámite</th>
+        <td mat-cell *matCellDef="let row">{{ row.nombre }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="cantidad">
+        <th mat-header-cell *matHeaderCellDef>Cantidad</th>
+        <td mat-cell *matCellDef="let row">{{ row.cantidad }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="promedio">
+        <th mat-header-cell *matHeaderCellDef>Promedio (días hábiles)</th>
+        <td mat-cell *matCellDef="let row">
+          {{ row.promedioDiasHabiles | number : "1.1-2" }}
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+
+    <!-- Promedio global -->
+    <div class="text-right mt-4 text-gray-700 font-semibold">
+      Promedio general:días hábiles
+    </div>
+  </div>
+</div>

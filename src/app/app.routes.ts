@@ -221,6 +221,10 @@ export const routes: Routes = [
             canActivate: [reportPermissionGuard],
             loadComponent: () => import('./reports/presentation/pages/report-unlink/report-unlink.component'),
           },
+            {
+            path: 'efficiency',
+            loadComponent: () => import('./reports/presentation/pages/report-efficiency/report-efficiency.component'),
+          },
           {
             path: 'detail/:group/:id',
             data: { animation: 'slide' },
