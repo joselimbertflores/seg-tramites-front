@@ -6,6 +6,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-4">
       <div class="sm:col-span-2">
         <select-search
+          [value]="filterForm.get('institution')?.value"
           title="Seleccione la institucion"
           [items]="institutions()"
           (onSelect)="selectInstitution($event)"
@@ -64,7 +65,7 @@
       </div>
     </div>
     <div class="flex justify-end">
-      <button type="submit" matButton="filled" [disabled]="isLoading() || filterForm.invalid" (click)="generate()">
+      <button type="submit" matButton="filled" [disabled]="isLoading() || filterForm.invalid">
         Generar
       </button>
     </div>
@@ -78,7 +79,7 @@
   </div>
   } 
 
-  @if(!isLoading() && results().length === 0 &&  hasSearched()){
+  @if(!isLoading() && results().length === 0 && hasSearched()){
     <div class="text-center p-8 text-lg">
       No se encontraron resultados para los filtros seleccionados.
     </div>
@@ -104,7 +105,7 @@
         <tbody class="divide-y divide-gray-200">
           @for (item of results(); track $index) {
           <tr>
-            <td class="px-3 py-2 whitespace-nowrap">{{ item.typeName }}</td>
+            <td class="px-3 py-2 whitespace-nowrap">{{ item.typeName|titlecase }}</td>
             <td class="px-3 py-2 whitespace-nowrap">{{ item.count }}</td>
             <td class="px-3 py-2 whitespace-nowrap">
               {{ item.averageWorkingDays }} dias

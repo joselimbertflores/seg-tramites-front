@@ -16,6 +16,7 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -30,14 +31,25 @@ import {
 } from '@angular/material/autocomplete';
 import { debounceTime, finalize, map } from 'rxjs';
 
-import { CommonReportService, ProcedureReportService } from '../../services';
+import {
+  CommonReportService,
+  ProcedureReportService,
+  ReportCacheService,
+} from '../../services';
 import { procedureEfficiencyResponse } from '../../../infrastructure';
 import { SelectSearchComponent } from '../../../../shared';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 interface typeProcedureOption {
   value: string;
   label: string;
+}
+
+interface cache {
+  form: object;
+  results: procedureEfficiencyResponse[];
+  typeProcedures: typeProcedureOption[];
+  selectedTypes: typeProcedureOption[];
+  hasSearched: boolean;
 }
 @Component({
   selector: 'app-report-efficiency',
@@ -63,6 +75,7 @@ export default class ReportEfficiencyComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private reportService = inject(ProcedureReportService);
   private commonReportService = inject(CommonReportService);
+  private cacheService: ReportCacheService<cache> = inject(ReportCacheService);
 
   readonly announcer = inject(LiveAnnouncer);
 
@@ -92,7 +105,14 @@ export default class ReportEfficiencyComponent implements OnInit {
   hasSearched = signal(false);
   results = signal<procedureEfficiencyResponse[]>([]);
 
+  constructor() {
+    this.destroyRef.onDestroy(() => {
+      this.saveCache();
+    });
+  }
+
   ngOnInit(): void {
+    this.loadCache();
     this.filterInputTypes.valueChanges
       .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => {
@@ -140,5 +160,25 @@ export default class ReportEfficiencyComponent implements OnInit {
     this.reportService.getTypeProcedures(term).subscribe((resp) => {
       this.typesProcedures.set(resp);
     });
+  }
+
+  private saveCache() {
+    this.cacheService.saveCache('report-efficiency', {
+      form: this.filterForm.value,
+      results: this.results(),
+      typeProcedures: this.typesProcedures(),
+      selectedTypes: this.selectedTypes(),
+      hasSearched: this.hasSearched(),
+    });
+  }
+
+  private loadCache() {
+    const cache = this.cacheService.cache['report-efficiency'];
+    if (!cache) return;
+    this.filterForm.patchValue(cache.form);
+    this.hasSearched.set(cache.hasSearched);
+    this.results.set(cache.results);
+    this.typesProcedures.set(cache.typeProcedures);
+    this.selectedTypes.set(cache.selectedTypes);
   }
 }

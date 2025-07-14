@@ -1,0 +1,137 @@
+<div class="p-2 sm:p-4">
+  <mat-accordion>
+    <form [formGroup]="form" (ngSubmit)="generate()" class="mt-2">
+      <mat-expansion-panel expanded="true">
+        <mat-expansion-panel-header>
+          <mat-panel-title>PARAMENTROS BUSQUEDA </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="grid grid-cols-1 sm:grid-cols-5 gap-4">
+          <div>
+            <select-search
+              compareKey="_id"
+              [value]="selectedInstitution()"
+              [items]="institutions()"
+              title="Institucion"
+              [required]="true"
+              placeholder="Seleccione una institucion"
+              (onSelect)="onSelectInstitution($event)"
+            />
+          </div>
+          <div class="sm:col-span-2">
+            <select-search
+              [value]="selectedDependency()"
+              [items]="dependencies()"
+              title="Dependencia"
+              [required]="true"
+              placeholder="Seleccione una deoendencia"
+              (onSelect)="onSelectDependency($event)"
+            />
+          </div>
+          <div>
+            <mat-form-field>
+              <mat-label>Ingrese un rango</mat-label>
+              <mat-date-range-input [rangePicker]="picker" [max]="CURRENT_DATE">
+                <input
+                  matStartDate
+                  placeholder="Fecha inicio"
+                  formControlName="startDate"
+                />
+                <input
+                  matEndDate
+                  placeholder="Fecha fin"
+                  formControlName="endDate"
+                />
+              </mat-date-range-input>
+              <mat-datepicker-toggle
+                matIconSuffix
+                [for]="picker"
+              ></mat-datepicker-toggle>
+              <mat-date-range-picker #picker></mat-date-range-picker>
+            </mat-form-field>
+          </div>
+          <div>
+            <mat-form-field>
+              <mat-label>Grupo tramite</mat-label>
+              <mat-select formControlName="group">
+                @for (item of procedureGroups; track $index) {
+                <mat-option [value]="item.value">{{ item.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+        <mat-action-row>
+          <button type="button" mat-icon-button (click)="print()">
+            <mat-icon>print</mat-icon>
+          </button>
+          <button type="button" mat-button (click)="clear()">Limpiar</button>
+          <button
+            matButton="filled"
+            type="submit"
+            [disabled]="isLoading() || form.invalid"
+          >
+            Buscar
+          </button>
+        </mat-action-row>
+      </mat-expansion-panel>
+    </form>
+  </mat-accordion>
+
+  @if (isLoading()){
+    <div class="flex flex-col gap-y-1">
+        <p class="text-xl">Generando reporte....</p>
+        <mat-progress-bar mode="indeterminate" />
+    </div>
+  } 
+
+  @if(!isLoading() && hasSearched() && dataSource().length === 0){
+    <div class="text-center p-8 text-lg">
+        No se encontraron resultados para los filtros seleccionados.
+    </div>
+  }
+
+  @if(!isLoading() && dataSource().length > 0){
+    <table mat-table [dataSource]="dataSource()" class="mt-6">
+        <ng-container matColumnDef="officer">
+            <th mat-header-cell *matHeaderCellDef>Usuario</th>
+            <td mat-cell *matCellDef="let element">
+                <div class="block font-medium text-base">
+                @if(element.fullName){
+                {{ element.fullName | titlecase }}
+                } @else {
+                <span class="text-red-600">Sin asignar</span>
+                }
+                </div>
+                <div class="block text-xs">{{ element.jobTitle }}</div>
+            </td>
+        </ng-container>
+
+        @for (column of statusColumnsToDisplay; track $index) {
+            <ng-container [matColumnDef]="column.columnDef">
+                <th mat-header-cell *matHeaderCellDef>{{ column.header }}</th>
+                <td mat-cell *matCellDef="let element" class="w-32">
+                    {{ element[column.columnDef] }}
+                </td>
+            </ng-container>
+        }
+
+        <ng-container matColumnDef="total">
+            <th mat-header-cell *matHeaderCellDef>Total</th>
+            <td mat-cell *matCellDef="let element">{{ element.total }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="options">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let element" class="w-44">
+                <button matButton (click)="getInbox(element)" [disabled]="isLoadingInbox()">
+                <mat-icon>print</mat-icon>
+                Pendientes
+                </button>
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+  }
+</div>

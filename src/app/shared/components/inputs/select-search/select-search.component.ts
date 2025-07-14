@@ -37,6 +37,7 @@ export type selectOption<T> = {
         [formControl]="optionCtrl"
         [placeholder]="placeholder()"
         (selectionChange)="select($event.value)"
+        [compareWith]="compareWith"
       >
         <mat-option>
           <ngx-mat-select-search
@@ -76,23 +77,29 @@ export class SelectSearchComponent<T> implements OnInit {
   onTyped = output<string>();
   onSelect = output<T>();
   nullable = input<boolean>(false);
-  value = input<T>();
+  value = input<T | null>();
   optionCtrl: FormControl<T | null> = new FormControl(null);
 
   optionFilterCtrl: FormControl<string> = new FormControl();
 
   filteredOptions = new BehaviorSubject<selectOption<T>[]>([]);
 
+  compareKey = input<keyof T>();
+
   constructor() {
     effect(() => {
       this.filteredOptions.next(this.items());
     });
+
+    effect(() => {
+      this.optionCtrl.setValue(this.value() ?? null);
+    });
   }
 
   ngOnInit(): void {
-    if (this.value()) {
-      this.optionCtrl.setValue(this.value() ?? null);
-    }
+    // if (this.value()) {
+    //   this.optionCtrl.setValue(this.value() ?? null);
+    // }
     this.optionFilterCtrl.valueChanges
       .pipe(
         distinctUntilChanged(),
@@ -127,4 +134,9 @@ export class SelectSearchComponent<T> implements OnInit {
   select(value: T) {
     this.onSelect.emit(value);
   }
+
+  compareWith = (a: T, b: T): boolean => {
+    if (!this.compareKey()) return a === b;
+    return a?.[this.compareKey()!] === b?.[this.compareKey()!];
+  };
 }

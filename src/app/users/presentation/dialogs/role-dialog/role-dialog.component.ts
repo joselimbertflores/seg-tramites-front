@@ -23,9 +23,10 @@ import { CdkAccordionModule } from '@angular/cdk/accordion';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
+import { RoleService } from '../../services';
+import { resource, role } from '../../../infrastructure';
 
-import { resource, role } from '../../../../infrastructure';
-import { RoleService } from '../../../services';
+
 
 @Component({
     selector: 'app-role-dialog',
@@ -57,6 +58,7 @@ export class RoleDialogComponent {
       ({ actions }) => actions.some((action) => action.isSelected)
     )
   );
+  
 
   ngOnInit(): void {
     this.roleService.getResources().subscribe((resources) => {

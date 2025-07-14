@@ -1,4 +1,4 @@
-<div class="p-2 sm:p-4">
+<div class="p-2 sm:p-4 sm:py-6">
   <mat-accordion>
     <form [formGroup]="formApplicant()" (ngSubmit)="generate()">
       <mat-expansion-panel expanded="true">
@@ -99,8 +99,7 @@
           <button
             matButton="filled"
             type="submit"
-            [disabled]="!isFormValid"
-            (click)="generate()"
+            [disabled]="!isFormValid || isLoading()"
           >
             Buscar
           </button>
@@ -122,7 +121,7 @@
     </div>
   }
   
-  @if(!isLoading() && hasSearched() && datasource().length > 0){
+  @if(!isLoading() && datasource().length > 0){
     <div class="mt-8">
       <report-procedure-table [data]="datasource()" [columns]="COLUMNS" />
       <mat-paginator

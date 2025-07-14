@@ -4,6 +4,7 @@ import {
   signal,
   Component,
   ChangeDetectionStrategy,
+  DestroyRef,
 } from '@angular/core';
 import {
   FormGroup,
@@ -21,18 +22,18 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
-import { finalize, map } from 'rxjs';
+import { finalize, map, switchMap } from 'rxjs';
 
 import {
   PdfService,
   selectOption,
   SelectSearchComponent,
-  AlertMessageComponent,
 } from '../../../../shared';
 
 import { procedureGroup } from '../../../../procedures/domain';
 import { sendStatus } from '../../../../communications/domain';
 import {
+  ReportCacheService,
   CommonReportService,
   CommunicationReportService,
 } from '../../services';
@@ -41,11 +42,20 @@ import {
   institution,
 } from '../../../../administration/infrastructure';
 
+interface cache {
+  dataSource: object[];
+  form: object;
+  hasSearched: boolean;
+  dependencies: selectOption<dependency>[];
+  selectedInstitution: institution | null;
+  selectedDependency: dependency | null;
+}
 @Component({
   selector: 'app-report-unit',
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    MatProgressBarModule,
     MatDatepickerModule,
     MatExpansionModule,
     MatFormFieldModule,
@@ -53,164 +63,17 @@ import {
     MatButtonModule,
     MatTableModule,
     MatIconModule,
-    MatProgressBarModule,
-    AlertMessageComponent,
     SelectSearchComponent,
   ],
-  template: `
-    <div class="p-2 sm:p-4">
-      <div class="flex flex-col gap-y-6">
-        <mat-accordion>
-          <mat-expansion-panel expanded="true">
-            <mat-expansion-panel-header>
-              <mat-panel-title>PARAMENTROS BUSQUEDA </mat-panel-title>
-            </mat-expansion-panel-header>
-            <form [formGroup]="form" class="mt-2">
-              <div class="grid grid-cols-1 sm:grid-cols-5 gap-4">
-                <div>
-                  <select-search
-                    [items]="institutions()"
-                    title="Institucion"
-                    [required]="true"
-                    placeholder="Seleccione una institucion"
-                    (onSelect)="onSelectInstitution($event)"
-                  />
-                </div>
-                <div class="sm:col-span-2">
-                  <select-search
-                    [items]="dependencies()"
-                    title="Dependencia"
-                    [required]="true"
-                    placeholder="Seleccione una deoendencia"
-                    (onSelect)="onSelectDependency($event)"
-                  />
-                </div>
-                <div>
-                  <mat-form-field>
-                    <mat-label>Ingrese un rango</mat-label>
-                    <mat-date-range-input [rangePicker]="picker">
-                      <input
-                        matStartDate
-                        placeholder="Fecha inicio"
-                        formControlName="startDate"
-                      />
-                      <input
-                        matEndDate
-                        placeholder="Fecha fin"
-                        formControlName="endDate"
-                      />
-                    </mat-date-range-input>
-                    <mat-datepicker-toggle
-                      matIconSuffix
-                      [for]="picker"
-                    ></mat-datepicker-toggle>
-                    <mat-date-range-picker #picker></mat-date-range-picker>
-                  </mat-form-field>
-                </div>
-                <div>
-                  <mat-form-field>
-                    <mat-label>Grupo tramite</mat-label>
-                    <mat-select formControlName="group">
-                      @for (item of procedureGroups; track $index) {
-                      <mat-option [value]="item.value">{{
-                        item.label
-                      }}</mat-option>
-                      }
-                    </mat-select>
-                  </mat-form-field>
-                </div>
-              </div>
-            </form>
-            <mat-action-row>
-              <button mat-icon-button (click)="print()">
-                <mat-icon>print</mat-icon>
-              </button>
-              <button mat-button (click)="clear()">Limpiar</button>
-              <button
-                mat-button
-                [disabled]="isLoading() || form.invalid"
-                (click)="generate()"
-              >
-                Buscar
-              </button>
-            </mat-action-row>
-          </mat-expansion-panel>
-        </mat-accordion>
-
-        <p class="text-xl tracking-wide">Resultados</p>
-
-        @if(isLoading()){
-        <div class="px-6 py-2">
-          <mat-progress-bar mode="indeterminate" />
-        </div>
-        } @if(!isLoading() && hasSearched() && dataSource().length === 0){
-        <alert-message
-          severity="warning"
-          title="Sin resultados"
-          message="Revise los paremetros ingresados"
-        />
-        } @if(!isLoading() && !hasSearched()){
-        <div
-          class="p-3 rounded-md"
-          style="background-color: var(--mat-sys-surface-container-high);"
-        >
-          💡<span class="ml-2 text-base leading-6"
-            >Seleccione el rango y el tipo de correspondencia</span
-          >
-        </div>
-        } @if(!isLoading() && dataSource().length > 0){
-        <table mat-table [dataSource]="dataSource()">
-          <ng-container matColumnDef="officer">
-            <th mat-header-cell *matHeaderCellDef>Usuario</th>
-            <td mat-cell *matCellDef="let element">
-              <div class="block font-medium text-base">
-                @if(element.fullName){
-                {{ element.fullName | titlecase }}
-                } @else {
-                <span class="text-red-600">Sin asignar</span>
-                }
-              </div>
-              <div class="block text-xs">{{ element.jobTitle }}</div>
-            </td>
-          </ng-container>
-
-          @for (column of statusColumnsToDisplay; track $index) {
-          <ng-container [matColumnDef]="column.columnDef">
-            <th mat-header-cell *matHeaderCellDef>{{ column.header }}</th>
-            <td mat-cell *matCellDef="let element" class="w-32">
-              {{ element[column.columnDef] }}
-            </td>
-          </ng-container>
-          }
-
-          <ng-container matColumnDef="total">
-            <th mat-header-cell *matHeaderCellDef>Total</th>
-            <td mat-cell *matCellDef="let element">{{ element.total }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="options">
-            <th mat-header-cell *matHeaderCellDef></th>
-            <td mat-cell *matCellDef="let element" class="w-44">
-              <button matButton (click)="getInbox(element)">
-                <mat-icon>print</mat-icon>
-                Pendientes
-              </button>
-            </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-        </table>
-        }
-      </div>
-    </div>
-  `,
+  templateUrl: './report-unit.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [provideNativeDateAdapter()],
 })
 export default class ReportUnitComponent {
+  private destroyRef = inject(DestroyRef);
   private reportService = inject(CommunicationReportService);
   private commonService = inject(CommonReportService);
+  private cacheService: ReportCacheService<cache> = inject(ReportCacheService);
   private pdfService = inject(PdfService);
   private formBuilder = inject(FormBuilder);
 
@@ -226,7 +89,7 @@ export default class ReportUnitComponent {
     { columnDef: sendStatus.Rejected, header: 'Rechazados' },
     { columnDef: sendStatus.Archived, header: 'Archivados' },
   ];
-  readonly currentDate = new Date();
+  readonly CURRENT_DATE = new Date();
 
   displayedColumns: string[] = [
     'officer',
@@ -237,20 +100,32 @@ export default class ReportUnitComponent {
   dataSource = signal<object[]>([]);
   isLoading = signal(false);
   hasSearched = signal(false);
+  isLoadingInbox = signal(false);
 
   form: FormGroup = this.formBuilder.group({
     dependencyId: ['', Validators.required],
     startDate: ['', Validators.required],
-    endDate: [this.currentDate, Validators.required],
+    endDate: [this.CURRENT_DATE, Validators.required],
     group: [null],
   });
 
   institutions = toSignal(this.getInstitutions(), { initialValue: [] });
   dependencies = signal<selectOption<dependency>[]>([]);
+  selectedInstitution = signal<institution | null>(null);
+  selectedDependency = signal<dependency | null>(null);
 
-  searcProperties: Record<string, string> = {};
+  constructor() {
+    this.destroyRef.onDestroy(() => {
+      this.saveCache();
+    });
+  }
+
+  ngOnInit(): void {
+    this.loadCache();
+  }
 
   getData() {
+    if (this.form.invalid) return;
     this.isLoading.set(true);
     this.hasSearched.set(true);
     this.reportService
@@ -270,72 +145,92 @@ export default class ReportUnitComponent {
   }
 
   print() {
-    this.pdfService.tableSheet({
-      title: 'Reporte "Pendientes por Unidad"',
-      dataSource: this.dataSource(),
-      displayColumns: [
-        { columnDef: 'fullName', header: 'Funcionario', width: '*' },
-        { columnDef: 'jobTitle', header: 'Cargo', width: '*' },
-        ...this.statusColumnsToDisplay,
-        { columnDef: 'total', header: 'Total' },
-      ],
-      filterParams: {
-        params: { ...this.form.value, ...this.searcProperties },
-        labelsMap: {
-          group: 'Grupo',
-          endDate: 'Fecha fin',
-          startDate: 'Fecha inicio',
-          dependencyId: 'Dependencia',
-        },
-        valuesMap: {
-          group: this.PROCEDURE_GROUP_MAP,
-        },
-      },
-    });
-  }
-
-  getInbox(account: { id: string; fullName?: string; jobTitle: string }) {
-    this.reportService.getInboxByAccount(account.id).subscribe((data) => {
-      this.pdfService.tableSheet({
-        title: 'Reporte "Dependientes" - Bandeja de entrada',
-        dataSource: data,
+    this.pdfService
+      .tableSheet({
+        title: 'Reporte "Pendientes por Unidad"',
+        dataSource: this.dataSource(),
         displayColumns: [
-          { columnDef: 'senderFullName', header: 'Emisor' },
-          { columnDef: 'code', header: 'Alterno' },
-          { columnDef: 'reference', header: 'Refenrecia', width: '*' },
-          { columnDef: 'sentDate', header: 'Fecha envio' },
-          { columnDef: 'received', header: 'Recibido' },
+          { columnDef: 'fullName', header: 'Funcionario', width: '*' },
+          { columnDef: 'jobTitle', header: 'Cargo', width: '*' },
+          ...this.statusColumnsToDisplay,
+          { columnDef: 'total', header: 'Total' },
         ],
         filterParams: {
           params: {
-            Funcionario: `${account.fullName ?? 'SIN ASIGNAR'}  --  ${
-              account.jobTitle
-            }`,
+            ...{ institucion: this.selectedInstitution()?.nombre },
+            ...this.form.value,
+            group:
+              this.PROCEDURE_GROUP_MAP[this.form.get('group')?.value as procedureGroup] ?? null,
+            dependencyId: this.selectedDependency()?.nombre,
           },
+          labelsMap: {
+            group: 'Grupo',
+            endDate: 'Fecha fin',
+            startDate: 'Fecha inicio',
+            dependencyId: 'Dependencia',
+          }
         },
+      })
+      .subscribe((pdf) => {
+        pdf.open();
       });
-    });
   }
 
-  onSelectInstitution(option: institution): void {
+  getInbox(account: { id: string; fullName?: string; jobTitle: string }) {
+    this.isLoadingInbox.set(true);
+    this.reportService
+      .getInboxByAccount(account.id)
+      .pipe(
+        switchMap((data) => {
+          return this.pdfService.tableSheet({
+            title: 'Reporte "Pendientes por Unidad" - Bandeja de entrada',
+            dataSource: data,
+            displayColumns: [
+              { columnDef: 'senderFullName', header: 'Emisor' },
+              { columnDef: 'code', header: 'Alterno' },
+              { columnDef: 'reference', header: 'Refenrecia', width: '*' },
+              { columnDef: 'sentDate', header: 'Fecha envio' },
+              { columnDef: 'received', header: 'Recibido' },
+            ],
+            filterParams: {
+              params: {
+                Funcionario: `${account.fullName ?? 'SIN ASIGNAR'}  --  ${
+                  account.jobTitle
+                }`,
+              },
+            },
+          });
+        }),
+        finalize(() => this.isLoadingInbox.set(false))
+      )
+      .subscribe((pdf) => {
+        pdf.open();
+      });
+  }
+
+  onSelectInstitution(option: institution | null): void {
+    if (!option) return;
+    this.selectedInstitution.set(option);
     this.commonService
-      .getDependencies(option._id)
+      .getDependencies(option!._id)
       .pipe(
         map((resp) => resp.map((item) => ({ value: item, label: item.nombre })))
       )
       .subscribe((resp) => {
         this.dependencies.set(resp);
-        this.searcProperties['Institucion'] = option.nombre;
       });
   }
 
-  onSelectDependency(option: dependency): void {
+  onSelectDependency(option: dependency | null): void {
+    if (!option) return;
     this.form.patchValue({ dependencyId: option._id });
-    this.searcProperties['dependencyId'] = option.nombre;
+    this.selectedDependency.set(option);
   }
 
   clear() {
     this.form.reset();
+    this.selectedDependency.set(null);
+    this.selectedInstitution.set(null);
   }
 
   get procedureGroups() {
@@ -351,5 +246,27 @@ export default class ReportUnitComponent {
       .pipe(
         map((resp) => resp.map((item) => ({ value: item, label: item.nombre })))
       );
+  }
+
+  private saveCache(): void {
+    this.cacheService.saveCache('report-unit', {
+      dataSource: this.dataSource(),
+      dependencies: this.dependencies(),
+      hasSearched: this.hasSearched(),
+      selectedInstitution: this.selectedInstitution(),
+      selectedDependency: this.selectedDependency(),
+      form: this.form.value,
+    });
+  }
+
+  private loadCache(): void {
+    const cache = this.cacheService.loadCache('report-unit');
+    if (!cache) return;
+    this.dataSource.set(cache.dataSource);
+    this.selectedInstitution.set(cache.selectedInstitution);
+    this.selectedDependency.set(cache.selectedDependency);
+    this.dependencies.set(cache.dependencies);
+    this.form.patchValue(cache.form);
+    this.hasSearched.set(cache.hasSearched);
   }
 }

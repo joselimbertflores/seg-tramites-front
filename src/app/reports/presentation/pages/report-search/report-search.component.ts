@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import {
   FormGroup,
   Validators,
@@ -20,20 +20,20 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 
 import { procedureGroup, procedureState } from '../../../../procedures/domain';
+import { ProcedureReportService, ReportCacheService } from '../../services';
 import { ReportProcedureTableComponent } from '../../components';
+import { PdfService } from '../../../../shared';
 import {
   tableProcedureColums,
   tableProcedureData,
 } from '../../../infrastructure';
-import { ProcedureReportService, ReportCacheService } from '../../services';
-import { PdfService } from '../../../../shared';
 
 interface cache {
   datasource: tableProcedureData[];
   datasize: number;
   isAdvancedMode: boolean;
   hasSearched: boolean;
-  form: Object;
+  form: object;
   limit: number;
   index: number;
 }
@@ -63,6 +63,7 @@ export default class ReportSearchComponent {
   private reportService = inject(ProcedureReportService);
   private cacheService: ReportCacheService<cache> = inject(ReportCacheService);
   private pdfService = inject(PdfService);
+  private destroyRef = inject(DestroyRef);
 
   isAdvancedMode = signal<boolean>(false);
   filterForm = computed<FormGroup>(() =>
@@ -104,11 +105,18 @@ export default class ReportSearchComponent {
 
   readonly STATES = Object.values(procedureState).map((value) => value);
 
+  constructor() {
+    this.destroyRef.onDestroy(() => {
+      this.saveCache();
+    });
+  }
+
   ngOnInit(): void {
     this.loadCache();
   }
 
   getData() {
+    if(this.filterForm().invalid) return
     this.isLoading.set(true);
     this.hasSearched.set(true);
     this.reportService
@@ -118,11 +126,10 @@ export default class ReportSearchComponent {
         this.filterForm().value
       )
       .subscribe({
-        next: (resp) => {
-          this.datasource.set(resp.procedures);
-          this.datasize.set(resp.length);
+        next: ({ procedures, length }) => {
+          this.datasource.set(procedures);
+          this.datasize.set(length);
           this.isLoading.set(false);
-          this.saveCache();
         },
         error: () => {
           this.isLoading.set(false);
@@ -140,21 +147,25 @@ export default class ReportSearchComponent {
   }
 
   print() {
-    this.pdfService.tableSheet({
-      title: 'Reporte busqueda',
-      dataSource: this.datasource().map(({ group, ...values }) => ({
-        group: this.translateProcedureGroup(group),
-        ...values,
-      })),
-      displayColumns: this.COLUMNS,
-      filterParams: {
-        params: {
-          ...this.filterForm().value,
-          group: this.GROUP_LABELS[this.filterForm().get('group')?.value],
+    this.pdfService
+      .tableSheet({
+        title: 'Reporte busqueda',
+        dataSource: this.datasource().map(({ group, ...values }) => ({
+          group: this.translateProcedureGroup(group),
+          ...values,
+        })),
+        displayColumns: this.COLUMNS,
+        filterParams: {
+          params: {
+            ...this.filterForm().value,
+            group: this.GROUP_LABELS[this.filterForm().get('group')?.value],
+          },
+          labelsMap: this.LABELS_MAP,
         },
-        labelsMap: this.LABELS_MAP,
-      },
-    });
+      })
+      .subscribe((pdf) => {
+        pdf.open();
+      });
   }
 
   selectSearchMode(isAdvancedMode: boolean) {
@@ -170,7 +181,8 @@ export default class ReportSearchComponent {
   get isFormValid() {
     return (
       this.filterForm().valid &&
-      Object.values(this.filterForm().value).filter((value) => value).length >= 2
+      Object.values(this.filterForm().value).filter((value) => value).length >=
+        2
     );
   }
 

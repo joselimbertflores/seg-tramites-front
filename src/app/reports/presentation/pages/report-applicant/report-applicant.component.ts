@@ -114,8 +114,8 @@ export default class ReportApplicantComponent {
     { columnDef: 'code', header: 'Codigo', width: 80 },
     { columnDef: 'reference', header: 'Referencia', width: '*' },
     { columnDef: 'firstname', header: 'Nombre' },
-    { columnDef: 'lastname', header: 'Apellido P.' },
-    { columnDef: 'middlename', header: 'Apellido M.' },
+    { columnDef: 'middlename', header: 'Apellido P.' },
+    { columnDef: 'lastname', header: 'Apellido M.' },
     { columnDef: 'state', header: 'Estado', width:60 },
     { columnDef: 'createdAt', header: 'Fecha', width:70 },
   ] as const;
@@ -237,15 +237,15 @@ export default class ReportApplicantComponent {
       firstname: ['', [Validators.minLength(3)]],
       middlename: ['', [Validators.minLength(3)]],
       lastname: ['', [Validators.minLength(3)]],
-      phone: ['', [Validators.minLength(6)]],
-      dni: ['', [Validators.minLength(6)]],
+      phone: ['', [Validators.minLength(4)]],
+      dni: ['', [Validators.minLength(4)]],
     });
   }
 
   private formByApplicatJuridico(): FormGroup {
     return this.formBuilder.group({
       firstname: ['', [Validators.minLength(3)]],
-      phone: ['', [Validators.minLength(6)]],
+      phone: ['', [Validators.minLength(4)]],
     });
   }
 

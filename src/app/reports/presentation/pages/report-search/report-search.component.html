@@ -112,7 +112,6 @@
           </div>
         </div>
         }
-
         <mat-action-row>
           <button
             type="button"
@@ -125,8 +124,7 @@
           <button
             type="submit"
             matButton="filled"
-            [disabled]="!isFormValid"
-            (click)="generate()"
+            [disabled]="!isFormValid || isLoading()"
           >
             Buscar
           </button>
@@ -142,6 +140,12 @@
     </div>
   } 
 
+  @if(!isLoading() && hasSearched() && datasource().length === 0){
+    <div class="text-center p-8 text-lg">
+      No se encontraron resultados para los filtros seleccionados.
+    </div>
+  }
+
   @if(!isLoading() && hasSearched() && datasource().length > 0){
     <report-procedure-table [data]="datasource()" [columns]="COLUMNS" />
     <mat-paginator
@@ -153,9 +157,4 @@
       (page)="onPageChange($event)"
     />
   } 
-  @if(!isLoading() && hasSearched() && datasource().length === 0){
-    <div class="text-center p-8 text-lg">
-      No se encontraron resultados para los filtros seleccionados.
-    </div>
-  }
 </div>
