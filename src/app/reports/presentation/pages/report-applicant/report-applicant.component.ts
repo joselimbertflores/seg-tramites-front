@@ -114,8 +114,8 @@ export default class ReportApplicantComponent {
     { columnDef: 'code', header: 'Codigo', width: 80 },
     { columnDef: 'reference', header: 'Referencia', width: '*' },
     { columnDef: 'firstname', header: 'Nombre' },
-    { columnDef: 'lastname', header: 'Apellido Paterno' },
-    { columnDef: 'middlename', header: 'Apellido Materno' },
+    { columnDef: 'lastname', header: 'Apellido P.' },
+    { columnDef: 'middlename', header: 'Apellido M.' },
     { columnDef: 'state', header: 'Estado', width:60 },
     { columnDef: 'createdAt', header: 'Fecha', width:70 },
   ] as const;

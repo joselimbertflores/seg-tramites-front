@@ -1,6 +1,6 @@
 export interface procedureEfficiencyResponse {
   type: string;
-  name: string;
-  quantity: number;
-  promedioDiasHabiles: number;
+  typeName: string;
+  count: number;
+  averageWorkingDays: number;
 }

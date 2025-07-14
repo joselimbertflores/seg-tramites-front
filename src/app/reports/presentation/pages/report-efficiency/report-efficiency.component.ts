@@ -19,9 +19,8 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatSelectModule } from '@angular/material/select';
-import { MatTableModule } from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
@@ -29,10 +28,12 @@ import {
   MatAutocompleteModule,
   MatAutocompleteSelectedEvent,
 } from '@angular/material/autocomplete';
-import { debounceTime, map } from 'rxjs';
+import { debounceTime, finalize, map } from 'rxjs';
+
 import { CommonReportService, ProcedureReportService } from '../../services';
-import { MatButtonModule } from '@angular/material/button';
+import { procedureEfficiencyResponse } from '../../../infrastructure';
 import { SelectSearchComponent } from '../../../../shared';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 interface typeProcedureOption {
   value: string;
@@ -47,17 +48,16 @@ interface typeProcedureOption {
     MatFormFieldModule,
     MatAutocompleteModule,
     MatDatepickerModule,
-    MatSelectModule,
     MatButtonModule,
-    MatTableModule,
     MatInputModule,
     MatChipsModule,
     MatIconModule,
+    MatProgressBarModule,
     SelectSearchComponent,
   ],
   templateUrl: './report-efficiency.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [provideNativeDateAdapter(), MatSelectModule],
+  providers: [provideNativeDateAdapter()],
 })
 export default class ReportEfficiencyComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
@@ -65,21 +65,14 @@ export default class ReportEfficiencyComponent implements OnInit {
   private commonReportService = inject(CommonReportService);
 
   readonly announcer = inject(LiveAnnouncer);
-  tiposSeleccionados = [
-    'Aprobacion plqno de construccion ',
-    'Aprobacion de tipo',
-    'Aprobacion de ampliacion de lote',
-  ];
-  listaTipos = ['text'];
-  resultados = [];
 
-  displayedColumns = ['nombre', 'cantidad'];
+  CURRENT_DATE = new Date();
 
   filterForm: FormGroup = inject(FormBuilder).group({
     types: ['', Validators.required],
     institution: ['', Validators.required],
     startDate: ['', Validators.required],
-    endDate: ['', Validators.required],
+    endDate: [this.CURRENT_DATE, Validators.required],
   });
 
   filterInputTypes = new FormControl('');
@@ -95,9 +88,9 @@ export default class ReportEfficiencyComponent implements OnInit {
       ),
     { initialValue: [] }
   );
-
-  CURRENT_DATE = new Date();
-  results = signal<any | null>(null);
+  isLoading = signal(false);
+  hasSearched = signal(false);
+  results = signal<procedureEfficiencyResponse[]>([]);
 
   ngOnInit(): void {
     this.filterInputTypes.valueChanges
@@ -109,11 +102,12 @@ export default class ReportEfficiencyComponent implements OnInit {
   }
 
   generate() {
+    this.isLoading.set(true);
+    this.hasSearched.set(true);
     this.reportService
       .getProceduresEfficiency(this.filterForm.value)
+      .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe((data) => {
-        console.log(data);
-        // this.resultados = data;
         this.results.set(data);
       });
   }

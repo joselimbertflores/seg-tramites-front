@@ -117,7 +117,7 @@ export class ProcedureReportService {
   }
 
   getProceduresEfficiency(filterParams: object) {
-    return this.http.post<procedureEfficiencyResponse>(`${this.url}/eficiency`, filterParams);
+    return this.http.post<procedureEfficiencyResponse[]>(`${this.url}/eficiency`, filterParams);
   }
 
   getTotalBySegments(filterProps: getTotalBySegmentProps) {

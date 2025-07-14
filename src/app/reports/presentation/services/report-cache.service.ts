@@ -47,8 +47,13 @@ export class ReportCacheService<T> {
     },
     unlink: {
       label: 'Desvinculacion',
-      description: 'Generacacion del formulario de baja de usuario',
+      description: 'Generacion del formulario de baja de usuario',
       link: 'home/reports/unlink',
+    },
+    efficiency: {
+      label: 'Eficiencia',
+      description: 'Total de tramites finalizados y su promedio en dias habiles',
+      link: 'home/reports/efficiency',
     },
   };
 

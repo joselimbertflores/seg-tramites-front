@@ -223,6 +223,8 @@ export const routes: Routes = [
           },
             {
             path: 'efficiency',
+            data: { action: 'efficiency' },
+            canActivate: [reportPermissionGuard],
             loadComponent: () => import('./reports/presentation/pages/report-efficiency/report-efficiency.component'),
           },
           {
