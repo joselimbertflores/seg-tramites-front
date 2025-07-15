@@ -4,12 +4,12 @@ import { OfficerMapper } from './officer.mapper';
 
 export class AccountMapper {
   static fromResponse(response: account): Account {
-    const { officer, ...values } = response;
+    const { _id,officer, area, ...values } = response;
     return new Account({
+      id:_id,
       ...values,
-      ...(officer && {
-        officer: OfficerMapper.fromResponse(officer),
-      }),
+      ...(officer && { officer: OfficerMapper.fromResponse(officer) }),
+      area: area ?? null,
     });
   }
 }

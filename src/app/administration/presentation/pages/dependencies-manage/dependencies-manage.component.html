@@ -1,69 +1,85 @@
-<div class="animate-fadeIn">
-  <mat-toolbar>
-    <span>Dependencias</span>
-    <span class="flex-1"></span>
-    <button mat-icon-button aria-label="Add user" (click)="create()">
-      <mat-icon>add</mat-icon>
-    </button>
-  </mat-toolbar>
+<mat-toolbar>
+  <span>Dependencias</span>
+  <span class="flex-1"></span>
+  <button mat-icon-button (click)="create()">
+    <mat-icon>add</mat-icon>
+  </button>
+</mat-toolbar>
 
-  <div class="flex justify-end py-2">
-    <div class="w-full px-2 sm:w-1/4 h-11">
-      <search-input (onSearch)="search($event)" />
+<div class="p-2 sm:p-4">
+  <div class="flex justify-end mb-2">
+    <div class="w-full sm:w-1/4 h-[54px]">
+      <search-input
+        (onSearch)="search($event)"
+        placeholder="Nombre de la dependencia"
+      />
     </div>
   </div>
 
-  <div class="mat-elevation-z8">
-    <table mat-table [dataSource]="datasource()">
-      <ng-container matColumnDef="nombre">
-        <th mat-header-cell *matHeaderCellDef>Nombre</th>
-        <td mat-cell *matCellDef="let element">{{ element.nombre }}</td>
-      </ng-container>
+  <table mat-table [dataSource]="dataSource()">
+    <ng-container matColumnDef="institucion">
+      <th mat-header-cell *matHeaderCellDef>Institucion</th>
+      <td mat-cell *matCellDef="let element" class="w-24">
+        {{ element.institucion.sigla }}
+      </td>
+    </ng-container>
 
-      <ng-container matColumnDef="codigo">
-        <th mat-header-cell *matHeaderCellDef>Codigo</th>
-        <td mat-cell *matCellDef="let element">{{ element.codigo }}</td>
-      </ng-container>
+    <ng-container matColumnDef="nombre">
+      <th mat-header-cell *matHeaderCellDef>Nombre</th>
+      <td mat-cell *matCellDef="let element">{{ element.nombre }}</td>
+    </ng-container>
 
-      <ng-container matColumnDef="institucion">
-        <th mat-header-cell *matHeaderCellDef>Institucion</th>
-        <td mat-cell *matCellDef="let element">
-          {{ element.institucion.sigla }}
-        </td>
-      </ng-container>
+    <ng-container matColumnDef="codigo">
+      <th mat-header-cell *matHeaderCellDef>Codigo</th>
+      <td mat-cell *matCellDef="let element">{{ element.codigo }}</td>
+    </ng-container>
 
-      <ng-container matColumnDef="menu">
-        <th mat-header-cell *matHeaderCellDef></th>
-        <td mat-cell *matCellDef="let element" class="w-8">
-          <button mat-icon-button [matMenuTriggerFor]="menu">
-            <mat-icon>more_vert</mat-icon>
+    <ng-container matColumnDef="active">
+      <th mat-header-cell *matHeaderCellDef>Estado</th>
+      <td mat-cell *matCellDef="let element" class="w-32">
+        <span
+          class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset"
+          [ngClass]="
+            element.activo
+              ? 'bg-green-100 text-green-800 ring-green-600/20'
+              : 'bg-red-100 text-red-700 ring-red-600/10'
+          "
+        >
+          {{ element.activo ? "Activo" : "Inactivo" }}
+        </span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="options">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let element" class="w-8">
+        <button mat-icon-button [matMenuTriggerFor]="menu">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item (click)="update(element)">
+            <mat-icon>edit</mat-icon>
+            <span>Editar</span>
           </button>
-          <mat-menu #menu="matMenu">
-            <button mat-menu-item (click)="edit(element)">
-              <mat-icon>edit</mat-icon>
-              <span>Editar</span>
-            </button>
-            <button mat-menu-item (click)="viewPersonnel(element)">
-              <mat-icon>group</mat-icon>
-              <span>Personal</span>
-            </button>
-          </mat-menu>
-        </td>
-      </ng-container>
+          <button mat-menu-item (click)="viewPersonnel(element)">
+            <mat-icon>group</mat-icon>
+            <span>Personal</span>
+          </button>
+        </mat-menu>
+      </td>
+    </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-      <tr class="mat-row" *matNoDataRow>
-        <td class="mat-cell p-3" colspan="5">No se encontraron resultados</td>
-      </tr>
-    </table>
-    <mat-paginator
-      aria-label="Select page of users search results"
-      showFirstLastButtons
-      [length]="datasize()"
-      [pageSize]="10"
-      [pageIndex]="index()"
-      (page)="onPageChange($event)"
-    />
-  </div>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    <tr class="mat-row" *matNoDataRow>
+      <td class="mat-cell p-3" colspan="5">No se encontraron resultados</td>
+    </tr>
+  </table>
+  <mat-paginator
+    showFirstLastButtons
+    [length]="dataSize()"
+    [pageSize]="limit()"
+    [pageIndex]="index()"
+    (page)="onPageChange($event)"
+  />
 </div>

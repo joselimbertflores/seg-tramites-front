@@ -1,11 +1,9 @@
-export interface resource {
+export interface systemResourceResponse {
   value: string;
   label: string;
   actions: action[];
-  isSelected?: boolean;
 }
-export interface action {
+interface action {
   value: string;
   label: string;
-  isSelected?: boolean;
 }

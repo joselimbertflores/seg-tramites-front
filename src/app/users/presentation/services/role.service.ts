@@ -1,42 +1,58 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { map } from 'rxjs';
-import { environment } from '../../../../environments/environment';
-import { resource, role, RoleDto } from '../../infrastructure';
+import { inject, Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { map, Observable, shareReplay } from 'rxjs';
 
+import { environment } from '../../../../environments/environment';
+import { role, systemResourceResponse } from '../../infrastructure';
+import { systemResource } from '../../domain';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RoleService {
-  private readonly url = `${environment.base_url}/roles`;
-  constructor(private http: HttpClient) {}
+  private http = inject(HttpClient);
+  private readonly URL = `${environment.base_url}/roles`;
+  private resources$: Observable<systemResourceResponse[]>;
 
-  findAll() {
+  getSystemResources() {
+    if (this.resources$) return this.resources$;
+    this.resources$ = this.http
+      .get<systemResourceResponse[]>(`${this.URL}/resources`)
+      .pipe(shareReplay(1));
+    return this.resources$;
+  }
+
+  findAll(limit: number, offset: number, term: string) {
+    const params = new HttpParams({
+      fromObject: { limit, offset, ...(term && { term }) },
+    });
     return this.http
-      .get<{ roles: role[]; length: number }>(`${this.url}`)
+      .get<{ roles: role[]; length: number }>(`${this.URL}`, { params })
       .pipe(map((resp) => ({ roles: resp.roles, length: resp.length })));
   }
 
-  getResources() {
-    return this.http.get<resource[]>(`${this.url}/resources`).pipe(
-      map((resp) =>
-        resp.map(({ actions, ...props }) => ({
-          ...props,
-          actions: actions.map((acc) => ({ ...acc, isSelected: false })),
-          isSelected: false,
-        }))
-      )
-    );
+  create(name: string, resources: systemResource[]) {
+    return this.http.post<role>(`${this.URL}`, {
+      name,
+      permissions: this.buildResourcesDto(resources),
+    });
   }
 
-  add(name: string, resources: resource[]) {
-    const Role = RoleDto.toModel(name, resources);
-    return this.http.post<role>(`${this.url}`, Role);
+  update(id: string, name: string, resources: systemResource[]) {
+    return this.http.patch<role>(`${this.URL}/${id}`, {
+      name,
+      permissions: this.buildResourcesDto(resources),
+    });
   }
 
-  edit(id: string, name: string, resources: resource[]) {
-    const Role = RoleDto.toModel(name, resources);
-    return this.http.patch<role>(`${this.url}/${id}`, Role);
+  private buildResourcesDto(resources: systemResource[]) {
+    return resources
+      .filter(({ actions }) => actions.some((action) => action.isSelected))
+      .map(({ value, actions }) => ({
+        resource: value,
+        actions: actions
+          .filter(({ isSelected }) => isSelected)
+          .map(({ value }) => value),
+      }));
   }
 }

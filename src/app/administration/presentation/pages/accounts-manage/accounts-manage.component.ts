@@ -106,7 +106,7 @@ export default class AccountsManageComponent {
     dialogRef.afterClosed().subscribe((result?: Account) => {
       if (!result) return;
       this.datasource.update((values) => {
-        const index = values.findIndex((value) => value._id === result._id);
+        const index = values.findIndex((value) => value.id === result.id);
         values[index] = result;
         return [...values];
       });

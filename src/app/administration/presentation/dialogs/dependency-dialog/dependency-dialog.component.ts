@@ -1,40 +1,32 @@
 import { CommonModule } from '@angular/common';
 import {
-  ChangeDetectionStrategy,
-  Component,
-  OnInit,
   inject,
   signal,
+  Component,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import {
   FormArray,
-  FormBuilder,
   FormGroup,
-  ReactiveFormsModule,
   Validators,
+  FormBuilder,
+  ReactiveFormsModule,
 } from '@angular/forms';
 import {
   MAT_DIALOG_DATA,
   MatDialogRef,
   MatDialogModule,
 } from '@angular/material/dialog';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import {
-  MAT_FORM_FIELD_DEFAULT_OPTIONS,
-  MatFormFieldModule,
-} from '@angular/material/form-field';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-
-import { SimpleSelectSearchComponent } from '../../../../../shared';
-import { DependencyService } from '../../../services';
-import { dependency } from '../../../../infrastructure';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 
-interface SelectOption {
-  text: string;
-  value: string;
-}
+import { SelectSearchComponent, selectOption } from '../../../../shared';
+import { DependencyService } from '../../services';
+import { dependency } from '../../../infrastructure';
+
 @Component({
   selector: 'app-dependency-dialog',
   imports: [
@@ -45,41 +37,36 @@ interface SelectOption {
     MatFormFieldModule,
     MatInputModule,
     MatCheckboxModule,
-    SimpleSelectSearchComponent,
     MatIconModule,
+    SelectSearchComponent,
   ],
   templateUrl: './dependency-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [
-    {
-      provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
-      useValue: { appearance: 'outline' },
-    },
-  ],
 })
-export class DependencyDialogComponent implements OnInit {
+export class DependencyDialogComponent {
   private _formBuilder = inject(FormBuilder);
   private dialogRef = inject(MatDialogRef<DependencyDialogComponent>);
   private dependencyService = inject(DependencyService);
-  data?: dependency = inject(MAT_DIALOG_DATA);
 
-  public FormDependency: FormGroup = this._formBuilder.group({
+  data?: dependency = inject(MAT_DIALOG_DATA);
+  institutions = signal<selectOption<string>[]>([]);
+
+  public dependencyForm: FormGroup = this._formBuilder.nonNullable.group({
     nombre: ['', Validators.required],
     codigo: ['', Validators.required],
     institucion: ['', Validators.required],
+    activo: [true],
     areas: this._formBuilder.array([]),
   });
 
-  public institutions = signal<SelectOption[]>([]);
-
   ngOnInit(): void {
-    this._loadForm();
+    this.loadForm();
   }
 
   save() {
     const subscription = this.data
-      ? this.dependencyService.update(this.data._id, this.FormDependency.value)
-      : this.dependencyService.create(this.FormDependency.value);
+      ? this.dependencyService.update(this.data._id, this.dependencyForm.value)
+      : this.dependencyService.create(this.dependencyForm.value);
     subscription.subscribe((resp) => {
       this.dialogRef.close(resp);
     });
@@ -94,8 +81,8 @@ export class DependencyDialogComponent implements OnInit {
     );
   }
 
-  selectInstitution(id?: string) {
-    this.FormDependency.get('institucion')?.setValue(id ?? '');
+  selectInstitution(id: string) {
+    this.dependencyForm.get('institucion')?.setValue(id);
   }
 
   removeRequirement(index: number) {
@@ -103,24 +90,22 @@ export class DependencyDialogComponent implements OnInit {
   }
 
   get requeriments() {
-    return this.FormDependency.get('areas') as FormArray;
+    return this.dependencyForm.get('areas') as FormArray;
   }
 
-  private _getInstitutions() {
-    this.dependencyService.getInstitutions().subscribe((resp) => {
-      this.institutions.set(
-        resp.map((el) => ({ value: el._id, text: el.nombre }))
-      );
+  private getInstitutions() {
+    this.dependencyService.getInstitutions().subscribe((options) => {
+      this.institutions.set(options);
     });
   }
 
-  private _loadForm() {
+  private loadForm() {
     if (this.data) {
-      this.FormDependency.removeControl('institucion');
+      this.dependencyForm.removeControl('institucion');
       this.data.areas?.forEach(() => this.addRequirement());
-      this.FormDependency.patchValue(this.data);
+      this.dependencyForm.patchValue(this.data);
     } else {
-      this._getInstitutions();
+      this.getInstitutions();
     }
   }
 }

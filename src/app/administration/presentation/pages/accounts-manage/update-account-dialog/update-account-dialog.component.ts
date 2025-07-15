@@ -94,7 +94,7 @@ export class UpdateAccountDialogComponent {
 
   save() {
     const updateTask = this.accountService.edit(
-      this.data()._id,
+      this.data().id,
       this.formUser.value,
       this.formAccount.value
     );

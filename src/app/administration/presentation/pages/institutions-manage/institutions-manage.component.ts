@@ -14,29 +14,29 @@ import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 
-import { InstitutionDialogComponent } from './institution-dialog/institution-dialog.component';
+import { SearchInputComponent } from '../../../../shared';
+import { InstitutionDialogComponent } from '../../dialogs';
 import { institution } from '../../../infrastructure';
 import { InstitutionService } from '../../services';
 
-
-
 @Component({
-    selector: 'app-institutions-manage',
-    imports: [
-        CommonModule,
-        FormsModule,
-        MatIconModule,
-        MatButtonModule,
-        MatPaginatorModule,
-        MatTableModule,
-        MatToolbarModule
-    ],
-    templateUrl: './institutions-manage.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'app-institutions-manage',
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatIconModule,
+    MatTableModule,
+    MatButtonModule,
+    MatToolbarModule,
+    MatPaginatorModule,
+    SearchInputComponent,
+  ],
+  templateUrl: './institutions-manage.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class InstitutionsManageComponent {
-  dialog = inject(MatDialog);
-  institutionService = inject(InstitutionService);
+  private dialogRef = inject(MatDialog);
+  private institutionService = inject(InstitutionService);
 
   public displayedColumns: string[] = [
     'sigla',
@@ -45,12 +45,13 @@ export default class InstitutionsManageComponent {
     'buttons',
   ];
 
-  datasource = signal<institution[]>([]);
-  datasize = signal<number>(0);
+  dataSource = signal<institution[]>([]);
+  dataSize = signal<number>(0);
+  term = signal<string>('');
 
-  public limit = signal<number>(10);
-  public index = signal<number>(0);
-  public offset = computed<number>(() => this.limit() * this.index());
+  limit = signal<number>(10);
+  index = signal<number>(0);
+  offset = computed<number>(() => this.limit() * this.index());
 
   ngOnInit(): void {
     this.getData();
@@ -58,35 +59,48 @@ export default class InstitutionsManageComponent {
 
   getData() {
     this.institutionService
-      .get(this.limit(), this.offset())
-      .subscribe((data) => {
-        this.datasource.set(data.institutions);
-        this.datasize.set(data.length);
+      .findAll(this.limit(), this.offset(), this.term())
+      .subscribe(({ institutions, length }) => {
+        this.dataSource.set(institutions);
+        this.dataSize.set(length);
       });
   }
 
-  add() {
-    const dialogRef = this.dialog.open(InstitutionDialogComponent);
+  create() {
+    const dialogRef = this.dialogRef.open(InstitutionDialogComponent, {
+      maxWidth: '600px',
+      width: '600px',
+    });
     dialogRef.afterClosed().subscribe((result?: institution) => {
       if (!result) return;
-      this.datasource.update((values) => [result, ...values]);
-      this.datasize.update((value) => (value += 1));
+      this.dataSource.update((values) =>
+        [result, ...values].slice(0, this.limit())
+      );
+      this.dataSize.update((value) => (value += 1));
     });
   }
 
-  edit(data: institution) {
-    const dialogRef = this.dialog.open(InstitutionDialogComponent, {
-      maxWidth: '700px',
-      data,
+  update(item: institution) {
+    const dialogRef = this.dialogRef.open(InstitutionDialogComponent, {
+      maxWidth: '600px',
+      width: '600px',
+      data: item,
     });
     dialogRef.afterClosed().subscribe((result: institution) => {
       if (!result) return;
-      this.datasource.update((values) => {
+      this.dataSource.update((values) => {
         const index = values.findIndex((inst) => inst._id === result._id);
+        if (index === -1) return values;
         values[index] = result;
         return [...values];
       });
     });
+  }
+
+  search(term: string) {
+    this.term.set(term);
+    this.index.set(0);
+    this.getData();
   }
 
   onPageChange(event: PageEvent) {

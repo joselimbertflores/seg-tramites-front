@@ -15,16 +15,10 @@ import { MatSelectModule } from '@angular/material/select';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import { dependency } from '../../../../infrastructure';
-import { DependencyService } from '../../../services';
-import { Officer } from '../../../../domain';
+import { dependency } from '../../../infrastructure';
+import { DependencyService } from '../../services';
+import { Account } from '../../../domain';
 
-interface personnel {
-  accountId: string;
-  officer?: Officer;
-  jobtitle: string;
-  area: number | null;
-}
 @Component({
   selector: 'app-personnel-dialog',
   imports: [
@@ -38,35 +32,34 @@ interface personnel {
     <h2 mat-dialog-title>Personal de unidad</h2>
     <mat-dialog-content>
       <div class="mb-4">{{ data.nombre }}</div>
-      <div
-        class="flex flex-col gap-x-2 gap-y-3 overflow-y-scroll max-h-80 py-2 px-4 border-2 rounded-lg"
-      >
+      <div class="flex flex-col gap-3 overflow-y-auto max-h-80 p-3 border-2 rounded-lg">
         @for (item of personnel(); track $index) {
-        <div class="flex items-center">
-          <div class="w-1/2">
-            <div class="block font-medium">
-              {{ item.officer?.fullname | titlecase }}
+          <div class="flex flex-col sm:flex-row items-center">
+            <div class="w-full sm:w-1/2">
+              <div class="block font-medium">
+                {{ item.fullnameManager| titlecase }}
+              </div>
+              <div>
+                {{ item.jobtitle }}
+              </div>
             </div>
-            <div>
-              {{ item.jobtitle }}
+            <div class="w-full sm:w-1/2 h-[54px]">
+              <mat-form-field appearance="outline">
+                <mat-label>Area</mat-label>
+                <mat-select [(ngModel)]="item.area">
+                  <mat-option [value]="null"> NINGUNA </mat-option>
+                  @for (area of data.areas; track $index) {
+                    <mat-option [value]="area.code">
+                      {{ area.name }}
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
             </div>
           </div>
-          <div class="w-1/2 h-[54px]">
-            <mat-form-field appearance="outline">
-              <mat-label>Area</mat-label>
-              <mat-select [(ngModel)]="item.area">
-                <mat-option [value]="null"> NINGUNA </mat-option>
-                @for (area of data.areas; track $index) {
-                <mat-option [value]="area.code">
-                  {{ area.name }}
-                </mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-          </div>
-        </div>
-        } @empty {
-        <p>Sin personal</p>
+        } 
+        @empty {
+          <p>Sin personal</p>
         }
       </div>
     </mat-dialog-content>
@@ -82,23 +75,19 @@ export class PersonnelDialogComponent implements OnInit {
   private dialogRef = inject(MatDialogRef);
 
   data: dependency = inject(MAT_DIALOG_DATA);
-  personnel = signal<personnel[]>([]);
+  personnel = signal<Account[]>([]);
 
   ngOnInit(): void {
-    this._getAccountsInDependency();
+    this.getAccountsInDependency();
   }
 
   save() {
-    const data = this.personnel().map(({ accountId, area }) => ({
-      accountId,
-      area,
-    }));
     this.dependencyService
-      .assignDependencyAreas(data)
+      .assignAreas(this.personnel())
       .subscribe(() => this.dialogRef.close());
   }
 
-  private _getAccountsInDependency() {
+  private getAccountsInDependency() {
     this.dependencyService
       .getAccountsInDependency(this.data._id)
       .subscribe((data) => this.personnel.set(data));

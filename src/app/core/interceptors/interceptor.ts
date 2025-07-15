@@ -43,7 +43,11 @@ export function loggingInterceptor(
   return next(reqWithHeader).pipe(
     catchError((error) => {
       if (error instanceof HttpErrorResponse) {
-        const message: string = error.error['message'] ?? 'Error no controlado';
+        const message: string =
+          typeof error.error['message'] === 'string'
+            ? error.error['message']
+            : 'No se pudo realizar la solicitud';
+
         switch (error.status) {
           case 500:
             toastService.showToast({

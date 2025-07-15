@@ -1,33 +1,31 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { map } from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+
 import { environment } from '../../../../environments/environment';
 import { institution } from '../../infrastructure';
-
 
 @Injectable({
   providedIn: 'root',
 })
 export class InstitutionService {
-  private readonly url = `${environment.base_url}/institutions`;
-  constructor(private http: HttpClient) {}
+  private readonly URL = `${environment.base_url}/institutions`;
+  private http = inject(HttpClient);
 
-  add(form: Object) {
-    return this.http
-      .post<institution>(`${this.url}`, form)
-      .pipe(map((resp) => resp));
-  }
-
-  get(limit: number, offset: number) {
-    const params = new HttpParams({ fromObject: { limit, offset } });
+  findAll(limit: number, offset: number, term: string) {
+    const params = new HttpParams({
+      fromObject: { limit, offset, ...(term && { term }) },
+    });
     return this.http.get<{
       institutions: institution[];
       length: number;
-    }>(`${this.url}`, { params });
+    }>(`${this.URL}`, { params });
   }
 
-  edit(id: string, form: Object) {
-    return this.http.patch<institution>(`${this.url}/${id}`, form);
+  create(form: Object) {
+    return this.http.post<institution>(`${this.URL}`, form);
   }
 
+  update(id: string, form: Object) {
+    return this.http.patch<institution>(`${this.URL}/${id}`, form);
+  }
 }

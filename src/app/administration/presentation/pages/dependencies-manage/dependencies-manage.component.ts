@@ -5,30 +5,28 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
-import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 
-import { DependencyDialogComponent } from './dependency-dialog/dependency-dialog.component';
 import { SearchInputComponent } from '../../../../shared';
 import { DependencyService } from '../../services';
 import { dependency } from '../../../infrastructure';
-import { PersonnelDialogComponent } from './personnel-dialog/personnel-dialog.component';
+import { DependencyDialogComponent, PersonnelDialogComponent } from '../../dialogs';
 
 @Component({
   selector: 'app-dependencies-manage',
   imports: [
+    CommonModule,
     FormsModule,
     MatToolbarModule,
     MatDialogModule,
-    MatInputModule,
     MatTableModule,
     MatMenuModule,
     MatIconModule,
@@ -44,13 +42,19 @@ export default class DependenciesManageComponent {
   private dependencyService = inject(DependencyService);
 
   term = signal<string>('');
-  datasource = signal<dependency[]>([]);
-  datasize = signal<number>(10);
+  dataSource = signal<dependency[]>([]);
+  dataSize = signal<number>(0);
 
-  readonly displayedColumns = ['nombre', 'codigo', 'institucion', 'menu'];
-  public limit = signal<number>(10);
-  public index = signal<number>(0);
-  public offset = computed<number>(() => this.limit() * this.index());
+  readonly displayedColumns = [
+    'institucion',
+    'nombre',
+    'codigo',
+    'active',
+    'options',
+  ];
+  limit = signal<number>(10);
+  index = signal<number>(0);
+  offset = computed<number>(() => this.limit() * this.index());
 
   ngOnInit(): void {
     this.getData();
@@ -60,8 +64,8 @@ export default class DependenciesManageComponent {
     this.dependencyService
       .findAll(this.limit(), this.offset(), this.term())
       .subscribe((data) => {
-        this.datasource.set(data.dependencies);
-        this.datasize.set(data.length);
+        this.dataSource.set(data.dependencies);
+        this.dataSize.set(data.length);
       });
   }
 
@@ -72,21 +76,24 @@ export default class DependenciesManageComponent {
     });
     dialogRef.afterClosed().subscribe((result: dependency) => {
       if (!result) return;
-      this.datasource.update((values) => [result, ...values]);
-      this.datasize.update((value) => (value += 1));
+      this.dataSource.update((values) =>
+        [result, ...values].slice(0, this.limit())
+      );
+      this.dataSize.update((value) => (value += 1));
     });
   }
 
-  edit(data: dependency) {
+  update(item: dependency) {
     const dialogRef = this.dialog.open(DependencyDialogComponent, {
       width: '800px',
       maxWidth: '800px',
-      data,
+      data: item,
     });
     dialogRef.afterClosed().subscribe((dependency: dependency) => {
       if (!dependency) return;
-      this.datasource.update((values) => {
+      this.dataSource.update((values) => {
         const index = values.findIndex((inst) => inst._id === dependency._id);
+        if (index === -1) return values;
         values[index] = dependency;
         return [...values];
       });
@@ -94,7 +101,7 @@ export default class DependenciesManageComponent {
   }
 
   viewPersonnel(data: dependency) {
-    const dialogRef = this.dialog.open(PersonnelDialogComponent, {
+    this.dialog.open(PersonnelDialogComponent, {
       width: '900px',
       maxWidth: '900px',
       data,

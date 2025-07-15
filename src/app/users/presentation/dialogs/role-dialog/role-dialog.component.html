@@ -1,68 +1,72 @@
 <h2 mat-dialog-title>{{ data ? "Edicion" : "Creacion" }} Rol</h2>
 <div mat-dialog-content>
-  <mat-form-field>
-    <mat-label>Nombre del rol</mat-label>
-    <input
-      matInput
-      placeholder="Ingrese un nombre"
-      [formControl]="name"
-      required
-    />
-    @if (name.invalid) {
-    <mat-error>Ingres el nombre del rol</mat-error>
-    }
-  </mat-form-field>
-  <cdk-accordion class="block max-h-[300px] overflow-y-scroll mt-2">
-    @for (resource of resources(); track resource; let index=$index) {
-    <cdk-accordion-item
-      #accordionItem="cdkAccordionItem"
-      class="block p-2 hover:bg-gray-200"
-      tabindex="0"
-      [attr.id]="'accordion-header-' + index"
-      [attr.aria-expanded]="accordionItem.expanded"
-      [attr.aria-controls]="'accordion-body-' + index"
-    >
-      <div class="flex justify-between content-center">
-        <mat-checkbox
-          [checked]="resource.isSelected"
-          [indeterminate]="someComplete(resource.value)"
-          (change)="setAllPermissions(resource.value, $event.checked)"
-        >
-          {{ resource.label }}
-        </mat-checkbox>
-        <button mat-icon-button (click)="accordionItem.toggle()">
-          <mat-icon>{{
-            accordionItem.expanded ? "expand_less" : "expand_more"
-          }}</mat-icon>
-        </button>
-      </div>
-      <div
-      class="px-3"
-        role="region"
-        [style.display]="accordionItem.expanded ? '' : 'none'"
-        [attr.id]="'accordion-body-' + index"
-        [attr.aria-labelledby]="'accordion-header-' + index"
+  <div class="py-2">
+    <mat-form-field>
+      <mat-label>Nombre</mat-label>
+      <input
+        matInput
+        required
+        [formControl]="name"
+        placeholder="Ingrese el nombre del rol"
+      />
+      @if (name.invalid) {
+      <mat-error>El nombre es requerido</mat-error>
+      }
+    </mat-form-field>
+
+    <cdk-accordion class="block max-h-[350px] overflow-y-auto mt-3">
+      @for (resource of resources(); track $index; let index = $index) {
+      <cdk-accordion-item
+        #accordionItem="cdkAccordionItem"
+        class="block p-2 border"
+        tabindex="0"
+        [attr.id]="'accordion-header-' + index"
+        [attr.aria-expanded]="accordionItem.expanded"
+        [attr.aria-controls]="'accordion-body-' + index"
       >
-        <ul>
-          <li *ngFor="let action of resource.actions">
-            <mat-checkbox
-              [(ngModel)]="action.isSelected"
-              (ngModelChange)="updateAllComplete(resource.value)"
-            >
-              {{ action.label }}
-            </mat-checkbox>
-          </li>
-        </ul>
-      </div>
-    </cdk-accordion-item>
-    }
-  </cdk-accordion>
+        <div class="flex justify-between">
+          <mat-checkbox
+            [checked]="resource.isSelected"
+            [indeterminate]="someComplete(resource)"
+            (change)="toggleAll(index, $event.checked)"
+          >
+            {{ resource.label }}
+          </mat-checkbox>
+          <button mat-icon-button (click)="accordionItem.toggle()">
+            <mat-icon>
+              {{accordionItem.expanded ? "expand_less" : "expand_more"}}
+            </mat-icon>
+          </button>
+        </div>
+        <div
+          class="p-3"
+          role="region"
+          [style.display]="accordionItem.expanded ? '' : 'none'"
+          [attr.id]="'accordion-body-' + index"
+          [attr.aria-labelledby]="'accordion-header-' + index"
+        >
+          <ul>
+            @for (action of resource.actions; track $index; let subindex = $index) {
+              <li>
+                <mat-checkbox
+                  [checked]="action.isSelected"
+                  (change)="updateCheckItem($event.checked, index, subindex)"
+                >
+                  {{ action.label }}
+                </mat-checkbox>
+              </li>
+            }
+          </ul>
+        </div>
+      </cdk-accordion-item>
+      }
+    </cdk-accordion>
+  </div>
 </div>
 <div mat-dialog-actions align="end">
-  <button mat-button color="warn" mat-dialog-close>Cancelar</button>
+  <button matButton color="warn" mat-dialog-close>Cancelar</button>
   <button
-    mat-button
-    color="primary"
+    matButton
     [disabled]="name.invalid || !hasPermissions()"
     (click)="save()"
   >

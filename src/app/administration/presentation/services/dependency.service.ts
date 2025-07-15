@@ -7,34 +7,39 @@ import {
   account,
   dependency,
   institution,
-  OfficerMapper,
+  AccountMapper,
 } from '../../infrastructure';
+import { Account } from '../../domain';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DependencyService {
-  private readonly url = `${environment.base_url}/dependencies`;
+  private readonly URL = `${environment.base_url}/dependencies`;
+  
   constructor(private http: HttpClient) {}
 
   getInstitutions() {
-    return this.http.get<institution[]>(`${this.url}/institutions`);
+    return this.http
+      .get<institution[]>(`${this.URL}/institutions`)
+      .pipe(
+        map((resp) =>
+          resp.map(({ _id, nombre }) => ({ value: _id, label: nombre }))
+        )
+      );
   }
 
   getAccountsInDependency(id: string) {
-    return this.http.get<account[]>(`${this.url}/${id}/accounts`).pipe(
-      map((resp) =>
-        resp.map(({ officer, _id, jobtitle, area }) => ({
-          accountId: _id,
-          jobtitle: jobtitle,
-          area: area ?? null,
-          ...(officer && { officer: OfficerMapper.fromResponse(officer) }),
-        }))
-      )
-    );
+    return this.http
+      .get<account[]>(`${this.URL}/${id}/accounts`)
+      .pipe(
+        map((resp) => resp.map((item) => AccountMapper.fromResponse(item)))
+      );
   }
-  assignDependencyAreas(data: { accountId: string; area: number | null }[]) {
-    return this.http.put<{ message: string }>(`${this.url}/assign-area`, {
+
+  assignAreas(personnel:Account[]) {
+     const data = personnel.map(({id, area}) => ({ accountId:id, area}));
+    return this.http.put<{ message: string }>(`${this.URL}/areas`, {
       personnel: data,
     });
   }
@@ -46,14 +51,14 @@ export class DependencyService {
     return this.http.get<{
       dependencies: dependency[];
       length: number;
-    }>(`${this.url}`, { params });
+    }>(`${this.URL}`, { params });
   }
 
   create(form: Object) {
-    return this.http.post<dependency>(`${this.url}`, form);
+    return this.http.post<dependency>(`${this.URL}`, form);
   }
 
   update(id: string, form: Object) {
-    return this.http.patch<dependency>(`${this.url}/${id}`, form);
+    return this.http.patch<dependency>(`${this.URL}/${id}`, form);
   }
 }

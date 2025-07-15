@@ -1,13 +1,13 @@
 import { Officer } from './officer.model';
 
 interface AccountProps {
-  _id: string;
+  id: string;
   officer?: Officer;
   isVisible: boolean;
   dependencia: dependency;
   user: user;
   jobtitle: string;
-  area?: number;
+  area: number |null;
 }
 
 interface dependency {
@@ -23,31 +23,33 @@ interface user {
 }
 
 export class Account {
-  _id: string;
+  id: string;
 
   officer?: Officer;
   isVisible: boolean;
   dependencia: dependency;
   jobtitle: string;
   user: user;
-
+  area:number|null
   constructor({
-    _id,
+    id: _id,
     officer,
     isVisible,
     dependencia,
     jobtitle,
     user,
+    area
   }: AccountProps) {
-    this._id = _id;
+    this.id = _id;
     this.officer = officer;
     this.dependencia = dependencia;
     this.isVisible = isVisible;
     this.jobtitle = jobtitle;
     this.user = user;
+    this.area=area
   }
 
   get fullnameManager(): string {
-    return this.officer ? this.officer.fullname : 'DESVINCULADO';
+    return this.officer ? this.officer.fullname : 'SIN ASIGNAR';
   }
 }
