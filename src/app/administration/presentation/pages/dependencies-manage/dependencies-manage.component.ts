@@ -100,11 +100,11 @@ export default class DependenciesManageComponent {
     });
   }
 
-  viewPersonnel(data: dependency) {
+  viewPersonnel(item: dependency) {
     this.dialog.open(PersonnelDialogComponent, {
-      width: '900px',
-      maxWidth: '900px',
-      data,
+      width: '1000px',
+      maxWidth: '1000px',
+      data: item,
     });
   }
 

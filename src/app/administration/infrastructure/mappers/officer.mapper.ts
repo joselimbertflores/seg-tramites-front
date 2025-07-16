@@ -4,7 +4,7 @@ import { officer } from '../interfaces/officer.interface';
 export class OfficerMapper {
   static fromResponse(response: officer): Officer {
     return new Officer({
-      _id: response['_id'],
+      id: response['_id'],
       nombre: response['nombre'],
       paterno: response['paterno'],
       materno: response['materno'],

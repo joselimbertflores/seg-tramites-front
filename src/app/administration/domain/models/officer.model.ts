@@ -1,5 +1,5 @@
 interface OfficerProps {
-  _id: string;
+  id: string;
   nombre: string;
   paterno: string;
   materno: string;
@@ -13,7 +13,7 @@ interface credentials {
   password: string;
 }
 export class Officer {
-  public _id: string;
+  public id: string;
   public nombre: string;
   public paterno: string;
   public materno: string;
@@ -22,7 +22,7 @@ export class Officer {
   public activo: boolean;
 
   constructor({
-    _id,
+    id: _id,
     nombre,
     paterno,
     materno,
@@ -30,7 +30,7 @@ export class Officer {
     telefono,
     activo,
   }: OfficerProps) {
-    this._id = _id;
+    this.id = _id;
     this.nombre = nombre;
     this.paterno = paterno;
     this.materno = materno;

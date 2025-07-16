@@ -124,11 +124,11 @@ export class CreateAccountDialogComponent implements OnInit {
     const { login, password } = officer.generateCredentials();
     this.formUser.patchValue({
       fullname: officer.fullname,
-      officer: officer._id,
+      officer: officer.id,
       login,
       password,
     });
-    this.formAccount.patchValue({ officer: officer._id });
+    this.formAccount.patchValue({ officer: officer.id });
   }
 
   get isFormValid() {

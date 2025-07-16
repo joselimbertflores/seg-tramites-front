@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import { environment } from '../../../../environments/environment';
 
+import { environment } from '../../../../environments/environment';
 import { officer, OfficerMapper } from '../../infrastructure';
 import { Officer } from '../../domain';
 
@@ -10,7 +10,7 @@ import { Officer } from '../../domain';
   providedIn: 'root',
 })
 export class OfficerService {
-  private readonly url = `${environment.base_url}/officers`;
+  private readonly URL = `${environment.base_url}/officers`;
 
   constructor(private http: HttpClient) {}
 
@@ -19,10 +19,7 @@ export class OfficerService {
       fromObject: { limit, offset, ...(term && { term }) },
     });
     return this.http
-      .get<{ ok: boolean; officers: officer[]; length: number }>(
-        `${this.url}`,
-        { params }
-      )
+      .get<{ officers: officer[]; length: number }>(`${this.URL}`, { params })
       .pipe(
         map(({ officers, length }) => ({
           officers: officers.map((officer) =>
@@ -33,15 +30,15 @@ export class OfficerService {
       );
   }
 
-  create(form: Object): Observable<Officer> {
+  create(form: object): Observable<Officer> {
     return this.http
-      .post<officer>(`${this.url}`, form)
+      .post<officer>(`${this.URL}`, form)
       .pipe(map((resp) => OfficerMapper.fromResponse(resp)));
   }
 
-  update(id: string, officer: Object): Observable<Officer> {
+  update(id: string, officer: object): Observable<Officer> {
     return this.http
-      .patch<officer>(`${this.url}/${id}`, officer)
+      .patch<officer>(`${this.URL}/${id}`, officer)
       .pipe(map((resp) => OfficerMapper.fromResponse(resp)));
   }
 }

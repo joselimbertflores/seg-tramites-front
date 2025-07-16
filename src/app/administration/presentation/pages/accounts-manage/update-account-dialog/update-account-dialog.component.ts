@@ -134,7 +134,7 @@ export class UpdateAccountDialogComponent {
   onSelectOfficer(officer: Officer): void {
     const { login, password } = officer.generateCredentials();
     this.fullname.set(officer.fullname);
-    this.formAccount.patchValue({ officer: officer._id });
+    this.formAccount.patchValue({ officer: officer.id });
     this.formUser.patchValue({
       fullname: officer.fullname,
       login,
@@ -149,7 +149,7 @@ export class UpdateAccountDialogComponent {
   private _loadForm(): void {
     const { user, officer, ...props } = this.data();
     this.formUser.patchValue(user);
-    this.formAccount.patchValue({ ...props, officer: officer?._id });
+    this.formAccount.patchValue({ ...props, officer: officer?.id });
     this.fullname.set(officer?.fullname ?? null);
   }
 

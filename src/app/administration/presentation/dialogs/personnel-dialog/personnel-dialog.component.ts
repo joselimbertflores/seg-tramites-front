@@ -32,31 +32,31 @@ import { Account } from '../../../domain';
     <h2 mat-dialog-title>Personal de unidad</h2>
     <mat-dialog-content>
       <div class="mb-4">{{ data.nombre }}</div>
-      <div class="flex flex-col gap-3 overflow-y-auto max-h-80 p-3 border-2 rounded-lg">
+      <div  class="flex flex-col overflow-y-auto h-[350px] divide-y-2 border rounded-xl px-3">
         @for (item of personnel(); track $index) {
-          <div class="flex flex-col sm:flex-row items-center">
-            <div class="w-full sm:w-1/2">
-              <div class="block font-medium">
-                {{ item.fullnameManager| titlecase }}
-              </div>
-              <div>
-                {{ item.jobtitle }}
-              </div>
+        <div class="flex flex-col sm:flex-row items-center py-2">
+          <div class="w-full sm:w-1/2">
+            <div class="block font-medium" [ngClass]="{'text-red-500':!item.officer}">
+              {{ item.fullnameManager | titlecase }}
             </div>
-            <div class="w-full sm:w-1/2 h-[54px]">
-              <mat-form-field appearance="outline">
-                <mat-label>Area</mat-label>
-                <mat-select [(ngModel)]="item.area">
-                  <mat-option [value]="null"> NINGUNA </mat-option>
-                  @for (area of data.areas; track $index) {
-                    <mat-option [value]="area.code">
-                      {{ area.name }}
-                    </mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+            <div>
+              {{ item.jobtitle | uppercase }}
             </div>
           </div>
+          <div class="w-full sm:w-1/2 h-[48px]">
+            <mat-form-field>
+              <mat-label>Area</mat-label>
+              <mat-select [(ngModel)]="item.area">
+                <mat-option [value]="null"> NINGUNA </mat-option>
+                @for (area of data.areas; track $index) {
+                <mat-option [value]="area.code">
+                  {{ area.name }}
+                </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
         } 
         @empty {
           <p>Sin personal</p>
