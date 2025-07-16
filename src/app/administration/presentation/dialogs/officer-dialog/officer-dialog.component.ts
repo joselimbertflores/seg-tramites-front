@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import {
-  ReactiveFormsModule,
   FormGroup,
   Validators,
   FormBuilder,
+  ReactiveFormsModule,
 } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -15,6 +15,11 @@ import {
   MAT_DIALOG_DATA,
   MatDialogRef,
 } from '@angular/material/dialog';
+
+import {
+  FormErrorMessagesPipe,
+  FieldValidationErrorMessages,
+} from '../../../../shared';
 import { OfficerService } from '../../services';
 import { Officer } from '../../../domain';
 
@@ -28,6 +33,7 @@ import { Officer } from '../../../domain';
     MatInputModule,
     MatIconModule,
     MatCheckboxModule,
+    FormErrorMessagesPipe,
   ],
   templateUrl: './officer-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -38,14 +44,31 @@ export class OfficerDialogComponent {
   private officerService = inject(OfficerService);
 
   data: Officer | undefined = inject(MAT_DIALOG_DATA);
-  officerForm: FormGroup = this.formBuilder.group({
+  officerForm: FormGroup = this.formBuilder.nonNullable.group({
     nombre: ['', Validators.required],
     paterno: ['', Validators.required],
     materno: [''],
-    dni: ['', Validators.required],
-    telefono: ['', Validators.required],
-    activo: [true, Validators.required],
+    dni: [
+      '',
+      [
+        Validators.required,
+        Validators.pattern('^[a-zA-Z0-9-]+$'),
+        Validators.minLength(5),
+        Validators.maxLength(12),
+      ],
+    ],
+    activo: [true],
+    telefono: ['', Validators.pattern('^[0-9]*$')],
   });
+
+  protected errorMessages: FieldValidationErrorMessages = {
+    dni: {
+      pattern: 'No se permiten caracteres especiales',
+    },
+    telefono: {
+      pattern: 'Solo se permiten numeros',
+    },
+  };
 
   ngOnInit(): void {
     this.officerForm.patchValue(this.data ?? {});

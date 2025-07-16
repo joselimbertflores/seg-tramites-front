@@ -1,7 +1,7 @@
 <h2 mat-dialog-title>{{ data ? "Edicion" : "Creacion" }} Funcionario</h2>
 <mat-dialog-content>
   <div class="pt-2">
-    <form [formGroup]="officerForm">
+    <form [formGroup]="officerForm" class="space-y-2">
       <mat-form-field>
         <mat-label>Nombre</mat-label>
         <input formControlName="nombre" matInput />
@@ -16,18 +16,28 @@
       </mat-form-field>
       <div class="flex gap-x-2">
         <mat-form-field>
-          <mat-label>Dni</mat-label>
+          <mat-label>Numero CI</mat-label>
           <input formControlName="dni" matInput />
+          @if (officerForm.get('dni')?.hasError) {
+            <mat-error>
+              {{  officerForm.get("dni")?.errors | formErrorMessages:errorMessages?.['dni'] }}
+            </mat-error>
+          }
         </mat-form-field>
         <mat-form-field>
           <mat-label>Telefono</mat-label>
           <input formControlName="telefono" matInput />
+           @if (officerForm.get('telefono')?.hasError) {
+            <mat-error>
+              {{  officerForm.get("telefono")?.errors | formErrorMessages:errorMessages?.['telefono'] }}
+            </mat-error>
+          }
         </mat-form-field>
       </div>
       <mat-checkbox formControlName="activo"> Habilitado </mat-checkbox>
     </form>
   </div>
-</mat-dialog-content> 
+</mat-dialog-content>
 <mat-dialog-actions align="end">
   <button mat-button color="warn" mat-dialog-close>Cancelar</button>
   <button

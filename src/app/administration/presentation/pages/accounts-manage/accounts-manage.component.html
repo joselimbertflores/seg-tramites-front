@@ -1,130 +1,150 @@
-<div class="animate-fadeIn">
-  <mat-toolbar>
-    <span>Cuentas</span>
-    <span class="flex-1"></span>
+<mat-toolbar>
+  <span>Cuentas</span>
+  <span class="flex-1"></span>
+  <div class="flex gap-x-3">
     <button
       mat-icon-button
-      aria-label="Filter user"
       cdkOverlayOrigin
       #menuOverlay="cdkOverlayOrigin"
+       matTooltip="Filtrar"
       (click)="isOpen = !isOpen"
     >
       <mat-icon>filter_alt</mat-icon>
     </button>
-    <button mat-icon-button aria-label="Add user" (click)="create()">
+    <button mat-icon-button matTooltip="Crear cuenta" (click)="create()">
       <mat-icon>add</mat-icon>
     </button>
-  </mat-toolbar>
+  </div>
+</mat-toolbar>
 
-  <ng-template
-    cdkConnectedOverlay
-    [cdkConnectedOverlayOrigin]="menuOverlay"
-    [cdkConnectedOverlayOpen]="isOpen"
-    (overlayOutsideClick)="isOpen = false"
-  >
-    <div class="overlay-menu mat-elevation-z8 px-2 py-3 sm:w-[450px]">
-      <simple-select-search
-        placeholder="Institucion"
-        [elements]="institutions()"
-        [value]="institution()"
-        (onSelect)="onSelectInstitution($event!)"
-      />
-      <simple-select-search
-        placeholder="Dependencia"
-        [elements]="dependencies()"
-        [value]="dependency()"
-        (onSelect)="dependency.set($event)"
-      />
-
-      <div class="flex justify-end gap-x-2 mt-2">
-        <button mat-button (click)="reset()">Restablecer</button>
-        <button mat-flat-button (click)="filter()">Buscar</button>
+<ng-template
+  cdkConnectedOverlay
+  [cdkConnectedOverlayOrigin]="menuOverlay"
+  [cdkConnectedOverlayOpen]="isOpen"
+  (overlayOutsideClick)="isOpen = false"
+>
+  <div class="overlay p-3 sm:w-[600px]" @overlayAnimation>
+    <div class="flex items-center justify-between px-2 mb-4">
+      <div class="flex flex-col">
+        <span class="text-lg font-medium">Filtro avanzado</span>
+        <span class="text-sm">Ingrese los campos</span>
+      </div>
+      <div>
+        <button mat-icon-button (click)="isOpen = false">
+          <mat-icon>close</mat-icon>
+        </button>
       </div>
     </div>
-  </ng-template>
-  <div class="flex justify-end py-2">
-    <div class="w-full px-2 sm:w-1/4 h-11">
-      <search-input (onSearch)="search($event)" />
+
+    <select-search
+      title="Institucion"
+      [value]="selectedInstition()"
+      [items]="institutions()"
+      (onSelect)="selectedInstition.set($event)"
+    />
+    <select-search
+      title="Dependencia"
+      [value]="selectedDependecy()"
+      [items]="dependencies.value() ?? []"
+      (onSelect)="selectedDependecy.set($event)"
+    />
+
+    <div class="flex justify-end gap-x-2 mt-2">
+      <button mat-button (click)="reset()">Restablecer</button>
+      <button mat-flat-button (click)="filter()">Buscar</button>
     </div>
   </div>
+</ng-template>
 
-  <div class="mat-elevation-z8">
-    <table mat-table [dataSource]="datasource()">
-      <ng-container matColumnDef="fullname">
-        <th mat-header-cell *matHeaderCellDef>Funcionario</th>
-        <td mat-cell *matCellDef="let element">
-          @if(element.officer){
-          {{ element.officer.fullname | titlecase }}
-          } @else {
-          <span class="fw-bold text-red-600">SIN ASIGNAR</span>
-          }
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="visibility">
-        <th mat-header-cell *matHeaderCellDef></th>
-        <td mat-cell *matCellDef="let element" class="w-8">
-          @if ( element.isVisible) {
-          <mat-icon color="primary">visibility</mat-icon>
-          } @else {
-          <mat-icon color="warn">visibility_off</mat-icon>
-          }
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="jobtitle">
-        <th mat-header-cell *matHeaderCellDef>Cargo</th>
-        <td mat-cell *matCellDef="let element">
-          {{ element.jobtitle }}
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="dependency">
-        <th mat-header-cell *matHeaderCellDef>Dependencia</th>
-        <td mat-cell *matCellDef="let element">
-          {{ element.dependencia?.nombre }}
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="state">
-        <th mat-header-cell *matHeaderCellDef>Estado</th>
-        <td mat-cell *matCellDef="let element">
-          @if (element.user.isActive) {
-          <span
-            class="inline-flex items-center rounded-md bg-green-100 px-2 py-1 text-xs font-medium text-green-800 ring-1 ring-inset ring-green-600/20"
-            >Activo
-          </span>
-          } @else {
-          <span
-            class="inline-flex items-center rounded-md bg-red-100 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10"
-          >
-            Inactivo
-          </span>
-          }
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="options">
-        <th mat-header-cell *matHeaderCellDef></th>
-        <td mat-cell *matCellDef="let element" class="w-8">
-          <button (click)="update(element)" mat-icon-button>
-            <mat-icon>edit</mat-icon>
-          </button>
-        </td>
-      </ng-container>
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-      <tr class="mat-row" *matNoDataRow>
-        <td class="mat-cell p-3" colspan="5">No se encontraron resultados</td>
-      </tr>
-    </table>
-    <mat-paginator
-      aria-label="Select page of users search results"
-      showFirstLastButtons
-      [length]="datasize()"
-      [pageIndex]="index()"
-      [pageSize]="10"
-      (page)="onPageChange($event)"
+<div class="flex justify-end py-2">
+  <div class="w-full px-2 sm:w-1/4 h-11">
+    <search-input
+      (onSearch)="search($event)"
+      placeholder="Nombre / CI / Cargo"
     />
   </div>
+</div>
+
+<div class="p-2 sm:p-4">
+  <table mat-table [dataSource]="dataSource()">
+    <ng-container matColumnDef="fullname">
+      <th mat-header-cell *matHeaderCellDef>Funcionario</th>
+      <td mat-cell *matCellDef="let element">
+        @if(element.officer){
+        {{ element.officer.fullname | titlecase }}
+        } @else {
+        <span class="fw-bold text-red-600">SIN ASIGNAR</span>
+        }
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="login">
+      <th mat-header-cell *matHeaderCellDef>Usuario</th>
+      <td mat-cell *matCellDef="let element">
+       {{element.user.login}}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="visibility">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let element" class="w-8">
+        @if ( element.isVisible) {
+        <mat-icon color="primary">visibility</mat-icon>
+        } @else {
+        <mat-icon color="warn">visibility_off</mat-icon>
+        }
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="jobtitle">
+      <th mat-header-cell *matHeaderCellDef>Cargo</th>
+      <td mat-cell *matCellDef="let element">
+        {{ element.jobtitle }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="dependency">
+      <th mat-header-cell *matHeaderCellDef>Dependencia</th>
+      <td mat-cell *matCellDef="let element">
+        {{ element.dependencia?.nombre }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="state">
+      <th mat-header-cell *matHeaderCellDef>Estado</th>
+      <td mat-cell *matCellDef="let element">
+        <span
+          class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset"
+          [ngClass]="
+            element.user.isActive
+              ? 'bg-green-100 text-green-800 ring-green-600/20'
+              : 'bg-red-100 text-red-700 ring-red-600/10'
+          "
+        >
+          {{ element.user.isActive ? "Activo" : "Inactivo" }}
+        </span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="options">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let element" class="w-8">
+        <button (click)="update(element)" mat-icon-button>
+          <mat-icon>edit</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    <tr class="mat-row" *matNoDataRow>
+      <td class="mat-cell p-3" colspan="7">No se encontraron resultados</td>
+    </tr>
+  </table>
+  <mat-paginator
+    showFirstLastButtons
+    [length]="dataSize()"
+    [pageIndex]="index()"
+    [pageSize]="limit()"
+    (page)="onPageChange($event)"
+  />
 </div>

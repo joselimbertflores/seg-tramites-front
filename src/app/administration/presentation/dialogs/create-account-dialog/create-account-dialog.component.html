@@ -3,22 +3,36 @@
   <mat-stepper orientation="vertical" [linear]="false" #stepper>
     <mat-step [stepControl]="formAccount" label="Detalles Cuenta">
       <form [formGroup]="formAccount" class="py-2">
-        <simple-select-search
-          placeholder="Seleccione la institucion"
-          [elements]="institutions()"
-          (onSelect)="onSelectInstitution($event)"
+        <select-search
+          title="Institucion"
+          [items]="institutions()"
+          (onSelect)="selectedInstitution.set($event)"
         />
-        <simple-select-search
-          placeholder="Buscar dependencia"
-          [elements]="dependencies()"
+        <select-search
+          title="Dependencia"
+          [items]="dependencies.value() ?? []"
           (onSelect)="formAccount.get('dependency')?.setValue($event)"
         />
-        <server-select-search
-          placeholder="Buscar funcionario"
-          [elements]="officers()"
-          (onSearch)="searchOfficer($event)"
-          (onSelect)="onSelectOfficer($event)"
-        />
+
+        @if (selectedOfficer()) {
+          <mat-form-field>
+            <mat-label>Funcionario</mat-label>
+            <input matInput [value]="selectedOfficer()?.fullname" readonly />
+            <button matSuffix matIconButton (click)="unlink()">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+        } 
+        @else {
+          <select-search
+            title="Funcionario"
+            [autoFilter]="false"
+            [items]="officers()"
+            (onTyped)="searchOfficer($event)"
+            (onSelect)="onSelectOfficer($event)"
+          />
+        }
+
         <mat-form-field>
           <mat-label>Cargo</mat-label>
           <input
@@ -33,8 +47,8 @@
         </div>
       </form>
     </mat-step>
-    <mat-step [stepControl]="formUser" label="Detalles Usuario">
-      <form [formGroup]="formUser" class="py-2">
+    <mat-step [stepControl]="userForm" label="Detalles Usuario">
+      <form [formGroup]="userForm" class="py-2">
         <div class="grid grid-cols-2 gap-x-2">
           <div class="col-span-2">
             <mat-form-field>
@@ -47,10 +61,10 @@
             </mat-form-field>
           </div>
           <div class="col-span-2">
-            <simple-select-search
-              placeholder="Seleccione un rol"
-              [elements]="roles()"
-              (onSelect)="formUser.get('role')?.setValue($event)"
+            <select-search
+              title="Rol"
+              [items]="roles()"
+              (onSelect)="userForm.get('role')?.setValue($event)"
             />
           </div>
           <div>

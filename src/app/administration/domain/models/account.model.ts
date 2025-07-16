@@ -24,7 +24,6 @@ interface user {
 
 export class Account {
   id: string;
-
   officer?: Officer;
   isVisible: boolean;
   dependencia: dependency;

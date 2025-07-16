@@ -26,12 +26,12 @@ import { Officer } from '../../../domain';
   imports: [
     CommonModule,
     MatTableModule,
-    MatFormFieldModule,
     MatInputModule,
     MatIconModule,
     MatButtonModule,
-    MatPaginatorModule,
     MatToolbarModule,
+    MatFormFieldModule,
+    MatPaginatorModule,
     SearchInputComponent,
   ],
   templateUrl: './officers-manage.component.html',
@@ -71,7 +71,7 @@ export default class OfficersManageComponent {
 
   create() {
     const dialogRef = this.dialogRef.open(OfficerDialogComponent, {
-      width: '500px',
+      width: '600px',
     });
     dialogRef.afterClosed().subscribe((result: Officer) => {
       if (!result) return;
@@ -84,13 +84,13 @@ export default class OfficersManageComponent {
 
   update(item: Officer) {
     const dialogRef = this.dialogRef.open(OfficerDialogComponent, {
-      width: '500px',
+      width: '600px',
       data: item,
     });
-    dialogRef.afterClosed().subscribe((result) => {
+    dialogRef.afterClosed().subscribe((result:Officer|undefined) => {
       if (!result) return;
       this.dataSource.update((values) => {
-        const index = values.findIndex(({ id: _id }) => _id === result._id);
+        const index = values.findIndex(({ id }) => id === result.id);
         if (index === -1) return values;
         values[index] = result;
         return [...values];

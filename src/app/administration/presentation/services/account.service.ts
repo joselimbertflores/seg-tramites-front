@@ -1,6 +1,8 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable, resource, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { map } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { firstValueFrom, map, Observable, of } from 'rxjs';
+
 import { environment } from '../../../../environments/environment';
 import {
   account,
@@ -11,6 +13,7 @@ import {
   OfficerMapper,
 } from '../../infrastructure';
 import { role } from '../../../users/infrastructure';
+import { lab } from 'd3';
 
 interface FilterAccountsParams {
   limit: number;
@@ -19,55 +22,88 @@ interface FilterAccountsParams {
   dependency?: string;
 }
 
+interface selectOption {
+  value: string;
+  label: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class AccountService {
-  private readonly url = `${environment.base_url}/accounts`;
+  private readonly URL = `${environment.base_url}/accounts`;
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {}
+  institutions = toSignal(this.getInstitutions(), { initialValue: [] });
+  selectedInstitution = signal<string | null>(null);
+  selectedDependency = signal<string | null>(null);
+  dependencies = resource({
+    params: () => ({ institution: this.selectedInstitution() }),
+    loader: ({ params }) =>
+      params.institution
+        ? firstValueFrom(this.getDependencies(params.institution))
+        : firstValueFrom(of([])),
+  });
 
-  getRoles() {
-    return this.http.get<role[]>(`${this.url}/roles`);
+  getRoles(): Observable<selectOption[]> {
+    return this.http
+      .get<role[]>(`${this.URL}/roles`)
+      .pipe(
+        map((resp) =>
+          resp.map(({ _id, name }) => ({ value: _id, label: name }))
+        )
+      );
   }
 
-  getInstitutions() {
-    return this.http.get<institution[]>(`${this.url}/institutions`);
+  getInstitutions(): Observable<selectOption[]> {
+    return this.http
+      .get<institution[]>(`${this.URL}/institutions`)
+      .pipe(
+        map((resp) =>
+          resp.map(({ _id, nombre }) => ({ value: _id, label: nombre }))
+        )
+      );
   }
 
-  getDependenciesOfInstitution(institutionId: string) {
-    return this.http.get<dependency[]>(
-      `${this.url}/dependencies/${institutionId}`
-    );
+  getDependencies(institutionId: string): Observable<selectOption[]> {
+    return this.http
+      .get<dependency[]>(`${this.URL}/dependencies/${institutionId}`)
+      .pipe(
+        map((resp) =>
+          resp.map(({ _id, nombre }) => ({ value: _id, label: nombre }))
+        )
+      );
   }
 
   searchOfficersWithoutAccount(term: string) {
     const params = new HttpParams({ fromObject: { term } });
     return this.http
-      .get<officer[]>(`${this.url}/assign`, { params })
+      .get<officer[]>(`${this.URL}/assign`, { params })
       .pipe(
         map((resp) =>
-          resp.map((officer) => OfficerMapper.fromResponse(officer))
+          resp
+            .map((resp) => OfficerMapper.fromResponse(resp))
+            .map((officer) => ({ value: officer, label: officer.fullname }))
         )
       );
   }
 
-  findAll({
-    limit,
-    offset,
-    term,
-    dependency,
-  }: FilterAccountsParams) {
+  findAll(limit: number, offset: number, term?: string) {
     const params = new HttpParams({
       fromObject: {
         limit,
         offset,
         ...(term && { term }),
-        ...(dependency && { dependency }),
+        ...(this.selectedInstitution() && {
+          institution: this.selectedInstitution()!,
+        }),
+        ...(this.selectedDependency() && {
+          dependency: this.selectedDependency()!,
+        }),
       },
     });
     return this.http
-      .get<{ accounts: account[]; length: number }>(`${this.url}`, {
+      .get<{ accounts: account[]; length: number }>(`${this.URL}`, {
         params,
       })
       .pipe(
@@ -82,14 +118,14 @@ export class AccountService {
 
   create(formUser: Object, formAccount: Object) {
     return this.http
-      .post<account>(this.url, { user: formUser, account: formAccount })
+      .post<account>(this.URL, { user: formUser, account: formAccount })
       .pipe(map((resp) => AccountMapper.fromResponse(resp)));
   }
 
   edit(id: string, formUser: Record<string, any>, formAccount: Object) {
     if (formUser['password'] === '') delete formUser['password'];
     return this.http
-      .patch<account>(`${this.url}/${id}`, {
+      .patch<account>(`${this.URL}/${id}`, {
         user: formUser,
         account: formAccount,
       })
@@ -97,7 +133,7 @@ export class AccountService {
   }
 
   unlink(id: string) {
-    return this.http.delete<{ message: string }>(`${this.url}/unlink/${id}`);
+    return this.http.delete<{ message: string }>(`${this.URL}/unlink/${id}`);
   }
 
   getDetails(id_cuenta: string) {
@@ -110,7 +146,7 @@ export class AccountService {
           entrada?: number;
           salida?: number;
         };
-      }>(`${this.url}/cuentas/details/${id_cuenta}`)
+      }>(`${this.URL}/cuentas/details/${id_cuenta}`)
       .pipe(
         map((resp) => {
           return resp.details;

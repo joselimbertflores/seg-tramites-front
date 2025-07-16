@@ -122,24 +122,24 @@ export class UpdateAccountDialogComponent {
   }
 
   searchOfficer(text: string) {
-    this.accountService.searchOfficersWithoutAccount(text).subscribe((data) => {
-      const options = data.map((officer) => ({
-        value: officer,
-        text: officer.fullname,
-      }));
-      this.officers.set(options);
-    });
+    // this.accountService.searchOfficersWithoutAccount(text).subscribe((data) => {
+    //   const options = data.map((officer) => ({
+    //     value: officer,
+    //     text: officer.fullname,
+    //   }));
+    //   this.officers.set(options);
+    // });
   }
 
   onSelectOfficer(officer: Officer): void {
-    const { login, password } = officer.generateCredentials();
-    this.fullname.set(officer.fullname);
-    this.formAccount.patchValue({ officer: officer.id });
-    this.formUser.patchValue({
-      fullname: officer.fullname,
-      login,
-      password,
-    });
+    // const { login, password } = officer.generateCredentials();
+    // this.fullname.set(officer.fullname);
+    // this.formAccount.patchValue({ officer: officer.id });
+    // this.formUser.patchValue({
+    //   fullname: officer.fullname,
+    //   login,
+    //   password,
+    // });
   }
 
   get isFormValid() {
@@ -154,10 +154,10 @@ export class UpdateAccountDialogComponent {
   }
 
   private _getRequiredProps(): void {
-    this.accountService.getRoles().subscribe((roles) => {
-      this.roles.set(
-        roles.map(({ _id, name }) => ({ value: _id, text: name }))
-      );
-    });
+    // this.accountService.getRoles().subscribe((roles) => {
+    //   this.roles.set(
+    //     roles.map(({ _id, name }) => ({ value: _id, text: name }))
+    //   );
+    // });
   }
 }
