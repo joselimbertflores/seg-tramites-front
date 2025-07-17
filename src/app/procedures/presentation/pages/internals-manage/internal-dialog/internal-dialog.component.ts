@@ -64,7 +64,7 @@ export class InternalDialogComponent {
     reference: ['', Validators.required],
     cite: [this.account?.dependencia.codigo],
     sender: this._formBuilder.group({
-      fullname: [this.account?.officer?.fullname, Validators.required],
+      fullname: [this.account?.officer?.fullName, Validators.required],
       jobtitle: [this.account?.jobtitle, Validators.required],
     }),
     recipient: this._formBuilder.group({
@@ -89,7 +89,7 @@ export class InternalDialogComponent {
     if (!term) return;
     this.internalService.searchAccounts(term).subscribe((data) => {
       const options: AutocompleteOption<Account>[] = data.map((el) => ({
-        text: el.officer?.fullname ?? 'Desvinculado',
+        text: el.officer?.fullName ?? 'Desvinculado',
         value: el,
       }));
       this.officers.update((values) => ({ ...values, [field]: options }));
@@ -98,7 +98,7 @@ export class InternalDialogComponent {
 
   onSelectAcount(field: validFormfield, account: Account): void {
     this.formProcedure.get(`${field}`)?.patchValue({
-      fullname: account.officer?.fullname,
+      fullname: account.officer?.fullName,
       jobtitle: account.jobtitle,
     });
   }

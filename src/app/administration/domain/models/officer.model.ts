@@ -35,7 +35,7 @@ export class Officer {
     this.activo = activo;
   }
 
-  get fullname() {
+  get fullName() {
     return `${this.nombre} ${this.paterno} ${this.materno}`;
   }
 }

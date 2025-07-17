@@ -6,7 +6,7 @@
       mat-icon-button
       cdkOverlayOrigin
       #menuOverlay="cdkOverlayOrigin"
-       matTooltip="Filtrar"
+      matTooltip="Filtrar"
       (click)="isOpen = !isOpen"
     >
       <mat-icon>filter_alt</mat-icon>
@@ -71,17 +71,10 @@
       <th mat-header-cell *matHeaderCellDef>Funcionario</th>
       <td mat-cell *matCellDef="let element">
         @if(element.officer){
-        {{ element.officer.fullname | titlecase }}
+        {{ element.officer.fullName | titlecase }}
         } @else {
         <span class="fw-bold text-red-600">SIN ASIGNAR</span>
         }
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="login">
-      <th mat-header-cell *matHeaderCellDef>Usuario</th>
-      <td mat-cell *matCellDef="let element">
-       {{element.user.login}}
       </td>
     </ng-container>
 
@@ -129,9 +122,23 @@
     <ng-container matColumnDef="options">
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let element" class="w-8">
-        <button (click)="update(element)" mat-icon-button>
+        <!-- <button (click)="update(element)" mat-icon-button>
           <mat-icon>edit</mat-icon>
+        </button> -->
+        <button matIconButton [matMenuTriggerFor]="menu">
+          <mat-icon>more_vert</mat-icon>
         </button>
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item (click)="update(element)">
+            <mat-icon>edit</mat-icon>
+            <span>Editar</span>
+          </button>
+          <button mat-menu-item (click)="resetCrendentials(element)">
+            <mat-icon>voicemail</mat-icon>
+            <span>Resetear Credenciales</span>
+          </button>
+         
+        </mat-menu>
       </td>
     </ng-container>
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

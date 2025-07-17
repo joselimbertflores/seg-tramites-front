@@ -1,7 +1,7 @@
 import { inject, Injectable, resource, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { firstValueFrom, map, Observable, of } from 'rxjs';
+import { firstValueFrom, map, Observable, of, tap } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
 import {
@@ -83,7 +83,7 @@ export class AccountService {
         map((resp) =>
           resp
             .map((resp) => OfficerMapper.fromResponse(resp))
-            .map((officer) => ({ value: officer, label: officer.fullname }))
+            .map((officer) => ({ value: officer, label: officer.fullName }))
         )
       );
   }
@@ -122,14 +122,27 @@ export class AccountService {
       .pipe(map((resp) => AccountMapper.fromResponse(resp)));
   }
 
-  edit(id: string, formUser: Record<string, any>, formAccount: Object) {
-    if (formUser['password'] === '') delete formUser['password'];
+  update(id: string, formUser: object, formAccount: object) {
+    console.log(formAccount);
     return this.http
       .patch<account>(`${this.URL}/${id}`, {
-        user: formUser,
+        // user: formUser,
         account: formAccount,
       })
       .pipe(map((resp) => AccountMapper.fromResponse(resp)));
+  }
+
+  resetAccountAccess(id: string) {
+    return this.http
+      .get<{ newLogin: string; pdfBase64: string }>(
+        `${this.URL}/reset-credentials/${id}`
+      )
+      .pipe(
+        tap(({ pdfBase64 }) => {
+          this.showPdfFromBase64(pdfBase64);
+        }),
+        map(({ newLogin }) => newLogin)
+      );
   }
 
   unlink(id: string) {
@@ -152,5 +165,14 @@ export class AccountService {
           return resp.details;
         })
       );
+  }
+
+  showPdfFromBase64(base64: string): void {
+    const byteCharacters = atob(base64);
+    const byteNumbers = Array.from(byteCharacters).map((c) => c.charCodeAt(0));
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: 'application/pdf' });
+    const blobUrl = URL.createObjectURL(blob);
+    window.open(blobUrl, '_blank');
   }
 }

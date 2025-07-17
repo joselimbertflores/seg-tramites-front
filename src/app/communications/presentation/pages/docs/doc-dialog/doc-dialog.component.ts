@@ -115,7 +115,7 @@ export class DocDialogComponent implements OnInit {
     if (!term) return;
     this.docService.searchAccounts(term).subscribe((data) => {
       const options: AutocompleteOption<Account>[] = data.map((option) => ({
-        text: option.officer?.fullname ?? 'Desvinculado',
+        text: option.officer?.fullName ?? 'Desvinculado',
         value: option,
       }));
       this.participants.update((values) => ({ ...values, [field]: options }));
@@ -124,7 +124,7 @@ export class DocDialogComponent implements OnInit {
 
   onSelectAcount(path: validFormfield, account: Account): void {
     this.formDoc.get(path)?.patchValue({
-      fullname: account.officer?.fullname,
+      fullname: account.officer?.fullName,
       jobtitle: account.jobtitle,
     });
   }

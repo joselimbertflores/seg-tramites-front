@@ -49,6 +49,6 @@ export class Account {
   }
 
   get fullnameManager(): string {
-    return this.officer ? this.officer.fullname : 'SIN ASIGNAR';
+    return this.officer ? this.officer.fullName : 'SIN ASIGNAR';
   }
 }

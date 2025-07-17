@@ -1,28 +1,32 @@
 <h2 mat-dialog-title>Crear Cuenta</h2>
 <mat-dialog-content>
   <mat-stepper orientation="vertical" [linear]="false" #stepper>
-    <mat-step [stepControl]="formAccount" label="Detalles Cuenta">
-      <form [formGroup]="formAccount" class="py-2">
-        <select-search
-          title="Institucion"
-          [items]="institutions()"
-          (onSelect)="selectedInstitution.set($event)"
-        />
-        <select-search
-          title="Dependencia"
-          [items]="dependencies.value() ?? []"
-          (onSelect)="formAccount.get('dependency')?.setValue($event)"
-        />
+    <mat-step [stepControl]="accountForm" label="Detalles Cuenta">
+      <form [formGroup]="accountForm" class="py-2">
+        @if(accountForm.get('dependencyId')){
+          <select-search
+            title="Institucion"
+            [items]="institutions()"
+            (onSelect)="selectedInstitution.set($event)"
+          />
+          <select-search
+            title="Dependencia"
+            [items]="dependencies.value() ?? []"
+            (onSelect)="accountForm.get('dependencyId')?.setValue($event)"
+          />
+        }
+        <pre>{{accountForm.value | json}}</pre>
 
         @if (selectedOfficer()) {
           <mat-form-field>
             <mat-label>Funcionario</mat-label>
-            <input matInput [value]="selectedOfficer()?.fullname" readonly />
+            <input matInput [value]="selectedOfficer()?.fullName" readonly />
             <button matSuffix matIconButton (click)="unlink()">
               <mat-icon>close</mat-icon>
             </button>
           </mat-form-field>
         } 
+        
         @else {
           <select-search
             title="Funcionario"
@@ -41,6 +45,7 @@
             placeholder="Ingrese el cargo"
           />
         </mat-form-field>
+
         <mat-checkbox formControlName="isVisible"> Visible </mat-checkbox>
         <div class="flex justify-end">
           <button mat-button matStepperNext>Siguiente</button>
@@ -51,53 +56,12 @@
       <form [formGroup]="userForm" class="py-2">
         <div class="grid grid-cols-2 gap-x-2">
           <div class="col-span-2">
-            <mat-form-field>
-              <mat-label>Nombre de usuario</mat-label>
-              <input
-                matInput
-                formControlName="fullname"
-                placeholder="Ingrese un nombre"
-              />
-            </mat-form-field>
-          </div>
-          <div class="col-span-2">
             <select-search
               title="Rol"
+              [value]="userForm.get('role')?.value"
               [items]="roles()"
               (onSelect)="userForm.get('role')?.setValue($event)"
             />
-          </div>
-          <div>
-            <mat-form-field>
-              <mat-label>Login</mat-label>
-              <input
-                matInput
-                formControlName="login"
-                placeholder="Ingrese el login"
-              />
-            </mat-form-field>
-          </div>
-          <div>
-            <mat-form-field>
-              <mat-label>Contraseña</mat-label>
-              <input
-                matInput
-                [type]="hidePassword ? 'password' : 'text'"
-                placeholder="Ingrese una contraseña"
-                formControlName="password"
-              />
-              <button
-                mat-icon-button
-                matSuffix
-                (click)="hidePassword = !hidePassword"
-                [attr.aria-label]="'Hide password'"
-                [attr.aria-pressed]="hidePassword"
-              >
-                <mat-icon>{{
-                  hidePassword ? "visibility_off" : "visibility"
-                }}</mat-icon>
-              </button>
-            </mat-form-field>
           </div>
           <mat-checkbox formControlName="isActive"> Habilitado </mat-checkbox>
         </div>

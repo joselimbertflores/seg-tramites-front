@@ -49,9 +49,7 @@ export class UserDialogComponent implements OnInit {
 
   hidePassword: boolean = true;
   formUser: FormGroup = this.formBuilder.group({
-    fullname: ['', Validators.required],
-    login: ['', Validators.required],
-    password: ['', Validators.required],
+    fullName: ['', Validators.required],
     role: ['', Validators.required],
     isActive: [true, Validators.required],
   });

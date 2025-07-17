@@ -12,12 +12,13 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
+
 import { OverlayModule } from '@angular/cdk/overlay';
 
-import { UpdateAccountDialogComponent } from './update-account-dialog/update-account-dialog.component';
-import { CreateAccountDialogComponent } from '../../dialogs/create-account-dialog/create-account-dialog.component';
+import { AccountDialogComponent } from '../../dialogs/account-dialog/account-dialog.component';
 import {
   overlayAnimation,
   SearchInputComponent,
@@ -33,6 +34,7 @@ import { Account } from '../../../domain';
     FormsModule,
     OverlayModule,
     MatIconModule,
+    MatMenuModule,
     MatTableModule,
     MatButtonModule,
     MatTooltipModule,
@@ -48,9 +50,8 @@ import { Account } from '../../../domain';
 export default class AccountsManageComponent {
   private dialogRef = inject(MatDialog);
   private accountService = inject(AccountService);
-  displayedColumns = [
+  readonly displayedColumns = [
     'visibility',
-    'login',
     'fullname',
     'jobtitle',
     'dependency',
@@ -79,29 +80,31 @@ export default class AccountsManageComponent {
     this.accountService
       .findAll(this.limit(), this.offset(), this.term())
       .subscribe(({ accounts, length }) => {
+        console.log(accounts);
         this.dataSource.set(accounts);
         this.dataSize.set(length);
       });
   }
 
   create() {
-    const dialogRef = this.dialogRef.open(CreateAccountDialogComponent, {
-      width: '800px',
-      maxWidth: '800px',
+    const dialogRef = this.dialogRef.open(AccountDialogComponent, {
+      width: '700px',
+      maxWidth: '700px',
     });
     dialogRef.afterClosed().subscribe((result?: Account) => {
       if (!result) return;
-      this.dataSource.update((values) =>
-        [result, ...values].slice(0, this.limit())
+      this.dataSource.update((items) =>
+        [result, ...items].slice(0, this.limit())
       );
       this.dataSize.update((value) => (value += 1));
     });
   }
 
   update(account: Account) {
-    const dialogRef = this.dialogRef.open(UpdateAccountDialogComponent, {
-      width: '900px',
-      data: { ...account },
+    const dialogRef = this.dialogRef.open(AccountDialogComponent, {
+      width: '700px',
+      maxWidth: '700px',
+      data: account,
     });
     dialogRef.afterClosed().subscribe((result?: Account) => {
       if (!result) return;
@@ -111,6 +114,10 @@ export default class AccountsManageComponent {
         return [...values];
       });
     });
+  }
+
+  resetCrendentials(item: Account) {
+    this.accountService.resetAccountAccess(item.id).subscribe((login) => {});
   }
 
   search(term: string) {

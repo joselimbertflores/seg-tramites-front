@@ -13,7 +13,11 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDividerModule } from '@angular/material/divider';
@@ -22,15 +26,15 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { firstValueFrom, forkJoin, of } from 'rxjs';
+import { firstValueFrom, of } from 'rxjs';
 
 import { selectOption, SelectSearchComponent } from '../../../../shared';
 import { AccountService } from '../../services';
-import { Officer } from '../../../domain';
+import { Account, Officer } from '../../../domain';
 import { UserService } from '../../../../users/presentation/services';
 
 @Component({
-  selector: 'app-create-account-dialog',
+  selector: 'app-account-dialog',
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -45,32 +49,30 @@ import { UserService } from '../../../../users/presentation/services';
 
     SelectSearchComponent,
   ],
-  templateUrl: './create-account-dialog.component.html',
+  templateUrl: './account-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CreateAccountDialogComponent implements OnInit {
+export class AccountDialogComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
   private accountService = inject(AccountService);
   // private pdfService = inject(PdfService);
   private dialogRef = inject(MatDialogRef);
   private userService = inject(UserService);
 
+  data = inject<Account | undefined>(MAT_DIALOG_DATA);
   officers = signal<selectOption<Officer>[]>([]);
   hidePassword = true;
 
-  formAccount: FormGroup = this.formBuilder.nonNullable.group({
-    officer: ['', Validators.required],
-    dependency: ['', Validators.required],
+  accountForm: FormGroup = this.formBuilder.nonNullable.group({
+    dependencyId: ['', Validators.required],
+    officerId: ['', Validators.required],
     jobtitle: ['', Validators.required],
     isVisible: [true, Validators.required],
   });
 
   userForm: FormGroup = this.formBuilder.nonNullable.group({
-    fullname: ['', Validators.required],
-    login: ['', Validators.required],
-    password: ['', [Validators.required, Validators.pattern(/^\S+$/)]],
-    role: ['', Validators.required],
     isActive: [true, Validators.required],
+    role: ['', Validators.required],
   });
 
   roles = toSignal(this.accountService.getRoles(), { initialValue: [] });
@@ -92,20 +94,22 @@ export class CreateAccountDialogComponent implements OnInit {
         : firstValueFrom(of([])),
   });
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.loadForm();
+  }
 
   save() {
-    this.accountService
-      .create(this.userForm.value, this.formAccount.value)
-      .subscribe((account) => {
-        // this.pdfService.createAccountSheet(
-        //   account,
-        //   this.formAccount.get('login')?.value,
-        //   this.formAccount.get('password')?.value
-        // );
-        // TODO generate pdf user
-        this.dialogRef.close(account);
-      });
+    const subcription = this.data
+      ? this.accountService.update(
+          this.data.id,
+          this.userForm.value,
+          this.accountForm.value
+        )
+      : this.accountService.create(this.userForm.value, this.accountForm.value);
+
+    subcription.subscribe((account) => {
+      this.dialogRef.close(account);
+    });
   }
 
   searchOfficer(term: string): void {
@@ -129,30 +133,33 @@ export class CreateAccountDialogComponent implements OnInit {
   }
 
   onSelectOfficer(officer: Officer): void {
-    this.formAccount.patchValue({ officer: officer.id });
+    this.accountForm.patchValue({ officerId: officer.id });
     this.selectedOfficer.set(officer);
-    const credentials = this.userService.generateCredentials({
-      firstName: officer.nombre,
-      paternalLastName: officer.paterno,
-      maternalLastName: officer.materno,
-      dni: officer.dni,
-    });
-    this.userForm.patchValue({
-      fullname: officer.fullname,
-      officer: officer.id,
-      login: credentials.login,
-      password: credentials.password,
-    });
   }
 
   unlink(): void {
-    this.formAccount.get('officer')?.setValue(null);
+    this.accountForm.get('officerId')?.setValue(null);
     this.selectedOfficer.set(null);
   }
 
-  get isFormValid() {
-    return this.formAccount.valid && this.userForm.valid;
+  private loadForm(): void {
+    if (!this.data) return;
+    this.accountForm.removeControl('dependencyId');
+    this.accountForm.get('officerId')?.removeValidators(Validators.required);
+    this.accountForm.get('officerId')?.setValue;
+    const { user, officer, jobtitle, isVisible } = this.data;
+
+    this.selectedOfficer.set(officer ?? null);
+    this.accountForm.patchValue({
+      isVisible,
+      jobtitle,
+      officerId: officer?.id,
+    });
+    console.log(user);
+    this.userForm.patchValue({ isActive: user.isActive, role: user.role });
   }
 
-
+  get isFormValid() {
+    return this.accountForm.valid && this.userForm.valid;
+  }
 }

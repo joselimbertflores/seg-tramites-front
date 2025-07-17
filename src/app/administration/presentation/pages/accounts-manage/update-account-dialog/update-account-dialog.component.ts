@@ -93,7 +93,7 @@ export class UpdateAccountDialogComponent {
   }
 
   save() {
-    const updateTask = this.accountService.edit(
+    const updateTask = this.accountService.update(
       this.data().id,
       this.formUser.value,
       this.formAccount.value
@@ -103,7 +103,7 @@ export class UpdateAccountDialogComponent {
         ? this.alertService
             .confirmDialog({
               title: '¿Desvincular Funcionario?',
-              description: `${this.data().officer?.fullname} sera desvinculado`,
+              description: `${this.data().officer?.fullName} sera desvinculado`,
             })
             .pipe(
               filter((result) => result),
@@ -150,7 +150,7 @@ export class UpdateAccountDialogComponent {
     const { user, officer, ...props } = this.data();
     this.formUser.patchValue(user);
     this.formAccount.patchValue({ ...props, officer: officer?.id });
-    this.fullname.set(officer?.fullname ?? null);
+    this.fullname.set(officer?.fullName ?? null);
   }
 
   private _getRequiredProps(): void {

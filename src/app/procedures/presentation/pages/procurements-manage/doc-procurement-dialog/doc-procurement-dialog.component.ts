@@ -85,7 +85,7 @@ export class DocProcurementDialogComponent implements OnInit {
     cite: [this.account?.dependencia.codigo, Validators.required],
     date: [new Date(), Validators.required],
     sender: this._formBuilder.group({
-      fullname: [this.account?.officer?.fullname, Validators.required],
+      fullname: [this.account?.officer?.fullName, Validators.required],
       jobtitle: [this.account?.jobtitle, Validators.required],
     }),
     recipient: this._formBuilder.group({
@@ -120,7 +120,7 @@ export class DocProcurementDialogComponent implements OnInit {
     if (!term) return;
     this.docService.searchAccounts(term).subscribe((data) => {
       const options: AutocompleteOption<Account>[] = data.map((option) => ({
-        text: option.officer?.fullname ?? 'Desvinculado',
+        text: option.officer?.fullName ?? 'Desvinculado',
         value: option,
       }));
       this.participants.update((values) => ({ ...values, [field]: options }));
@@ -129,7 +129,7 @@ export class DocProcurementDialogComponent implements OnInit {
 
   onSelectAcount(path: validFormfield, account: Account): void {
     this.formDoc.get(path)?.patchValue({
-      fullname: account.officer?.fullname,
+      fullname: account.officer?.fullName,
       jobtitle: account.jobtitle,
     });
   }
