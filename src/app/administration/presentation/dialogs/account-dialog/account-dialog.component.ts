@@ -29,9 +29,9 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { firstValueFrom, of } from 'rxjs';
 
 import { selectOption, SelectSearchComponent } from '../../../../shared';
+import { UserService } from '../../../../users/presentation/services';
 import { AccountService } from '../../services';
 import { Account, Officer } from '../../../domain';
-import { UserService } from '../../../../users/presentation/services';
 
 @Component({
   selector: 'app-account-dialog',
@@ -146,7 +146,6 @@ export class AccountDialogComponent implements OnInit {
     if (!this.data) return;
     this.accountForm.removeControl('dependencyId');
     this.accountForm.get('officerId')?.removeValidators(Validators.required);
-    this.accountForm.get('officerId')?.setValue;
     const { user, officer, jobtitle, isVisible } = this.data;
 
     this.selectedOfficer.set(officer ?? null);

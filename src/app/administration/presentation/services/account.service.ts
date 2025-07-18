@@ -123,10 +123,9 @@ export class AccountService {
   }
 
   update(id: string, formUser: object, formAccount: object) {
-    console.log(formAccount);
     return this.http
       .patch<account>(`${this.URL}/${id}`, {
-        // user: formUser,
+        user: formUser,
         account: formAccount,
       })
       .pipe(map((resp) => AccountMapper.fromResponse(resp)));
