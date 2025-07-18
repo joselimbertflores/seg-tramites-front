@@ -122,9 +122,6 @@
     <ng-container matColumnDef="options">
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let element" class="w-8">
-        <!-- <button (click)="update(element)" mat-icon-button>
-          <mat-icon>edit</mat-icon>
-        </button> -->
         <button matIconButton [matMenuTriggerFor]="menu">
           <mat-icon>more_vert</mat-icon>
         </button>
@@ -134,10 +131,9 @@
             <span>Editar</span>
           </button>
           <button mat-menu-item (click)="resetCrendentials(element)">
-            <mat-icon>voicemail</mat-icon>
-            <span>Resetear Credenciales</span>
+            <mat-icon>lock_reset</mat-icon>
+            <span>Restablecer credenciales</span>
           </button>
-         
         </mat-menu>
       </td>
     </ng-container>

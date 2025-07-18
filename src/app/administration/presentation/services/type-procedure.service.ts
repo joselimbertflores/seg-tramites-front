@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
+
 import { environment } from '../../../../environments/environment';
 import { typeProcedure } from '../../infrastructure';
 
@@ -7,17 +8,17 @@ import { typeProcedure } from '../../infrastructure';
   providedIn: 'root',
 })
 export class TypeProcedureService {
-  private readonly url = `${environment.base_url}/types-procedures`;
+  private readonly URL = `${environment.base_url}/types-procedures`;
   constructor(private http: HttpClient) {}
 
   getSegments() {
-    return this.http.get<string[]>(`${this.url}/segments`);
+    return this.http.get<string[]>(`${this.URL}/segments`);
   }
 
   search(term: string, limit: number, offset: number) {
     const params = new HttpParams({ fromObject: { limit, offset } });
     return this.http.get<{ types: typeProcedure[]; length: number }>(
-      `${this.url}/search/${term}`,
+      `${this.URL}/search/${term}`,
       {
         params,
       }
@@ -29,18 +30,16 @@ export class TypeProcedureService {
       fromObject: { limit, offset, ...(term && { term }) },
     });
     return this.http.get<{ types: typeProcedure[]; length: number }>(
-      `${this.url}`,
-      {
-        params,
-      }
+      `${this.URL}`,
+      { params }
     );
   }
 
   create(form: Object) {
-    return this.http.post<typeProcedure>(`${this.url}`, form);
+    return this.http.post<typeProcedure>(`${this.URL}`, form);
   }
 
   update(id: string, form: Object) {
-    return this.http.put<typeProcedure>(`${this.url}/${id}`, form);
+    return this.http.patch<typeProcedure>(`${this.URL}/${id}`, form);
   }
 }

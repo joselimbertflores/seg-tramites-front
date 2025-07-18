@@ -1,65 +1,63 @@
-<div class="animate-fadeIn">
-  <mat-toolbar>
-    <span>Tramites</span>
-    <span class="flex-1"></span>
-    <button mat-icon-button aria-label="Add user" (click)="create()">
-      <mat-icon>add</mat-icon>
-    </button>
-  </mat-toolbar>
-  <div class="flex justify-end py-2">
-    <div class="w-full px-2 sm:w-1/4 h-11">
-      <search-input (onSearch)="search($event)" />
+<mat-toolbar>
+  <span>Tipos de Tramite</span>
+  <span class="flex-1"></span>
+  <button mat-icon-button aria-label="Add user" (click)="create()">
+    <mat-icon>add</mat-icon>
+  </button>
+</mat-toolbar>
+
+<div class="p-2 sm:p-4">
+  <div class="flex justify-end mb-2">
+    <div class="w-full sm:w-1/4 h-[54px]">
+      <search-input (onSearch)="search($event)" placeholder="Nombre tramite" />
     </div>
   </div>
 
-  <div class="mat-elevation-z8">
-    <table mat-table [dataSource]="datasource()">
-      <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef>Nombre</th>
-        <td mat-cell *matCellDef="let element">{{ element.nombre }}</td>
-      </ng-container>
-      <ng-container matColumnDef="area">
-        <th mat-header-cell *matHeaderCellDef>Segmento</th>
-        <td mat-cell *matCellDef="let element">{{ element.segmento }}</td>
-      </ng-container>
-      <ng-container matColumnDef="isActive">
-        <th mat-header-cell *matHeaderCellDef>Situacion</th>
-        <td mat-cell *matCellDef="let element" class="w-32">
-          @if (element.activo) {
-          <span
-            class="inline-flex items-center rounded-md bg-green-100 px-2 py-1 text-xs font-medium text-green-800 ring-1 ring-inset ring-green-600/20"
-            >Activo
-          </span>
-          } @else {
-          <span
-            class="inline-flex items-center rounded-md bg-red-100 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10"
-          >
-            Inactivo
-          </span>
-          }
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="menu">
-        <th mat-header-cell *matHeaderCellDef></th>
-        <td mat-cell *matCellDef="let element" class="w-8">
-          <button mat-icon-button (click)="update(element)">
-            <mat-icon>edit</mat-icon>
-          </button>
-        </td>
-      </ng-container>
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-      <tr *matNoDataRow>
-        <td class="p-3" colspan="4">No se encontraron resultados</td>
-      </tr>
-    </table>
-    <mat-paginator
-      aria-label="Select page of types search results"
-      showFirstLastButtons
-      [length]="datasize()"
-      [pageSize]="10"
-      [pageIndex]="index()"
-      (page)="onPageChange($event)"
-    />
-  </div>
+  <table mat-table [dataSource]="dataSource()">
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Nombre</th>
+      <td mat-cell *matCellDef="let element">
+        <p class="truncate">{{ element.nombre }}</p>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="area">
+      <th mat-header-cell *matHeaderCellDef>Segmento</th>
+      <td mat-cell *matCellDef="let element">{{ element.segmento }}</td>
+    </ng-container>
+    <ng-container matColumnDef="isActive">
+      <th mat-header-cell *matHeaderCellDef>Estado</th>
+      <td mat-cell *matCellDef="let element" class="w-32">
+        <span
+          class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset"
+          [ngClass]="
+            element.activo
+              ? 'bg-green-100 text-green-800 ring-green-600/20'
+              : 'bg-red-100 text-red-700 ring-red-600/10'
+          "
+        >
+          {{ element.activo ? "Activo" : "Inactivo" }}
+        </span>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="menu">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let element" class="w-8">
+        <button mat-icon-button (click)="update(element)">
+          <mat-icon>edit</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    <tr *matNoDataRow>
+      <td class="p-3" colspan="4">No se encontraron resultados</td>
+    </tr>
+  </table>
+  <mat-paginator
+    showFirstLastButtons
+    [length]="dataSize()"
+    [pageSize]="limit()"
+    [pageIndex]="index()"
+    (page)="onPageChange($event)"
+  />
 </div>

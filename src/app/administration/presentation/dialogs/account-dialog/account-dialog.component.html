@@ -15,7 +15,6 @@
             (onSelect)="accountForm.get('dependencyId')?.setValue($event)"
           />
         }
-        <pre>{{accountForm.value | json}}</pre>
 
         @if (selectedOfficer()) {
           <mat-form-field>
@@ -65,7 +64,6 @@
           </div>
           <mat-checkbox formControlName="isActive"> Habilitado </mat-checkbox>
         </div>
-        <pre>{{userForm.value|json}}</pre>
         <div class="flex justify-end">
           <button mat-button matStepperPrevious>Atras</button>
         </div>

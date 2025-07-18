@@ -118,8 +118,8 @@ export class AccountService {
 
   create(formUser: Object, formAccount: Object) {
     return this.http
-      .post<account>(this.URL, { user: formUser, account: formAccount })
-      .pipe(map((resp) => AccountMapper.fromResponse(resp)));
+      .post<{account:account, pdf:string}>(this.URL, { user: formUser, account: formAccount })
+      .pipe(map((resp) => AccountMapper.fromResponse(resp.account)));
   }
 
   update(id: string, formUser: object, formAccount: object) {
