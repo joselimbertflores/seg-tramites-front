@@ -116,7 +116,7 @@ export default class InboxDetailComponent {
         switchMap(() => this.inboxService.accept([this.communication.id]))
       )
       .subscribe({
-        next: ({ itemIds: [id], receivedDate }) => {
+        next: ({ ids: [id], receivedDate }) => {
           const update = { status: sendStatus.Received, receivedDate };
           this.data.update((value) => value!.copyWith(update));
           this.updateItemCache(id, update);
@@ -142,7 +142,8 @@ export default class InboxDetailComponent {
         )
       )
       .subscribe({
-        next: ({ itemIds: [id] }) => {
+        next: ({ ids: [id] }) => {
+          console.log(id);
           this.finalizeAndReturn(id);
         },
         error: (error) => {

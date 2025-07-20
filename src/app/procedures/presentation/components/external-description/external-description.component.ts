@@ -98,6 +98,14 @@ import { ExternalProcedure } from '../../../domain';
             {{ data().createdAt | date : 'short' }}
           </dd>
         </div>
+         <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-4 sm:gap-4">
+          <dt class="font-medium">Fecha de conclusion</dt>
+           <dd class="sm:col-span-3">
+            {{
+              data().completedAt ? (data().completedAt | date : 'short') : '----'
+            }}
+          </dd>
+        </div>
       </dl>
 
       <div class="mt-8 font-medium text-sm">Requerimientos presentados</div>

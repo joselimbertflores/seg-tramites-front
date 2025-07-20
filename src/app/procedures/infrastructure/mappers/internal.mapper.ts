@@ -4,16 +4,18 @@ import { internal } from '../interfaces/internal.interface';
 
 export class InternalMapper {
   static fromResponse({
+    _id,
     group,
     state,
     createdAt,
     ...props
   }: internal): InternalProcedure {
     return new InternalProcedure({
-      ...props,
+      id: _id,
       createdAt: new Date(createdAt),
       group: group as procedureGroup,
       state: state as procedureState,
+      ...props,
     });
   }
 }

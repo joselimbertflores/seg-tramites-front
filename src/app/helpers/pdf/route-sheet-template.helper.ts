@@ -14,6 +14,7 @@ import { toOrdinal } from '../number-to-ordinal.helper';
 interface stageProps {
   index: number;
   officer: string;
+  jobTitle: string;
   reference: string;
   internalNumber: string;
   sentDate: sendDetail;
@@ -376,6 +377,7 @@ export class RouteSheetBuilder {
         index: index,
         reference: item.reference,
         officer: item.recipient.fullname,
+        jobTitle: item.recipient.jobtitle,
         internalNumber: nextStage?.internalNumber ?? '',
         sentDate: {
           ...this.formatDateTime(item.receivedDate),
@@ -394,6 +396,7 @@ export class RouteSheetBuilder {
       const container = this.stageContainer({
         index: index,
         officer: '',
+        jobTitle: '',
         sentDate: { hour: '', date: '', quantity: '' },
         receivedDate: { hour: '', date: '', quantity: '' },
         reference: '',
@@ -418,6 +421,7 @@ export class RouteSheetBuilder {
   private static stageContainer({
     index,
     officer,
+    jobTitle,
     sentDate,
     reference,
     receivedDate,
@@ -435,7 +439,7 @@ export class RouteSheetBuilder {
               margin: [0, 10, 0, 0],
               text: `DESTINATARIO ${toOrdinal(
                 index + 1
-              )} (NOMBRE Y CARGO): ${officer}`,
+              )} (NOMBRE Y CARGO): ${officer} ${jobTitle ? `(${jobTitle})` : ''}`,
               colSpan: 2,
               alignment: 'left',
               border: [true, false, true, false],

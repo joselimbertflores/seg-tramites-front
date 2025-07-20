@@ -5,8 +5,10 @@ import {
   computed,
   Component,
   ChangeDetectionStrategy,
+  resource,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -15,16 +17,16 @@ import { MatTableModule } from '@angular/material/table';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
-
 import { OverlayModule } from '@angular/cdk/overlay';
+import { firstValueFrom, of } from 'rxjs';
 
-import { AccountDialogComponent } from '../../dialogs/account-dialog/account-dialog.component';
 import {
   overlayAnimation,
   SearchInputComponent,
   SelectSearchComponent,
 } from '../../../../shared';
 import { AccountService } from '../../services';
+import { AccountDialogComponent } from '../../dialogs';
 import { Account } from '../../../domain';
 
 @Component({
@@ -52,6 +54,7 @@ export default class AccountsManageComponent {
   private accountService = inject(AccountService);
   readonly displayedColumns = [
     'visibility',
+    'login',
     'fullname',
     'jobtitle',
     'dependency',
@@ -67,10 +70,21 @@ export default class AccountsManageComponent {
   term = signal<string>('');
 
   isOpen = false;
-  institutions = this.accountService.institutions;
-  dependencies = this.accountService.dependencies;
-  selectedInstition = this.accountService.selectedInstitution;
-  selectedDependecy = this.accountService.selectedDependency;
+
+  institutions = toSignal(this.accountService.getInstitutions(), {
+    initialValue: [],
+  });
+  selectedInstitution = signal<string | null>(null);
+  selectedDependency = signal<string | null>(null);
+  dependencies = resource({
+    params: () => ({ institution: this.selectedInstitution() }),
+    loader: ({ params }) =>
+      params.institution
+        ? firstValueFrom(
+            this.accountService.getDependencies(params.institution)
+          )
+        : firstValueFrom(of([])),
+  });
 
   ngOnInit(): void {
     this.getData();
@@ -78,9 +92,14 @@ export default class AccountsManageComponent {
 
   getData() {
     this.accountService
-      .findAll(this.limit(), this.offset(), this.term())
+      .findAll({
+        term: this.term(),
+        limit: this.limit(),
+        offset: this.offset(),
+        institution: this.selectedInstitution(),
+        dependency: this.selectedDependency(),
+      })
       .subscribe(({ accounts, length }) => {
-        console.log(accounts);
         this.dataSource.set(accounts);
         this.dataSize.set(length);
       });
@@ -100,24 +119,25 @@ export default class AccountsManageComponent {
     });
   }
 
-  update(account: Account) {
+  update(item: Account) {
     const dialogRef = this.dialogRef.open(AccountDialogComponent, {
       width: '700px',
       maxWidth: '700px',
-      data: account,
+      data: item,
     });
     dialogRef.afterClosed().subscribe((result?: Account) => {
       if (!result) return;
       this.dataSource.update((values) => {
         const index = values.findIndex((value) => value.id === result.id);
+        if (index === -1) return values;
         values[index] = result;
         return [...values];
       });
     });
   }
 
-  resetCrendentials(item: Account) {
-    this.accountService.resetAccountAccess(item.id).subscribe((login) => {});
+  resetPassword(item: Account) {
+    this.accountService.resetAccountPassword(item.id).subscribe();
   }
 
   search(term: string) {
@@ -134,16 +154,16 @@ export default class AccountsManageComponent {
 
   filter() {
     this.isOpen = false;
-    if (!this.selectedDependecy() && !this.selectedInstition()) return;
+    if (!this.selectedDependency() && !this.selectedInstitution()) return;
     this.index.set(0);
     this.getData();
   }
 
   reset() {
-    this.index.set(0);
     this.isOpen = false;
-    this.selectedInstition.set(null);
-    this.selectedDependecy.set(null);
+    this.selectedInstitution.set(null);
+    this.selectedDependency.set(null);
+    this.index.set(0);
     this.getData();
   }
 }

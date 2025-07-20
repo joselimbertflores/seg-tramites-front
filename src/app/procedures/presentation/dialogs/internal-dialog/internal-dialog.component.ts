@@ -24,12 +24,12 @@ import {
   AutocompleteComponent,
   AutocompleteOption,
   selectOption,
-} from '../../../../../shared';
+} from '../../../../shared';
 
-import { InternalService, ProfileService } from '../../../services';
-import { doc } from '../../../../../communications/infrastructure';
-import { Account } from '../../../../../administration/domain';
-import { InternalProcedure } from '../../../../domain';
+import { InternalService, ProfileService } from '../../services';
+import { doc } from '../../../../communications/infrastructure';
+import { Account } from '../../../../administration/domain';
+import { InternalProcedure } from '../../../domain';
 
 type validFormfield = 'sender' | 'recipient';
 type participantOptions = {
@@ -52,34 +52,34 @@ type participantOptions = {
 export class InternalDialogComponent {
   private account = inject(ProfileService).account();
   private internalService = inject(InternalService);
-  private _formBuilder = inject(FormBuilder);
+  private formBuilder = inject(FormBuilder);
   private dialogRef = inject(MatDialogRef);
 
   data?: InternalProcedure = inject(MAT_DIALOG_DATA);
   officers = signal<participantOptions>({ sender: [], recipient: [] });
   documents = signal<selectOption<doc>[]>([]);
 
-  formProcedure: FormGroup = this._formBuilder.nonNullable.group({
+  formProcedure: FormGroup = this.formBuilder.nonNullable.group({
     numberOfDocuments: ['', Validators.required],
     reference: ['', Validators.required],
     cite: [this.account?.dependencia.codigo],
-    sender: this._formBuilder.group({
+    sender: this.formBuilder.group({
       fullname: [this.account?.officer?.fullName, Validators.required],
       jobtitle: [this.account?.jobtitle, Validators.required],
     }),
-    recipient: this._formBuilder.group({
+    recipient: this.formBuilder.group({
       fullname: ['', Validators.required],
       jobtitle: ['', Validators.required],
     }),
   });
 
   ngOnInit(): void {
-    this._loadFormData();
+    this.loadForm();
   }
 
   save() {
     const observable = this.data
-      ? this.internalService.update(this.data._id, this.formProcedure.value)
+      ? this.internalService.update(this.data.id, this.formProcedure.value)
       : this.internalService.create(this.formProcedure.value);
     observable.subscribe((procedure) => this.dialogRef.close(procedure));
   }
@@ -103,7 +103,7 @@ export class InternalDialogComponent {
     });
   }
 
-  private _loadFormData() {
+  private loadForm() {
     if (!this.data) return;
     this.formProcedure.patchValue(this.data);
   }

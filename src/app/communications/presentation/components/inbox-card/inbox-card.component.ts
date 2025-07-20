@@ -66,7 +66,7 @@ import { Communication } from '../../../domain';
             <dt class="font-medium">Fecha de recepcion:</dt>
             <dd class="sm:col-span-3">
               @if(data().status==="received"){
-              {{ data().receivedDate }}
+              {{ data().receivedDate |date:'short'}}
               } @else {
               <span class="text-red-500 font-medium">
                 Usted aun no ha recibido este tramite.

@@ -23,7 +23,7 @@ interface menu {
   ],
   template: `
     <mat-nav-list>
-      @for (item of menu; track item.resource) { @if(item.children){
+      @for (item of menu; track $index) { @if(item.children){
       <mat-expansion-panel class="mat-elevation-z0 examp" [expanded]="true">
         <mat-expansion-panel-header>
           <mat-panel-description>

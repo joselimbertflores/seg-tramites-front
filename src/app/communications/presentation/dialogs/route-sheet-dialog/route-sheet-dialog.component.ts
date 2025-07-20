@@ -20,7 +20,7 @@ import { workflow } from '../../../infrastructure';
 import { ProcessService } from '../../services';
 import { sendStatus } from '../../../domain';
 
-export interface routeSheetData {
+export interface RouteSheetData {
   requestParams: routeSheetParams;
   preloadedData?: preloadedDataProps;
 }
@@ -93,9 +93,9 @@ interface pdfBlobItem {
 export class RouteSheetDialogComponent {
   private pdfservice = inject(PdfService);
   private processService = inject(ProcessService);
-  readonly data: routeSheetData = inject(MAT_DIALOG_DATA);
+  readonly data: RouteSheetData = inject(MAT_DIALOG_DATA);
 
-  pdfBlobList = resource<pdfBlobItem[], routeSheetData>({
+  pdfBlobList = resource<pdfBlobItem[], RouteSheetData>({
     params: () => this.data,
     loader: ({ params }) => {
       return firstValueFrom(

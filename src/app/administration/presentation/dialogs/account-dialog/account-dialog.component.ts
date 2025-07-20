@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  OnInit,
   inject,
   resource,
   signal,
@@ -10,8 +9,8 @@ import {
 import {
   FormBuilder,
   FormGroup,
-  ReactiveFormsModule,
   Validators,
+  ReactiveFormsModule,
 } from '@angular/forms';
 import {
   MAT_DIALOG_DATA,
@@ -20,7 +19,6 @@ import {
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
@@ -29,39 +27,32 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { firstValueFrom, of } from 'rxjs';
 
 import { selectOption, SelectSearchComponent } from '../../../../shared';
-import { UserService } from '../../../../users/presentation/services';
-import { AccountService } from '../../services';
 import { Account, Officer } from '../../../domain';
+import { AccountService } from '../../services';
 
 @Component({
   selector: 'app-account-dialog',
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatButtonModule,
     MatInputModule,
-    MatFormFieldModule,
-    MatDialogModule,
     MatIconModule,
-    MatDividerModule,
-    MatCheckboxModule,
+    MatDialogModule,
+    MatButtonModule,
     MatStepperModule,
-
+    MatCheckboxModule,
+    MatFormFieldModule,
     SelectSearchComponent,
   ],
   templateUrl: './account-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AccountDialogComponent implements OnInit {
+export class AccountDialogComponent {
+  private dialogRef = inject(MatDialogRef);
   private formBuilder = inject(FormBuilder);
   private accountService = inject(AccountService);
-  // private pdfService = inject(PdfService);
-  private dialogRef = inject(MatDialogRef);
-  private userService = inject(UserService);
 
   data = inject<Account | undefined>(MAT_DIALOG_DATA);
-  officers = signal<selectOption<Officer>[]>([]);
-  hidePassword = true;
 
   accountForm: FormGroup = this.formBuilder.nonNullable.group({
     dependencyId: ['', Validators.required],
@@ -71,27 +62,34 @@ export class AccountDialogComponent implements OnInit {
   });
 
   userForm: FormGroup = this.formBuilder.nonNullable.group({
+    login: [
+      '',
+      [
+        Validators.required,
+        Validators.minLength(4),
+        Validators.maxLength(20),
+        Validators.pattern('^[a-zA-Z0-9._-]+$'),
+      ],
+    ],
     isActive: [true, Validators.required],
     role: ['', Validators.required],
   });
 
+  selectedInstitution = signal<string | null>(null);
+  selectedOfficer = signal<Officer | null>(null);
   roles = toSignal(this.accountService.getRoles(), { initialValue: [] });
+  officers = signal<selectOption<Officer>[]>([]);
   institutions = toSignal(this.accountService.getInstitutions(), {
     initialValue: [],
   });
-  selectedInstitution = signal<string | null>(null);
-  selectedDependency = signal<string | null>(null);
-
-  selectedOfficer = signal<Officer | null>(null);
-
   dependencies = resource({
     params: () => ({ institution: this.selectedInstitution() }),
     loader: ({ params }) =>
-      params.institution
-        ? firstValueFrom(
-            this.accountService.getDependencies(params.institution)
-          )
-        : firstValueFrom(of([])),
+      firstValueFrom(
+        params.institution
+          ? this.accountService.getDependencies(params.institution)
+          : of([])
+      ),
   });
 
   ngOnInit(): void {
@@ -113,7 +111,6 @@ export class AccountDialogComponent implements OnInit {
   }
 
   searchOfficer(term: string): void {
-    console.log(term);
     this.accountService
       .searchOfficersWithoutAccount(term)
       .subscribe((options) => {
@@ -121,19 +118,10 @@ export class AccountDialogComponent implements OnInit {
       });
   }
 
-  onSelectInstitution(id: string): void {
-    this.dependencies.set([]);
-    // this.accountService.getDependenciesOfInstitution(id).subscribe((data) => {
-    //   const options = data.map(({ _id, nombre }) => ({
-    //     value: _id,
-    //     text: nombre,
-    //   }));
-    //   this.dependencies.set(options);
-    // });
-  }
-
   onSelectOfficer(officer: Officer): void {
+    const login = this.generarLogin(officer);
     this.accountForm.patchValue({ officerId: officer.id });
+    this.userForm.patchValue({ login, isActive: true });
     this.selectedOfficer.set(officer);
   }
 
@@ -154,11 +142,31 @@ export class AccountDialogComponent implements OnInit {
       jobtitle,
       officerId: officer?.id,
     });
-    console.log(user);
-    this.userForm.patchValue({ isActive: user.isActive, role: user.role });
+    this.userForm.patchValue(user);
   }
 
   get isFormValid() {
     return this.accountForm.valid && this.userForm.valid;
+  }
+
+  private generarLogin({ fullName, dni }: Officer): string {
+    const nameParts = this.normalizeText(fullName.trim().toLowerCase()).split(/\s+/);
+
+    const firstNameInitial = nameParts[0]?.charAt(0) || '';
+
+    let lastName = '';
+    if (nameParts.length >= 3) {
+      lastName = nameParts[nameParts.length - 2];
+    } else if (nameParts.length >= 2) {
+      lastName = nameParts[1];
+    }
+
+    const ciFragment = dni.replace(/\D/g, '').slice(-4);
+
+    return `${firstNameInitial}${lastName}${ciFragment}`;
+  }
+
+  private normalizeText(text: string): string {
+    return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   }
 }

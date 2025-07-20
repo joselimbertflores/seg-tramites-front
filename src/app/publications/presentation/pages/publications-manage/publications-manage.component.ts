@@ -43,8 +43,8 @@ export default class PublicationsManageComponent implements OnInit {
   private alertService = inject(AlertService);
   readonly dialogRef = inject(MatDialog);
 
-  datasource = signal<publication[]>([]);
-  datasize = signal<number>(0);
+  dataSource = signal<publication[]>([]);
+  dataSize = signal<number>(0);
 
   readonly displayedColumns: string[] = [
     'title',
@@ -67,10 +67,10 @@ export default class PublicationsManageComponent implements OnInit {
 
   getData() {
     this.publicationService
-      .findByUser(this.term())
+      .findByUser(this.limit(), this.offset(), this.term())
       .subscribe(({ publications, length }) => {
-        this.datasource.set(publications);
-        this.datasize.set(length);
+        this.dataSource.set(publications);
+        this.dataSize.set(length);
       });
   }
 
@@ -80,9 +80,10 @@ export default class PublicationsManageComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe((result) => {
       if (!result) return;
-      this.datasource.update((values) =>
-        [result, ...values].slice(0, this.limit())
+      this.dataSource.update((items) =>
+        [result, ...items].slice(0, this.limit())
       );
+      this.dataSize.update((value) => (value += 1));
     });
   }
 
@@ -92,7 +93,7 @@ export default class PublicationsManageComponent implements OnInit {
       data: publication,
     });
     dialogRef.afterClosed().subscribe((result: publication) => {
-      this.datasource.update((values) => {
+      this.dataSource.update((values) => {
         const index = values.findIndex((el) => el._id === result._id);
         if (index === -1) return values;
         values[index] = result;
@@ -105,17 +106,18 @@ export default class PublicationsManageComponent implements OnInit {
     this.alertService
       .confirmDialog({
         title: `¿Eliminar Publicacion?`,
-        description: 'La publicacion dejara de mostrarse en esta seccion como en la de comunicados',
+        description:
+          'La publicacion dejara de mostrarse en esta seccion como en la de comunicados',
       })
       .pipe(
         filter((confirmed) => confirmed),
         switchMap(() => this.publicationService.delete(publication._id))
       )
       .subscribe(() => {
-        this.datasource.update((values) =>
+        this.dataSource.update((values) =>
           values.filter(({ _id }) => _id !== publication._id)
         );
-        this.datasize.update((value) => (value -= 1));
+        this.dataSize.update((value) => (value -= 1));
       });
   }
 

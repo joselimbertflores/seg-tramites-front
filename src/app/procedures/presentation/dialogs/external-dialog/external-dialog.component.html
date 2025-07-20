@@ -5,15 +5,17 @@
       <form [formGroup]="formProcedure" class="py-2">
         <div class="grid grid-cols-4 gap-x-2 gap-y-1">
           @if (!data) {
-          <simple-select-search
-            placeholder="Segmento"
-            [elements]="segments()"
-            (onSelect)="selectSegmentProcedure($event)"
-          />
+          <div>
+            <select-search
+              title="Segmento"
+              [items]="segments()"
+              (onSelect)="selectSegment($event)"
+            />
+          </div>
           <div class="col-span-3">
-            <simple-select-search
-              placeholder="Tipo de tramite"
-              [elements]="typesProcedures()"
+            <select-search
+              title="Tipo de tramite"
+              [items]="typesProcedures()"
               (onSelect)="selectTypeProcedure($event)"
             />
           </div>
@@ -39,11 +41,11 @@
         </div>
       </form>
       @if(formProcedure.get('type')?.value ){
-      <ol class="overflow-y-scroll max-h-60 space-y-2">
+      <ol class="overflow-y-scroll max-h-72 divide-y-2 border rounded-xl">
         @for (requirement of requirements(); track $index) {
-        <li class="px-2">
+        <li class="p-2 px-4">
           <mat-checkbox [(ngModel)]="requirement.isSelected">
-            <p class="text-justify">{{ requirement.name }}</p>
+            <p class="ml-2 text-justify">{{ requirement.name }}</p>
           </mat-checkbox>
         </li>
         }

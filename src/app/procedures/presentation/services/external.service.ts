@@ -1,14 +1,10 @@
-import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { map, tap } from 'rxjs';
+import { map } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
 import { typeProcedure } from '../../../administration/infrastructure';
 import { external, ExternalMapper } from '../../infrastructure';
-import {
-  LOAD_INDICATOR,
-  UPLOAD_INDICATOR,
-} from '../../../core/interceptors/interceptor';
 
 interface manageExternalProps {
   formProcedure: Object;
@@ -20,17 +16,19 @@ interface manageExternalProps {
   providedIn: 'root',
 })
 export class ExternalService {
-  private readonly url = `${environment.base_url}/external`;
+  private readonly URL = `${environment.base_url}/external`;
 
   constructor(private http: HttpClient) {}
 
   getSegments() {
-    return this.http.get<string[]>(`${this.url}/segments`);
+    return this.http
+      .get<string[]>(`${this.URL}/segments`)
+      .pipe(map((resp) => resp.map((item) => ({ value: item, label: item }))));
   }
 
   getTypesProceduresBySegment(segment: string) {
     return this.http.get<typeProcedure[]>(
-      `${this.url}/types-procedures/${segment}`
+      `${this.URL}/types-procedures/${segment}`
     );
   }
 
@@ -39,7 +37,7 @@ export class ExternalService {
       fromObject: { limit, offset, ...(term && { term }) },
     });
     return this.http
-      .get<{ procedures: external[]; length: number }>(`${this.url}`, {
+      .get<{ procedures: external[]; length: number }>(`${this.URL}`, {
         params,
       })
       .pipe(
@@ -60,7 +58,7 @@ export class ExternalService {
   }: manageExternalProps) {
     return this.http
       .post<external>(
-        `${this.url}`,
+        `${this.URL}`,
         {
           ...formProcedure,
           requirements,
@@ -70,7 +68,6 @@ export class ExternalService {
               ? formRepresentative
               : null,
         },
-        { context: new HttpContext().set(UPLOAD_INDICATOR, true) }
       )
       .pipe(map((response) => ExternalMapper.fromResponse(response)));
   }
@@ -81,7 +78,7 @@ export class ExternalService {
   ) {
     return this.http
       .patch<external>(
-        `${this.url}/${id}`,
+        `${this.URL}/${id}`,
         {
           ...formProcedure,
           applicant: formApplicant,
@@ -90,7 +87,6 @@ export class ExternalService {
               ? formRepresentative
               : null,
         },
-        { context: new HttpContext().set(UPLOAD_INDICATOR, true) }
       )
       .pipe(map((response) => ExternalMapper.fromResponse(response)));
   }

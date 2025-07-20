@@ -103,7 +103,7 @@ export class ProcurementDialogComponent implements OnInit {
 
   save() {
     const observable = this.data
-      ? this.precurementService.update(this.data._id, this.formProcedure.value)
+      ? this.precurementService.update(this.data.id, this.formProcedure.value)
       : this.precurementService.create({
           ...this.formProcedure.value,
           ...this.selectedDocProps(),

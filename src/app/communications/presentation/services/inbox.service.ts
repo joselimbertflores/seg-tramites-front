@@ -34,7 +34,7 @@ interface filterInboxProps {
 }
 interface bulkActionResponse {
   date: string;
-  itemIds: string[];
+  ids: string[];
   message: string;
 }
 
@@ -108,26 +108,11 @@ export class InboxService {
       .pipe(map((resp) => CommunicationMapper.fromResponse(resp)));
   }
 
-  // create({ recipients, form, ...props }: createCommunicationProps) {
-  //   return this.http.post<communication[]>(
-  //     `${this.url}`,
-  //     {
-  //       ...form,
-  //       ...props,
-  //       recipients: recipients.map(({ id, isOriginal }) => ({
-  //         accountId: id,
-  //         isOriginal,
-  //       })),
-  //     },
-  //     { headers: { loader: 'true' } }
-  //   );
-  // }
-
   accept(ids: string[]) {
     return this.http
       .put<bulkActionResponse>(`${this.url}/accept`, { ids })
       .pipe(
-        map(({ itemIds, date }) => ({ itemIds, receivedDate: new Date(date) }))
+        map(({ ids, date }) => ({ ids, receivedDate: new Date(date) }))
       );
   }
 

@@ -15,7 +15,7 @@
     </div>
   </div>
 
-  <table mat-table [dataSource]="datasource()" class="mat-elevation-z8">
+  <table mat-table [dataSource]="dataSource()" class="mat-elevation-z8">
     <ng-container matColumnDef="title">
       <th mat-header-cell *matHeaderCellDef>Titulo</th>
       <td mat-cell *matCellDef="let element">
@@ -110,14 +110,11 @@
       <td class="p-3" colspan="7">Sin resultados</td>
     </tr>
   </table>
-  @if (datasize()>0) {
   <mat-paginator
-    aria-label="Select page of publications search results"
     showFirstLastButtons
-    [length]="datasize()"
-    [pageSize]="10"
+    [length]="dataSize()"
+    [pageSize]="limit()"
     [pageIndex]="index()"
     (page)="onPageChange($event)"
   />
-  }
 </div>

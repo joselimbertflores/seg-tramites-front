@@ -57,7 +57,7 @@ import {
   ArchiveDialogComponent,
   RouteSheetDialogComponent,
   SubmissionDialogComponent,
-  routeSheetData,
+  RouteSheetData,
 } from '../../dialogs';
 
 @Component({
@@ -206,8 +206,8 @@ export default class InboxComponent implements OnInit {
         switchMap(() => this.inboxService.accept(items.map(({ id }) => id)))
       )
       .subscribe({
-        next: ({ itemIds, receivedDate }) => {
-          this.updateItems(itemIds, {
+        next: ({ ids, receivedDate }) => {
+          this.updateItems(ids, {
             status: sendStatus.Received,
             receivedDate,
           });
@@ -235,8 +235,8 @@ export default class InboxComponent implements OnInit {
         )
       )
       .subscribe({
-        next: ({ itemIds }) => {
-          this.removeItems(itemIds);
+        next: ({ ids }) => {
+          this.removeItems(ids);
         },
         error: (error) => {
           if (error instanceof HttpErrorResponse) {
@@ -281,7 +281,7 @@ export default class InboxComponent implements OnInit {
   }
 
   generateRouteSheet({ id, procedure }: Communication) {
-    const data: routeSheetData = {
+    const data: RouteSheetData = {
       requestParams: {
         procedure: { id: procedure.ref, group: procedure.group },
         communicationId: id,

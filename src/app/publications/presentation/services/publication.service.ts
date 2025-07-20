@@ -50,9 +50,9 @@ export class PublicationService {
     return this.http.get<publication[]>(this.URL, { params });
   }
 
-  findByUser(term?: string) {
+  findByUser(limit: number, offset: number, term?: string) {
     const params = new HttpParams({
-      fromObject: { limit: 10, offset: 0, ...(term && { term }) },
+      fromObject: { limit, offset, ...(term && { term }) },
     });
     return this.http.get<{ publications: publication[]; length: number }>(
       `${this.URL}/user`,

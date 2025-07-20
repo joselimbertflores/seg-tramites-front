@@ -19,7 +19,8 @@ interface FilterAccountsParams {
   limit: number;
   offset: number;
   term?: string;
-  dependency?: string;
+  dependency?: string | null;
+  institution?: string | null;
 }
 
 interface selectOption {
@@ -33,17 +34,6 @@ interface selectOption {
 export class AccountService {
   private readonly URL = `${environment.base_url}/accounts`;
   private http = inject(HttpClient);
-
-  institutions = toSignal(this.getInstitutions(), { initialValue: [] });
-  selectedInstitution = signal<string | null>(null);
-  selectedDependency = signal<string | null>(null);
-  dependencies = resource({
-    params: () => ({ institution: this.selectedInstitution() }),
-    loader: ({ params }) =>
-      params.institution
-        ? firstValueFrom(this.getDependencies(params.institution))
-        : firstValueFrom(of([])),
-  });
 
   getRoles(): Observable<selectOption[]> {
     return this.http
@@ -88,18 +78,20 @@ export class AccountService {
       );
   }
 
-  findAll(limit: number, offset: number, term?: string) {
+  findAll({
+    limit,
+    offset,
+    term,
+    institution,
+    dependency,
+  }: FilterAccountsParams) {
     const params = new HttpParams({
       fromObject: {
         limit,
         offset,
         ...(term && { term }),
-        ...(this.selectedInstitution() && {
-          institution: this.selectedInstitution()!,
-        }),
-        ...(this.selectedDependency() && {
-          dependency: this.selectedDependency()!,
-        }),
+        ...(institution && { institution }),
+        ...(dependency && { dependency }),
       },
     });
     return this.http
@@ -118,34 +110,39 @@ export class AccountService {
 
   create(formUser: Object, formAccount: Object) {
     return this.http
-      .post<{account:account, pdf:string}>(this.URL, { user: formUser, account: formAccount })
-      .pipe(map((resp) => AccountMapper.fromResponse(resp.account)));
+      .post<{ account: account; pdfBase64: string }>(this.URL, {
+        user: formUser,
+        account: formAccount,
+      })
+      .pipe(
+        tap(({ pdfBase64 }) => this.showPdfFromBase64(pdfBase64)),
+        map((resp) => AccountMapper.fromResponse(resp.account))
+      );
   }
 
   update(id: string, formUser: object, formAccount: object) {
     return this.http
-      .patch<account>(`${this.URL}/${id}`, {
-        user: formUser,
-        account: formAccount,
-      })
-      .pipe(map((resp) => AccountMapper.fromResponse(resp)));
-  }
-
-  resetAccountAccess(id: string) {
-    return this.http
-      .get<{ newLogin: string; pdfBase64: string }>(
-        `${this.URL}/reset-credentials/${id}`
+      .patch<{ account: account; pdfBase64: string | null }>(
+        `${this.URL}/${id}`,
+        {
+          user: formUser,
+          account: formAccount,
+        }
       )
       .pipe(
         tap(({ pdfBase64 }) => {
-          this.showPdfFromBase64(pdfBase64);
+          if (pdfBase64) {
+            this.showPdfFromBase64(pdfBase64);
+          }
         }),
-        map(({ newLogin }) => newLogin)
+        map(({ account }) => AccountMapper.fromResponse(account))
       );
   }
 
-  unlink(id: string) {
-    return this.http.delete<{ message: string }>(`${this.URL}/unlink/${id}`);
+  resetAccountPassword(id: string) {
+    return this.http
+      .get<{ pdfBase64: string }>(`${this.URL}/reset-password/${id}`)
+      .pipe(tap(({ pdfBase64 }) => this.showPdfFromBase64(pdfBase64)));
   }
 
   getDetails(id_cuenta: string) {

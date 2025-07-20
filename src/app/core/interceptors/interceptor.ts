@@ -52,7 +52,8 @@ export function loggingInterceptor(
           case 500:
             toastService.showToast({
               severity: 'error',
-              title: 'Ha ocurrido un error',
+              title: 'Error interno',
+              description:"No se pudo procesar la solicitud. Por favor, vuelva a intentarlo más tarde."
             });
             break;
           case 400:

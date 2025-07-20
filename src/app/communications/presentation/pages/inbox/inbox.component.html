@@ -224,12 +224,9 @@
         [class.mail-pending]="row.status === 'pending'"
       ></tr>
       <tr class="mat-row" *matNoDataRow>
-        <td class="mat-cell p-3" [attr.colspan]="displayedColumns.length">
-          SIN RESULTADOS.
-        </td>
+        <td class="mat-cell p-3"[attr.colspan]="displayedColumns.length">No se encontraron resultados</td>
       </tr>
     </table>
-    @if (datasize() > limit()){
     <mat-paginator
       showFirstLastButtons
       [length]="datasize()"
@@ -237,6 +234,5 @@
       [pageSize]="limit()"
       (page)="onPageChange($event)"
     />
-    }
   </div>
 </div>

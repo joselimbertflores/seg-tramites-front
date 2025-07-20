@@ -19,15 +19,13 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
+import { toSignal } from '@angular/core/rxjs-interop';
 
-import {
-  SimpleSelectOption,
-  SimpleSelectSearchComponent,
-} from '../../../../../shared';
-import { ExternalService } from '../../../services';
-import { CustomValidators } from '../../../../../../helpers';
-import { ExternalProcedure } from '../../../../domain';
-import { typeProcedure } from '../../../../../administration/infrastructure';
+import { selectOption, SelectSearchComponent } from '../../../../shared';
+import { ExternalService } from '../../services';
+import { CustomValidators } from '../../../../../helpers';
+import { ExternalProcedure } from '../../../domain';
+import { typeProcedure } from '../../../../administration/infrastructure';
 
 interface requirementOption {
   name: string;
@@ -46,7 +44,7 @@ interface requirementOption {
     MatSelectModule,
     MatButtonModule,
     MatCheckboxModule,
-    SimpleSelectSearchComponent,
+    SelectSearchComponent,
   ],
   templateUrl: './external-dialog.component.html',
   providers: [
@@ -69,8 +67,8 @@ export class ExternalDialogComponent {
   applicantType = signal<'NATURAL' | 'JURIDICO'>('NATURAL');
   hasRepresentative = signal<boolean>(false);
 
-  segments = signal<SimpleSelectOption<string>[]>([]);
-  typesProcedures = signal<SimpleSelectOption<typeProcedure>[]>([]);
+  segments = toSignal(this.externalService.getSegments(), { initialValue: [] });
+  typesProcedures = signal<selectOption<typeProcedure>[]>([]);
   requirements = signal<requirementOption[]>([]);
 
   formProcedure: FormGroup = this.formBuilder.group({
@@ -94,18 +92,17 @@ export class ExternalDialogComponent {
   );
 
   ngOnInit(): void {
-    this._loadForm();
-    this._getRequiredProps();
+    this.loadForm();
   }
 
-  selectSegmentProcedure(segment: string) {
+  selectSegment(segment: string) {
     this.formProcedure.patchValue({ segment, type: '' });
     this.requirements.set([]);
     this.externalService
       .getTypesProceduresBySegment(segment)
       .subscribe((types) => {
         this.typesProcedures.set(
-          types.map((type) => ({ value: type, text: type.nombre }))
+          types.map((type) => ({ value: type, label: type.nombre }))
         );
       });
   }
@@ -129,7 +126,7 @@ export class ExternalDialogComponent {
         .map(({ name }) => name),
     };
     const subscriptipn = this.data
-      ? this.externalService.update(this.data._id, form)
+      ? this.externalService.update(this.data.id, form)
       : this.externalService.create(form);
 
     subscriptipn.subscribe((procedure) => {
@@ -209,28 +206,17 @@ export class ExternalDialogComponent {
     });
   }
 
-  private _loadForm(): void {
+  private loadForm(): void {
     if (!this.data) return;
     const { applicant, representative, ...props } = this.data;
     this.formProcedure.removeControl('type');
     this.formProcedure.removeControl('segment');
     this.formProcedure.patchValue(props);
-    console.log(props);
 
     this.applicantType.set(applicant.type);
     this.formApplicant().patchValue(applicant);
 
     this.hasRepresentative.set(representative ? true : false);
     this.formRepresentative().patchValue(representative ?? {});
-  }
-
-  private _getRequiredProps(): void {
-    this.externalService.getSegments().subscribe((segments) => {
-      const options: SimpleSelectOption<string>[] = segments.map((segment) => ({
-        text: segment,
-        value: segment,
-      }));
-      this.segments.set(options);
-    });
   }
 }

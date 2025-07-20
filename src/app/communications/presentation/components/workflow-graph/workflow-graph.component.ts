@@ -23,10 +23,8 @@ import { sendStatus } from '../../../../communications/domain';
           [animate]="false"
           [draggingEnabled]="false"
           [showMiniMap]="true"
-          [autoCenter]="true"
           [nodeWidth]="380"
           [nodeHeight]="200"
-          [autoZoom]="true"
           layout="dagreCluster"
         >
           <ng-template #defsTemplate>

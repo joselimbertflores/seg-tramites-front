@@ -66,7 +66,7 @@ export class ProcurementCommunicationComponent implements OnInit {
 
   save() {
     this.procurementService
-      .update(this.procedure()._id, this.formProcedure.value)
+      .update(this.procedure().id, this.formProcedure.value)
       .subscribe((procedure) => {
         this.procedure.set(procedure);
         this.isAlertShowing.set(true);

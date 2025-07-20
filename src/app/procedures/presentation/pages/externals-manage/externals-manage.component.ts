@@ -11,17 +11,17 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 
-import { ExternalDialogComponent } from './external-dialog/external-dialog.component';
 
 import { CacheService, SearchInputComponent } from '../../../../shared';
 import { ExternalProcedure, procedureState } from '../../../domain';
 import { ExternalService } from '../../services';
 import {
-  routeSheetData,
+  RouteSheetData,
   RouteSheetDialogComponent,
   submissionData,
   SubmissionDialogComponent,
 } from '../../../../communications/presentation/dialogs';
+import { ExternalDialogComponent } from '../../dialogs';
 
 interface cache {
   datasource: ExternalProcedure[];
@@ -91,7 +91,7 @@ export default class ExternalsManageComponent {
       maxWidth: '1000px',
       width: '1000px',
     });
-    dialogRef.afterClosed().subscribe((result: ExternalProcedure) => {
+    dialogRef.afterClosed().subscribe((result: ExternalProcedure| undefined) => {
       if (!result) return;
       this.datasource.update((values) =>
         [result, ...values].slice(0, this.limit())
@@ -101,26 +101,29 @@ export default class ExternalsManageComponent {
     });
   }
 
-  update(procedure: ExternalProcedure): void {
+  update(item: ExternalProcedure): void {
     const dialogRef = this.dialogRef.open(ExternalDialogComponent, {
       maxWidth: '1000px',
       width: '1000px',
-      data: procedure,
+      data: item,
     });
-    dialogRef.afterClosed().subscribe((result) => {
-      if (!result) return;
-      this.datasource.update((values) => {
-        const index = values.findIndex(({ _id }) => _id === result._id);
-        values[index] = result;
-        return [...values];
+    dialogRef
+      .afterClosed()
+      .subscribe((result: ExternalProcedure | undefined) => {
+        if (!result) return;
+        this.datasource.update((values) => {
+          const index = values.findIndex(({ id }) => id === result.id);
+          if( index === -1) return values;
+          values[index] = result;
+          return [...values];
+        });
       });
-    });
   }
 
-  send(procedure: ExternalProcedure): void {
+  send(item: ExternalProcedure): void {
     const transfer: submissionData = {
-      procedure: { id: procedure._id, code: procedure.code },
-      attachmentsCount: procedure.numberOfDocuments,
+      procedure: { id: item.id, code: item.code },
+      attachmentsCount: item.numberOfDocuments,
       isOriginal: true,
       mode: 'initiate',
     };
@@ -133,7 +136,7 @@ export default class ExternalsManageComponent {
     dialogRef.afterClosed().subscribe((result) => {
       if (!result) return;
       this.datasource.update((values) => {
-        const index = values.findIndex(({ _id }) => _id === procedure._id);
+        const index = values.findIndex(({ id: _id }) => _id === item.id);
         values[index].state = procedureState.Revision;
         return [...values];
       });
@@ -141,9 +144,9 @@ export default class ExternalsManageComponent {
   }
 
   generateRouteSheet(procedure: ExternalProcedure) {
-    const data: routeSheetData = {
+    const data: RouteSheetData = {
       requestParams: {
-        procedure: { id: procedure._id, group: procedure.group },
+        procedure: { id: procedure.id, group: procedure.group },
       },
       preloadedData: { procedure },
     };

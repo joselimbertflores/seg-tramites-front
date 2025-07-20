@@ -19,7 +19,7 @@
       <search-input
         [initValue]="term()"
         (onSearch)="search($event)"
-        placeholder="Codigo / Destinatario"
+        placeholder="Alterno / Nombre destinatario"
       />
     </div>
   </div>
@@ -90,7 +90,7 @@
 
       <ng-container matColumnDef="time">
         <th mat-header-cell *matHeaderCellDef>Duracion</th>
-        <td mat-cell *matCellDef="let item" class="sm:w-52">
+        <td mat-cell *matCellDef="let item" class="sm:w-56">
           @switch (item.status){ @case ('rejected') {
           <badge severity="danger" message="Rechazado" />
           } @case ('pending') {
@@ -226,17 +226,15 @@
         class="detail-row"
       ></tr>
       <tr class="mat-row" *matNoDataRow>
-        <td class="mat-cell p-3" colspan="8">SIN RESULTADOS.</td>
+         <td class="mat-cell p-3" colspan="8">No se encontraron resultados</td>
       </tr>
     </table>
-    @if (datasize() > limit()){
     <mat-paginator
       showFirstLastButtons
       [length]="datasize()"
       [pageIndex]="index()"
-      [pageSize]="10"
+      [pageSize]="limit()"
       (page)="onPageChange($event)"
     />
-    }
   </div>
 </div>

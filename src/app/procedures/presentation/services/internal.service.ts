@@ -3,11 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { map } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
-import {
-  account,
-  AccountMapper,
-  typeProcedure,
-} from '../../../administration/infrastructure';
+import { account, AccountMapper } from '../../../administration/infrastructure';
 import { internal, InternalMapper } from '../../infrastructure';
 
 @Injectable({
@@ -15,17 +11,17 @@ import { internal, InternalMapper } from '../../infrastructure';
 })
 export class InternalService {
   private http = inject(HttpClient);
-  private readonly url = `${environment.base_url}/internal`;
+  private readonly URL = `${environment.base_url}/internal`;
 
   create(form: Object) {
     return this.http
-      .post<internal>(`${this.url}`, form)
+      .post<internal>(`${this.URL}`, form)
       .pipe(map((response) => InternalMapper.fromResponse(response)));
   }
 
   update(id: string, form: Object) {
     return this.http
-      .patch<internal>(`${this.url}/${id}`, form)
+      .patch<internal>(`${this.URL}/${id}`, form)
       .pipe(map((response) => InternalMapper.fromResponse(response)));
   }
 
@@ -34,7 +30,7 @@ export class InternalService {
       fromObject: { limit, offset, ...(term && { term }) },
     });
     return this.http
-      .get<{ procedures: internal[]; length: number }>(`${this.url}`, {
+      .get<{ procedures: internal[]; length: number }>(`${this.URL}`, {
         params,
       })
       .pipe(
@@ -47,41 +43,7 @@ export class InternalService {
 
   searchAccounts(text: string) {
     return this.http
-      .get<account[]>(`${this.url}/participant/${text}`)
+      .get<account[]>(`${this.URL}/participant/${text}`)
       .pipe(map((resp) => resp.map((el) => AccountMapper.fromResponse(el))));
-  }
-
-  getTypesProcedures() {
-    return this.http.get<typeProcedure[]>(`${this.url}/types-procedures`).pipe(
-      map((resp) => {
-        return resp;
-      })
-    );
-  }
-
-  conclude(id_tramite: string, descripcion: string) {
-    return this.http
-      .put<{ ok: boolean; message: string }>(
-        `${this.url}/concluir/${id_tramite}`,
-        { descripcion }
-      )
-      .pipe(
-        map((resp) => {
-          return resp.message;
-        })
-      );
-  }
-
-  cancel(id_tramite: string, descripcion: string) {
-    return this.http
-      .put<{ ok: boolean; message: string }>(
-        `${this.url}/internos/cancelar/${id_tramite}`,
-        { descripcion }
-      )
-      .pipe(
-        map((resp) => {
-          return resp.message;
-        })
-      );
   }
 }

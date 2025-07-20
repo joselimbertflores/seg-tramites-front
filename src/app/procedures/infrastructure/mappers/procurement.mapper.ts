@@ -4,6 +4,7 @@ import { procurement } from '../interfaces/procurement.interface';
 
 export class ProcurementMapper {
   static fromResponse({
+    _id,
     createdAt,
     state,
     group,
@@ -12,6 +13,7 @@ export class ProcurementMapper {
     ...props
   }: procurement): ProcurementProcedure {
     return new ProcurementProcedure({
+      id: _id,
       createdAt: new Date(createdAt),
       state: state as procedureState,
       group: group as procedureGroup,

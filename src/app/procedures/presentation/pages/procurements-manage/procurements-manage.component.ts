@@ -152,7 +152,7 @@ export default class ProcurementsManageComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result: ProcurementProcedure) => {
       if (!result) return;
       this.datasource.update((values) => {
-        const index = values.findIndex(({ _id }) => _id === procedure._id);
+        const index = values.findIndex(({ id: _id }) => _id === procedure.id);
         values[index] = result;
         return [...values];
       });
@@ -162,7 +162,7 @@ export default class ProcurementsManageComponent implements OnInit {
   send(procedure: ProcurementProcedure) {
     const data: submissionData = {
       procedure: {
-        id: procedure._id,
+        id: procedure.id,
         code: procedure.code,
       },
       attachmentsCount: procedure.numberOfDocuments,
@@ -178,7 +178,7 @@ export default class ProcurementsManageComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (!result) return;
       this.datasource.update((values) => {
-        const index = values.findIndex(({ _id }) => _id === procedure._id);
+        const index = values.findIndex(({ id: _id }) => _id === procedure.id);
         values[index].state = procedureState.Revision;
         return [...values];
       });
@@ -198,7 +198,7 @@ export default class ProcurementsManageComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (!result) return;
       this.datasource.update((values) => {
-        const index = values.findIndex(({ _id }) => _id === procurementId);
+        const index = values.findIndex(({ id: _id }) => _id === procurementId);
         values[index].documents[docIndex] = result;
         return [...values];
       });

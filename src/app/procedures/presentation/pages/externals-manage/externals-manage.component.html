@@ -6,7 +6,7 @@
   </button>
 </mat-toolbar>
 
-<div class="p-2 sm:p-6">
+<div class="p-2 sm:p-4">
   <div class="flex justify-end mb-2">
     <div class="w-full sm:w-1/4 h-[54px]">
       <search-input
@@ -30,9 +30,9 @@
     </ng-container>
     <ng-container matColumnDef="code">
       <th mat-header-cell *matHeaderCellDef>Alterno</th>
-      <td mat-cell *matCellDef="let row" [id]="row._id" class="sm:w-48">
+      <td mat-cell *matCellDef="let row" [id]="row.id" class="sm:w-48">
         <a
-          [routerLink]="['../external', row.group, row._id]"
+          [routerLink]="['../external', row.group, row.id]"
           routerLinkActive="tonal"
           [routerLinkActiveOptions]="{ exact: false }"
           class="text-blue-500"
@@ -96,10 +96,9 @@
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
     <tr class="mat-row" *matNoDataRow>
-      <td class="mat-cell p-3" colspan="6">SIN RESULTADOS.</td>
+      <td class="mat-cell p-3"[attr.colspan]="displayedColumns.length">No se encontraron resultados</td>
     </tr>
   </table>
-  @if (datasize() > limit()){
   <mat-paginator
     showFirstLastButtons
     [length]="datasize()"
@@ -107,5 +106,4 @@
     [pageSize]="limit()"
     (page)="onPageChange($event)"
   />
-  }
 </div>

@@ -1,46 +1,52 @@
-<h2 mat-dialog-title>Crear Cuenta</h2>
+<h2 mat-dialog-title>{{ data ? "Editar" : "Crear" }} Cuenta</h2>
 <mat-dialog-content>
   <mat-stepper orientation="vertical" [linear]="false" #stepper>
     <mat-step [stepControl]="accountForm" label="Detalles Cuenta">
       <form [formGroup]="accountForm" class="py-2">
         @if(accountForm.get('dependencyId')){
-          <select-search
+          <div class="mb-4">
+            <select-search
+            [required]="true"
             title="Institucion"
             [items]="institutions()"
             (onSelect)="selectedInstitution.set($event)"
-          />
-          <select-search
-            title="Dependencia"
-            [items]="dependencies.value() ?? []"
-            (onSelect)="accountForm.get('dependencyId')?.setValue($event)"
-          />
-        }
-
-        @if (selectedOfficer()) {
-          <mat-form-field>
-            <mat-label>Funcionario</mat-label>
-            <input matInput [value]="selectedOfficer()?.fullName" readonly />
-            <button matSuffix matIconButton (click)="unlink()">
-              <mat-icon>close</mat-icon>
-            </button>
-          </mat-form-field>
+            />
+          </div>
+          <div class="mb-4">
+            <select-search
+              title="Dependencia"
+              [required]="true"
+              [items]="dependencies.value() ?? []"
+              (onSelect)="accountForm.get('dependencyId')?.setValue($event)"
+            />
+          </div>
         } 
-        
-        @else {
-          <select-search
-            title="Funcionario"
-            [autoFilter]="false"
-            [items]="officers()"
-            (onTyped)="searchOfficer($event)"
-            (onSelect)="onSelectOfficer($event)"
-          />
-        }
-
+        <div class="mb-4">
+          @if (selectedOfficer()) {
+            <mat-form-field>
+              <mat-label>Funcionario</mat-label>
+              <input matInput [value]="selectedOfficer()?.fullName" readonly />
+              <button matSuffix matIconButton (click)="unlink()">
+                <mat-icon>close</mat-icon>
+              </button>
+            </mat-form-field>
+          }        
+          @else {
+            <select-search
+              title="Funcionario"
+              [required]="!data"
+              [autoFilter]="false"
+              [items]="officers()"
+              (onTyped)="searchOfficer($event)"
+              (onSelect)="onSelectOfficer($event)"
+            />  
+          }
+        </div>
         <mat-form-field>
           <mat-label>Cargo</mat-label>
           <input
-            formControlName="jobtitle"
             matInput
+            formControlName="jobtitle"
             placeholder="Ingrese el cargo"
           />
         </mat-form-field>
@@ -53,10 +59,21 @@
     </mat-step>
     <mat-step [stepControl]="userForm" label="Detalles Usuario">
       <form [formGroup]="userForm" class="py-2">
-        <div class="grid grid-cols-2 gap-x-2">
-          <div class="col-span-2">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <mat-form-field>
+              <mat-label>Login</mat-label>
+              <input
+                formControlName="login"
+                matInput
+                placeholder="Ingrese el login"
+              />
+            </mat-form-field>
+          </div>
+          <div>
             <select-search
               title="Rol"
+              [required]="true"
               [value]="userForm.get('role')?.value"
               [items]="roles()"
               (onSelect)="userForm.get('role')?.setValue($event)"

@@ -24,7 +24,7 @@ import { AuthService } from '../../../../auth/presentation/services/auth.service
         class="h-32 sm:h-48 mb-6"
       />
       <h1 class="text-xl sm:text-3xl font-bold tracking-wide">
-        ¡Bienvenid&#64; {{ userName ?? 'Usuario' | uppercase }}!
+        ¡Bienvenid&#64; {{ userName ?? 'Usuario' | titlecase }}!
       </h1>
       <p class="text-gray-600 mt-2 italic">
         "Gestiona tus trámites, desde el inicio hasta su conclusión"

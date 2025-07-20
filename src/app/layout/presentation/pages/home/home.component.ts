@@ -35,6 +35,7 @@ import {
   AlertService,
   LoadingService,
   overlayAnimation,
+  ToastService,
 } from '../../../../shared';
 
 import { routeAnimations } from '../../../../shared/animations/route-animations';
@@ -70,6 +71,7 @@ export default class HomeComponent {
   private authService = inject(AuthService);
   private destroyRef = inject(DestroyRef);
   private router = inject(Router);
+
 
   readonly dialogRef = inject(MatDialog);
   isLoading = inject(LoadingService).isLoading;
@@ -115,6 +117,8 @@ export default class HomeComponent {
         height: '600px',
       });
     });
+
+
   }
 
   logout() {

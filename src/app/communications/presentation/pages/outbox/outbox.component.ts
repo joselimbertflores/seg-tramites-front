@@ -39,7 +39,7 @@ import {
 import { HumanizeDurationPipe } from '../../pipes/humanize-duration.pipe';
 import { OutboxService } from '../../services';
 import {
-  routeSheetData,
+  RouteSheetData,
   RouteSheetDialogComponent,
   submissionData,
   SubmissionDialogComponent,
@@ -123,7 +123,7 @@ export default class OutboxComponent {
         term: this.term(),
       })
       .subscribe(({ communications, length }) => {
-        this.datasource.set(communications.map((item) => item));
+        this.datasource.set(communications);
         this.datasize.set(length);
         this.selection.clear();
       });
@@ -166,7 +166,7 @@ export default class OutboxComponent {
   }
 
   generateRouteSheet({ id, procedure }: Communication) {
-    const data: routeSheetData = {
+    const data: RouteSheetData = {
       requestParams: {
         procedure: { id: procedure.ref, group: procedure.group },
         communicationId: id,

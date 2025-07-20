@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { toast } from 'ngx-sonner';
 
 interface ToastConfig {
@@ -12,7 +12,8 @@ interface ToastConfig {
 })
 export class ToastService {
   protected readonly toast = toast;
-  constructor() {}
+
+  customToastData = signal<string | null>(null);
 
   showToast({ title, description, severity }: ToastConfig) {
     switch (severity) {

@@ -114,12 +114,20 @@ export class ArchiveDialogComponent {
       label: 'Concluido: Se concluyo correctamente',
     },
     {
+      value: procedureState.Anulado,
+      label: 'Anulado: Tramite incorrecto',
+    },
+    {
       value: procedureState.Suspendido,
       label: 'Suspendido: Se continuara en un futuro',
     },
     {
-      value: procedureState.Anulado,
-      label: 'Anulado: Tramite incorrecto',
+      value: procedureState.Retirado,
+      label: 'Retirado: Se retiro la documentacion',
+    },
+    {
+      value: procedureState.Abandono,
+      label: 'Abandono: El tramite fue abandonado',
     },
   ];
 

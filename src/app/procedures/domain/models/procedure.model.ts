@@ -1,5 +1,5 @@
 export interface ProcedureProps {
-  _id: string;
+  id: string;
   code: string;
   cite: string;
   numberOfDocuments: string;
@@ -29,6 +29,8 @@ export enum procedureState {
   Concluido = 'CONCLUIDO',
   Anulado = 'ANULADO',
   Suspendido = 'SUSPENDIDO',
+  Retirado = 'RETIRADO',
+  Abandono = 'ABANDONO',
 }
 
 interface officer {
@@ -43,12 +45,12 @@ export interface originDetails {
 }
 
 export abstract class Procedure {
-  public readonly _id: string;
+  public readonly id: string;
   public readonly code: string;
   public readonly group: procedureGroup;
   public readonly createdAt: Date;
   public readonly account: string;
-  public readonly endDate?: Date;
+  public readonly completedAt?: Date;
   public state: procedureState;
   public cite: string;
   public reference: string;
@@ -56,7 +58,7 @@ export abstract class Procedure {
   public isSend: boolean;
 
   constructor({
-    _id,
+    id,
     code,
     cite,
     account,
@@ -66,7 +68,7 @@ export abstract class Procedure {
     createdAt,
     group,
   }: ProcedureProps) {
-    this._id = _id;
+    this.id = id;
     this.code = code;
     this.cite = cite;
     this.account = account;

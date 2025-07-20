@@ -18,11 +18,11 @@ import { MatDialog } from '@angular/material/dialog';
 
 import { CacheService, SearchInputComponent } from '../../../../shared';
 import { InternalProcedure, procedureState } from '../../../domain';
+import { InternalDialogComponent } from '../../dialogs';
 import { InternalService } from '../../services';
 
-import { InternalDialogComponent } from './internal-dialog/internal-dialog.component';
 import {
-  routeSheetData,
+  RouteSheetData,
   submissionData,
   RouteSheetDialogComponent,
   SubmissionDialogComponent,
@@ -97,36 +97,41 @@ export default class InternalsManageComponent {
       width: '900px',
       autoFocus: false,
     });
-    dialogRef.afterClosed().subscribe((procedure) => {
-      if (!procedure) return;
-      this.datasource.update((values) =>
-        [procedure, ...values].slice(0, this.limit())
-      );
-      this.datasize.update((value) => (value += 1));
-      this.send(procedure);
-    });
+    dialogRef
+      .afterClosed()
+      .subscribe((procedure: InternalProcedure | undefined) => {
+        if (!procedure) return;
+        this.datasource.update((values) =>
+          [procedure, ...values].slice(0, this.limit())
+        );
+        this.datasize.update((value) => (value += 1));
+        this.send(procedure);
+      });
   }
 
-  update(procedure: InternalProcedure) {
+  update(item: InternalProcedure) {
     const dialogRef = this.dialog.open(InternalDialogComponent, {
       maxWidth: '900px',
       width: '900px',
-      data: procedure,
+      data: item,
     });
-    dialogRef.afterClosed().subscribe((result) => {
-      if (!result) return;
-      this.datasource.update((values) => {
-        const index = values.findIndex(({ _id }) => _id === procedure._id);
-        values[index] = result;
-        return [...values];
+    dialogRef
+      .afterClosed()
+      .subscribe((result: InternalProcedure | undefined) => {
+        if (!result) return;
+        this.datasource.update((values) => {
+          const index = values.findIndex(({ id }) => id === item.id);
+          if( index === -1) return values;
+          values[index] = result;
+          return [...values];
+        });
       });
-    });
   }
 
   send(procedure: InternalProcedure) {
     const data: submissionData = {
       procedure: {
-        id: procedure._id,
+        id: procedure.id,
         code: procedure.code,
       },
       attachmentsCount: procedure.numberOfDocuments,
@@ -142,7 +147,7 @@ export default class InternalsManageComponent {
     dialogRef.afterClosed().subscribe((message) => {
       if (!message) return;
       this.datasource.update((values) => {
-        const index = values.findIndex(({ _id }) => _id === procedure._id);
+        const index = values.findIndex(({ id: _id }) => _id === procedure.id);
         values[index].state = procedureState.Revision;
         return [...values];
       });
@@ -150,9 +155,9 @@ export default class InternalsManageComponent {
   }
 
   generateRouteSheet(procedure: InternalProcedure) {
-    const data: routeSheetData = {
+    const data: RouteSheetData = {
       requestParams: {
-        procedure: { id: procedure._id, group: procedure.group },
+        procedure: { id: procedure.id, group: procedure.group },
       },
       preloadedData: { procedure },
     };
