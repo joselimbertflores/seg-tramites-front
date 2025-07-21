@@ -117,6 +117,7 @@ export default class SettingsComponent implements OnInit {
   theme = computed<ThemeClass>(() => `${this.color()}-${this.background()}`);
 
   ngOnInit(): void {
+    console.log("SETTINGS COMPONENT STARTED");
     this.showNotification();
   }
 

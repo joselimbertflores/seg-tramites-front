@@ -2,7 +2,6 @@ export * from './image-base64.helper';
 
 export * from './number-to-ordinal.helper';
 export * from './form-error-messages.helper';
-export * from './generate-crendentials';
 
 export * from './pdf/approved-sheet';
 export * from './pdf/approved-sheet';

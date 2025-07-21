@@ -7,8 +7,8 @@ import pdfFonts from 'pdfmake/build/vfs_fonts';
 
 import {
   buildUnlinkSheet,
+  getRouteSheetReport,
   ProcedureReportTemplate,
-  RouteSheetBuilder,
 } from '../../helpers';
 import { AuthService } from '../../auth/presentation/services/auth.service';
 import { unlinkDataResponse } from '../../reports/infrastructure';
@@ -43,7 +43,7 @@ export class PdfService {
   private readonly userName=inject(AuthService).user()?.fullname
   routeSheet(procedure: Procedure, workflow: workflow[], isOriginal: boolean) {
     return new Observable<Blob>((observer) => {
-      RouteSheetBuilder.build(procedure, workflow, isOriginal)
+      getRouteSheetReport(procedure, workflow, isOriginal)
         .then((docDefinition) => {
           pdfMake.createPdf(docDefinition).getBlob((blob) => {
             observer.next(blob);

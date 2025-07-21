@@ -12,6 +12,7 @@ export interface workflow {
   parentId?: string;
   receivedDate?: Date;
   actionLog?: actionLog;
+  priority: number;
 }
 
 interface procedure {

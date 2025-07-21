@@ -8,7 +8,6 @@ import {
 } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Observable, map, startWith, switchMap } from 'rxjs';
-import { MaterialModule } from '../../../../material.module';
 
 import { AlertService } from '../../../../shared';
 
@@ -18,7 +17,6 @@ import { AlertService } from '../../../../shared';
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        MaterialModule,
     ],
     templateUrl: './clients.component.html',
     styleUrl: './clients.component.scss',

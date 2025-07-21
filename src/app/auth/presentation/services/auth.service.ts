@@ -58,14 +58,13 @@ export class AuthService {
     return this.http
       .get<{
         token: string;
-        code: string;
         menu: menu[];
         permissions: Record<validResource, string[]>;
         updatedPassword: boolean;
       }>(`${this.base_url}/auth`)
       .pipe(
         tap((resp) => console.log(resp)),
-        map(({ menu, token, code, permissions, updatedPassword }) => {
+        map(({ menu, token, permissions, updatedPassword }) => {
           this._menu.set(menu);
           this._permissions.set(permissions);
           this._updatedPassword.set(updatedPassword);

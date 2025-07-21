@@ -25,10 +25,7 @@ import { MatDialog } from '@angular/material/dialog';
 
 import { CdkScrollable, ScrollingModule } from '@angular/cdk/scrolling';
 import { OverlayModule } from '@angular/cdk/overlay';
-import {
-  ProfileComponent,
-  NavigationListComponent,
-} from '../../../../presentation/components';
+
 
 import { PublicationDialogComponent } from '../../../../publications/presentation/components';
 import {
@@ -42,6 +39,7 @@ import { routeAnimations } from '../../../../shared/animations/route-animations'
 import { AuthService } from '../../../../auth/presentation/services/auth.service';
 import { SocketService } from '../../services';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { ProfileComponent, SidenavMenuComponent } from '../../components';
 
 @Component({
   selector: 'app-home',
@@ -49,7 +47,6 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
     CommonModule,
     MatIconModule,
     MatToolbarModule,
-    ProfileComponent,
     MatSidenavModule,
     RouterModule,
     OverlayModule,
@@ -57,8 +54,9 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
     ScrollingModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
-    NavigationListComponent,
     MatProgressBarModule,
+    ProfileComponent,
+    SidenavMenuComponent
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',

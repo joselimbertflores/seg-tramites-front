@@ -8,7 +8,7 @@ import {
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
-import { AuthService } from '../../../auth/presentation/services/auth.service';
+import { AuthService } from '../../../../auth/presentation/services/auth.service';
 
 @Component({
   selector: 'profile',

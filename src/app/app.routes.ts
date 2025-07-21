@@ -3,6 +3,7 @@ import { Routes } from '@angular/router';
 import {
   isAuthenticatedGuard,
   isNotAuthenticatedGuard,
+  updatedPasswordGuard,
 } from './presentation/guards';
 import { ClientsComponent } from './presentation/pages/groupware/clients/clients.component';
 
@@ -24,6 +25,7 @@ export const routes: Routes = [
     path: 'home',
     title: 'Inicio',
     canActivate: [isAuthenticatedGuard],
+    canActivateChild: [updatedPasswordGuard],
     loadComponent: () =>
       import('./layout/presentation/pages/home/home.component'),
     children: [
@@ -86,84 +88,79 @@ export const routes: Routes = [
           ),
       },
       {
-        path: 'manage',
-        canActivate: [isAuthenticatedGuard, accountGuard],
-        children: [
-          {
-            path: 'external',
-            data: { animation: 'ExternalPage' },
-            loadComponent: () =>
-              import(
-                './procedures/presentation/pages/externals-manage/externals-manage.component'
-              ),
-          },
-          {
-            path: 'internal',
-            data: { animation: 'InternalPage' },
-            loadComponent: () =>
-              import(
-                './procedures/presentation/pages/internals-manage/internals-manage.component'
-              ),
-          },
-          {
-            path: 'procurement',
-            data: { animation: 'ProcurementPage' },
-            loadComponent: () =>
-              import(
-                './procedures/presentation/pages/procurements-manage/procurements-manage.component'
-              ),
-          },
-          {
-            path: 'inbox',
-            title: 'Bandeja de entrada',
-            data: { animation: 'InboxPage' },
-            loadComponent: () =>
-              import(
-                './communications/presentation/pages/inbox/inbox.component'
-              ),
-          },
-          {
-            path: 'inbox/:id',
-            title: 'Detalle',
-            data: { animation: 'slide' },
-            loadComponent: () =>
-              import(
-                './communications/presentation/pages/inbox-detail/inbox-detail.component'
-              ),
-          },
-          {
-            path: 'outbox',
-            title: 'Bandeja - Salida',
-            data: { animation: 'OutboxPage' },
-            loadComponent: () =>
-              import(
-                './communications/presentation/pages/outbox/outbox.component'
-              ),
-          },
-          {
-            path: 'folders',
-            data: { animation: 'FoldersPage' },
-            loadComponent: () =>
-              import(
-                './communications/presentation/pages/folders/folders.component'
-              ),
-          },
-          {
-            path: 'folders/:id',
-            data: { animation: 'ArchivePage' },
-            loadComponent: () =>
-              import(
-                './communications/presentation/pages/archives/archives.component'
-              ),
-          },
-          {
-            path: ':from/:group/:id',
-            title: 'Detalle',
-            data: { animation: 'slide' },
-            loadComponent: () =>
-              import('./procedures/presentation/pages/detail/detail.component'),
-          },
-        ],
+        path: 'external',
+        canActivate: [accountGuard],
+        data: { animation: 'ExternalPage' },
+        loadComponent: () =>
+          import(
+            './procedures/presentation/pages/externals-manage/externals-manage.component'
+          ),
+      },
+      {
+        path: 'internal',
+        canActivate: [accountGuard],
+        data: { animation: 'InternalPage' },
+        loadComponent: () =>
+          import(
+            './procedures/presentation/pages/internals-manage/internals-manage.component'
+          ),
+      },
+      {
+        path: 'procurement',
+        data: { animation: 'ProcurementPage' },
+        canActivate: [accountGuard],
+        loadComponent: () =>
+          import(
+            './procedures/presentation/pages/procurements-manage/procurements-manage.component'
+          ),
+      },
+      {
+        path: 'inbox',
+        title: 'Bandeja de entrada',
+        data: { animation: 'InboxPage' },
+        canActivate: [accountGuard],
+        loadComponent: () =>
+          import('./communications/presentation/pages/inbox/inbox.component'),
+      },
+      {
+        path: 'inbox/:id',
+        title: 'Detalle',
+        data: { animation: 'slide' },
+        loadComponent: () =>
+          import(
+            './communications/presentation/pages/inbox-detail/inbox-detail.component'
+          ),
+      },
+      {
+        path: 'outbox',
+        title: 'Bandeja - Salida',
+        data: { animation: 'OutboxPage' },
+        canActivate: [accountGuard],
+        loadComponent: () =>
+          import('./communications/presentation/pages/outbox/outbox.component'),
+      },
+      {
+        path: 'folders',
+        data: { animation: 'FoldersPage' },
+        loadComponent: () =>
+          import(
+            './communications/presentation/pages/folders/folders.component'
+          ),
+      },
+      {
+        path: 'folders/:id',
+        data: { animation: 'ArchivePage' },
+        loadComponent: () =>
+          import(
+            './communications/presentation/pages/archives/archives.component'
+          ),
+      },
+      {
+        path: ':from/:group/:id',
+        title: 'Detalle',
+        data: { animation: 'slide' },
+        loadComponent: () =>
+          import('./procedures/presentation/pages/detail/detail.component'),
       },
       {
         path: 'resources',
@@ -176,61 +173,89 @@ export const routes: Routes = [
       },
       {
         path: 'reports',
-        title: "Reportes",
+        title: 'Reportes',
         canActivate: [permissionGuard],
-        loadComponent: () => import('./reports/presentation/layouts/report-dashboard/report-dashboard.component'),
+        loadComponent: () =>
+          import(
+            './reports/presentation/layouts/report-dashboard/report-dashboard.component'
+          ),
         children: [
           {
             path: 'home',
             canActivate: [reportsRedirectGuard],
-            loadComponent: () => import('./reports/presentation/pages/report-home/report-home.component'),
+            loadComponent: () =>
+              import(
+                './reports/presentation/pages/report-home/report-home.component'
+              ),
           },
           {
             path: 'applicant',
             data: { action: 'applicant' },
             canActivate: [reportPermissionGuard],
-            loadComponent: () => import('./reports/presentation/pages/report-applicant/report-applicant.component'),
+            loadComponent: () =>
+              import(
+                './reports/presentation/pages/report-applicant/report-applicant.component'
+              ),
           },
           {
             path: 'search',
             data: { action: 'search' },
             canActivate: [reportPermissionGuard],
-            loadComponent: () => import('./reports/presentation/pages/report-search/report-search.component'),
+            loadComponent: () =>
+              import(
+                './reports/presentation/pages/report-search/report-search.component'
+              ),
           },
           {
             path: 'unit',
             data: { action: 'unit' },
             canActivate: [reportPermissionGuard],
-            loadComponent: () => import('./reports/presentation/pages/report-unit/report-unit.component'),
+            loadComponent: () =>
+              import(
+                './reports/presentation/pages/report-unit/report-unit.component'
+              ),
           },
           {
             path: 'segments',
             data: { action: 'segments' },
             canActivate: [reportPermissionGuard],
-            loadComponent: () => import('./reports/presentation/pages/report-segments/report-segments.component'),
+            loadComponent: () =>
+              import(
+                './reports/presentation/pages/report-segments/report-segments.component'
+              ),
           },
           {
             path: 'history',
             data: { action: 'history' },
-            canActivate: [reportPermissionGuard],  
-            loadComponent: () => import( './reports/presentation/pages/report-history-communication/report-history-communication.component'),
+            canActivate: [reportPermissionGuard],
+            loadComponent: () =>
+              import(
+                './reports/presentation/pages/report-history-communication/report-history-communication.component'
+              ),
           },
           {
             path: 'unlink',
             data: { action: 'unit' },
             canActivate: [reportPermissionGuard],
-            loadComponent: () => import('./reports/presentation/pages/report-unlink/report-unlink.component'),
+            loadComponent: () =>
+              import(
+                './reports/presentation/pages/report-unlink/report-unlink.component'
+              ),
           },
-            {
+          {
             path: 'efficiency',
             data: { action: 'efficiency' },
             canActivate: [reportPermissionGuard],
-            loadComponent: () => import('./reports/presentation/pages/report-efficiency/report-efficiency.component'),
+            loadComponent: () =>
+              import(
+                './reports/presentation/pages/report-efficiency/report-efficiency.component'
+              ),
           },
           {
             path: 'detail/:group/:id',
             data: { animation: 'slide' },
-            loadComponent: () => import('./procedures/presentation/pages/detail/detail.component'),
+            loadComponent: () =>
+              import('./procedures/presentation/pages/detail/detail.component'),
           },
           { path: '', redirectTo: 'home', pathMatch: 'full' },
         ],

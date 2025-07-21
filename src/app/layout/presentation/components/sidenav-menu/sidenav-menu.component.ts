@@ -13,7 +13,7 @@ interface menu {
   children?: menu[];
 }
 @Component({
-  selector: 'navigation-list',
+  selector: 'sidenav-menu',
   imports: [
     CommonModule,
     MatIconModule,
@@ -59,9 +59,9 @@ interface menu {
       } }
     </mat-nav-list>
   `,
-  styleUrl: './navigation-list.component.scss',
+  styleUrl: './sidenav-menu.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NavigationListComponent {
+export class SidenavMenuComponent {
   @Input({ required: true }) menu!: menu[];
 }
