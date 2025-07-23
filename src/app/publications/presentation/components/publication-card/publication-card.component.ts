@@ -25,14 +25,19 @@ import { SecureImageViewerComponent } from '../../../../shared';
       <mat-card-content>
         <div class="space-y-4">
           <h3 class="text-2xl font-medium">{{ publication().title }}</h3>
-          <p class="text-justify">{{ publication().content }}</p>
+
           @if(publication().image){
           <div class="flex justify-center w-full">
             <figure class="h-auto sm:h-[400px]">
               <secure-image-viewer [imageUrl]="publication().image" />
             </figure>
           </div>
-          } @if(publication().attachments.length > 0){
+          }
+          <p class="text-justify  whitespace-pre-line">
+            {{ publication().content }}
+          </p>
+
+          @if(publication().attachments.length > 0){
           <ul class="list-disc px-6">
             @for (item of publication().attachments; track $index) {
             <li>

@@ -43,7 +43,7 @@ import { AuthService } from '../../../../auth/presentation/services/auth.service
         </button>
       </mat-action-list>
       <div class="flex justify-end">
-        <a href="#" class=" text-xs hover:text-indigo-500">
+        <a routerLink="/home/info" class="text-xs hover:text-indigo-500" (click)="info()">
           Notas de la version
         </a>
       </div>
@@ -67,5 +67,10 @@ export class ProfileComponent {
     this.isOpen.set(false);
     this.authService.logout();
     this.router.navigateByUrl('login');
+  }
+
+  info() {
+    this.isOpen.set(false);
+    this.router.navigateByUrl('/home/info');
   }
 }

@@ -140,6 +140,7 @@ export default class ExternalsManageComponent {
         values[index].state = procedureState.Revision;
         return [...values];
       });
+      this.generateRouteSheet(item)
     });
   }
 

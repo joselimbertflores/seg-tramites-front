@@ -54,6 +54,8 @@ import {
   submissionData,
   ArchiveDialogComponent,
   SubmissionDialogComponent,
+  RouteSheetData,
+  RouteSheetDialogComponent,
 } from '../../dialogs';
 
 @Component({
@@ -143,7 +145,6 @@ export default class InboxDetailComponent {
       )
       .subscribe({
         next: ({ ids: [id] }) => {
-          console.log(id);
           this.finalizeAndReturn(id);
         },
         error: (error) => {
@@ -184,6 +185,24 @@ export default class InboxDetailComponent {
     dialogRef.afterClosed().subscribe((result: string[]) => {
       if (!result) return;
       this.finalizeAndReturn(this.communication.id);
+    });
+  }
+
+  generateRouteSheet() {
+    if (!this.procedure()) return;
+    const data: RouteSheetData = {
+      requestParams: {
+        procedure: { id: this.procedure()!.id, group: this.procedure()!.group },
+      },
+      preloadedData: {
+        procedure: this.procedure()!,
+        workflow: this.workflow(),
+      },
+    };
+    this.dialogRef.open(RouteSheetDialogComponent, {
+      data,
+      width: '1200px',
+      maxWidth: '1200px',
     });
   }
 

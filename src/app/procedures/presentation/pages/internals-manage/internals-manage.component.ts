@@ -151,6 +151,7 @@ export default class InternalsManageComponent {
         values[index].state = procedureState.Revision;
         return [...values];
       });
+      this.generateRouteSheet(procedure)
     });
   }
 

@@ -29,11 +29,6 @@ export class PublicationService {
   }
 
   update({ id, attachments, image, form }: updatePublicationProps) {
-    console.log({
-      ...form,
-      image,
-      attachments,
-    });
     return this.http.patch<publication>(`${this.URL}/${id}`, {
       ...form,
       image,

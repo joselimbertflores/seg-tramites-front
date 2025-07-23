@@ -27,7 +27,6 @@ export class InfiniteScrollWrapperComponent {
   onScroll = output<void>();
 
   load(): void {
-    console.log('scrolled!!');
     this.onScroll.emit();
   }
 }

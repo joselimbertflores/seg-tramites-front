@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import {
   FormGroup,
   Validators,
@@ -8,7 +8,6 @@ import {
 } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 
-
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
@@ -16,6 +15,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 
 import { AuthService } from '../../services/auth.service';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -28,6 +29,7 @@ import { AuthService } from '../../services/auth.service';
     MatInputModule,
     MatIconModule,
     MatButtonModule,
+    MatProgressSpinnerModule,
   ],
   template: `
     <div class="p-4 absolute top-0 left-0">
@@ -87,7 +89,19 @@ import { AuthService } from '../../services/auth.service';
               Recordar Usuario
             </mat-checkbox>
           </div>
-          <button type="submit" mat-flat-button class="w-full">Ingresar</button>
+          <button
+            type="submit"
+            matButton="filled"
+            [disabled]="loginForm.invalid || isLoading()"
+            class="w-full"
+          >
+            @if(isLoading()){ 
+              <mat-spinner [diameter]="25" [strokeWidth]="3" />
+            }
+            @else {
+              Ingresar
+            } 
+          </button>
         </form>
       </div>
     </div>
@@ -110,6 +124,7 @@ export default class LoginComponent {
     password: ['', Validators.required],
     remember: [false],
   });
+  isLoading = signal(false);
 
   constructor(
     private authService: AuthService,
@@ -125,8 +140,12 @@ export default class LoginComponent {
 
   login() {
     if (this.loginForm.invalid) return;
-    this.authService.login(this.loginForm.value).subscribe(() => {
-      this.router.navigateByUrl('/home');
-    });
+    this.isLoading.set(true);
+    this.authService
+      .login(this.loginForm.value)
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe(() => {
+        this.router.navigateByUrl('/home');
+      });
   }
 }

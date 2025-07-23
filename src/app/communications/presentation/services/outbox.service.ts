@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { map } from 'rxjs';
 
 import {
@@ -7,7 +7,6 @@ import {
   CommunicationMapper,
 } from '../../../communications/infrastructure';
 import { environment } from '../../../../environments/environment';
-import { UPLOAD_INDICATOR } from '../../../core/interceptors/interceptor';
 
 interface createCommunicationProps {
   attachmentsCount: string;
@@ -64,9 +63,7 @@ export class OutboxService {
 
   create(data: createCommunicationProps, mode: communicationMode) {
     return this.http
-      .post<communication[]>(`${this.url}/${mode}`, data, {
-        context: new HttpContext().set(UPLOAD_INDICATOR, true),
-      })
+      .post<communication[]>(`${this.url}/${mode}`, data)
       .pipe(
         map((resp) =>
           resp.map((item) => CommunicationMapper.fromResponse(item))

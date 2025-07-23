@@ -26,17 +26,13 @@ export const routes: Routes = [
     title: 'Inicio',
     canActivate: [isAuthenticatedGuard],
     canActivateChild: [updatedPasswordGuard],
-    loadComponent: () =>
-      import('./layout/presentation/pages/home/home.component'),
+    loadComponent: () => import('./layout/presentation/pages/home/home.component'),
     children: [
       { path: '', redirectTo: 'main', pathMatch: 'full' },
       {
         path: 'usuarios',
         title: 'Usuarios',
-        loadComponent: () =>
-          import(
-            './users/presentation/pages/users-manage/users-manage.component'
-          ),
+        loadComponent: () => import('./users/presentation/pages/users-manage/users-manage.component'),
       },
       {
         path: 'roles',

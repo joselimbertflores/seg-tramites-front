@@ -3,19 +3,19 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
+import { typeProcedure } from '../../../administration/infrastructure';
+import { procedureGroup } from '../../../procedures/domain';
 import { skipUploadIndicator } from '../../../helpers';
 import {
   external,
   internal,
   procurement,
 } from '../../../procedures/infrastructure';
-import { typeProcedure } from '../../../administration/infrastructure';
 import {
-  procedureEfficiencyResponse,
   tableProcedureData,
+  procedureEfficiencyResponse,
   totalProcedureBySegmentResponse,
 } from '../../infrastructure';
-import { procedureGroup } from '../../../procedures/domain';
 
 type procedureResponse = external | internal | procurement;
 
@@ -96,7 +96,7 @@ export class ProcedureReportService {
       .post<{ procedures: external[]; length: number }>(
         `${this.url}/applicant`,
         { by, properties, ...(typeProcedure && { typeProcedure }) },
-        { params }
+        { params, context: skipUploadIndicator() }
       )
       .pipe(
         map(({ procedures, length }) => ({
@@ -117,13 +117,18 @@ export class ProcedureReportService {
   }
 
   getProceduresEfficiency(filterParams: object) {
-    return this.http.post<procedureEfficiencyResponse[]>(`${this.url}/eficiency`, filterParams);
+    return this.http.post<procedureEfficiencyResponse[]>(
+      `${this.url}/eficiency`,
+      filterParams,
+      { context: skipUploadIndicator() }
+    );
   }
 
   getTotalBySegments(filterProps: getTotalBySegmentProps) {
     return this.http.post<totalProcedureBySegmentResponse>(
       `${this.url}/segments`,
-      filterProps
+      filterProps,
+      { context: skipUploadIndicator() }
     );
   }
 

@@ -99,7 +99,7 @@ export class CommunicationReportService {
       .post<{ communications: communication[]; length: number }>(
         `${this.URL}/history`,
         props,
-        { params }
+        { params, context: skipUploadIndicator() }
       )
       .pipe(
         map(({ communications, length }) => ({

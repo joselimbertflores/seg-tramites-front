@@ -20,7 +20,7 @@
       <button mat-icon-button matTooltip="Archivar" (click)="archive()">
         <mat-icon>archive</mat-icon>
       </button>
-      <button mat-icon-button matTooltip="Hoja de ruta">
+      <button mat-icon-button matTooltip="Hoja de ruta" (click)="generateRouteSheet()">
         <mat-icon>description</mat-icon>
       </button>
       } @default {} }
@@ -49,7 +49,7 @@
           <internal-communication [procedure]="internal" />
           } @case ("ProcurementProcedure") {
           <procurement-communication
-            [procedure]="procedure()"
+            [procedure]="procedure()!"
             [isReceived]="data()?.status === 'received'"
           />
           } @default {

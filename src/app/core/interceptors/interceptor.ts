@@ -9,9 +9,7 @@ import { inject } from '@angular/core';
 import { Observable, catchError, finalize, throwError } from 'rxjs';
 
 import { LoadingService, ToastService } from '../../shared';
-
-export const LOAD_INDICATOR = new HttpContextToken<boolean>(() => true);
-export const UPLOAD_INDICATOR = new HttpContextToken<boolean>(() => true);
+import { SHOW_PROGRESS_BAR, SHOW_UPLOAD_DIALOG } from './loading-context.token';
 
 export function loggingInterceptor(
   req: HttpRequest<unknown>,
@@ -20,16 +18,14 @@ export function loggingInterceptor(
   const toastService = inject(ToastService);
   const loadingService = inject(LoadingService);
 
-  const showLoadIndicator =
-    req.context.get(LOAD_INDICATOR) && req.method === 'GET';
-  const showUploadIndicator =
-    req.context.get(UPLOAD_INDICATOR) && req.method !== 'GET';
+  const load = req.method === 'GET' && req.context.get(SHOW_PROGRESS_BAR);
+  const upload = ['POST', 'PUT', 'PATCH'].includes(req.method) && req.context.get(SHOW_UPLOAD_DIALOG);
 
-  if (showLoadIndicator) {
+  if (load) {
     loadingService.toggleLoading(true);
   }
 
-  if (showUploadIndicator) {
+  if (upload) {
     loadingService.toggleUploading(true);
   }
 
@@ -53,7 +49,8 @@ export function loggingInterceptor(
             toastService.showToast({
               severity: 'error',
               title: 'Error interno',
-              description:"No se pudo procesar la solicitud. Por favor, vuelva a intentarlo más tarde."
+              description:
+                'No se pudo procesar la solicitud. Por favor, vuelva a intentarlo más tarde.',
             });
             break;
           case 400:
@@ -84,8 +81,8 @@ export function loggingInterceptor(
       return throwError(() => error);
     }),
     finalize(() => {
-      if (showLoadIndicator) loadingService.toggleLoading(false);
-      if (showUploadIndicator) loadingService.toggleUploading(false);
+      if (load) loadingService.toggleLoading(false);
+      if (upload) loadingService.toggleUploading(false);
     })
   );
 }

@@ -24,7 +24,6 @@ export class ResourceService {
   resources = signal<groupedResource[]>([]);
 
   constructor() {
-    console.log('get aata');
     this.findAllGroupedByCategory();
   }
 

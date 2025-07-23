@@ -76,7 +76,6 @@ export class SecureImageUploaderComponent {
     this.destroyRef.onDestroy(() => {
       if (this.imageDataUrl()?.startsWith('blob:')) {
         // * If image is a blob with createObjectURL, free memory
-        console.log('removing blob url', this.imageDataUrl());
         URL.revokeObjectURL(this.imageDataUrl()!);
       }
     });

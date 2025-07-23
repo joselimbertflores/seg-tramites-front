@@ -6,6 +6,7 @@ import { of } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
 import { jwtPayload, menu, validResource } from '../../infrastructure';
+import { skipUploadIndicator } from '../../../helpers';
 
 interface loginProps {
   login: string;
@@ -36,10 +37,14 @@ export class AuthService {
       localStorage.removeItem('login');
     }
     return this.http
-      .post<{ token: string }>(`${this.base_url}/auth`, {
-        login,
-        password,
-      })
+      .post<{ token: string }>(
+        `${this.base_url}/auth`,
+        {
+          login,
+          password,
+        },
+        { context: skipUploadIndicator() }
+      )
       .pipe(map(({ token }) => this._setAuthentication(token)));
   }
 
@@ -63,7 +68,6 @@ export class AuthService {
         updatedPassword: boolean;
       }>(`${this.base_url}/auth`)
       .pipe(
-        tap((resp) => console.log(resp)),
         map(({ menu, token, permissions, updatedPassword }) => {
           this._menu.set(menu);
           this._permissions.set(permissions);

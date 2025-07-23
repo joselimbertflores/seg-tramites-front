@@ -64,7 +64,7 @@ import { AuthService } from '../../../../auth/presentation/services/auth.service
 export default class SettingsComponent implements OnInit {
   private authService = inject(AuthService);
   private alertService = inject(AlertService);
-  private _formBuilder = inject(FormBuilder);
+  private formBuilder = inject(FormBuilder);
   themeService = inject(ThemeService);
 
   protected errorMessages: FieldValidationErrorMessages = {
@@ -79,7 +79,7 @@ export default class SettingsComponent implements OnInit {
 
   protected user = this.authService.user;
 
-  formUser = this._formBuilder.nonNullable.group(
+  formUser = this.formBuilder.nonNullable.group(
     {
       password: [
         '',
@@ -117,7 +117,6 @@ export default class SettingsComponent implements OnInit {
   theme = computed<ThemeClass>(() => `${this.color()}-${this.background()}`);
 
   ngOnInit(): void {
-    console.log("SETTINGS COMPONENT STARTED");
     this.showNotification();
   }
 
@@ -144,9 +143,8 @@ export default class SettingsComponent implements OnInit {
   showNotification() {
     if (this.authService.updatedPassword()) return;
     this.alertService.messageDialog({
-      title: 'Cambio Obligatorio de Contraseña',
-      description:
-        'Por razones de seguridad, es necesario que introduzca una nueva contraseña',
+      title: 'Cambio de contraseña requerido',
+      description: 'Por razones de seguridad, debe cambiar su contraseña antes de continuar utilizando el sistema.',
     });
   }
 

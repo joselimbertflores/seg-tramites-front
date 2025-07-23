@@ -327,7 +327,10 @@ export default class InboxComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((item) => {
         this.datasource.update((values) =>
-          [item, ...values].slice(0, this.limit())
+          [item, ...values].slice(0, this.limit()).sort((a, b) => {
+            if (b.priority !== a.priority) return b.priority - a.priority;
+            return new Date(b.sentDate).getTime() - new Date(a.sentDate).getTime()
+          })
         );
         this.datasize.update((length) => (length += 1));
       });
