@@ -231,7 +231,7 @@ export const routes: Routes = [
           },
           {
             path: 'unlink',
-            data: { action: 'unit' },
+            data: { action: 'unlink' },
             canActivate: [reportPermissionGuard],
             loadComponent: () =>
               import(

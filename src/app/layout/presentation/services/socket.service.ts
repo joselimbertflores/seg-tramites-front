@@ -21,7 +21,7 @@ export class SocketService {
   onlineClients$ = this.onlineClientsSubject.asObservable();
 
   constructor() {
-    this.socket = io(environment.base_url, {
+    this.socket = io(environment.socket_url, {
       auth: { token: localStorage.getItem('token') },
     });
   }
