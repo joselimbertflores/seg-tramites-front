@@ -299,11 +299,6 @@ export async function buildUnlinkSheet(data: unlinkDataResponse) {
           'Al momento de rotación, desvinculación, el usuario del Sistema de Seguimiento de Trámites presentará formulario de baja obligatoriamente como máximo dentro 24 horas.',
         ],
       },
-      // {
-      //   text: '\n\n',
-      //   bold: true,
-      //   alignment: 'center',
-      // },
       {
         margin: [0, 120, 0, 0],
         columns: [
@@ -386,9 +381,13 @@ export async function buildUnlinkSheet(data: unlinkDataResponse) {
                   [
                     {
                       text: 'Sin tramites en bandeja',
-                      colSpan: 6,
-                      fontSize: 18,
+                      colSpan: 5,
+                      fontSize: 14,
                     },
+                    '',
+                    '',
+                    '',
+                    '',
                   ],
                 ]),
           ],

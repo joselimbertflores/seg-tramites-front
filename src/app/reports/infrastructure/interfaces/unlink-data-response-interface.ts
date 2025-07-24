@@ -28,3 +28,16 @@ interface outbox {
   rejected: number;
   autoRejected: number;
 }
+
+
+export interface accountTrayStatus {
+  inbox: {
+    total:number
+    breakdown:Record<string, number>
+  }
+  outbox: {
+    total:number,
+    breakdown:Record<string, number>
+  };
+}
+

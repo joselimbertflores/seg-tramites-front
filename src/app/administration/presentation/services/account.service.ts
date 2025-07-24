@@ -139,28 +139,10 @@ export class AccountService {
       );
   }
 
-  resetAccountPassword(id: string) {
+  resetPassword(id: string) {
     return this.http
       .get<{ pdfBase64: string }>(`${this.URL}/reset-password/${id}`)
       .pipe(tap(({ pdfBase64 }) => this.showPdfFromBase64(pdfBase64)));
-  }
-
-  getDetails(id_cuenta: string) {
-    return this.http
-      .get<{
-        ok: boolean;
-        details: {
-          externos?: number;
-          internos?: number;
-          entrada?: number;
-          salida?: number;
-        };
-      }>(`${this.URL}/cuentas/details/${id_cuenta}`)
-      .pipe(
-        map((resp) => {
-          return resp.details;
-        })
-      );
   }
 
   showPdfFromBase64(base64: string): void {

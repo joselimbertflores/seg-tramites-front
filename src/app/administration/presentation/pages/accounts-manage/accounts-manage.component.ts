@@ -3,9 +3,9 @@ import {
   inject,
   signal,
   computed,
+  resource,
   Component,
   ChangeDetectionStrategy,
-  resource,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -18,16 +18,18 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { OverlayModule } from '@angular/cdk/overlay';
-import { firstValueFrom, of } from 'rxjs';
+import { filter, firstValueFrom, of, switchMap } from 'rxjs';
 
+import { Account } from '../../../domain';
 import {
+  AlertService,
   overlayAnimation,
   SearchInputComponent,
   SelectSearchComponent,
 } from '../../../../shared';
 import { AccountService } from '../../services';
 import { AccountDialogComponent } from '../../dialogs';
-import { Account } from '../../../domain';
+import { AccountTrayStateDialogComponent } from '../../../../reports/presentation/dialogs';
 
 @Component({
   selector: 'app-accounts-manage',
@@ -52,6 +54,7 @@ import { Account } from '../../../domain';
 export default class AccountsManageComponent {
   private dialogRef = inject(MatDialog);
   private accountService = inject(AccountService);
+  private alertService = inject(AlertService);
   readonly displayedColumns = [
     'visibility',
     'login',
@@ -136,8 +139,25 @@ export default class AccountsManageComponent {
     });
   }
 
+  trayStatus(item: Account) {
+    this.dialogRef.open(AccountTrayStateDialogComponent, {
+      width: '600px',
+      maxWidth: '600px',
+      data: item,
+    });
+  }
+
   resetPassword(item: Account) {
-    this.accountService.resetAccountPassword(item.id).subscribe();
+    this.alertService
+      .confirmDialog({
+        title: '¿Restablecer contraseña?',
+        description: 'Se creara una nueva contraseña aleatoria para el usuario',
+      })
+      .pipe(
+        filter((result) => result === true),
+        switchMap(() => this.accountService.resetPassword(item.id))
+      )
+      .subscribe();
   }
 
   search(term: string) {

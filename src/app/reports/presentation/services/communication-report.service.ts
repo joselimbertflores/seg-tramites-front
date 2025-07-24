@@ -6,6 +6,7 @@ import {
   tableProcedureData,
   unlinkDataResponse,
   totalCommunicationsByUnitResponse,
+  accountTrayStatus,
 } from '../../infrastructure';
 import { communication } from '../../../communications/infrastructure';
 import { environment } from '../../../../environments/environment';
@@ -113,6 +114,39 @@ export class CommunicationReportService {
             person: recipient.fullname,
           })),
         }))
+      );
+  }
+
+  getAccountTrayStatus(accountId: string) {
+    return this.http
+      .get<accountTrayStatus>(`${this.URL}/tray-status/${accountId}`)
+      .pipe(
+        map((resp) => {
+          const { inbox, outbox } = resp;
+          const statusMap: Record<string, string> = {
+            pending: 'Pendiente',
+            received: 'Recibido',
+            rejected: 'Rechazado',
+            'auto-rejected': 'Rechazo automático',
+          };
+          return {
+            inbox: {
+              total: inbox.total,
+              items: Object.entries(inbox.breakdown).map(([status, count]) => ({
+                status: statusMap[status],
+                count,
+              })),
+            },
+            outbox: {
+              total: outbox.total,
+              items: Object.entries(outbox.breakdown).map(([status, count]) => ({
+                  status: statusMap[status],
+                  count,
+                })
+              ),
+            },
+          };
+        })
       );
   }
 

@@ -51,7 +51,7 @@
 
     <div class="flex justify-end gap-x-2 mt-2">
       <button mat-button (click)="reset()">Restablecer</button>
-      <button mat-flat-button (click)="filter()">Buscar</button>
+      <button mat-flat-button (click)="filter()">Filtrar</button>
     </div>
   </div>
 </ng-template>
@@ -136,6 +136,10 @@
           <button mat-menu-item (click)="update(element)">
             <mat-icon>edit</mat-icon>
             <span>Editar</span>
+          </button>
+           <button mat-menu-item (click)="trayStatus(element)">
+            <mat-icon>all_inbox</mat-icon>
+            <span>Resumen tramites</span>
           </button>
           <button mat-menu-item (click)="resetPassword(element)">
             <mat-icon>lock_reset</mat-icon>
