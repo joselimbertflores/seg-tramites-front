@@ -15,7 +15,7 @@ import { unlinkDataResponse } from '../../reports/infrastructure';
 import { workflow } from '../../communications/infrastructure';
 import { Procedure } from '../../procedures/domain';
 
-pdfMake.vfs = pdfFonts.vfs;
+pdfMake.vfs = (pdfFonts as any).pdfMake.vfs;
 
 interface filterParams {
   params: Record<string, any>;
@@ -40,7 +40,7 @@ interface displayColumns {
   providedIn: 'root',
 })
 export class PdfService {
-  private readonly userName=inject(AuthService).user()?.fullname
+  private readonly userName = inject(AuthService).user()?.fullname;
   routeSheet(procedure: Procedure, workflow: workflow[], isOriginal: boolean) {
     return new Observable<Blob>((observer) => {
       getRouteSheetReport(procedure, workflow, isOriginal)
@@ -58,12 +58,15 @@ export class PdfService {
 
   tableSheet({ filterParams, ...sheetProps }: tableReportShetProps) {
     return new Observable<pdfMake.TCreatedPdf>((observer) => {
-      ProcedureReportTemplate.reportTable({
-        ...sheetProps,
-        parameters: filterParams
-          ? this.filtreAndTranslateParams(filterParams)
-          : {},
-      }, this.userName)
+      ProcedureReportTemplate.reportTable(
+        {
+          ...sheetProps,
+          parameters: filterParams
+            ? this.filtreAndTranslateParams(filterParams)
+            : {},
+        },
+        this.userName
+      )
         .then((docDefinition) => {
           const pdf = pdfMake.createPdf(docDefinition);
           observer.next(pdf);
