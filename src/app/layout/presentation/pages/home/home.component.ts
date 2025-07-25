@@ -26,7 +26,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { CdkScrollable, ScrollingModule } from '@angular/cdk/scrolling';
 import { OverlayModule } from '@angular/cdk/overlay';
 
-
 import { PublicationDialogComponent } from '../../../../publications/presentation/components';
 import {
   AlertService,
@@ -56,7 +55,7 @@ import { ProfileComponent, SidenavMenuComponent } from '../../components';
     MatProgressSpinnerModule,
     MatProgressBarModule,
     ProfileComponent,
-    SidenavMenuComponent
+    SidenavMenuComponent,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
@@ -69,7 +68,6 @@ export default class HomeComponent {
   private authService = inject(AuthService);
   private destroyRef = inject(DestroyRef);
   private router = inject(Router);
-
 
   readonly dialogRef = inject(MatDialog);
   isLoading = inject(LoadingService).isLoading;
@@ -115,8 +113,6 @@ export default class HomeComponent {
         height: '600px',
       });
     });
-
-
   }
 
   logout() {
@@ -143,12 +139,7 @@ export default class HomeComponent {
     this.socketService
       .listExpel()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((message) => {
-        this.alertservice.Alert({
-          icon: 'info',
-          title: 'Usted ha sido expulsado',
-          text: message,
-        });
+      .subscribe(() => {
         this.logout();
       });
   }

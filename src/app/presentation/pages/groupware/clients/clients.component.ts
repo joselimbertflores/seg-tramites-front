@@ -40,13 +40,13 @@ export class ClientsComponent implements OnInit {
   }
 
   confirmRemove(client: any) {
-    this.alertService.ConfirmAlert({
-      title: `¿Expulsar al funcionario ${client.fullname}?`,
-      text: `SESIONES ABIERTAS: ${client.socketIds.length}`,
-      callback: (result) => {
-        this._remove(client, result);
-      },
-    });
+    // this.alertService.ConfirmAlert({
+    //   title: `¿Expulsar al funcionario ${client.fullname}?`,
+    //   text: `SESIONES ABIERTAS: ${client.socketIds.length}`,
+    //   callback: (result) => {
+    //     this._remove(client, result);
+    //   },
+    // });
   }
 
   private _remove(client: any, message: string) {

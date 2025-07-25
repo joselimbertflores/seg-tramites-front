@@ -21,7 +21,7 @@ import {
 } from 'docx';
 import { imageToBase64 } from './image-base64.helper';
 import { ProcurementProcedure } from '../procedures/domain';
-import { numberToText } from './numer-to-text.helper';
+import { numberToText } from './number-to-text.helper';
 
 interface communicationProps {
   from: officer;

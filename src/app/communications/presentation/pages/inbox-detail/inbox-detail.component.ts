@@ -132,27 +132,27 @@ export default class InboxDetailComponent {
   }
 
   reject(): void {
-    this.alertService
-      .descriptionDialog({
-        title: `¿Rechazar tramite ${this.data()?.procedure.code}?`,
-        placeholder: 'Ingrese una descripcion clara del motivo del rechazo',
-      })
-      .pipe(
-        filter((description) => !!description),
-        switchMap((description) =>
-          this.inboxService.reject([this.communicationId], description!)
-        )
-      )
-      .subscribe({
-        next: ({ ids: [id] }) => {
-          this.finalizeAndReturn(id);
-        },
-        error: (error) => {
-          if (error instanceof HttpErrorResponse) {
-            this.handleHttpError(error);
-          }
-        },
-      });
+    // this.alertService
+    //   .descriptionDialog({
+    //     title: `¿Rechazar tramite ${this.data()?.procedure.code}?`,
+    //     placeholder: 'Ingrese una descripcion clara del motivo del rechazo',
+    //   })
+    //   .pipe(
+    //     filter((description) => !!description),
+    //     switchMap((description) =>
+    //       this.inboxService.reject([this.communicationId], description!)
+    //     )
+    //   )
+    //   .subscribe({
+    //     next: ({ ids: [id] }) => {
+    //       this.finalizeAndReturn(id);
+    //     },
+    //     error: (error) => {
+    //       if (error instanceof HttpErrorResponse) {
+    //         this.handleHttpError(error);
+    //       }
+    //     },
+    //   });
   }
 
   send() {

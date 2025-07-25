@@ -219,31 +219,31 @@ export default class InboxComponent implements OnInit {
   }
 
   reject(items: Communication[]): void {
-    const selection = items.map(({ id }) => id);
-    this.alertService
-      .descriptionDialog({
-        title:
-          items.length === 1
-            ? `¿Rechazar tramite ${items[0].procedure.code}?`
-            : `¿Rechazar los tramites seleccionados?`,
-        placeholder: 'Ingrese una descripcion clara del motivo del rechazo',
-      })
-      .pipe(
-        filter((description) => !!description),
-        switchMap((description) =>
-          this.inboxService.reject(selection, description!)
-        )
-      )
-      .subscribe({
-        next: ({ ids }) => {
-          this.removeItems(ids);
-        },
-        error: (error) => {
-          if (error instanceof HttpErrorResponse) {
-            this.handleHttpErrors(error);
-          }
-        },
-      });
+    // const selection = items.map(({ id }) => id);
+    // this.alertService
+    //   .descriptionDialog({
+    //     title:
+    //       items.length === 1
+    //         ? `¿Rechazar tramite ${items[0].procedure.code}?`
+    //         : `¿Rechazar los tramites seleccionados?`,
+    //     placeholder: 'Ingrese una descripcion clara del motivo del rechazo',
+    //   })
+    //   .pipe(
+    //     filter((description) => !!description),
+    //     switchMap((description) =>
+    //       this.inboxService.reject(selection, description!)
+    //     )
+    //   )
+    //   .subscribe({
+    //     next: ({ ids }) => {
+    //       this.removeItems(ids);
+    //     },
+    //     error: (error) => {
+    //       if (error instanceof HttpErrorResponse) {
+    //         this.handleHttpErrors(error);
+    //       }
+    //     },
+    //   });
   }
 
   archive(items: Communication[]) {

@@ -23,9 +23,9 @@ import { toSignal } from '@angular/core/rxjs-interop';
 
 import { selectOption, SelectSearchComponent } from '../../../../shared';
 import { ExternalService } from '../../services';
-import { CustomValidators } from '../../../../../helpers';
 import { ExternalProcedure } from '../../../domain';
 import { typeProcedure } from '../../../../administration/infrastructure';
+import { CustomFormValidators } from '../../../../helpers';
 
 interface requirementOption {
   name: string;
@@ -144,9 +144,9 @@ export class ExternalDialogComponent {
 
   private _createFormRepresentative(): FormGroup {
     return this.formBuilder.group({
-      firstname: ['', [Validators.required, CustomValidators.onlyLetters]],
-      middlename: ['', [Validators.required, CustomValidators.onlyLetters]],
-      lastname: ['', CustomValidators.onlyLetters],
+      firstname: ['', [Validators.required, CustomFormValidators.onlyLetters]],
+      middlename: ['', [Validators.required, CustomFormValidators.onlyLetters]],
+      lastname: ['', CustomFormValidators.onlyLetters],
       dni: [
         '',
         [
@@ -168,9 +168,9 @@ export class ExternalDialogComponent {
 
   private _createFormApplicantNatural(): FormGroup {
     return this.formBuilder.group({
-      firstname: ['', [Validators.required, CustomValidators.onlyLetters]],
-      middlename: ['', [Validators.required, CustomValidators.onlyLetters]],
-      lastname: ['', CustomValidators.onlyLetters],
+      firstname: ['', [Validators.required, CustomFormValidators.onlyLetters]],
+      middlename: ['', [Validators.required, CustomFormValidators.onlyLetters]],
+      lastname: ['', CustomFormValidators.onlyLetters],
       dni: [
         '',
         [

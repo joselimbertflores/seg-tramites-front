@@ -15,7 +15,7 @@ import { unlinkDataResponse } from '../../reports/infrastructure';
 import { workflow } from '../../communications/infrastructure';
 import { Procedure } from '../../procedures/domain';
 
-pdfMake.vfs = pdfFonts.pdfMake.vfs;
+pdfMake.vfs = pdfFonts.vfs;
 
 interface filterParams {
   params: Record<string, any>;

@@ -1,4 +1,4 @@
-import { AbstractControl, ValidatorFn } from '@angular/forms';
+import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
 export class CustomFormValidators {
   static matchFields(field: string, confirmField: string): ValidatorFn | null {
@@ -10,7 +10,7 @@ export class CustomFormValidators {
 
       const currentErrors = control2.errors;
 
-      if (compare(control1.value, control2.value)) {
+      if (control1.value !== control2.value && control2.value !== '') {
         control2.setErrors({ ...currentErrors, not_match: true });
         return { not_match: true };
       } else {
@@ -19,8 +19,13 @@ export class CustomFormValidators {
       return null;
     };
   }
-}
 
-function compare(field: string, confirmField: string) {
-  return field !== confirmField && confirmField !== '';
+  static onlyLetters(control: AbstractControl): ValidationErrors | null {
+    const regex = /^[a-zA-ZñÑ\s.]*$/;
+    let enteredValue = control.value;
+    if (!regex.test(enteredValue)) {
+      return { invalid: true };
+    }
+    return null;
+  }
 }

@@ -117,9 +117,9 @@ export class InboxService {
   }
 
   reject(ids: string[], description: string) {
-    return this.http.put<bulkActionResponse>(`${this.url}/reject`, {
-      description,
-      ids,
-    });
+    // return this.http.put<bulkActionResponse>(`${this.url}/reject`, {
+    //   description,
+    //   ids,
+    // });
   }
 }
