@@ -72,6 +72,7 @@ export interface submissionData {
   cite?: string;
   isResend?: boolean;
   mode: communicationMode;
+  reference?: string;
 }
 interface procedureProps {
   id: string;
@@ -118,7 +119,7 @@ export class SubmissionDialogComponent implements OnInit {
   dependencyId = signal<string | null>(null);
 
   formSubmission: FormGroup = this._formBuilder.group({
-    reference: ['', Validators.required],
+    reference: [this.data.reference, Validators.required],
     attachmentsCount: [this.data.attachmentsCount, Validators.required],
     internalNumber: [''],
     priority: [0, Validators.required],

@@ -11,7 +11,6 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 
-
 import { CacheService, SearchInputComponent } from '../../../../shared';
 import { ExternalProcedure, procedureState } from '../../../domain';
 import { ExternalService } from '../../services';
@@ -91,14 +90,16 @@ export default class ExternalsManageComponent {
       maxWidth: '1000px',
       width: '1000px',
     });
-    dialogRef.afterClosed().subscribe((result: ExternalProcedure| undefined) => {
-      if (!result) return;
-      this.datasource.update((values) =>
-        [result, ...values].slice(0, this.limit())
-      );
-      this.datasize.update((value) => (value += 1));
-      this.send(result);
-    });
+    dialogRef
+      .afterClosed()
+      .subscribe((result: ExternalProcedure | undefined) => {
+        if (!result) return;
+        this.datasource.update((values) =>
+          [result, ...values].slice(0, this.limit())
+        );
+        this.datasize.update((value) => (value += 1));
+        this.send(result);
+      });
   }
 
   update(item: ExternalProcedure): void {
@@ -113,7 +114,7 @@ export default class ExternalsManageComponent {
         if (!result) return;
         this.datasource.update((values) => {
           const index = values.findIndex(({ id }) => id === result.id);
-          if( index === -1) return values;
+          if (index === -1) return values;
           values[index] = result;
           return [...values];
         });
@@ -126,6 +127,7 @@ export default class ExternalsManageComponent {
       attachmentsCount: item.numberOfDocuments,
       isOriginal: true,
       mode: 'initiate',
+      reference: 'PARA SU ATENCIÓN',
     };
     const dialogRef = this.dialogRef.open(SubmissionDialogComponent, {
       maxWidth: '1000px',
@@ -140,7 +142,7 @@ export default class ExternalsManageComponent {
         values[index].state = procedureState.Revision;
         return [...values];
       });
-      this.generateRouteSheet(item)
+      this.generateRouteSheet(item);
     });
   }
 

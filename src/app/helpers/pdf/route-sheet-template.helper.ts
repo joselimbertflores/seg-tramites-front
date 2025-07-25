@@ -86,12 +86,10 @@ export const getRouteSheetReport = async (
           bold: true,
         },
         {
-          text: '\nDireccion: Plaza 6 de agosto E-0415 - Telefono: No. Piloto 4701677 - 4702301 - 4703059 - Fax interno: 143',
-          color: '#BC6C25',
+          text: '\nDirección: Pasaje Constitucional S-002 - Teléfonos: No. Piloto 4701677 - 4702301 - 4703059 - Fax interno: 143',
         },
         {
-          text: '\nE-mail: info@sacaba.gob.bo - Pagina web: www.sacaba.gob.bo',
-          color: '#BC6C25',
+          text: '\nE-mail: info@sacaba.gob.bo - Pagina web: www.sacaba.gob.bo  Sacaba - Cochabamba - Bolivia',
         },
       ],
     },
@@ -278,11 +276,37 @@ function firstSection({
                 alignment: 'center',
                 ...(isUrgent
                   ? {
-                      text: '(Urgente)',
-                      color: 'red',
-                      fontSize: 14,
-                      italics: true,
-                      bold: true,
+                      stack: [
+                        {
+                          canvas: [
+                            {
+                              type: 'rect',
+                              x: 0,
+                              y: 0,
+                              w: 75,
+                              h: 25,
+                              lineColor: 'red',
+                              lineWidth: 2,
+                            },
+                            // {
+                            //   type: 'rect',
+                            //   x: 0,
+                            //   y: 0,
+                            //   w: 80,
+                            //   h: 30,
+                            //   color: '#FF0000', // Fondo rojo
+                            // },
+                          ],
+                          absolutePosition: { x: 460, y: 140 },
+                        },
+                        {
+                          text: 'URGENTE',
+                          absolutePosition: { x: 460, y: 145 },
+                          color: 'red',
+                          bold: true,
+                          fontSize: 14,
+                        },
+                      ],
                     }
                   : { text: '' }),
               },
@@ -491,9 +515,9 @@ function stageContainer({
                     width: 50,
                     ...(priority >= 1
                       ? {
-                          text: '(Urgente)',
+                          text: 'URGENTE',
                           color: 'red',
-                          fontSize: 11,
+                          fontSize: 10,
                           italics: true,
                           bold: true,
                         }
