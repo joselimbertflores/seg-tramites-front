@@ -17,13 +17,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog } from '@angular/material/dialog';
 import { SelectionModel } from '@angular/cdk/collections';
-import {
-  state,
-  style,
-  animate,
-  transition,
-  trigger,
-} from '@angular/animations';
 import { filter, switchMap } from 'rxjs';
 
 import {
@@ -32,19 +25,17 @@ import {
   SearchInputComponent,
 } from '../../../../shared';
 
-import {
-  Communication,
-  sendStatus,
-} from '../../../domain/models/communication.model';
-import { HumanizeDurationPipe } from '../../pipes/humanize-duration.pipe';
 import { OutboxService } from '../../services';
 import {
   RouteSheetData,
-  RouteSheetDialogComponent,
   submissionData,
-  SubmissionDialogComponent,
   submissionResult,
+  SubmissionDialogComponent,
+  RouteSheetDialogComponent,
+  CancelFeedbackDialogComponent,
 } from '../../dialogs';
+import { Communication, sendStatus } from '../../../domain';
+import { HumanizeDurationPipe } from '../../pipes/humanize-duration.pipe';
 
 @Component({
   selector: 'outbox',
@@ -64,33 +55,15 @@ import {
   ],
   templateUrl: './outbox.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  animations: [
-    trigger('detailExpand', [
-      state('collapsed,void', style({ height: '0px', minHeight: '0' })),
-      state('expanded', style({ height: '*' })),
-      transition(
-        'expanded <=> collapsed',
-        animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')
-      ),
-    ]),
-  ],
-  styles: `
-    tr.detail-row {
-      height: 0;
-    }
-    .element-row td {
-      border-bottom-width: 0;
-    }
-  `,
+  styleUrl: './outbox.component.scss',
 })
 export default class OutboxComponent {
   private dialogRef = inject(MatDialog);
   private alertService = inject(AlertService);
   private outboxService = inject(OutboxService);
-  // private pdfService = inject(PdfService);
 
-  datasource = signal<Communication[]>([]);
-  datasize = signal<number>(0);
+  dataSource = signal<Communication[]>([]);
+  dataSize = signal<number>(0);
   selection = new SelectionModel<Communication>(true, []);
 
   limit = signal<number>(10);
@@ -123,8 +96,8 @@ export default class OutboxComponent {
         term: this.term(),
       })
       .subscribe(({ communications, length }) => {
-        this.datasource.set(communications);
-        this.datasize.set(length);
+        this.dataSource.set(communications);
+        this.dataSize.set(length);
         this.selection.clear();
       });
   }
@@ -187,19 +160,9 @@ export default class OutboxComponent {
     this.cancel([communication]);
   }
 
-  generateRouteMap({ procedure }: Communication) {
-    // TODO generate router map
-    // forkJoin([
-    //   this.procedureService.getDetail(procedure._id, procedure.group),
-    //   this.procedureService.getWorkflow(procedure._id),
-    // ]).subscribe((resp) => {
-    //   this.pdfService.generateRouteSheet(resp[0], resp[1]);
-    // });
-  }
-
   isAllSelected() {
     const numSelected = this.selection.selected.length;
-    const numRows = this.datasource().length;
+    const numRows = this.dataSource().length;
     return numSelected === numRows;
   }
 
@@ -208,7 +171,7 @@ export default class OutboxComponent {
       this.selection.clear();
       return;
     }
-    this.selection.select(...this.datasource().map((el) => el));
+    this.selection.select(...this.dataSource().map((el) => el));
   }
 
   isButtonEnabledForStatus(status: string): boolean {
@@ -218,32 +181,41 @@ export default class OutboxComponent {
     );
   }
 
+  isExpanded(element: Communication) {
+    return this.expandedElement === element;
+  }
+
+  toggle(element: Communication) {
+    this.expandedElement = this.isExpanded(element) ? null : element;
+  }
+
   private cancel(items: Communication[]): void {
+    const messageProperties =
+      items.length === 1
+        ? {
+            title: '¿Cancelar envio?',
+            description: `Se cancelara el envio del tramite ${items[0].procedure.code}`,
+          }
+        : {
+            title: '¿Cancelar envios seleccionados?',
+            description: `Solo se pueden cancelar los envios que aun no hayan sido recibidos por el destinatario`,
+          };
+
     this.alertService
-      .confirmDialog(
-        items.length === 1
-          ? {
-              title: '¿Cancelar envio?',
-              description: `Se cancelara el envio del tramite ${items[0].procedure.code}`,
-            }
-          : {
-              title: '¿Cancelar envios seleccionados?',
-              description: `Solo se pueden cancelar los envios que aun no hayan sido recibidos por el destinatario`,
-            }
-      )
+      .confirmDialog(messageProperties)
       .pipe(
         filter((result) => !!result),
         switchMap(() => this.outboxService.cancel(items.map(({ id }) => id)))
       )
-      .subscribe(({ ids }) => {
-        this.datasource.update((values) =>
-          values.filter(({ id }) => !ids.includes(id))
-        );
-        this.datasize.update((value) => (value -= ids.length));
-        this.selection.clear();
-        if (this.datasource().length === 0 && this.datasize() > 0) {
-          this.index.set(0);
-          this.getData();
+      .subscribe(({ canceledIds, restoredItems }) => {
+        this.removeItemsDataSource(canceledIds);
+
+        if (restoredItems.length > 0) {
+          this.dialogRef.open(CancelFeedbackDialogComponent, {
+            width: '650px',
+            maxWidth: '650px',
+            data: restoredItems,
+          });
         }
       });
   }
@@ -253,7 +225,7 @@ export default class OutboxComponent {
     currentItem: Communication
   ): void {
     if (result.error) {
-      this.datasource.update((values) => {
+      this.dataSource.update((values) => {
         const index = values.findIndex(({ id }) => id === currentItem.id);
         values[index].status = sendStatus.AutoRejected;
         return [...values];
@@ -264,15 +236,15 @@ export default class OutboxComponent {
 
     switch (currentItem.status) {
       case sendStatus.Pending:
-        this.datasize.update((value) => (value += newItems.length));
-        this.datasource.update((values) =>
+        this.dataSize.update((value) => (value += newItems.length));
+        this.dataSource.update((values) =>
           [...newItems, ...values].splice(0, this.limit())
         );
         break;
 
       default:
-        this.datasize.update((value) => (value += newItems.length - 1));
-        this.datasource.update((values) =>
+        this.dataSize.update((value) => (value += newItems.length - 1));
+        this.dataSource.update((values) =>
           [
             ...newItems,
             ...values.filter(({ id }) => id !== currentItem.id),
@@ -284,5 +256,17 @@ export default class OutboxComponent {
 
   get canDoAction() {
     return this.isButtonEnabledForStatus('pending');
+  }
+
+  private removeItemsDataSource(ids: string[]): void {
+    this.dataSource.update((values) =>
+      values.filter(({ id }) => !ids.includes(id))
+    );
+    this.dataSize.update((value) => (value -= ids.length));
+    this.selection.clear();
+    if (this.dataSource().length === 0 && this.dataSize() > 0) {
+      this.index.set(0);
+      this.getData();
+    }
   }
 }

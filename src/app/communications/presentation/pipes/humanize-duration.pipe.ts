@@ -8,3 +8,4 @@ export class HumanizeDurationPipe implements PipeTransform {
     return days > 0 ? humanize(miliseconds) : 'Expira hoy';
   }
 }
+  

@@ -4,6 +4,6 @@ export function humanize(miliseconds: number): string {
   return humanizeDuration(miliseconds, {
     language: 'es',
     round: true,
-    units: ['d', 'h', 'm'],
+    units: ['d', 'h'],
   });
 }

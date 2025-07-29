@@ -188,7 +188,7 @@ export default class InboxComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe((message: string) => {
       if (!message) return;
-      this.removeItems([item.id]);
+      this.removeItemsDataSource([item.id]);
     });
   }
 
@@ -253,7 +253,7 @@ export default class InboxComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe((result: string[]) => {
       if (!result) return;
-      this.removeItems(result);
+      this.removeItemsDataSource(result);
     });
   }
 
@@ -341,7 +341,7 @@ export default class InboxComponent implements OnInit {
       .listenCancelCommunications()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((id) => {
-        this.removeItems([id]);
+        this.removeItemsDataSource([id]);
       });
   }
 
@@ -356,7 +356,7 @@ export default class InboxComponent implements OnInit {
               : 'Algunos de los elementos seleccionados no existen',
           description: 'El remitente ha cancelado el envio',
         });
-        this.removeItems(notFoundIds);
+        this.removeItemsDataSource(notFoundIds);
         break;
 
       case 422:
@@ -374,7 +374,7 @@ export default class InboxComponent implements OnInit {
     }
   }
 
-  private removeItems(ids: string[]): void {
+  private removeItemsDataSource(ids: string[]): void {
     this.datasource.update((items) =>
       items.filter(({ id }) => !ids.includes(id))
     );

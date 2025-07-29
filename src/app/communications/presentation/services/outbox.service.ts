@@ -56,9 +56,25 @@ export class OutboxService {
   }
 
   cancel(selectedIds: string[]) {
-    return this.http.delete<{ message: string; ids: string[] }>(this.url, {
-      body: { ids: selectedIds },
-    });
+    return this.http
+      .delete<{
+        restoredItems: { restoredType: string; code: string }[];
+        canceledIds: string[];
+      }>(this.url, {
+        body: { ids: selectedIds },
+      })
+      .pipe(
+        map(({ canceledIds, restoredItems }) => ({
+          canceledIds,
+          restoredItems: restoredItems.map(({ restoredType, code }) => ({
+            restoredType:
+              restoredType === 'inbox'
+                ? 'Bandeja de Entrada'
+                : 'Administración de Trámites',
+            code,
+          })),
+        }))
+      );
   }
 
   create(data: createCommunicationProps, mode: communicationMode) {
