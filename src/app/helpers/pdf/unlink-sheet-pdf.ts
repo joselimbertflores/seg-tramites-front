@@ -144,10 +144,10 @@ export async function buildUnlinkSheet(data: unlinkDataResponse) {
                 alignment: 'right',
               },
               {
-                text: data.summary.inbox.pending,
+                text: data.summary.inbox.received,
               },
               {
-                text: data.summary.inbox.received,
+                text: data.summary.inbox.pending,
               },
 
               {
