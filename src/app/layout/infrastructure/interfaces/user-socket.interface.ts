@@ -1,4 +1,4 @@
-export interface userSocket {
+export interface IUserSocket {
   userId: string;
   fullname: string;
   socketIds: string[];

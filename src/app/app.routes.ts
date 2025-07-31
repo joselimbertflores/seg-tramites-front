@@ -5,7 +5,6 @@ import {
   isNotAuthenticatedGuard,
   updatedPasswordGuard,
 } from './presentation/guards';
-import { ClientsComponent } from './presentation/pages/groupware/clients/clients.component';
 
 import { InfoComponent } from './layout/presentation/pages/info/info.component';
 import { accountGuard } from './administration/presentation/guards/account.guard';
@@ -257,16 +256,6 @@ export const routes: Routes = [
         ],
       },
       {
-        path: 'groupware',
-        data: { resource: 'groupware' },
-        children: [
-          {
-            path: 'users',
-            component: ClientsComponent,
-          },
-        ],
-      },
-      {
         path: 'posts/history',
         loadComponent: () =>
           import(
@@ -289,6 +278,11 @@ export const routes: Routes = [
         path: 'settings',
         loadComponent: () =>
           import('./layout/presentation/pages/settings/settings.component'),
+      },
+      {
+        path: 'groupware',
+        data: { animation: 'GroupwarePage' },
+        loadComponent: () => import('./layout/presentation/pages/groupware/groupware.component'),
       },
       {
         path: 'info',

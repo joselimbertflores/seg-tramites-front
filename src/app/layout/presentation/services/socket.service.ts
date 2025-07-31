@@ -4,7 +4,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
 import { publication } from '../../../publications/infrastructure';
-import { userSocket } from '../../infrastructure';
+import { IUserSocket } from '../../infrastructure';
 import { Communication } from '../../../communications/domain';
 import {
   communication,
@@ -16,11 +16,12 @@ import {
 })
 export class SocketService {
   private socket: Socket;
-  private onlineClientsSubject = new BehaviorSubject<any[]>([]);
+  private onlineClientsSubject = new BehaviorSubject<IUserSocket[]>([]);
 
   onlineClients$ = this.onlineClientsSubject.asObservable();
 
   constructor() {
+    console.log('conectando');
     this.socket = io(environment.socket_url, {
       auth: { token: localStorage.getItem('token') },
     });
@@ -34,7 +35,8 @@ export class SocketService {
   }
 
   listenUserConnections(): void {
-    this.socket.on('listar', (users: userSocket[]) => {
+    this.socket.on('clientsList', (users: IUserSocket[]) => {
+      console.log(users);
       this.onlineClientsSubject.next(users);
     });
   }
