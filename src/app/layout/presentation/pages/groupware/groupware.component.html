@@ -1,67 +1,89 @@
 <mat-toolbar>
   <span>Grupo de trabajo</span>
+  <span class="flex-1"></span>
+  @if(selection.selected.length > 0){
+    <button matIconButton matTooltip="Expulsar usuarios" (click)="kickSelectedUsers()">
+      <mat-icon>group_remove</mat-icon>
+    </button>
+  }
 </mat-toolbar>
 
 <div class="p-2 sm:p-4">
-  <mat-form-field>
-  <mat-label>Filter</mat-label>
-  <input matInput (keyup)="applyFilter($event)" placeholder="Ex. ium" #input>
-</mat-form-field>
+  <div class="flex justify-end py-2">
+    <div class="w-full sm:w-1/4 h-14">
+      <mat-form-field>
+        <mat-label>Filtrar</mat-label>
+        <input
+          matInput
+          (keyup)="applyFilter($event)"
+          placeholder="Nombre de usuario"
+          #input
+        />
+      </mat-form-field>
+    </div>
+  </div>
 
-<table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+  <table mat-table [dataSource]="dataSource()">
+    <ng-container matColumnDef="select">
+      <th mat-header-cell *matHeaderCellDef>
+        <mat-checkbox
+          (change)="$event ? toggleAllRows() : null"
+          [checked]="selection.hasValue() && isAllSelected()"
+          [indeterminate]="selection.hasValue() && !isAllSelected()"
+          [aria-label]="checkboxLabel()"
+        >
+        </mat-checkbox>
+      </th>
+      <td mat-cell *matCellDef="let row" class="w-8">
+        <mat-checkbox
+          (click)="$event.stopPropagation()"
+          (change)="$event ? selection.toggle(row) : null"
+          [checked]="selection.isSelected(row)"
+          [aria-label]="checkboxLabel(row)"
+        >
+        </mat-checkbox>
+      </td>
+    </ng-container>
 
-  <!-- Checkbox Column -->
-  <ng-container matColumnDef="select">
-    <th mat-header-cell *matHeaderCellDef>
-      <mat-checkbox (change)="$event ? toggleAllRows() : null"
-                    [checked]="selection.hasValue() && isAllSelected()"
-                    [indeterminate]="selection.hasValue() && !isAllSelected()"
-                    [aria-label]="checkboxLabel()">
-      </mat-checkbox>
-    </th>
-    <td mat-cell *matCellDef="let row">
-      <mat-checkbox (click)="$event.stopPropagation()"
-                    (change)="$event ? selection.toggle(row) : null"
-                    [checked]="selection.isSelected(row)"
-                    [aria-label]="checkboxLabel(row)">
-      </mat-checkbox>
-    </td>
-  </ng-container>
-
-  <!-- Position Column -->
-  <ng-container matColumnDef="position">
-    <th mat-header-cell *matHeaderCellDef> No. </th>
-    <td mat-cell *matCellDef="let element"> 
-    <div class="flex items-center">
-        <div>
-            Juan Perez
+    <ng-container matColumnDef="user">
+      <th mat-header-cell *matHeaderCellDef>Usuario</th>
+      <td mat-cell *matCellDef="let element">
+        <div class="flex items-center gap-x-4">
+          <div>
+            <img
+              class="inline-block size-8 rounded-full"
+              src="images/avatar.png"
+              alt="Avatar"
+            />
+          </div>
+          <div>
+            {{ element.fullname | titlecase }}
+          </div>
         </div>
-    </div>  
-    </td>
-  </ng-container>
+      </td>
+    </ng-container>
 
-  <!-- Name Column -->
-  <ng-container matColumnDef="name">
-    <th mat-header-cell *matHeaderCellDef> Name </th>
-    <td mat-cell *matCellDef="let element"> {{element.name}} </td>
-  </ng-container>
+    <ng-container matColumnDef="sessions">
+      <th mat-header-cell *matHeaderCellDef>Nro. Sesiones</th>
+      <td mat-cell *matCellDef="let element">{{ element.socketIds.length }}</td>
+    </ng-container>
 
-  <!-- Weight Column -->
-  <ng-container matColumnDef="weight">
-    <th mat-header-cell *matHeaderCellDef> Weight </th>
-    <td mat-cell *matCellDef="let element"> {{element.weight}} </td>
-  </ng-container>
+    <ng-container matColumnDef="options">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let element" class="w-8">
+        <button matIconButton (click)="kickUsers([element])">
+          <mat-icon>person_remove</mat-icon>
+        </button>
+      </td>
+    </ng-container>
 
-  <!-- Symbol Column -->
-  <ng-container matColumnDef="symbol">
-    <th mat-header-cell *matHeaderCellDef> Symbol </th>
-    <td mat-cell *matCellDef="let element"> {{element.symbol}} </td>
-  </ng-container>
-
-  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-  <tr mat-row *matRowDef="let row; columns: displayedColumns;"
-      (click)="selection.toggle(row)">
-  </tr>
-</table>
-
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+  <mat-paginator
+    [pageSizeOptions]="[10, 20, 30, 50]"
+    showFirstLastButtons
+    aria-label="Select page of users elements"
+  >
+  </mat-paginator>
 </div>

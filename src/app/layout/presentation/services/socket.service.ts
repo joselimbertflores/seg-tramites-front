@@ -20,8 +20,7 @@ export class SocketService {
 
   onlineClients$ = this.onlineClientsSubject.asObservable();
 
-  constructor() {
-    console.log('conectando');
+  connect() {
     this.socket = io(environment.socket_url, {
       auth: { token: localStorage.getItem('token') },
     });
@@ -36,7 +35,6 @@ export class SocketService {
 
   listenUserConnections(): void {
     this.socket.on('clientsList', (users: IUserSocket[]) => {
-      console.log(users);
       this.onlineClientsSubject.next(users);
     });
   }
@@ -57,9 +55,9 @@ export class SocketService {
     });
   }
 
-  listExpel(): Observable<string> {
+  listenKickUsers(): Observable<string> {
     return new Observable((observable) => {
-      this.socket.on('has-expel', (message: string) => {
+      this.socket.on('userKicked', (message: string) => {
         observable.next(message);
       });
     });
@@ -73,8 +71,8 @@ export class SocketService {
     });
   }
 
-  expelClient(id_account: string, message: string) {
-    this.socket.emit('expel', { id_account, message });
+  kickUsers(userIds: string[], message: string | null) {
+    this.socket.emit('kickUser', { userIds, message: message ?? '' });
   }
 
   closeOne(name: string) {

@@ -91,6 +91,8 @@ export default class HomeComponent {
       this.isMobile.set(this._mobileQuery.matches);
     this._mobileQuery.addEventListener('change', this._mobileQueryListener);
 
+    this.socketService.connect();
+
     this.destroyRef.onDestroy(() => {
       this.socketService.disconnect();
       this._mobileQuery.removeEventListener(
@@ -102,7 +104,7 @@ export default class HomeComponent {
 
   ngOnInit(): void {
     this.listenUserConnections();
-    this.handleExpelClient();
+    this.listenKickUser();
     this.socketService.listNews().subscribe((publication) => {
       if (publication.user._id === this.authService.user()?.userId) {
         return;
@@ -135,11 +137,13 @@ export default class HomeComponent {
     this.socketService.listenUserConnections();
   }
 
-  private handleExpelClient(): void {
+  private listenKickUser(): void {
     this.socketService
-      .listExpel()
+      .listenKickUsers()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
+      .subscribe((description) => {
+        this.dialogRef.closeAll();
+        this.alertservice.messageDialog({ title: 'Usted ha sido expulsado', description});
         this.logout();
       });
   }

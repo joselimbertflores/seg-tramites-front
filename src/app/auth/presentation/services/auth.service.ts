@@ -45,7 +45,7 @@ export class AuthService {
         },
         { context: skipUploadIndicator() }
       )
-      .pipe(map(({ token }) => this._setAuthentication(token)));
+      .pipe(map(({ token }) => this.setAuthentication(token)));
   }
 
   logout() {
@@ -72,7 +72,7 @@ export class AuthService {
           this._menu.set(menu);
           this._permissions.set(permissions);
           this._updatedPassword.set(updatedPassword);
-          return this._setAuthentication(token);
+          return this.setAuthentication(token);
         }),
         catchError(() => {
           this.logout();
@@ -96,11 +96,7 @@ export class AuthService {
     return actions.some((action) => entry.includes(action));
   }
 
-  hasResource(resource: validResource): boolean {
-    return !!this.permissions()[resource];
-  }
-
-  private _setAuthentication(token: string): boolean {
+  private setAuthentication(token: string): boolean {
     this._user.set(jwtDecode(token));
     localStorage.setItem('token', token);
     return true;

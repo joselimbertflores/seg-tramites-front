@@ -1,24 +1,18 @@
 import { Routes } from '@angular/router';
 
-import {
-  isAuthenticatedGuard,
-  isNotAuthenticatedGuard,
-  updatedPasswordGuard,
-} from './presentation/guards';
 
-import { InfoComponent } from './layout/presentation/pages/info/info.component';
-import { accountGuard } from './administration/presentation/guards/account.guard';
-import { permissionGuard } from './auth/presentation/guards';
+import { isAuthenticatedGuard, isNotAuthenticatedGuard, resourceGuard, updatedPasswordGuard } from './auth/presentation/guards';
 import { reportPermissionGuard } from './reports/presentation/guards/report-permission.guard';
 import { reportsRedirectGuard } from './reports/presentation/guards/reports-redirect.guard';
+import { accountGuard } from './administration/presentation/guards/account.guard';
+import { InfoComponent } from './layout/presentation/pages/info/info.component';
 
 export const routes: Routes = [
   {
     path: 'login',
     title: 'Autentificacion',
     canActivate: [isNotAuthenticatedGuard],
-    loadComponent: () =>
-      import('./auth/presentation/pages/login/login.component'),
+    loadComponent: () => import('./auth/presentation/pages/login/login.component'),
   },
   {
     path: 'home',
@@ -29,39 +23,28 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'main', pathMatch: 'full' },
       {
-        path: 'usuarios',
         title: 'Usuarios',
+        path: 'usuarios',
         loadComponent: () => import('./users/presentation/pages/users-manage/users-manage.component'),
       },
       {
-        path: 'roles',
         title: 'Roles',
-        loadComponent: () =>
-          import(
-            './users/presentation/pages/roles-manage/roles-manage.component'
-          ),
+        path: 'roles',
+        loadComponent: () => import('./users/presentation/pages/roles-manage/roles-manage.component'),
       },
       {
-        path: 'institutions',
         title: 'Instituciones',
-        loadComponent: () =>
-          import(
-            './administration/presentation/pages/institutions-manage/institutions-manage.component'
-          ),
+        path: 'institutions',
+        loadComponent: () => import('./administration/presentation/pages/institutions-manage/institutions-manage.component'),
       },
-
       {
         title: 'Funcionarios',
         path: 'officers',
-        loadComponent: () =>
-          import(
-            './administration/presentation/pages/officers-manage/officers-manage.component'
-          ),
+        loadComponent: () => import('./administration/presentation/pages/officers-manage/officers-manage.component'),
       },
-
       {
-        path: 'dependencies',
         title: 'Dependencias',
+        path: 'dependencies',
         loadComponent: () =>
           import(
             './administration/presentation/pages/dependencies-manage/dependencies-manage.component'
@@ -169,7 +152,7 @@ export const routes: Routes = [
       {
         path: 'reports',
         title: 'Reportes',
-        canActivate: [permissionGuard],
+        canActivate: [resourceGuard],
         loadComponent: () =>
           import(
             './reports/presentation/layouts/report-dashboard/report-dashboard.component'
@@ -249,8 +232,7 @@ export const routes: Routes = [
           {
             path: 'detail/:group/:id',
             data: { animation: 'slide' },
-            loadComponent: () =>
-              import('./procedures/presentation/pages/detail/detail.component'),
+            loadComponent: () => import('./procedures/presentation/pages/detail/detail.component'),
           },
           { path: '', redirectTo: 'home', pathMatch: 'full' },
         ],
@@ -264,24 +246,20 @@ export const routes: Routes = [
       },
       {
         path: 'posts/manage',
-        loadComponent: () =>
-          import(
-            './publications/presentation/pages/publications-manage/publications-manage.component'
-          ),
+        loadComponent: () => import( './publications/presentation/pages/publications-manage/publications-manage.component'),
       },
       {
         path: 'main',
-        loadComponent: () =>
-          import('./layout/presentation/pages/main/main.component'),
+        loadComponent: () => import('./layout/presentation/pages/main/main.component'),
       },
       {
         path: 'settings',
-        loadComponent: () =>
-          import('./layout/presentation/pages/settings/settings.component'),
+        loadComponent: () => import('./layout/presentation/pages/settings/settings.component'),
       },
       {
         path: 'groupware',
-        data: { animation: 'GroupwarePage' },
+        data: { animation: 'GroupwarePage', resource: "groupware"},
+        canActivate: [resourceGuard],
         loadComponent: () => import('./layout/presentation/pages/groupware/groupware.component'),
       },
       {
