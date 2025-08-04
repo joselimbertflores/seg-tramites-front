@@ -11,7 +11,7 @@ export const resourceGuard: CanActivateFn = (route) => {
   if (!resource) return true;
   const hasPermission = authService.permissions()[resource];
   if (!hasPermission) {
-    router.navigateByUrl('home/unanthorize');
+    router.navigateByUrl('home/main');
     return false;
   }
   return true;

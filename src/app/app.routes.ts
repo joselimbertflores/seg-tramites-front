@@ -2,8 +2,7 @@ import { Routes } from '@angular/router';
 
 
 import { isAuthenticatedGuard, isNotAuthenticatedGuard, resourceGuard, updatedPasswordGuard } from './auth/presentation/guards';
-import { reportPermissionGuard } from './reports/presentation/guards/report-permission.guard';
-import { reportsRedirectGuard } from './reports/presentation/guards/reports-redirect.guard';
+import { reportPermissionGuard, reportsRedirectGuard } from './reports/presentation/guards';
 import { accountGuard } from './administration/presentation/guards/account.guard';
 import { InfoComponent } from './layout/presentation/pages/info/info.component';
 
@@ -45,52 +44,34 @@ export const routes: Routes = [
       {
         title: 'Dependencias',
         path: 'dependencies',
-        loadComponent: () =>
-          import(
-            './administration/presentation/pages/dependencies-manage/dependencies-manage.component'
-          ),
+        loadComponent: () => import('./administration/presentation/pages/dependencies-manage/dependencies-manage.component'),
       },
       {
         path: 'accounts',
         title: 'Cuentas',
-        loadComponent: () =>
-          import(
-            './administration/presentation/pages/accounts-manage/accounts-manage.component'
-          ),
+        loadComponent: () => import('./administration/presentation/pages/accounts-manage/accounts-manage.component'),
       },
       {
         path: 'types-procedures',
-        loadComponent: () =>
-          import(
-            './administration/presentation/pages/types-procedures/types-procedures.component'
-          ),
+        loadComponent: () => import('./administration/presentation/pages/types-procedures/types-procedures.component'),
       },
       {
         path: 'external',
-        canActivate: [accountGuard],
-        data: { animation: 'ExternalPage' },
-        loadComponent: () =>
-          import(
-            './procedures/presentation/pages/externals-manage/externals-manage.component'
-          ),
+        data: { animation: 'ExternalPage', resource: "external" },
+        canActivate: [resourceGuard, accountGuard],
+        loadComponent: () => import( './procedures/presentation/pages/externals-manage/externals-manage.component'),
       },
       {
         path: 'internal',
-        canActivate: [accountGuard],
-        data: { animation: 'InternalPage' },
-        loadComponent: () =>
-          import(
-            './procedures/presentation/pages/internals-manage/internals-manage.component'
-          ),
+        data: { animation: 'InternalPage', resource: "internal" },
+        canActivate: [resourceGuard, accountGuard],
+        loadComponent: () => import( './procedures/presentation/pages/internals-manage/internals-manage.component'),
       },
       {
         path: 'procurement',
-        data: { animation: 'ProcurementPage' },
-        canActivate: [accountGuard],
-        loadComponent: () =>
-          import(
-            './procedures/presentation/pages/procurements-manage/procurements-manage.component'
-          ),
+        data: { animation: 'ProcurementPage', resource:"procurement" },
+        canActivate: [resourceGuard, accountGuard],
+        loadComponent: () => import('./procedures/presentation/pages/procurements-manage/procurements-manage.component'),
       },
       {
         path: 'inbox',

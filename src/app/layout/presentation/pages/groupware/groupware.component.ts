@@ -93,6 +93,7 @@ export default class GroupwareComponent {
 
   kickSelectedUsers() {
     this.kickUsers(this.selection.selected);
+    this.selection.clear()
   }
 
   kickUsers(users: IUserSocket[]) {

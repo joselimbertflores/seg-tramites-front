@@ -4,8 +4,8 @@ import { BehaviorSubject, Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
 import { publication } from '../../../publications/infrastructure';
-import { IUserSocket } from '../../infrastructure';
 import { Communication } from '../../../communications/domain';
+import { IUserSocket } from '../../infrastructure';
 import {
   communication,
   CommunicationMapper,
@@ -20,7 +20,7 @@ export class SocketService {
 
   onlineClients$ = this.onlineClientsSubject.asObservable();
 
-  connect() {
+  connect():void {
     this.socket = io(environment.socket_url, {
       auth: { token: localStorage.getItem('token') },
     });
