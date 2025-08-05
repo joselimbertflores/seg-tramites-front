@@ -70,7 +70,7 @@ import { finalize } from 'rxjs';
                 placeholder="Ingrese su contraseña"
                 formControlName="password"
               />
-              <button
+              <!-- <button
                 type="button"
                 mat-icon-button
                 matSuffix
@@ -81,7 +81,7 @@ import { finalize } from 'rxjs';
                 <mat-icon>
                   {{ hidePassword ? 'visibility_off' : 'visibility' }}
                 </mat-icon>
-              </button>
+              </button> -->
             </mat-form-field>
           </div>
           <div class="mb-4">

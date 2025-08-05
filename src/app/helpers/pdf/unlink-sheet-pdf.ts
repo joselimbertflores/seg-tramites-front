@@ -132,7 +132,7 @@ export async function buildUnlinkSheet(data: unlinkDataResponse) {
               },
               {
                 border: [false, false, false, false],
-                text: 'Total',
+                text: 'Total (Pendientes)',
                 fontSize: 9,
               },
             ],
@@ -160,7 +160,7 @@ export async function buildUnlinkSheet(data: unlinkDataResponse) {
       {
         margin: [20, 10, 0, 0],
         table: {
-          widths: [120, 75, 75, 75, 75],
+           widths: [130, 100, 100, 100],
           body: [
             [
               {
@@ -174,17 +174,12 @@ export async function buildUnlinkSheet(data: unlinkDataResponse) {
               },
               {
                 border: [false, false, false, false],
-                text: 'Rechazados',
-                fontSize: 9,
-              },
-              {
-                border: [false, false, false, false],
                 text: 'Auto rechazados',
                 fontSize: 9,
               },
               {
                 border: [false, false, false, false],
-                text: 'Total',
+                text: 'Total (Pendientes)',
                 fontSize: 9,
               },
             ],
@@ -197,9 +192,6 @@ export async function buildUnlinkSheet(data: unlinkDataResponse) {
               },
               {
                 text: data.summary.outbox.pending,
-              },
-              {
-                text: data.summary.outbox.rejected,
               },
               {
                 text: data.summary.outbox.autoRejected,
@@ -215,7 +207,7 @@ export async function buildUnlinkSheet(data: unlinkDataResponse) {
         },
       },
       {
-        text: '\n Nota: El total de tramites en bandeja de entrada y salida debe ser igual a cero (0).',
+        text: '\n IMPORTANTE: El total pendientes debe ser igual a cero (0), de ambas bandejas.',
         color: 'red',
         alignment: 'center',
         bold: true,
@@ -295,7 +287,7 @@ export async function buildUnlinkSheet(data: unlinkDataResponse) {
         fontSize: 10,
         marginTop: 5,
         ul: [
-          'Se recomienda no dejar su contraseña de seguimiento de trámites a nadie',
+          'El formulario de baja no debe tener trámites pendientes por ningún concepto a la fecha.',
           'Al momento de rotación, desvinculación, el usuario del Sistema de Seguimiento de Trámites presentará formulario de baja obligatoriamente como máximo dentro 24 horas.',
         ],
       },

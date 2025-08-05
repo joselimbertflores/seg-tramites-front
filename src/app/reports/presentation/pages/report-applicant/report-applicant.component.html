@@ -1,4 +1,4 @@
-<div class="p-2 sm:p-4 sm:py-6">
+<div class="p-2 sm:p-4 space-y-6">
   <mat-accordion>
     <form [formGroup]="formApplicant()" (ngSubmit)="generate()">
       <mat-expansion-panel expanded="true">
@@ -109,7 +109,7 @@
   </mat-accordion>
 
   @if (isLoading()){
-    <div class="flex flex-col gap-y-1 mt-4">
+    <div class="flex flex-col gap-y-1">
       <p class="text-xl">Generando reporte....</p>
       <mat-progress-bar mode="indeterminate" />
     </div>
@@ -122,7 +122,7 @@
   }
   
   @if(!isLoading() && datasource().length > 0){
-    <div class="mt-8">
+    <div>
       <report-procedure-table [data]="datasource()" [columns]="COLUMNS" />
       <mat-paginator
         showFirstLastButtons

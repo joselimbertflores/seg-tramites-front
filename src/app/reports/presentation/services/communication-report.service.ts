@@ -18,6 +18,7 @@ interface totalCommunicationsByUnitParams {
   endDate: Date;
   group: string;
   dependencyId: string;
+  filterBy:string
 }
 
 interface historyParams {
@@ -40,11 +41,13 @@ export class CommunicationReportService {
     startDate,
     endDate,
     group,
+    filterBy,
   }: totalCommunicationsByUnitParams) {
     const body = {
       startDate: startDate.toString(),
       endDate: endDate.toString(),
       group,
+      filterBy
     };
     return this.http
       .post<totalCommunicationsByUnitResponse[]>(

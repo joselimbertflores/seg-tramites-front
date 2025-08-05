@@ -66,6 +66,11 @@ interface cache {
     SelectSearchComponent,
   ],
   templateUrl: './report-unit.component.html',
+  styles: `
+    tr.mat-mdc-footer-row td {
+      font-weight: bold;
+    }
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [provideNativeDateAdapter()],
 })
@@ -83,11 +88,18 @@ export default class ReportUnitComponent {
     [procedureGroup.Procurement]: 'Tramites de Contrataciones',
   };
 
+  readonly FILTER_OPTIONS = [
+    { value: 'recipient', label: 'Enviados a la unidad seleccionada' },
+    { value: 'sender', label: 'Enviados desde la unidad seleccionada' },
+  ];
+
   readonly statusColumnsToDisplay = [
     { columnDef: sendStatus.Pending, header: 'Pendientes' },
     { columnDef: sendStatus.Received, header: 'Recibidos' },
     { columnDef: sendStatus.Rejected, header: 'Rechazados' },
-    { columnDef: sendStatus.Archived, header: 'Archivados' },
+    { columnDef: sendStatus.AutoRejected, header: 'Auto Rechazados' },
+    { columnDef: sendStatus.Forwarding, header: 'Reenviados' },
+    { columnDef: sendStatus.Completed, header: 'Completados' },
   ];
   readonly CURRENT_DATE = new Date();
 
@@ -106,6 +118,7 @@ export default class ReportUnitComponent {
     dependencyId: ['', Validators.required],
     startDate: ['', Validators.required],
     endDate: [this.CURRENT_DATE, Validators.required],
+    filterBy: ['recipient', Validators.required],
     group: [null],
   });
 
@@ -160,7 +173,9 @@ export default class ReportUnitComponent {
             ...{ institucion: this.selectedInstitution()?.nombre },
             ...this.form.value,
             group:
-              this.PROCEDURE_GROUP_MAP[this.form.get('group')?.value as procedureGroup] ?? null,
+              this.PROCEDURE_GROUP_MAP[
+                this.form.get('group')?.value as procedureGroup
+              ] ?? null,
             dependencyId: this.selectedDependency()?.nombre,
           },
           labelsMap: {
@@ -168,7 +183,7 @@ export default class ReportUnitComponent {
             endDate: 'Fecha fin',
             startDate: 'Fecha inicio',
             dependencyId: 'Dependencia',
-          }
+          },
         },
       })
       .subscribe((pdf) => {
@@ -268,5 +283,11 @@ export default class ReportUnitComponent {
     this.dependencies.set(cache.dependencies);
     this.form.patchValue(cache.form);
     this.hasSearched.set(cache.hasSearched);
+  }
+
+  getTotalByProperty(property: string) {
+    return this.dataSource()
+      .map((item: any) => item[property])
+      .reduce((acc, value) => acc + value, 0);
   }
 }

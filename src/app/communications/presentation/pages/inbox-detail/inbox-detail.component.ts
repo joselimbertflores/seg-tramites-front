@@ -52,9 +52,9 @@ import {
 
 import {
   submissionData,
+  RouteSheetData,
   ArchiveDialogComponent,
   SubmissionDialogComponent,
-  RouteSheetData,
   RouteSheetDialogComponent,
 } from '../../dialogs';
 
