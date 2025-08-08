@@ -6,9 +6,9 @@ import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 
 import {
-  buildUnlinkSheet,
+  getUnlinkSheetReport,
+  getProcedureListReport,
   getRouteSheetReport,
-  ProcedureReportTemplate,
 } from '../../helpers';
 import { AuthService } from '../../auth/presentation/services/auth.service';
 import { unlinkDataResponse } from '../../reports/infrastructure';
@@ -58,7 +58,7 @@ export class PdfService {
 
   tableSheet({ filterParams, ...sheetProps }: tableReportShetProps) {
     return new Observable<pdfMake.TCreatedPdf>((observer) => {
-      ProcedureReportTemplate.reportTable(
+      getProcedureListReport(
         {
           ...sheetProps,
           parameters: filterParams
@@ -80,7 +80,7 @@ export class PdfService {
 
   unlinkSheet(data: unlinkDataResponse) {
     return new Observable<pdfMake.TCreatedPdf>((observer) => {
-      buildUnlinkSheet(data)
+      getUnlinkSheetReport(data)
         .then((docDefinition) => {
           const pdf = pdfMake.createPdf(docDefinition);
           observer.next(pdf);

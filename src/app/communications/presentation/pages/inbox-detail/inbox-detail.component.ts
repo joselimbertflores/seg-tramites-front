@@ -110,8 +110,8 @@ export default class InboxDetailComponent {
   accept(): void {
     this.alertService
       .confirmDialog({
-        title: `¿Aceptar tramite ${this.data()?.procedure.code}?`,
-        description: 'Solo debe aceptar tramites que haya recibido en fisico',
+        title: `¿Recibir tramite ${this.data()?.procedure.code}?`,
+        description: 'Solo debe recibir tramites que haya recibido en fisico',
       })
       .pipe(
         filter((result) => result),

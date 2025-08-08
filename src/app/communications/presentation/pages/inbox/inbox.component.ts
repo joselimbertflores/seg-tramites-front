@@ -197,9 +197,9 @@ export default class InboxComponent implements OnInit {
       .confirmDialog({
         title:
           items.length === 1
-            ? `¿Aceptar tramite ${items[0].procedure.code}?`
-            : `¿Aceptar los tramites seleccionados?`,
-        description: 'Solo debe aceptar tramites que haya recibido en fisico',
+            ? `¿Recibir tramite ${items[0].procedure.code}?`
+            : `¿Recibir los tramites seleccionados?`,
+        description: 'Solo debe recibir tramites que haya recibido en fisico',
       })
       .pipe(
         filter((result) => result),

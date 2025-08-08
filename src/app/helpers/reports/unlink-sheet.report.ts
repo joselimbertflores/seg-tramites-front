@@ -1,9 +1,8 @@
 import { TDocumentDefinitions } from 'pdfmake/interfaces';
 import { imageToBase64 } from '../image-base64.helper';
-
 import { unlinkDataResponse } from '../../reports/infrastructure';
 
-export async function buildUnlinkSheet(data: unlinkDataResponse) {
+export async function getUnlinkSheetReport(data: unlinkDataResponse) {
   const iconImage = await imageToBase64('images/institution/escudo.png');
   const currentDate = new Date();
 
@@ -160,7 +159,7 @@ export async function buildUnlinkSheet(data: unlinkDataResponse) {
       {
         margin: [20, 10, 0, 0],
         table: {
-           widths: [130, 100, 100, 100],
+          widths: [130, 100, 100, 100],
           body: [
             [
               {

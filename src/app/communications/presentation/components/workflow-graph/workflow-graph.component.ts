@@ -14,7 +14,7 @@ import { sendStatus } from '../../../../communications/domain';
   selector: 'workflow-graph',
   imports: [CommonModule, NgxGraphModule, MatIconModule],
   template: `
-    <div class="w-full h-[80vh] p-4">
+    <div class="w-full h-[85vh] p-2">
       <div class="border border-black container h-full w-full">
         <ngx-graph
           [nodes]="graph().nodes"
