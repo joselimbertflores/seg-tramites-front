@@ -63,10 +63,17 @@
         </td>
       </ng-container>
 
-      <ng-container matColumnDef="date">
+       <ng-container matColumnDef="date">
         <th mat-header-cell *matHeaderCellDef>Fecha</th>
         <td mat-cell *matCellDef="let item" class="w-36">
           {{ item.createdAt | date : "short" }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="state">
+        <th mat-header-cell *matHeaderCellDef>Estado</th>
+        <td mat-cell *matCellDef="let item" class="w-36">
+          {{ item.state }}
         </td>
       </ng-container>
 
@@ -112,18 +119,6 @@
           >
             <div class="pb-3">
               <dl>
-                <div class="px-4 py-2 sm:grid sm:grid-cols-4 sm:gap-4 sm:px-0">
-                  <dt class="text-sm/6 font-medium">Tramite:</dt>
-                  <dd class="mt-1 text-sm/6 sm:col-span-3 sm:mt-0">
-                    {{ item.procedure.code }}
-                  </dd>
-                </div>
-                <div class="px-4 py-2 sm:grid sm:grid-cols-4 sm:gap-4 sm:px-0">
-                  <dt class="text-sm/6 font-medium">Referencia:</dt>
-                  <dd class="mt-1 text-sm sm:col-span-3 sm:mt-0">
-                    {{ item.procedure.reference }}
-                  </dd>
-                </div>
                 <div class="px-4 py-2 sm:grid sm:grid-cols-4 sm:gap-4 sm:px-0">
                   <dt class="text-sm/6 font-medium">Responsable:</dt>
                   <dd class="mt-1 text-sm/6 sm:col-span-3 sm:mt-0">

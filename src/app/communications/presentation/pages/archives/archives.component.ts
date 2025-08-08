@@ -92,6 +92,7 @@ export default class ArchivesComponent implements OnInit {
     'code',
     'reference',
     'officer',
+    'state',
     'date',
     'expand',
     'options',

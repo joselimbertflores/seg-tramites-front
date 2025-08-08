@@ -11,6 +11,7 @@ interface archiveProps {
   folder: string;
   description: string;
   isOriginal: boolean;
+  state: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -38,6 +39,7 @@ export class Archive implements archiveProps {
   folder: string;
   description: string;
   isOriginal: boolean;
+  state: string;
   updatedAt: Date;
   createdAt: Date;
 
@@ -54,6 +56,7 @@ export class Archive implements archiveProps {
     isOriginal,
     createdAt,
     updatedAt,
+    state,
   }: archiveProps) {
     this.id = id;
     this.account = account;
@@ -67,6 +70,7 @@ export class Archive implements archiveProps {
     this.isOriginal = isOriginal;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
+    this.state = state;
   }
 
   get groupLabel(): string {

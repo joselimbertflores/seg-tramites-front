@@ -74,7 +74,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
         <!-- Conector visual -->
         <div
-          class="relative flex items-center justify-center w-full md:w-2/12 my-4 md:my-0 order-2 "  [matTooltip]="getStatusIcon(item.status).label"
+          class="relative flex items-center justify-center w-full md:w-2/12 my-4 md:my-0 order-2 "
+          [matTooltip]="getStatusIcon(item.status).label"
         >
           <!-- Línea horizontal (solo desktop) -->
           <div
@@ -92,7 +93,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
               {{ getStatusIcon(item.status).icon }}
             </span>
           </div>
-          
         </div>
 
         <!-- Receptor -->
@@ -130,7 +130,16 @@ import { MatTooltipModule } from '@angular/material/tooltip';
                 </svg>
                 Recibido: {{ item.receivedDate | date : 'short' }}
               </div>
+             
             </div>
+             @if(item.actionLog){
+              <div class="mt-4 border-t-2 border-gray-300 pt-2">
+               [{{ item.actionLog.date | date : 'short' }}] -  {{ item.actionLog.fullname|titlecase }}
+              </div>
+              <div>
+               Descripcion: {{ item.actionLog.description }}  
+              </div>
+              }
           </div>
         </div>
       </div>
@@ -144,16 +153,41 @@ export class WorkflowTimelineComponent {
   title = input.required<string>();
   workflow = input.required<workflow[]>();
 
-  getStatusIcon(status: string): { icon: string; color: string, label:string } {
-    const map: Record<string, { icon: string; color: string,  label:string }> = {
-      pending: { icon: 'hourglass_empty', color: 'text-yellow-500', label: 'Pendiente' },
-      completed: { icon: 'check_circle', color: 'text-green-500', label: 'Completado' },
-      rejected: { icon: 'cancel', color: 'text-red-500', label: 'Rechazado' },
-      received: { icon: 'inbox', color: 'text-blue-500', label: 'Recibido' },
-      forwarding: { icon: 'redo', color: 'text-indigo-500', label: 'Reenviado' },
-      'auto-rejected': { icon: 'error', color: 'text-orange-500', label: 'Rechazo Automático' },
-      archived: { icon: 'archive', color: 'text-gray-500', label: 'Archivado' },
-    };
+  getStatusIcon(status: string): {
+    icon: string;
+    color: string;
+    label: string;
+  } {
+    const map: Record<string, { icon: string; color: string; label: string }> =
+      {
+        pending: {
+          icon: 'hourglass_empty',
+          color: 'text-yellow-500',
+          label: 'Pendiente',
+        },
+        completed: {
+          icon: 'check_circle',
+          color: 'text-green-500',
+          label: 'Completado',
+        },
+        rejected: { icon: 'cancel', color: 'text-red-500', label: 'Rechazado' },
+        received: { icon: 'inbox', color: 'text-blue-500', label: 'Recibido' },
+        forwarding: {
+          icon: 'redo',
+          color: 'text-indigo-500',
+          label: 'Reenviado',
+        },
+        'auto-rejected': {
+          icon: 'error',
+          color: 'text-orange-500',
+          label: 'Rechazo Automático',
+        },
+        archived: {
+          icon: 'archive',
+          color: 'text-gray-500',
+          label: 'Archivado',
+        },
+      };
 
     return map[status] || { icon: 'help_outline', color: 'text-gray-400' };
   }

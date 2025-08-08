@@ -15,6 +15,13 @@ import { ExternalProcedure } from '../../../domain';
         </div>
 
         <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-4 sm:gap-4">
+          <dt class="font-medium">Estado</dt>
+          <dd class="sm:col-span-3">
+            {{ data().state }}
+          </dd>
+        </div>
+
+        <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-4 sm:gap-4">
           <dt class="font-medium">Cite</dt>
           <dd class="sm:col-span-3">
             {{ data().citeCode }}

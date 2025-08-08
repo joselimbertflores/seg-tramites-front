@@ -24,15 +24,15 @@ import { ExternalProcedure } from '../../../../procedures/domain';
             </dd>
           </div>
           <div class="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-            <dt class="text-sm font-medium leading-6">CITE:</dt>
+            <dt class="text-sm font-medium leading-6">ESTADO:</dt>
             <dd class="mt-1 text-sm leading-6 sm:col-span-2 sm:mt-0">
-              {{ procedure().citeCode }}
+              {{ procedure().state }}
             </dd>
           </div>
           <div class="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-            <dt class="text-sm font-medium leading-6">ESTADO</dt>
+            <dt class="text-sm font-medium leading-6">CITE:</dt>
             <dd class="mt-1 text-sm leading-6 sm:col-span-2 sm:mt-0">
-              {{ procedure().state }}
+              {{ procedure().citeCode }}
             </dd>
           </div>
           <div class="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
@@ -48,7 +48,7 @@ import { ExternalProcedure } from '../../../../procedures/domain';
             </dd>
           </div>
           <div class="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-            <dt class="text-sm/6 font-medium">SOLICITANTE</dt>
+            <dt class="text-sm/6 font-medium">SOLICITANTE:</dt>
             <dd class="mt-2 text-sm sm:mt-0">
               <div class="flex flex-col gap-y-1">
                 @if (procedure().applicant.type==="NATURAL") {

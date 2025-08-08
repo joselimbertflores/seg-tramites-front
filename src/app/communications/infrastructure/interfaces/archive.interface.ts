@@ -11,6 +11,7 @@ export interface archive {
   isOriginal: boolean;
   createdAt: string;
   updatedAt: string;
+  state: string;
 }
 
 interface officer {

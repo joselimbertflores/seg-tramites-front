@@ -8,7 +8,6 @@ export class ArchiveMapper {
     updatedAt,
     procedure,
     _id,
-
     ...props
   }: archive): Archive {
     return new Archive({
