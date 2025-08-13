@@ -29,7 +29,7 @@
           <mat-icon style="color: green">mark_email_read</mat-icon>
           }
         </td>
-      </ng-container>
+      </ng-container> 
       <ng-container matColumnDef="code">
         <th mat-header-cell *matHeaderCellDef>Alterno</th>
         <td
@@ -39,7 +39,7 @@
           class="sm:w-52"
         >
           <a
-            [routerLink]="['../procurement', element.group, element._id]"
+            [routerLink]="['../procurement', element.group, element.id]"
             class="text-blue-600"
           >
             {{ element.code }}

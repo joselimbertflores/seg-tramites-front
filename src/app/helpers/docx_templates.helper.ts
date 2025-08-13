@@ -14,6 +14,8 @@ import {
   TableBorders,
   TableCell,
   TableRow,
+  TabStopPosition,
+  TabStopType,
   TextRun,
   VerticalPositionAlign,
   VerticalPositionRelativeFrom,
@@ -22,6 +24,7 @@ import {
 import { imageToBase64 } from './image-base64.helper';
 import { ProcurementProcedure } from '../procedures/domain';
 import { numberToText } from './number-to-text.helper';
+import { heeaderSection } from './reports/docs/header-doc.section';
 
 interface communicationProps {
   from: officer;
@@ -62,10 +65,11 @@ export class DocxTemplates {
           },
         ],
       },
+
       sections: [
         {
           headers: {
-            default: await this.heeader(),
+            default: await heeaderSection(),
           },
           footers: {
             default: this.footer(),
@@ -204,7 +208,9 @@ export class DocxTemplates {
               referenec: `SOLICITUD DE CERTIFICACION PRESUPUESTARIA PARA ${procedure.reference.toUpperCase()}`,
               date: date,
             }),
-            ...this._section_content_solicitudCertificacionPresupuestaria(procedure),
+            ...this._section_content_solicitudCertificacionPresupuestaria(
+              procedure
+            ),
           ],
         },
       ],
@@ -213,15 +219,17 @@ export class DocxTemplates {
   }
 
   private static async heeader(): Promise<Header> {
-    const leftImage = await imageToBase64(
-      'images/institution/alcaldia.jpeg'
-    );
-    const rightImage = await imageToBase64(
-      'images/institution/sacaba.jpeg'
-    );
+    const leftImage = await imageToBase64('images/institution/alcaldia.jpeg');
+    const rightImage = await imageToBase64('images/institution/sacaba.jpeg');
     return new Header({
       children: [
         new Paragraph({
+          tabStops: [
+            {
+              type: TabStopType.RIGHT,
+              position: TabStopPosition.MAX,
+            },
+          ],
           children: [
             new ImageRun({
               type: 'jpg',
@@ -230,34 +238,35 @@ export class DocxTemplates {
                 width: 200,
                 height: 80,
               },
-              floating: {
-                horizontalPosition: {
-                  relative: HorizontalPositionRelativeFrom.MARGIN,
-                  align: HorizontalPositionAlign.LEFT,
-                },
-                verticalPosition: {
-                  relative: VerticalPositionRelativeFrom.PARAGRAPH,
-                  align: VerticalPositionAlign.TOP,
-                },
-              },
+              // floating: {
+              //   horizontalPosition: {
+              //     relative: HorizontalPositionRelativeFrom.MARGIN,
+              //     align: HorizontalPositionAlign.LEFT,
+              //   },
+              //   verticalPosition: {
+              //     relative: VerticalPositionRelativeFrom.PARAGRAPH,
+              //     align: VerticalPositionAlign.TOP,
+              //   },
+              // },
             }),
             new ImageRun({
               type: 'jpg',
+
               data: rightImage,
               transformation: {
                 width: 80,
                 height: 80,
               },
-              floating: {
-                horizontalPosition: {
-                  relative: HorizontalPositionRelativeFrom.OUTSIDE_MARGIN,
-                  align: HorizontalPositionAlign.RIGHT,
-                },
-                verticalPosition: {
-                  relative: VerticalPositionRelativeFrom.PARAGRAPH,
-                  align: VerticalPositionAlign.TOP,
-                },
-              },
+              // floating: {
+              //   horizontalPosition: {
+              //     relative: HorizontalPositionRelativeFrom.OUTSIDE_MARGIN,
+              //     align: HorizontalPositionAlign.RIGHT,
+              //   },
+              //   verticalPosition: {
+              //     relative: VerticalPositionRelativeFrom.PARAGRAPH,
+              //     align: VerticalPositionAlign.TOP,
+              //   },
+              // },
             }),
           ],
         }),
@@ -328,7 +337,6 @@ export class DocxTemplates {
     return [
       new Table({
         borders: TableBorders.NONE,
-        columnWidths: [15, 40, 45],
         width: {
           size: 100,
           type: WidthType.PERCENTAGE,
@@ -833,7 +841,7 @@ export class DocxTemplates {
       height: { value: 500, rule: 'auto' },
       children: [
         new TableCell({
-          width: { size: 15, type: WidthType.DXA },
+          width: { size: 20, type: WidthType.PERCENTAGE },
           children: [
             new Paragraph({
               style: 'defaultStyle',
@@ -843,14 +851,14 @@ export class DocxTemplates {
           ],
         }),
         new TableCell({
-          width: { size: 40, type: WidthType.DXA },
+          width: { size: 35, type: WidthType.PERCENTAGE },
           children: [new Paragraph({ text: value, style: 'defaultStyle' })],
           ...(detail && { columnSpan: 2 }),
         }),
         ...(detail
           ? [
               new TableCell({
-                width: { size: 45, type: WidthType.DXA },
+                width: { size: 45, type: WidthType.PERCENTAGE },
                 children: [
                   new Paragraph({
                     style: 'defaultStyle',

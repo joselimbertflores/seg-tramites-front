@@ -247,6 +247,19 @@ export const routes: Routes = [
         path: 'info',
         component: InfoComponent,
       },
+      {
+        path: 'chat',
+        loadComponent: () => import('./chat/presentation/pages/chat/chat.component'),
+        children:[
+         {
+              path: ':id',
+              loadComponent: () =>
+                import(
+                  './chat/presentation/pages/chat-history/chat-history.component'
+                ),
+          },
+        ]
+      },
     ],
   },
   { path: '**', redirectTo: 'login' },
