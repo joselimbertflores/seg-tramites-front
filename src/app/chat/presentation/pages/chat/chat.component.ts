@@ -1,17 +1,28 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+} from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { ChatListComponent } from '../../components';
+
+import { ChatSidenavComponent } from '../../components';
+import { ChatService } from '../../services/chat.service';
+import { Chat } from '../../../domain';
 
 @Component({
   selector: 'app-chat',
-  imports: [RouterModule, ChatListComponent],
+  imports: [RouterModule, ChatSidenavComponent],
   templateUrl: './chat.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class ChatComponent {
-  chats = [
-    { name: 'User 2', date: new Date(), message: 'Hola...' },
-    { name: 'User 1', date: new Date(), message: 'Hola...' },
-    { name: 'User 3', date: new Date(), message: 'Hola...', chatId: '232323' },
-  ];
+  private chatService = inject(ChatService);
+  chats = signal<Chat[]>([]);
+
+  ngOnInit() {
+    this.chatService.getChatsByUser().subscribe((chats) => {
+      this.chats.set(chats);
+    });
+  }
 }

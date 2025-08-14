@@ -1,12 +1,20 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  input,
+} from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { ChatService } from '../../services/chat.service';
+import { Chat } from '../../../domain';
 
 interface ChatItem {
   name: string;
-  date: Date;
+  date?: Date;
   message?: string;
-  chatId?: string;
+  id?: string;
+  type: 'user' | 'chat';
 }
 
 @Component({
@@ -15,18 +23,47 @@ interface ChatItem {
   template: `
     <div class="bg-grey-lighter flex-1 overflow-auto">
       @for (item of items(); track $index) {
-      <div class="px-3 flex items-center bg-grey-light cursor-pointer" [routerLink]="[ item.chatId ?? 'new']">
-        <div>
-          <img class="h-12 w-12 rounded-full" src="images/avatar.png" />
+      <div
+        class="px-3 flex items-center bg-grey-light cursor-pointer hover:bg-grey-lighter transition"
+      >
+        <!-- Avatar -->
+        <div class="relative">
+          <img
+            class="h-12 w-12 rounded-full"
+            src="images/avatar.png"
+            alt="avatar"
+          />
         </div>
-        <div class="ml-4 flex-1 border-b border-grey-lighter py-4">
-          <div class="flex items-bottom justify-between">
-            <p class="text-grey-darkest">{{ item.name }}</p>
-            <p class="text-xs text-grey-darkest">{{ item.date | date }}</p>
+
+        <!-- Info -->
+        <div class="ml-4 flex-1 border-b border-grey-lighter py-4 min-w-0">
+          <div class="flex items-center justify-between">
+            <p class="text-grey-darkest font-medium truncate">
+              {{ item.name | titlecase }}
+            </p>
+            <p class="text-xs text-grey-darkest whitespace-nowrap">
+              {{ item.createdAt | date }}
+            </p>
           </div>
-          <p class="text-grey-dark mt-1 text-sm">
-            {{ item.message }}
-          </p>
+
+          <div class="flex items-center justify-between mt-1">
+            <!-- Mensaje truncado -->
+            <p
+              class="text-grey-dark text-sm truncate max-w-[85%]"
+              title="{{ item.lastMessage.text }}"
+            >
+              {{ item.lastMessage.text }}
+            </p>
+
+            <!-- Burbuja de notificación -->
+            @if (item.unreadCount > 0) {
+            <span
+              class="ml-2 bg-green-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full"
+            >
+              {{ item.unreadCount }}
+            </span>
+            }
+          </div>
         </div>
       </div>
       }
@@ -35,5 +72,7 @@ interface ChatItem {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChatListComponent {
-  items = input.required<ChatItem[]>();
+  items = input.required<Chat[]>();
+
+  ngOnInit() {}
 }

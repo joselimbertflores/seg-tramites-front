@@ -114,13 +114,13 @@ export const routes: Routes = [
             './communications/presentation/pages/archives/archives.component'
           ),
       },
-      {
-        path: ':from/:group/:id',
-        title: 'Detalle',
-        data: { animation: 'slide' },
-        loadComponent: () =>
-          import('./procedures/presentation/pages/detail/detail.component'),
-      },
+      // {
+      //   path: ':from/:group/:id',
+      //   title: 'Detalle',
+      //   data: { animation: 'slide' },
+      //   loadComponent: () =>
+      //     import('./procedures/presentation/pages/detail/detail.component'),
+      // },
       {
         path: 'resources',
         title: 'Recursos',
@@ -252,7 +252,7 @@ export const routes: Routes = [
         loadComponent: () => import('./chat/presentation/pages/chat/chat.component'),
         children:[
          {
-              path: ':id',
+              path: ':type/:id',
               loadComponent: () =>
                 import(
                   './chat/presentation/pages/chat-history/chat-history.component'
