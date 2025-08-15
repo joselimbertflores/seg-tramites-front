@@ -1,9 +1,14 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { map } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
-import { map, tap } from 'rxjs';
-import { ChatMapper, ChatResponse } from '../../infrastructure';
+import {
+  ChatMapper,
+  ChatResponse,
+  MessageMapper,
+  MessageResponse,
+} from '../../infrastructure';
 
 interface user {
   _id: string;
@@ -17,12 +22,17 @@ export class ChatService {
   private http = inject(HttpClient);
   constructor() {}
 
-  searchUser(term: string) {
+  findOrCreateChat(receiverId: string) {
+    return this.http
+      .get<ChatResponse>(`${this.URL}/start/${receiverId}`)
+      .pipe(map((resp) => ChatMapper.fromResponse(resp)));
+  }
+
+  searchContact(term: string) {
     return this.http.get<user[]>(`${this.URL}/users/${term}`).pipe(
       map((resp) =>
         resp.map((item) => ({
-          name: item.fullname,
-          type: 'user',
+          fullname: item.fullname,
           id: item._id,
         }))
       )
@@ -43,7 +53,15 @@ export class ChatService {
     return this.http.post<user[]>(`${this.URL}`, data);
   }
 
-  getMessages(chatId: string) {
-    return this.http.get<any[]>(`${this.URL}/messages/${chatId}`);
+  getChatMessages(chatId: string) {
+    return this.http
+      .get<MessageResponse[]>(`${this.URL}/${chatId}/messages`)
+      .pipe(
+        map((resp) => resp.map((item) => MessageMapper.fromResponse(item)))
+      );
+  }
+
+  sendMessage(chatId: string, message: string) {
+    return this.http.post(`${this.URL}/${chatId}/messages`, { message });
   }
 }

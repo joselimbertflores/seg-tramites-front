@@ -7,10 +7,12 @@ export class ChatMapper {
       id: response._id,
       name: response.name,
       type: response.type,
-      lastMessage: {
-        ...response.lastMessage,
-        createdAt: new Date(response.lastMessage.createdAt),
-      },
+      ...(response.lastMessage && {
+        lastMessage: {
+          ...response.lastMessage,
+          createdAt: new Date(response.lastMessage.createdAt),
+        },
+      }),
       unreadCount: response.unreadCount,
       createdAt: new Date(response.createdAt),
       updatedAt: new Date(response.updatedAt),

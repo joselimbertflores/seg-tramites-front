@@ -249,16 +249,9 @@ export const routes: Routes = [
       },
       {
         path: 'chat',
+        data:{ animation: 'ChatPage'},
         loadComponent: () => import('./chat/presentation/pages/chat/chat.component'),
-        children:[
-         {
-              path: ':type/:id',
-              loadComponent: () =>
-                import(
-                  './chat/presentation/pages/chat-history/chat-history.component'
-                ),
-          },
-        ]
+       
       },
     ],
   },

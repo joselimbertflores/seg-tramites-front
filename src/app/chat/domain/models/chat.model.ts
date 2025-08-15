@@ -19,7 +19,7 @@ export class Chat {
   id: string;
   name: string;
   type: string;
-  lastMessage: LastMessage;
+  lastMessage?: LastMessage;
   createdAt: Date;
   updatedAt: Date;
   unreadCount: number;
