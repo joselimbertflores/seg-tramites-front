@@ -14,20 +14,24 @@ import { Message } from '../../../domain';
   template: `
     @if(message().sender.id === userId){
       <div class="flex justify-end mb-2">
-        <div class="rounded py-2 px-3" style="background-color: #e2f7cb">
+        <div class="rounded-lg py-2 px-3" style="background-color: #e2f7cb">
           <p class="text-sm mt-1">{{ message().content }}</p>
-          <p class="text-right text-xs text-grey-dark mt-1">12:45 pm</p>
+          <p class="text-right text-xs text-grey-dark mt-1">
+            {{ message().sentAt | date : 'shortTime' }}
+          </p>
         </div>
       </div>
     } 
     @else {
       <div class="flex mb-2">
-        <div class="rounded py-2 px-3" style="background-color: #f2f2f2">
+        <div class="rounded-lg py-2 px-3" style="background-color: #f2f2f2">
           <p class="text-sm text-teal">{{ message().sender.fullname }}</p>
           <p class="text-sm mt-1">
             {{ message().content }}
           </p>
-          <p class="text-right text-xs text-grey-dark mt-1">12:45 pm</p>
+          <p class="text-right text-xs text-grey-dark mt-1">
+            {{ message().sentAt | date : 'shortTime' }}
+          </p>
         </div>
       </div>
     }

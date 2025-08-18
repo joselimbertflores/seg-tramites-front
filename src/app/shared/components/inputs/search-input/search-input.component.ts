@@ -17,7 +17,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs';
   template: `
     <mat-form-field appearance="outline">
       <mat-icon matPrefix>search</mat-icon>
-      <mat-label>Buscar</mat-label>
+      <mat-label>{{title()}}</mat-label>
       <input
         matInput
         placeholder="Buscar"
@@ -29,6 +29,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SearchInputComponent implements OnInit {
+  title=input<string>("Buscar")
   placeholder = input<string>('');
   initValue = input<string>('');
   onSearch = output<string>();

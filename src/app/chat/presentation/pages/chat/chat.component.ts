@@ -6,13 +6,13 @@ import {
 } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 
 import { ChatService } from '../../services/chat.service';
 import { ChatListComponent, ChatBubbleComponent } from '../../components';
 
 import { Chat, Message } from '../../../domain';
-import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-chat',
@@ -36,17 +36,19 @@ export default class ChatComponent {
   messageContent = signal<string>('');
 
   ngOnInit() {
-    this.chatService.getChatsByUser().subscribe((chats) => {
-      this.chats.set(chats);
-      console.log(chats);
-    });
+    this.getChatsByUser();
   }
 
   selectChat(chat: Chat) {
     this.selectedChat.set(chat);
     this.chatService.getChatMessages(chat.id).subscribe((messages) => {
-      console.log(messages);
       this.messages.set(messages);
+    });
+  }
+
+  getChatsByUser() {
+    this.chatService.getChatsByUser().subscribe((chats) => {
+      this.chats.set(chats);
     });
   }
 
@@ -54,8 +56,18 @@ export default class ChatComponent {
     if (!this.selectedChat() || !this.messageContent()) return;
     this.chatService
       .sendMessage(this.selectedChat()!.id, this.messageContent())
-      .subscribe(() => {
+      .subscribe((message) => {
         this.messageContent.set('');
+        this.messages.update((values) => [...values, message]);
+        this.chats.update((values) => {
+          const index = values.findIndex( ({ id }) => id === this.selectedChat()!.id);
+          values[index] = values[index].withNewMessage({
+            sender: message.sender.id,
+            sentAt: message.sentAt,
+            content: message.content,
+          });
+          return [...values];
+        });
       });
   }
 }

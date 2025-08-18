@@ -10,11 +10,11 @@ export class ChatMapper {
       ...(response.lastMessage && {
         lastMessage: {
           ...response.lastMessage,
-          createdAt: new Date(response.lastMessage.createdAt),
+          sentAt: new Date(response.lastMessage.createdAt),
         },
       }),
       unreadCount: response.unreadCount,
-      createdAt: new Date(response.createdAt),
+      sentAt: new Date(response.createdAt),
       updatedAt: new Date(response.updatedAt),
     });
   }

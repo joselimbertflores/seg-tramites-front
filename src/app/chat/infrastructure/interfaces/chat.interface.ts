@@ -10,7 +10,7 @@ export interface ChatResponse {
 }
 
 interface LastMessage {
-  text: string;
+  content: string;
   sender: string;
   senderName: string;
   createdAt: string;

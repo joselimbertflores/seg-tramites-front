@@ -3,7 +3,7 @@ export interface MessageResponse {
   chat: string;
   sender: Sender;
   content: string;
-  createdAt: string;
+  sentAt: string;
   updatedAt: string;
 }
 

@@ -3,7 +3,7 @@ import { MessageResponse } from '../interfaces/message.interface';
 
 export class MessageMapper {
   static fromResponse(response: MessageResponse): Message {
-    const { sender, createdAt, updatedAt, _id, ...props } = response;
+    const { sender, sentAt: createdAt, updatedAt, _id, ...props } = response;
     return new Message({
       id: response._id,
       ...props,
@@ -11,7 +11,7 @@ export class MessageMapper {
         id: sender._id,
         fullname: sender.fullname,
       },
-      createdAt: new Date(response.createdAt),
+      sentAt: new Date(response.sentAt),
       updatedAt: new Date(response.updatedAt),
     });
   }

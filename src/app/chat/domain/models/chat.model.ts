@@ -3,16 +3,16 @@ interface ChatProperties {
   name: string;
   type: string;
   lastMessage: LastMessage;
-  createdAt: Date;
+  sentAt: Date;
   updatedAt: Date;
   unreadCount: number;
 }
 
 interface LastMessage {
-  text: string;
+  content: string;
   sender: string;
   senderName: string;
-  createdAt: Date;
+  sentAt: Date;
 }
 
 export class Chat {
@@ -20,7 +20,7 @@ export class Chat {
   name: string;
   type: string;
   lastMessage?: LastMessage;
-  createdAt: Date;
+  sentAt: Date;
   updatedAt: Date;
   unreadCount: number;
   constructor({
@@ -28,7 +28,7 @@ export class Chat {
     name,
     type,
     lastMessage,
-    createdAt,
+    sentAt: createdAt,
     updatedAt,
     unreadCount,
   }: ChatProperties) {
@@ -36,8 +36,15 @@ export class Chat {
     this.name = name;
     this.type = type;
     this.lastMessage = lastMessage;
-    this.createdAt = createdAt;
+    this.sentAt = createdAt;
     this.updatedAt = updatedAt;
     this.unreadCount = unreadCount;
+  }
+
+  withNewMessage(message: Partial<LastMessage>): Chat {
+    return new Chat({
+      ...this,
+      lastMessage: message,
+    });
   }
 }

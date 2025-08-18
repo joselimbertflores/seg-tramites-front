@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map } from 'rxjs';
+import { map, tap } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
 import {
@@ -61,7 +61,17 @@ export class ChatService {
       );
   }
 
-  sendMessage(chatId: string, message: string) {
-    return this.http.post(`${this.URL}/${chatId}/messages`, { message });
+  sendMessage(chatId: string, content: string) {
+    return this.http
+      .post<MessageResponse>(
+        `${this.URL}/${chatId}/messages`,
+        {
+          content,
+        }
+      )
+      .pipe(
+        tap((resp) => console.log(resp)),
+        map((resp) => (MessageMapper.fromResponse(resp)))
+      );
   }
 }

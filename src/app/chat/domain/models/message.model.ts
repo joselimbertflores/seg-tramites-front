@@ -3,7 +3,7 @@ interface MessageProperties {
   chat: string;
   sender: Sender;
   content: string;
-  createdAt: Date;
+  sentAt: Date;
   updatedAt: Date;
 }
 
@@ -17,7 +17,7 @@ export class Message {
   chat: string;
   sender: Sender;
   content: string;
-  createdAt: Date;
+  sentAt: Date;
   updatedAt: Date;
 
   constructor({
@@ -25,14 +25,14 @@ export class Message {
     chat,
     sender,
     content,
-    createdAt,
+    sentAt: createdAt,
     updatedAt,
   }: MessageProperties) {
     this.id = id;
     this.chat = chat;
     this.sender = sender;
     this.content = content;
-    this.createdAt = createdAt;
+    this.sentAt = createdAt;
     this.updatedAt = updatedAt;
   }
 }
