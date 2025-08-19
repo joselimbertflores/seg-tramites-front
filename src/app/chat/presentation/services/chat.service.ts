@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { map, tap } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { map } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
 import {
@@ -9,6 +9,7 @@ import {
   MessageMapper,
   MessageResponse,
 } from '../../infrastructure';
+import { SocketService } from '../../../layout/presentation/services';
 
 interface user {
   _id: string;
@@ -20,6 +21,7 @@ interface user {
 export class ChatService {
   private readonly URL = `${environment.base_url}/chat`;
   private http = inject(HttpClient);
+  private onlineUsers = inject(SocketService).currentOnlineUsers;
   constructor() {}
 
   findOrCreateChat(receiverId: string) {
@@ -31,10 +33,16 @@ export class ChatService {
   searchContact(term: string) {
     return this.http.get<user[]>(`${this.URL}/users/${term}`).pipe(
       map((resp) =>
-        resp.map((item) => ({
-          fullname: item.fullname,
-          id: item._id,
-        }))
+        resp.map((contact) => {
+          const isOnline = this.onlineUsers.find(
+            ({ userId }) => contact._id === userId
+          );
+          return {
+            id: contact._id,
+            fullname: contact.fullname,
+            isOnline: isOnline ? true : false,
+          };
+        })
       )
     );
   }
@@ -53,9 +61,12 @@ export class ChatService {
     return this.http.post<user[]>(`${this.URL}`, data);
   }
 
-  getChatMessages(chatId: string) {
+  getChatMessages(chatId: string, index: number) {
+    const params = new HttpParams({
+      fromObject: { limit: 20, offset: index * 20 },
+    });
     return this.http
-      .get<MessageResponse[]>(`${this.URL}/${chatId}/messages`)
+      .get<MessageResponse[]>(`${this.URL}/${chatId}/messages`, { params })
       .pipe(
         map((resp) => resp.map((item) => MessageMapper.fromResponse(item)))
       );
@@ -63,15 +74,15 @@ export class ChatService {
 
   sendMessage(chatId: string, content: string) {
     return this.http
-      .post<MessageResponse>(
+      .post<{ chat: ChatResponse; message: MessageResponse }>(
         `${this.URL}/${chatId}/messages`,
-        {
-          content,
-        }
+        { content }
       )
       .pipe(
-        tap((resp) => console.log(resp)),
-        map((resp) => (MessageMapper.fromResponse(resp)))
+        map(({ chat, message }) => ({
+          message: MessageMapper.fromResponse(message),
+          chat: ChatMapper.fromResponse(chat),
+        }))
       );
   }
 }

@@ -2,45 +2,66 @@ import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
+  inject,
   input,
   OnInit,
   output,
 } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'search-input',
-  imports: [CommonModule, ReactiveFormsModule, MatInputModule, MatIconModule],
+  imports: [CommonModule, ReactiveFormsModule, MatInputModule, MatIconModule, MatButtonModule],
   template: `
-    <mat-form-field appearance="outline">
+    <mat-form-field>
       <mat-icon matPrefix>search</mat-icon>
-      <mat-label>{{title()}}</mat-label>
+      <mat-label>{{ title() }}</mat-label>
       <input
         matInput
         placeholder="Buscar"
         [formControl]="control"
         [placeholder]="placeholder()"
       />
+      @if (control.value && clearable()) {
+      <button matSuffix matIconButton aria-label="Clear" (click)="clear()">
+        <mat-icon>close</mat-icon>
+      </button>
+      }
     </mat-form-field>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SearchInputComponent implements OnInit {
-  title=input<string>("Buscar")
+  private destroyRef = inject(DestroyRef);
+
+  title = input<string>('Buscar');
   placeholder = input<string>('');
   initValue = input<string>('');
   onSearch = output<string>();
-  control = new FormControl('', { nonNullable: true });
+  clearable = input<boolean>(false);
 
-  constructor() {}
+  control = new FormControl('', { nonNullable: true });
 
   ngOnInit(): void {
     if (this.initValue()) this.control.setValue(this.initValue());
     this.control.valueChanges
-      .pipe(debounceTime(400), distinctUntilChanged())
+      .pipe(
+        debounceTime(400),
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef)
+      )
       .subscribe((term) => this.onSearch.emit(term));
+  }
+
+  clear() {
+    this.control.setValue('');
+    this.onSearch.emit('');
   }
 }

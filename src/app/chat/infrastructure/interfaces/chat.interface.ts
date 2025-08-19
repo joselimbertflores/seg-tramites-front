@@ -7,6 +7,7 @@ export interface ChatResponse {
   updatedAt: string;
   unreadCount: number;
   readBy: any[];
+  lastActivity: string;
 }
 
 interface LastMessage {

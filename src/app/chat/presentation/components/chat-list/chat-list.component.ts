@@ -31,12 +31,12 @@ import { Chat, IContact } from '../../../domain';
     <div class="w-full flex flex-col">
 
       <div class="flex flex-row justify-between items-center" >
-        <p class="px-3 py-3 text-2xl font-medium">Mensajes</p>
+        <p class="p-3 text-2xl font-medium">Mensajes</p>
       </div>
 
       <div class="py-3 px-2">
         <div class="h-[48px]">
-          <search-input (onSearch)="searchContact($event)" title="Buscar contacto" placeholder="Nombre del usuario" />
+          <search-input (onSearch)="searchContact($event)" [clearable]="true" title="Buscar contacto" placeholder="Nombre del usuario" />
         </div>
       </div>
       
@@ -51,12 +51,13 @@ import { Chat, IContact } from '../../../domain';
           <div class="relative">
             <img class="h-10 w-10 rounded-full" src="images/avatar.png" />
           </div>
-          <div class="ml-4 flex-1 border-b border-grey-lighter py-4 min-w-0">
+          <div class="ml-4 flex-1 py-4 min-w-0">
             <div class="flex items-center justify-between">
               <p class="text-grey-darkest font-medium truncate">
                 {{ item.fullname | titlecase }}
               </p>
             </div>
+            <div class="text-sm">{{item.isOnline?"En linea":"Sin conexion"}}</div>
           </div>
         </div>
         } 
@@ -93,7 +94,7 @@ import { Chat, IContact } from '../../../domain';
 
                   @if (item.unreadCount > 0) {
                     <span
-                      class="ml-2 bg-green-500 text-xs font-semibold px-2 py-0.5 rounded-full"
+                      class="ml-2 bg-green-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full"
                     >
                       {{ item.unreadCount }}
                     </span>
@@ -121,7 +122,7 @@ export class ChatListComponent {
 
   chats = model.required<Chat[]>();
   onChatSelect = output<Chat>();
-  selectedChat = input<Chat | null>(null);
+  selectedChat = signal<Chat | null>(null);
 
   contacts = signal<IContact[]>([]);
   searchNewContact = signal(false);
@@ -147,6 +148,7 @@ export class ChatListComponent {
   }
 
   selectChat(chat: Chat) {
+    this.selectedChat.set(chat);
     this.onChatSelect.emit(chat);
   }
 }

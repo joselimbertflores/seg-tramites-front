@@ -4,16 +4,12 @@
     <chat-list
       [(chats)]="chats"
       (onChatSelect)="selectChat($event)"
-      [selectedChat]="selectedChat()"
     />
   </div>
-
   <!-- Right -->
   <div class="w-2/3 border flex flex-col">
     @if(selectedChat()){
-    <div
-      class="py-2 px-4 flex flex-row justify-between items-center"
-    >
+    <div class="py-2 px-4 flex flex-row justify-between items-center">
       <div class="flex items-center">
         <div>
           <img class="w-10 h-10 rounded-full" src="images/avatar.png" />
@@ -26,12 +22,12 @@
         </div>
       </div>
     </div>
-    <div class="flex-1 overflow-auto">
-      <div class="py-4 px-6">
+    <div class="flex-1 overflow-y-auto p-2 m-3 border-2" #scrollableDiv>
+      <infinite-scroll-wrapper [containerRef]="scrollableDiv" (onScrollUp)="onScrollUp()">
         @for (item of messages(); track $index) {
         <chat-bubble [message]="item" />
         }
-      </div>
+      </infinite-scroll-wrapper>
     </div>
     <div class="px-4 py-4 flex items-center">
       <div class="w-full h-[54px]">
@@ -47,7 +43,6 @@
       </div>
     </div>
     } @else {
-    <!-- Empty chat -->
     <div class="flex-1">
       <div class="flex flex-col items-center justify-center h-full text-center">
         <div class="max-w-md mx-auto">

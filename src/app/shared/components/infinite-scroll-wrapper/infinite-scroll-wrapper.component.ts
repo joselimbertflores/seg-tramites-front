@@ -16,6 +16,7 @@ import { InfiniteScrollDirective } from 'ngx-infinite-scroll';
       [infiniteScrollThrottle]="500"
       [infiniteScrollContainer]="containerRef()"
       (scrolled)="load()"
+      (scrolledUp)="onScrollUp.emit()"
     >
       <ng-content></ng-content>
     </div>
@@ -25,6 +26,7 @@ import { InfiniteScrollDirective } from 'ngx-infinite-scroll';
 export class InfiniteScrollWrapperComponent {
   containerRef = input.required<HTMLDivElement>();
   onScroll = output<void>();
+  onScrollUp = output<void>();
 
   load(): void {
     this.onScroll.emit();

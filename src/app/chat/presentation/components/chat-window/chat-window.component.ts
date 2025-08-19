@@ -5,20 +5,30 @@ import {
   effect,
   inject,
   input,
+  resource,
   signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { map } from 'rxjs';
+import { finalize, firstValueFrom, map } from 'rxjs';
 
 import { ChatService } from '../../services/chat.service';
 import { ChatBubbleComponent } from '..';
-import { Chat } from '../../../domain';
+import { Chat, Message } from '../../../domain';
+import { MatInputModule } from '@angular/material/input';
+import { InfiniteScrollWrapperComponent } from '../../../../shared';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'chat-window',
-  imports: [CommonModule, ChatBubbleComponent],
+  imports: [
+    FormsModule,
+    CommonModule,
+    MatInputModule,
+    ChatBubbleComponent,
+    InfiniteScrollWrapperComponent,
+  ],
   templateUrl: './chat-window.component.html',
   template: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -26,41 +36,48 @@ import { Chat } from '../../../domain';
 export class ChatWindowComponent {
   private chatService = inject(ChatService);
 
-  chat = input.required<Chat>();
-  query = toSignal(
-    inject(ActivatedRoute).params.pipe(
-      map((params) => ({ type: params['type'], id: params['id'] }))
-    )
-  );
+  selectedChat = input.required<Chat>();
+  messageContent = signal<string>('');
+  index = signal<number>(0);
+  isChatLoading = signal<boolean>(false);
 
-  chatInfo = signal<null | any>(null);
-  messages = signal<any[]>([]);
 
-  constructor() {
-    effect(() => {
-      console.log(this.chat());
-      // if (this.query()?.type === 'user') {
-      //   this.chatService.getChatByUser(this.query()?.id!).subscribe((data) => {
-      //     this.chatInfo.set(data);
-      //   });
-      // } else {
-      //   this.chatService.getMessages(this.query()?.id).subscribe((messages) => {
-      //     console.log(messages);
-      //     this.messages.set(messages);
-      //   });
-      // }
-    });
+  messages = resource({
+    params: () => ({ chatId: this.selectedChat().id, index: this.index() }),
+    loader: ({ params: { index, chatId } }) =>
+      firstValueFrom(this.chatService.getChatMessages(chatId, index)),
+  });
+
+  sendMessage() {
+    if (!this.selectedChat() || !this.messageContent()) return;
+
+    // this.chatService
+    //   .sendMessage(this.selectedChat()!.id, this.messageContent())
+    //   .subscribe(({ chat, message }) => {
+    //     this.messageContent.set('');
+    //     this.messages.update((msgs) => [...msgs, message]);
+    //     this.chats.update((chats) => {
+    //       const index = chats.findIndex((item) => item.id === chat.id);
+    //       if (index === -1) {
+    //         chats.unshift(chat);
+    //       } else {
+    //         chats[index] = chat;
+    //       }
+    //       return [...chats].sort(
+    //         (a, b) => b.lastActivity.getTime() - a.lastActivity.getTime()
+    //       );
+    //     });
+    //   });
   }
 
-  senMessage() {
+  onScrollUp() {
+    if (this.messages.isLoading()) return;
+    this.isChatLoading.set(true);
     this.chatService
-      .createMessage({
-        chatId: null,
-        content: 'Probando el envio de mensajes',
-        receiverId: this.query()?.id,
-      })
-      .subscribe((data) => {
-        console.log(data);
+      .getChatMessages(this.selectedChat().id, this.index() + 1)
+      .pipe(finalize(() => this.isChatLoading.set(false)))
+      .subscribe((newMessages) => {
+        this.messages.update((values) => [...newMessages, ...(values ?? [])]);
       });
   }
 }

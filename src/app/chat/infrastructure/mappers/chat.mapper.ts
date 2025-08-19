@@ -16,6 +16,7 @@ export class ChatMapper {
       unreadCount: response.unreadCount,
       sentAt: new Date(response.createdAt),
       updatedAt: new Date(response.updatedAt),
+      lastActivity: new Date(response.lastActivity),
     });
   }
 }

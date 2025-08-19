@@ -6,6 +6,7 @@ interface ChatProperties {
   sentAt: Date;
   updatedAt: Date;
   unreadCount: number;
+  lastActivity: Date;
 }
 
 interface LastMessage {
@@ -23,28 +24,25 @@ export class Chat {
   sentAt: Date;
   updatedAt: Date;
   unreadCount: number;
+  lastActivity: Date;
+
   constructor({
     id,
     name,
     type,
     lastMessage,
-    sentAt: createdAt,
+    sentAt,
     updatedAt,
     unreadCount,
+    lastActivity,
   }: ChatProperties) {
     this.id = id;
     this.name = name;
     this.type = type;
     this.lastMessage = lastMessage;
-    this.sentAt = createdAt;
+    this.sentAt = sentAt;
     this.updatedAt = updatedAt;
     this.unreadCount = unreadCount;
-  }
-
-  withNewMessage(message: Partial<LastMessage>): Chat {
-    return new Chat({
-      ...this,
-      lastMessage: message,
-    });
+    this.lastActivity = lastActivity;
   }
 }

@@ -1,4 +1,43 @@
-
-@for (item of messages(); track $index) {
-<chat-bubble [message]="item" />
+<!-- @if(messages.isLoading()) {
+  <p class="text-center text-gray-500">Cargando mensajes...</p>
 }
+@else if(!messages.isLoading() && messages.hasValue()) {
+  <infinite-scroll-wrapper
+      [containerRef]="container()"
+      (onScrollUp)="onScrollUp()"
+  >
+      @for (item of messages.value(); track $index) {
+          <chat-bubble [message]="item" />
+      }
+  </infinite-scroll-wrapper>
+    
+} -->
+
+<!-- <div class="flex-1 overflow-y-auto p-2 m-3 border-2" #scrollableDiv>
+  @if(messages.isLoading()) {
+  <p class="text-center text-gray-500">Cargando mensajes...</p>
+  } @else if(!messages.isLoading() && messages.hasValue()) {
+  <infinite-scroll-wrapper
+    [containerRef]="scrollableDiv"
+    (onScrollUp)="onScrollUp()"
+  >
+    @for (item of messages.value(); track $index) {
+    <chat-bubble [message]="item" />
+    }
+  </infinite-scroll-wrapper>
+  }
+</div>
+
+<div class="px-4 py-4 flex items-center">
+  <div class="w-full h-[54px]">
+    <mat-form-field>
+      <mat-label>Mensaje</mat-label>
+      <input
+        matInput
+        placeholder="Ingrese el mensaje a enviar"
+        [(ngModel)]="messageContent"
+        (keydown.enter)="sendMessage()"
+      />
+    </mat-form-field>
+  </div>
+</div> -->
