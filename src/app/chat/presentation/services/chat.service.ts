@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { map } from 'rxjs';
 
+import { SocketService } from '../../../layout/presentation/services';
 import { environment } from '../../../../environments/environment';
 import {
   ChatMapper,
@@ -9,7 +10,6 @@ import {
   MessageMapper,
   MessageResponse,
 } from '../../infrastructure';
-import { SocketService } from '../../../layout/presentation/services';
 
 interface user {
   _id: string;
@@ -19,10 +19,9 @@ interface user {
   providedIn: 'root',
 })
 export class ChatService {
-  private readonly URL = `${environment.base_url}/chat`;
   private http = inject(HttpClient);
+  private readonly URL = `${environment.base_url}/chat`;
   private onlineUsers = inject(SocketService).currentOnlineUsers;
-  constructor() {}
 
   findOrCreateChat(receiverId: string) {
     return this.http
@@ -47,21 +46,13 @@ export class ChatService {
     );
   }
 
-  getChatsByUser() {
+  geChats() {
     return this.http
-      .get<ChatResponse[]>(`${this.URL}/my`)
+      .get<ChatResponse[]>(this.URL)
       .pipe(map((resp) => resp.map((item) => ChatMapper.fromResponse(item))));
   }
 
-  getChatByUser(id: string) {
-    return this.http.get<user[]>(`${this.URL}/user/${id}`);
-  }
-
-  createMessage(data: { chatId: null; content: string; receiverId: string }) {
-    return this.http.post<user[]>(`${this.URL}`, data);
-  }
-
-  getChatMessages(chatId: string, index: number) {
+  getChatMessages(chatId: string, index: number = 0) {
     const params = new HttpParams({
       fromObject: { limit: 20, offset: index * 20 },
     });
@@ -84,5 +75,12 @@ export class ChatService {
           chat: ChatMapper.fromResponse(chat),
         }))
       );
+  }
+
+  markChatAsRead(chatId: string) {
+    return this.http.patch<{ message: string }>(
+      `${this.URL}/${chatId}/read`,
+      {}
+    );
   }
 }

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Socket, io } from 'socket.io-client';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, map, Observable, Subject } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
 import { publication } from '../../../publications/infrastructure';
@@ -10,7 +10,17 @@ import {
   communication,
   CommunicationMapper,
 } from '../../../communications/infrastructure';
+import {
+  ChatMapper,
+  ChatResponse,
+  MessageMapper,
+  MessageResponse,
+} from '../../../chat/infrastructure';
 
+interface ChatEventData {
+  chat: ChatResponse;
+  message: MessageResponse;
+}
 @Injectable({
   providedIn: 'root',
 })
@@ -20,9 +30,23 @@ export class SocketService {
 
   onlineClients$ = this.onlineClientsSubject.asObservable();
 
-  connect():void {
+  private chatSubject$ = new Subject<ChatEventData>();
+
+  public messages$ = this.chatSubject$.asObservable().pipe(
+    map((data) => {
+      const chat = ChatMapper.fromResponse(data.chat);
+      const message = MessageMapper.fromResponse(data.message);
+      return { chat, message };
+    })
+  );
+
+  connect(): void {
     this.socket = io(environment.socket_url, {
       auth: { token: localStorage.getItem('token') },
+    });
+    console.log('socket start');
+    this.socket.on('chat', (data: ChatEventData) => {
+      this.chatSubject$.next(data);
     });
   }
 

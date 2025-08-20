@@ -28,7 +28,7 @@ import { Chat, IContact } from '../../../domain';
     SearchInputComponent,
   ],
   template: `
-    <div class="w-full flex flex-col">
+    <div class="w-full flex flex-col h-full">
 
       <div class="flex flex-row justify-between items-center" >
         <p class="p-3 text-2xl font-medium">Mensajes</p>

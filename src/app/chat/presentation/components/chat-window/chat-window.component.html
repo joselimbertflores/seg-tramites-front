@@ -1,43 +1,48 @@
-<!-- @if(messages.isLoading()) {
-  <p class="text-center text-gray-500">Cargando mensajes...</p>
-}
-@else if(!messages.isLoading() && messages.hasValue()) {
-  <infinite-scroll-wrapper
-      [containerRef]="container()"
-      (onScrollUp)="onScrollUp()"
-  >
-      @for (item of messages.value(); track $index) {
-          <chat-bubble [message]="item" />
-      }
-  </infinite-scroll-wrapper>
-    
-} -->
-
-<!-- <div class="flex-1 overflow-y-auto p-2 m-3 border-2" #scrollableDiv>
-  @if(messages.isLoading()) {
-  <p class="text-center text-gray-500">Cargando mensajes...</p>
-  } @else if(!messages.isLoading() && messages.hasValue()) {
-  <infinite-scroll-wrapper
-    [containerRef]="scrollableDiv"
-    (onScrollUp)="onScrollUp()"
-  >
-    @for (item of messages.value(); track $index) {
-    <chat-bubble [message]="item" />
-    }
-  </infinite-scroll-wrapper>
-  }
-</div>
-
-<div class="px-4 py-4 flex items-center">
-  <div class="w-full h-[54px]">
-    <mat-form-field>
-      <mat-label>Mensaje</mat-label>
-      <input
-        matInput
-        placeholder="Ingrese el mensaje a enviar"
-        [(ngModel)]="messageContent"
-        (keydown.enter)="sendMessage()"
-      />
-    </mat-form-field>
+<div class="flex flex-col h-full">
+  <div class="py-2 px-4 flex flex-row justify-between items-center">
+    <div class="flex items-center">
+      <div>
+        <img class="w-10 h-10 rounded-full" src="images/avatar.png" />
+      </div>
+      <div class="ml-4">
+        <p class="text-lg">
+          {{ selectedChat().name| titlecase }}
+        </p>
+        <p class="text-grey-darker text-xs mt-1"></p>
+      </div>
+    </div>
   </div>
-</div> -->
+  <div
+    class="flex-1 overflow-y-auto border-2 p-4"
+    infiniteScroll
+    [infiniteScrollDistance]="2"
+    [infiniteScrollThrottle]="50"
+    (scrolledUp)="onScrollUp()"
+    [scrollWindow]="false"
+    #chatPanel
+  >
+    @if(isLoading()){
+      <div class="text-center">
+        Cargando mensajes...
+      </div>
+    }
+    @for (item of messages(); track $index) {
+      <chat-bubble [message]="item" />
+    }
+  </div>
+  <div>
+    <div class="px-4 py-4 flex items-center">
+      <div class="w-full h-[54px]">
+        <mat-form-field>
+          <mat-label>Mensaje</mat-label>
+          <input
+            matInput
+            placeholder="Ingrese el mensaje a enviar"
+            [(ngModel)]="messageContent"
+            (keydown.enter)="sendMessage()"
+          />
+        </mat-form-field>
+      </div>
+    </div>
+  </div>
+</div>
