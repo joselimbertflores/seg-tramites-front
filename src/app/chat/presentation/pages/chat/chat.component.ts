@@ -18,6 +18,7 @@ import { Chat } from '../../../domain';
 })
 export default class ChatComponent {
   private chatService = inject(ChatService);
+
   chats = signal<Chat[]>([]);
   selectedChat = signal<Chat | null>(null);
   chatIndex = signal<number>(0);
@@ -35,10 +36,10 @@ export default class ChatComponent {
   onSelectChat(chat: Chat) {
     this.chatIndex.set(0);
     this.selectedChat.set(chat);
-    if (chat.unreadCount > 0) {
-      chat.unreadCount = 0;
-      this.chatService.markChatAsRead(chat.id).subscribe();
-    }
+    this.chatService.markChatAsRead(chat.id).subscribe();
+    // if (chat.unreadCount > 0) {
+    //   chat.unreadCount = 0;
+    // }
   }
 
   startChat(chat: Chat) {

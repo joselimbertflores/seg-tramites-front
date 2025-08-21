@@ -6,13 +6,14 @@ export interface ChatResponse {
   createdAt: string;
   updatedAt: string;
   unreadCount: number;
-  readBy: any[];
   lastActivity: string;
 }
 
 interface LastMessage {
+  ref: string;
   content: string;
   sender: string;
   senderName: string;
   createdAt: string;
+  isRead: boolean;
 }

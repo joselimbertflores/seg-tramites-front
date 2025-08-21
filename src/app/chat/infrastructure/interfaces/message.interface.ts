@@ -5,6 +5,7 @@ export interface MessageResponse {
   content: string;
   sentAt: string;
   updatedAt: string;
+  isRead: boolean;
 }
 
 interface Sender {

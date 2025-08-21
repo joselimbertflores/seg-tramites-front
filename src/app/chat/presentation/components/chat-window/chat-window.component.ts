@@ -54,7 +54,7 @@ export class ChatWindowComponent {
     params: () => ({ chatId: this.selectedChat().id }),
     stream: ({ params: { chatId } }) => {
       return this.chatService.getChatMessages(chatId).pipe(
-        map((resp) => resp.reverse()),
+        map((messages) => messages),
         finalize(() => this.scrollToBottom())
       );
     },
@@ -90,7 +90,7 @@ export class ChatWindowComponent {
       .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe((messages) => {
         if (messages.length === 0) return;
-        this.messages.update((values) => [...messages.reverse(), ...values]);
+        this.messages.update((values) => [...messages, ...values]);
         this.restoreScrollPosition(prevHeight);
       });
   }

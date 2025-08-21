@@ -34,10 +34,9 @@
     <div class="px-4 py-4 flex items-center">
       <div class="w-full h-[54px]">
         <mat-form-field>
-          <mat-label>Mensaje</mat-label>
+          <mat-label>Ingrese un mensaje</mat-label>
           <input
             matInput
-            placeholder="Ingrese el mensaje a enviar"
             [(ngModel)]="messageContent"
             (keydown.enter)="sendMessage()"
           />

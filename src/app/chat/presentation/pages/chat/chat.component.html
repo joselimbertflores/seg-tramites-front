@@ -7,17 +7,17 @@
   <div class="w-2/3 h-full">
     @if(selectedChat()){
       <chat-window [(selectedChat)]="currentChat" [(index)]="chatIndex" (onSendMessage)="startChat($event)"/>
-    } @else {
-    <div class="flex-1">
+    } 
+    @else {
       <div class="flex flex-col items-center justify-center h-full text-center">
         <div class="max-w-md mx-auto">
           <img
             src="images/icons/chat-bubbles.png"
-            class="w-24 h-24 mb-6 text-gray-400 dark:text-gray-500 mx-auto"
+            class="w-24 h-24 mb-6 mx-auto"
             alt="Chat icon"
           />
 
-          <h1 class="text-2xl font-semibold mb-2">Seleccione un chat</h1>
+          <h1 class="text-2xl font-semibold mb-2">Seleccione una conversación</h1>
 
           <p class="text-sm">
             Inicie una nueva conversación o seleccione una de las existentes
@@ -25,7 +25,6 @@
           </p>
         </div>
       </div>
-    </div>
     }
   </div>
 </div>

@@ -10,10 +10,12 @@ interface ChatProperties {
 }
 
 interface LastMessage {
+  ref: string;
   content: string;
   sender: string;
   senderName: string;
   sentAt: Date;
+  isRead: boolean;
 }
 
 export class Chat {

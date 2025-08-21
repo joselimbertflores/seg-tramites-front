@@ -3,7 +3,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   inject,
-  input,
   model,
   output,
   signal,
@@ -13,9 +12,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 
-import { ChatService } from '../../services/chat.service';
+import { MessageStatusComponent } from '../message-status/message-status.component';
 import { SearchInputComponent } from '../../../../shared';
 import { Chat, IContact } from '../../../domain';
+import { ChatService } from '../../services';
+import { AuthService } from '../../../../auth/presentation/services/auth.service';
 
 @Component({
   selector: 'chat-list',
@@ -26,6 +27,7 @@ import { Chat, IContact } from '../../../domain';
     MatButtonModule,
     MatFormFieldModule,
     SearchInputComponent,
+    MessageStatusComponent
   ],
   template: `
     <div class="w-full flex flex-col h-full">
@@ -40,28 +42,24 @@ import { Chat, IContact } from '../../../domain';
         </div>
       </div>
       
-
-      <!-- Contacts -->
       <div class="flex-1 overflow-auto p-2">
-        @if(searchNewContact()){ @for (item of contacts(); track $index) {
-        <div
-          class="px-3 flex items-center cursor-pointer"
-          (click)="selectContact(item)"
-        >
-          <div class="relative">
-            <img class="h-10 w-10 rounded-full" src="images/avatar.png" />
-          </div>
-          <div class="ml-4 flex-1 py-4 min-w-0">
-            <div class="flex items-center justify-between">
-              <p class="text-grey-darkest font-medium truncate">
-                {{ item.fullname | titlecase }}
-              </p>
+        @if(searchNewContact()){ 
+          @for (item of contacts(); track $index) {
+            <div class="px-3 flex items-center cursor-pointer" (click)="selectContact(item)">
+              <div class="relative">
+                <img class="h-10 w-10 rounded-full" src="images/avatar.png" />
+              </div>
+              <div class="ml-4 flex-1 py-4 min-w-0">
+                <div class="flex items-center justify-between">
+                  <p class="text-grey-darkest font-medium truncate">
+                    {{ item.fullname | titlecase }}
+                  </p>
+                </div>
+                <div class="text-sm">{{item.isOnline?"En linea":"Sin conexion"}}</div>
+              </div>
             </div>
-            <div class="text-sm">{{item.isOnline?"En linea":"Sin conexion"}}</div>
-          </div>
-        </div>
+          } 
         } 
-      } 
         @else { 
           @for (item of chats(); track $index) {
             <div
@@ -88,10 +86,19 @@ import { Chat, IContact } from '../../../domain';
                 </div>
 
                 <div class="flex items-center justify-between mt-1">
-                  <p class="text-grey-dark text-sm truncate max-w-[85%]">
-                    {{ item.lastMessage?.content }}
-                  </p>
-
+                  @if(item.lastMessage){
+                    <div class="flex items-center gap-x-1 max-w-[85%]">
+                      @if(item.lastMessage.sender === userId){
+                        <message-status [isRead]="item.lastMessage.isRead"/>
+                      }
+                       <p class="text-sm truncate">
+                        {{ item.lastMessage.content }}
+                      </p>
+                    </div>
+                  }
+                  @else {
+                    <p class="text-sm truncate max-w-[85%]">"Grupo creado"</p>
+                  }
                   @if (item.unreadCount > 0) {
                     <span
                       class="ml-2 bg-green-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full"
@@ -120,6 +127,7 @@ import { Chat, IContact } from '../../../domain';
 export class ChatListComponent {
   private chatService = inject(ChatService);
 
+  userId = inject(AuthService).user()?.userId
   chats = model.required<Chat[]>();
   onChatSelect = output<Chat>();
   selectedChat = signal<Chat | null>(null);

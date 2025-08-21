@@ -5,6 +5,7 @@ interface MessageProperties {
   content: string;
   sentAt: Date;
   updatedAt: Date;
+  isRead: boolean;
 }
 
 interface Sender {
@@ -19,6 +20,7 @@ export class Message {
   content: string;
   sentAt: Date;
   updatedAt: Date;
+  isRead: boolean;
 
   constructor({
     id,
@@ -27,6 +29,7 @@ export class Message {
     content,
     sentAt: createdAt,
     updatedAt,
+    isRead,
   }: MessageProperties) {
     this.id = id;
     this.chat = chat;
@@ -34,5 +37,6 @@ export class Message {
     this.content = content;
     this.sentAt = createdAt;
     this.updatedAt = updatedAt;
+    this.isRead = isRead;
   }
 }
