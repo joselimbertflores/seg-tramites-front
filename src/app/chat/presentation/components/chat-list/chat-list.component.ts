@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   inject,
+  input,
   model,
   output,
   signal,
@@ -42,7 +43,7 @@ import { AuthService } from '../../../../auth/presentation/services/auth.service
         </div>
       </div>
       
-      <div class="flex-1 overflow-auto p-2">
+      <div class="flex-1 overflow-auto px-3">
         @if(searchNewContact()){ 
           @for (item of contacts(); track $index) {
             <div class="px-3 flex items-center cursor-pointer" (click)="selectContact(item)">
@@ -129,8 +130,8 @@ export class ChatListComponent {
 
   userId = inject(AuthService).user()?.userId
   chats = model.required<Chat[]>();
-  onChatSelect = output<Chat>();
-  selectedChat = signal<Chat | null>(null);
+  selectedChat = input.required<Chat | null>();
+  onSelectChat=output<Chat>()
 
   contacts = signal<IContact[]>([]);
   searchNewContact = signal(false);
@@ -151,12 +152,11 @@ export class ChatListComponent {
 
   selectContact(contact: IContact) {
     this.chatService.findOrCreateChat(contact.id).subscribe((chat) => {
-      this.onChatSelect.emit(chat);
+      this.onSelectChat.emit(chat);
     });
   }
 
   selectChat(chat: Chat) {
-    this.selectedChat.set(chat);
-    this.onChatSelect.emit(chat);
+    this.onSelectChat.emit(chat);
   }
 }

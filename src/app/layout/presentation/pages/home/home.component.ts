@@ -16,14 +16,14 @@ import {
   ChildrenOutletContexts,
 } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { CdkScrollable, ScrollingModule } from '@angular/cdk/scrolling';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
-
-import { CdkScrollable, ScrollingModule } from '@angular/cdk/scrolling';
 import { OverlayModule } from '@angular/cdk/overlay';
 
 import { PublicationDialogComponent } from '../../../../publications/presentation/components';
@@ -31,13 +31,11 @@ import {
   AlertService,
   LoadingService,
   overlayAnimation,
-  ToastService,
 } from '../../../../shared';
 
 import { routeAnimations } from '../../../../shared/animations/route-animations';
 import { AuthService } from '../../../../auth/presentation/services/auth.service';
 import { SocketService } from '../../services';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ProfileComponent, SidenavMenuComponent } from '../../components';
 
 @Component({
@@ -143,7 +141,10 @@ export default class HomeComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((description) => {
         this.dialogRef.closeAll();
-        this.alertservice.messageDialog({ title: 'Usted ha sido expulsado', description});
+        this.alertservice.messageDialog({
+          title: 'Usted ha sido expulsado',
+          description,
+        });
         this.logout();
       });
   }

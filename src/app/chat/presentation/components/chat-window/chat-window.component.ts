@@ -1,6 +1,5 @@
 import {
   ChangeDetectionStrategy,
-  linkedSignal,
   ElementRef,
   Component,
   viewChild,
@@ -8,18 +7,17 @@ import {
   model,
   signal,
   output,
+  AfterViewInit,
 } from '@angular/core';
 import { InfiniteScrollDirective } from 'ngx-infinite-scroll';
 import { MatInputModule } from '@angular/material/input';
-import { rxResource } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { finalize, map } from 'rxjs';
+import { finalize } from 'rxjs';
 
 import { ChatBubbleComponent } from '../chat-bubble/chat-bubble.component';
-import { ChatService } from '../../services/chat.service';
-import { Chat } from '../../../domain';
-import { SocketService } from '../../../../layout/presentation/services';
+import { Chat, Message } from '../../../domain';
+import { ChatService } from '../../services';
 
 @Component({
   selector: 'chat-window',
@@ -33,41 +31,23 @@ import { SocketService } from '../../../../layout/presentation/services';
   templateUrl: './chat-window.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ChatWindowComponent {
+export class ChatWindowComponent implements AfterViewInit {
   private chatService = inject(ChatService);
-  private socketService = inject(SocketService);
 
   selectedChat = model.required<Chat>();
   onSendMessage = output<Chat>();
 
   messageContent = signal<string>('');
-  index = model<number>(0);
+  messages = model.required<Message[]>();
+  chatIndex = model<number>(0);
   isLoading = signal<boolean>(false);
 
   scrollableDiv = viewChild.required<ElementRef<HTMLDivElement>>('chatPanel');
 
-  ngOnInit() {
-    this.listenChats();
+  ngAfterViewInit(): void {
+    this.scrollToBottom();
   }
 
-  messagesRes = rxResource({
-    params: () => ({ chatId: this.selectedChat().id }),
-    stream: ({ params: { chatId } }) => {
-      return this.chatService.getChatMessages(chatId).pipe(
-        map((messages) => messages),
-        finalize(() => this.scrollToBottom())
-      );
-    },
-    defaultValue: [],
-  });
-
-  messages = linkedSignal({
-    source: this.messagesRes.value,
-    computation: (messages) => {
-      if (this.messagesRes.isLoading()) return [];
-      return messages;
-    },
-  });
 
   sendMessage() {
     this.chatService
@@ -82,11 +62,15 @@ export class ChatWindowComponent {
 
   onScrollUp() {
     if (this.isLoading()) return;
+
     this.isLoading.set(true);
-    this.index.update((i) => (i += 1));
+
+    this.chatIndex.update((i) => (i += 1));
+
     const prevHeight = this.scrollableDiv().nativeElement.scrollHeight;
+    
     this.chatService
-      .getChatMessages(this.selectedChat().id, this.index())
+      .getChatMessages(this.selectedChat().id, this.chatIndex())
       .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe((messages) => {
         if (messages.length === 0) return;
@@ -107,14 +91,6 @@ export class ChatWindowComponent {
       const container = this.scrollableDiv().nativeElement;
       const newHeight = container.scrollHeight;
       container.scrollTop = newHeight - prevHeight;
-    });
-  }
-
-  listenChats() {
-    this.socketService.messages$.subscribe((data) => {
-      console.log(data);
-      this.messages.update((msgs) => [...msgs, data.message]);
-      this.scrollToBottom();
     });
   }
 }

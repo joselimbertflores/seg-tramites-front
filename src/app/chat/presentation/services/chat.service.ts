@@ -1,6 +1,6 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { map } from 'rxjs';
+import { BehaviorSubject, map, Observable, of, Subject, tap } from 'rxjs';
 
 import { SocketService } from '../../../layout/presentation/services';
 import { environment } from '../../../../environments/environment';
@@ -10,18 +10,37 @@ import {
   MessageMapper,
   MessageResponse,
 } from '../../infrastructure';
+import { Message } from '../../domain';
+import type { Socket } from 'socket.io-client';
 
 interface user {
   _id: string;
   fullname: string;
+}
+
+interface ChatEventData {
+  chat: ChatResponse;
+  message: MessageResponse;
 }
 @Injectable({
   providedIn: 'root',
 })
 export class ChatService {
   private http = inject(HttpClient);
+  private socketService = inject(SocketService);
+  private socketRef: Socket | null = null;
+
+  private chatSubject$ = new Subject<ChatEventData>();
+
+  messageCache: Record<string, Message[]> = {};
   private readonly URL = `${environment.base_url}/chat`;
-  private onlineUsers = inject(SocketService).currentOnlineUsers;
+
+  constructor() {
+    this.socketRef = this.socketService.getSocket();
+    this.socketRef?.on('chat', (data: ChatEventData) => {
+      this.chatSubject$.next(data);
+    });
+  }
 
   findOrCreateChat(receiverId: string) {
     return this.http
@@ -33,13 +52,13 @@ export class ChatService {
     return this.http.get<user[]>(`${this.URL}/users/${term}`).pipe(
       map((resp) =>
         resp.map((contact) => {
-          const isOnline = this.onlineUsers.find(
+          const isOnline = this.socketService.currentOnlineUsers.some(
             ({ userId }) => contact._id === userId
           );
           return {
             id: contact._id,
             fullname: contact.fullname,
-            isOnline: isOnline ? true : false,
+            isOnline,
           };
         })
       )
@@ -53,13 +72,22 @@ export class ChatService {
   }
 
   getChatMessages(chatId: string, index: number = 0) {
+    const key = `${chatId}-${index}`;
+
+    if (this.messageCache[key]) return of(this.messageCache[key]);
+
     const params = new HttpParams({
       fromObject: { limit: 20, offset: index * 20 },
     });
     return this.http
       .get<MessageResponse[]>(`${this.URL}/${chatId}/messages`, { params })
       .pipe(
-        map((resp) => resp.map((item) => MessageMapper.fromResponse(item)))
+        map((resp) => resp.map((item) => MessageMapper.fromResponse(item))),
+        tap((messages) => {
+          if (messages.length > 0) {
+            this.messageCache[key] = messages;
+          }
+        })
       );
   }
 
@@ -82,5 +110,23 @@ export class ChatService {
       `${this.URL}/${chatId}/read`,
       {}
     );
+  }
+
+  listenMessages() {
+    return this.chatSubject$.asObservable().pipe(
+      map((data) => {
+        const chat = ChatMapper.fromResponse(data.chat);
+        const message = MessageMapper.fromResponse(data.message);
+        return { chat, message };
+      })
+    );
+  }
+
+  listenMessageRead() {
+    return new Observable((observable) => {
+      this.socketRef?.on('message:read', (chatId: string) => {
+        observable.next(chatId);
+      });
+    });
   }
 }

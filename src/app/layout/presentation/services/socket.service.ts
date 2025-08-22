@@ -10,43 +10,20 @@ import {
   communication,
   CommunicationMapper,
 } from '../../../communications/infrastructure';
-import {
-  ChatMapper,
-  ChatResponse,
-  MessageMapper,
-  MessageResponse,
-} from '../../../chat/infrastructure';
 
-interface ChatEventData {
-  chat: ChatResponse;
-  message: MessageResponse;
-}
 @Injectable({
   providedIn: 'root',
 })
 export class SocketService {
-  private socket: Socket;
+  private socket: Socket | null = null;
   private onlineClientsSubject = new BehaviorSubject<IUserSocket[]>([]);
 
   onlineClients$ = this.onlineClientsSubject.asObservable();
 
-  private chatSubject$ = new Subject<ChatEventData>();
-
-  public messages$ = this.chatSubject$.asObservable().pipe(
-    map((data) => {
-      const chat = ChatMapper.fromResponse(data.chat);
-      const message = MessageMapper.fromResponse(data.message);
-      return { chat, message };
-    })
-  );
-
   connect(): void {
+    if (this.socket) return;
     this.socket = io(environment.socket_url, {
       auth: { token: localStorage.getItem('token') },
-    });
-    console.log('socket start');
-    this.socket.on('chat', (data: ChatEventData) => {
-      this.chatSubject$.next(data);
     });
   }
 
@@ -54,18 +31,20 @@ export class SocketService {
     if (this.socket) {
       this.socket.removeAllListeners();
       this.socket.disconnect();
+      this.socket = null;
     }
   }
 
   listenUserConnections(): void {
-    this.socket.on('clientsList', (users: IUserSocket[]) => {
+    this.socket?.on('clientsList', (users: IUserSocket[]) => {
+      console.log(users);
       this.onlineClientsSubject.next(users);
     });
   }
 
   listenNewCommunications(): Observable<Communication> {
     return new Observable((observable) => {
-      this.socket.on('new-communication', (data: communication) => {
+      this.socket?.on('new-communication', (data: communication) => {
         observable.next(CommunicationMapper.fromResponse(data));
       });
     });
@@ -73,7 +52,7 @@ export class SocketService {
 
   listenCancelCommunications(): Observable<string> {
     return new Observable((observable) => {
-      this.socket.on('cancel-communication', (communicationId: string) => {
+      this.socket?.on('cancel-communication', (communicationId: string) => {
         observable.next(communicationId);
       });
     });
@@ -81,7 +60,7 @@ export class SocketService {
 
   listenKickUsers(): Observable<string> {
     return new Observable((observable) => {
-      this.socket.on('userKicked', (message: string) => {
+      this.socket?.on('userKicked', (message: string) => {
         observable.next(message);
       });
     });
@@ -89,18 +68,22 @@ export class SocketService {
 
   listNews(): Observable<publication> {
     return new Observable((observable) => {
-      this.socket.on('news', (message: publication) => {
+      this.socket?.on('news', (message: publication) => {
         observable.next(message);
       });
     });
   }
 
   kickUsers(userIds: string[], message: string | null) {
-    this.socket.emit('kickUser', { userIds, message: message ?? '' });
+    this.socket?.emit('kickUser', { userIds, message: message ?? '' });
   }
 
   closeOne(name: string) {
-    this.socket.removeListener(name);
+    this.socket?.removeListener(name);
+  }
+
+  getSocket() {
+    return this.socket;
   }
 
   get currentOnlineUsers() {
