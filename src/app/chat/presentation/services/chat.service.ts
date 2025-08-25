@@ -1,6 +1,7 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { BehaviorSubject, map, Observable, of, Subject, tap } from 'rxjs';
+import { map, Observable, of, Subject, tap } from 'rxjs';
+import type { Socket } from 'socket.io-client';
 
 import { SocketService } from '../../../layout/presentation/services';
 import { environment } from '../../../../environments/environment';
@@ -11,7 +12,6 @@ import {
   MessageResponse,
 } from '../../infrastructure';
 import { Message } from '../../domain';
-import type { Socket } from 'socket.io-client';
 
 interface user {
   _id: string;
@@ -28,23 +28,25 @@ interface ChatEventData {
 export class ChatService {
   private http = inject(HttpClient);
   private socketService = inject(SocketService);
+  private readonly URL = `${environment.base_url}/chat`;
   private socketRef: Socket | null = null;
 
   private chatSubject$ = new Subject<ChatEventData>();
-
-  messageCache: Record<string, Message[]> = {};
-  private readonly URL = `${environment.base_url}/chat`;
+  private messageCache: Record<string, Message[]> = {};
 
   constructor() {
-    this.socketRef = this.socketService.getSocket();
-    this.socketRef?.on('chat', (data: ChatEventData) => {
-      this.chatSubject$.next(data);
-    });
+    this.startSocketConfig();
   }
 
   findOrCreateChat(receiverId: string) {
     return this.http
       .get<ChatResponse>(`${this.URL}/start/${receiverId}`)
+      .pipe(map((resp) => ChatMapper.fromResponse(resp)));
+  }
+
+  getAccountChat(accountId: string) {
+    return this.http
+      .get<ChatResponse>(`${this.URL}/account/${accountId}`)
       .pipe(map((resp) => ChatMapper.fromResponse(resp)));
   }
 
@@ -94,7 +96,7 @@ export class ChatService {
   sendMessage(chatId: string, content: string) {
     return this.http
       .post<{ chat: ChatResponse; message: MessageResponse }>(
-        `${this.URL}/${chatId}/messages`,
+        `${this.URL}/${chatId}/message`,
         { content }
       )
       .pipe(
@@ -122,11 +124,21 @@ export class ChatService {
     );
   }
 
-  listenMessageRead() {
+  listenMessageRead(): Observable<string> {
     return new Observable((observable) => {
-      this.socketRef?.on('message:read', (chatId: string) => {
+      this.socketRef?.on('readMessage', (chatId: string) => {
         observable.next(chatId);
       });
+    });
+  }
+
+  private startSocketConfig(): void {
+    // * Get socket reference
+    this.socketRef = this.socketService.getSocket();
+
+    //  * Start listen event
+    this.socketRef?.on('sendMessage', (data: ChatEventData) => {
+      this.chatSubject$.next(data);
     });
   }
 }

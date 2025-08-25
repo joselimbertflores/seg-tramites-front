@@ -15,7 +15,7 @@ export interface messageDialogProps {
     <h2 mat-dialog-title>{{ data.title }}</h2>
     <mat-dialog-content>
       @if(data.description){
-        {{ data.description }}
+       <p class="text-lg">{{ data.description }}</p> 
       } 
       @if(data.list){
       <ul class="list-disc">

@@ -1,0 +1,93 @@
+ <div class="w-full flex flex-col h-full overflow-y-auto border-r">
+  <div class="flex flex-row justify-between items-center" >
+    <p class="py-3 px-4 text-2xl font-medium">Conversaciones</p>
+  </div>
+
+  <div class="py-3 px-2">
+    <div class="h-[48px]">
+      <search-input (onSearch)="term.set($event)" [clearable]="true" title="Buscar contacto" placeholder="Nombre del usuario" />
+    </div>
+  </div>
+  
+  <div class="flex-1 overflow-auto px-3">
+    @if(term()){ 
+      @if(!contacts.isLoading()){
+        @for (item of contacts.value(); track $index) {
+          <div class="px-3 flex items-center cursor-pointer" (click)="selectContact(item)">
+            <div class="relative">
+              <img class="h-10 w-10 rounded-full" src="images/avatar.png" />
+            </div>
+            <div class="ml-4 flex-1 py-4 min-w-0">
+              <div class="flex items-center justify-between">
+                <p class="text-grey-darkest font-medium truncate">
+                  {{ item.fullname | titlecase }}
+                </p>
+              </div>
+              <div class="text-sm">{{item.isOnline?"En linea":"Sin conexion"}}</div>
+            </div>
+          </div>
+        } 
+        @empty {
+          <div class="text-center p-3">No se encontraron contactos.</div>
+        }
+      }
+      @else {
+        <div class="text-center p-3">Buscando contactos...</div>
+      }
+    } 
+    @else { 
+      @for (item of chats(); track $index) {
+        <div
+          class="px-3 flex items-center cursor-pointer rounded-xl hover:bg-[var(--mat-sys-surface-container)]"
+          (click)="selectChat(item)"
+          [class.selected-chat]="item.id === selectedChat()?.id"
+        >
+          <div class="relative">
+            <img
+              class="h-10 w-10 rounded-full"
+              src="images/avatar.png"
+              alt="avatar"
+            />
+          </div>
+
+          <div class="ml-4 flex-1 py-4 min-w-0">
+            <div class="flex items-center justify-between">
+              <p class="text-grey-darkest font-medium truncate">
+                {{ item.name | titlecase }}
+              </p>
+              <p class="text-xs text-grey-darkest whitespace-nowrap">
+                {{ item.sentAt | date }}
+              </p>
+            </div>
+
+            <div class="flex items-center justify-between mt-1">
+              @if(item.lastMessage){
+                <div class="flex items-center gap-x-1 max-w-[85%]">
+                  @if(item.lastMessage.sender === userId){
+                    <message-status [isRead]="item.lastMessage.isRead"/>
+                  }
+                    <p class="text-sm truncate">
+                    {{ item.lastMessage.content }}
+                  </p>
+                </div>
+              }
+              @else {
+                <p class="text-sm truncate max-w-[85%]">"Grupo creado"</p>
+              }
+              @if (item.unreadCount > 0) {
+                <span
+                  class="ml-2 bg-green-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full"
+                >
+                  {{ item.unreadCount }}
+                </span>
+              }
+            </div>
+          </div>
+        </div>
+      } 
+      @empty {
+        <div class="text-center p-3">Usted aun no tiene conversaciones</div>
+      }
+  }
+  </div>
+</div>

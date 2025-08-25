@@ -8,16 +8,19 @@ import {
   output,
   signal,
 } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
+import { of } from 'rxjs';
 
 import { MessageStatusComponent } from '../message-status/message-status.component';
-import { SearchInputComponent } from '../../../../shared';
+import { AuthService } from '../../../../auth/presentation/services/auth.service';
+import { AlertService, SearchInputComponent } from '../../../../shared';
 import { Chat, IContact } from '../../../domain';
 import { ChatService } from '../../services';
-import { AuthService } from '../../../../auth/presentation/services/auth.service';
 
 @Component({
   selector: 'chat-list',
@@ -28,96 +31,9 @@ import { AuthService } from '../../../../auth/presentation/services/auth.service
     MatButtonModule,
     MatFormFieldModule,
     SearchInputComponent,
-    MessageStatusComponent
+    MessageStatusComponent,
   ],
-  template: `
-    <div class="w-full flex flex-col h-full">
-
-      <div class="flex flex-row justify-between items-center" >
-        <p class="p-3 text-2xl font-medium">Mensajes</p>
-      </div>
-
-      <div class="py-3 px-2">
-        <div class="h-[48px]">
-          <search-input (onSearch)="searchContact($event)" [clearable]="true" title="Buscar contacto" placeholder="Nombre del usuario" />
-        </div>
-      </div>
-      
-      <div class="flex-1 overflow-auto px-3">
-        @if(searchNewContact()){ 
-          @for (item of contacts(); track $index) {
-            <div class="px-3 flex items-center cursor-pointer" (click)="selectContact(item)">
-              <div class="relative">
-                <img class="h-10 w-10 rounded-full" src="images/avatar.png" />
-              </div>
-              <div class="ml-4 flex-1 py-4 min-w-0">
-                <div class="flex items-center justify-between">
-                  <p class="text-grey-darkest font-medium truncate">
-                    {{ item.fullname | titlecase }}
-                  </p>
-                </div>
-                <div class="text-sm">{{item.isOnline?"En linea":"Sin conexion"}}</div>
-              </div>
-            </div>
-          } 
-        } 
-        @else { 
-          @for (item of chats(); track $index) {
-            <div
-              class="px-3 flex items-center cursor-pointer rounded-xl hover:bg-[var(--mat-sys-surface-container)]"
-              (click)="selectChat(item)"
-              [class.selected-chat]="item.id === selectedChat()?.id"
-            >
-              <div class="relative">
-                <img
-                  class="h-10 w-10 rounded-full"
-                  src="images/avatar.png"
-                  alt="avatar"
-                />
-              </div>
-
-              <div class="ml-4 flex-1 py-4 min-w-0">
-                <div class="flex items-center justify-between">
-                  <p class="text-grey-darkest font-medium truncate">
-                    {{ item.name | titlecase }}
-                  </p>
-                  <p class="text-xs text-grey-darkest whitespace-nowrap">
-                    {{ item.sentAt | date }}
-                  </p>
-                </div>
-
-                <div class="flex items-center justify-between mt-1">
-                  @if(item.lastMessage){
-                    <div class="flex items-center gap-x-1 max-w-[85%]">
-                      @if(item.lastMessage.sender === userId){
-                        <message-status [isRead]="item.lastMessage.isRead"/>
-                      }
-                       <p class="text-sm truncate">
-                        {{ item.lastMessage.content }}
-                      </p>
-                    </div>
-                  }
-                  @else {
-                    <p class="text-sm truncate max-w-[85%]">"Grupo creado"</p>
-                  }
-                  @if (item.unreadCount > 0) {
-                    <span
-                      class="ml-2 bg-green-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full"
-                    >
-                      {{ item.unreadCount }}
-                    </span>
-                  }
-                </div>
-              </div>
-            </div>
-          } 
-          @empty {
-            <div class="text-center p-3">Usted aun no tiene conversaciones</div>
-          }
-      }
-      </div>
-    </div>
-  `,
+  templateUrl: './chat-list.component.html',
   styles: `
     .selected-chat {
       background: var(--mat-sys-surface-container-highest);
@@ -127,27 +43,25 @@ import { AuthService } from '../../../../auth/presentation/services/auth.service
 })
 export class ChatListComponent {
   private chatService = inject(ChatService);
+  private route = inject(ActivatedRoute);
+  private alertService = inject(AlertService);
 
-  userId = inject(AuthService).user()?.userId
+  userId = inject(AuthService).user()?.userId;
   chats = model.required<Chat[]>();
   selectedChat = input.required<Chat | null>();
-  onSelectChat=output<Chat>()
+  onSelectChat = output<Chat>();
+  term = signal<string>('');
 
-  contacts = signal<IContact[]>([]);
-  searchNewContact = signal(false);
-  
+  contacts = rxResource({
+    params: () => ({ term: this.term() }),
+    stream: ({ params }) => {
+      if (!params.term.trim()) return of([]);
+      return this.chatService.searchContact(params.term);
+    },
+  });
 
-  ngOnInit() {}
-
-  searchContact(term: string) {
-    if (!term) {
-      this.searchNewContact.set(false);
-      return;
-    }
-    this.chatService.searchContact(term).subscribe((contacts) => {
-      this.searchNewContact.set(true);
-      this.contacts.set(contacts);
-    });
+  ngOnInit() {
+    this.initAccountChat();
   }
 
   selectContact(contact: IContact) {
@@ -158,5 +72,23 @@ export class ChatListComponent {
 
   selectChat(chat: Chat) {
     this.onSelectChat.emit(chat);
+  }
+
+  private initAccountChat(): void {
+    const accountId: string = this.route.snapshot.queryParams['account'];
+    if (!accountId) return;
+    this.chatService.getAccountChat(accountId).subscribe({
+      next: (chat) => {
+        this.onSelectChat.emit(chat);
+      },
+      error: () => {
+        this.alertService
+          .messageDialog({
+            title: 'No se puede iniciar la conversacion',
+            description: 'El usuario seleccionado no esta habilitado o no existe.',
+          })
+          .subscribe();
+      },
+    });
   }
 }

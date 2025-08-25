@@ -1,14 +1,13 @@
 import {
   ChangeDetectionStrategy,
+  DestroyRef,
   Component,
   computed,
-  DestroyRef,
   inject,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { animate, style, transition, trigger } from '@angular/animations';
 import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CommonModule } from '@angular/common';
 import { of } from 'rxjs';
 
 import { ChatListComponent, ChatWindowComponent } from '../../components';
@@ -20,19 +19,11 @@ import { Chat } from '../../../domain';
   imports: [CommonModule, ChatListComponent, ChatWindowComponent],
   templateUrl: './chat.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  animations: [
-    trigger('fadeIn', [
-      transition(':enter', [
-        style({ opacity: 0 }),
-        animate('150ms ease-in', style({ opacity: 1 })),
-      ]),
-      transition(':leave', [animate('100ms ease-out', style({ opacity: 0 }))]),
-    ]),
-  ],
 })
 export default class ChatComponent {
   private chatService = inject(ChatService);
   private destroyRef = inject(DestroyRef);
+
 
   chats = signal<Chat[]>([]);
   selectedChat = signal<Chat | null>(null);
@@ -47,6 +38,8 @@ export default class ChatComponent {
     },
     defaultValue: [],
   });
+
+
 
   ngOnInit() {
     this.getChats();
@@ -70,10 +63,10 @@ export default class ChatComponent {
   }
 
   listenMessages() {
-    this.chatService.listenMessages()
+    this.chatService
+      .listenMessages()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((data) => {
-        const { chat, message } = data;
+      .subscribe(({ chat, message }) => {
         if (this.selectedChat() && this.selectedChat()?.id === chat.id) {
           chat.unreadCount = 0;
           this.chatService.markChatAsRead(chat.id).subscribe();
@@ -97,14 +90,14 @@ export default class ChatComponent {
           return [...chats];
         });
         if (this.selectedChat() && this.selectedChat()?.id === chatId) {
-          this.messages.value.update((msgs) =>
+          this.messages.update((msgs) =>
             msgs.map((item) => ({ ...item, isRead: true }))
           );
         }
       });
   }
 
-  startChat(chat: Chat) {
+  startChat(chat: Chat): void {
     this.chats.update((chats) => {
       const index = chats.findIndex((item) => item.id === chat.id);
       if (index === -1) {

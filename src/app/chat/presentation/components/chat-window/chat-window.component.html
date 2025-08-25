@@ -26,6 +26,11 @@
         Cargando mensajes...
       </div>
     }
+    @if(!isLoading() && messages().length === 0){
+      <div class="text-center py-4">
+        Escriba un mensaje para iniciar la conversacion.
+      </div>
+    }
     @for (item of messages(); track $index) {
       <chat-bubble [message]="item" />
     }

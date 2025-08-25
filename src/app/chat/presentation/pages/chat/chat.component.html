@@ -1,13 +1,11 @@
 <div class="flex h-full">
   <div class="w-1/3 h-full">
-    <div class="h-full overflow-y-auto border-r">
-      <chat-list [(chats)]="chats" [selectedChat]="selectedChat()" (onSelectChat)="onSelectChat($event)"/> 
-    </div>
+    <chat-list [(chats)]="chats" [selectedChat]="selectedChat()" (onSelectChat)="onSelectChat($event)"/> 
   </div>
   <div class="w-2/3 h-full">
     @if(selectedChat()){
       @if(!messages.isLoading() && messages.hasValue()){
-        <chat-window @fadeIn [(messages)]="messages.value" [(selectedChat)]="currentChat" [(chatIndex)]="chatIndex" (onSendMessage)="startChat($event)"/>
+        <chat-window [(messages)]="messages.value" [(selectedChat)]="currentChat" [(chatIndex)]="chatIndex" (onSendMessage)="startChat($event)"/>
       }
       @else {
         <div class="flex items-center justify-center h-full">

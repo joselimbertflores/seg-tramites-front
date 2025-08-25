@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Socket, io } from 'socket.io-client';
-import { BehaviorSubject, map, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
 import { publication } from '../../../publications/infrastructure';
@@ -16,8 +16,8 @@ import {
 })
 export class SocketService {
   private socket: Socket | null = null;
-  private onlineClientsSubject = new BehaviorSubject<IUserSocket[]>([]);
 
+  private onlineClientsSubject = new BehaviorSubject<IUserSocket[]>([]);
   onlineClients$ = this.onlineClientsSubject.asObservable();
 
   connect(): void {
@@ -37,7 +37,6 @@ export class SocketService {
 
   listenUserConnections(): void {
     this.socket?.on('clientsList', (users: IUserSocket[]) => {
-      console.log(users);
       this.onlineClientsSubject.next(users);
     });
   }

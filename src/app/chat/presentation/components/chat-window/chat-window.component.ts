@@ -1,13 +1,13 @@
 import {
   ChangeDetectionStrategy,
+  AfterViewInit,
   ElementRef,
   Component,
   viewChild,
   inject,
-  model,
   signal,
   output,
-  AfterViewInit,
+  model,
 } from '@angular/core';
 import { InfiniteScrollDirective } from 'ngx-infinite-scroll';
 import { MatInputModule } from '@angular/material/input';
@@ -48,7 +48,6 @@ export class ChatWindowComponent implements AfterViewInit {
     this.scrollToBottom();
   }
 
-
   sendMessage() {
     this.chatService
       .sendMessage(this.selectedChat().id, this.messageContent())
@@ -68,7 +67,7 @@ export class ChatWindowComponent implements AfterViewInit {
     this.chatIndex.update((i) => (i += 1));
 
     const prevHeight = this.scrollableDiv().nativeElement.scrollHeight;
-    
+
     this.chatService
       .getChatMessages(this.selectedChat().id, this.chatIndex())
       .pipe(finalize(() => this.isLoading.set(false)))
