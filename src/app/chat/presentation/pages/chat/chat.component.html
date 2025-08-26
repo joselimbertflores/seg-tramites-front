@@ -4,14 +4,7 @@
   </div>
   <div class="w-2/3 h-full">
     @if(selectedChat()){
-      @if(!messages.isLoading() && messages.hasValue()){
-        <chat-window [(messages)]="messages.value" [(selectedChat)]="currentChat" [(chatIndex)]="chatIndex" (onSendMessage)="startChat($event)"/>
-      }
-      @else {
-        <div class="flex items-center justify-center h-full">
-          <p>Cargando mensajes...</p>
-        </div>
-      }
+       <chat-window [(chat)]="currentChat" [(chatIndex)]="chatIndex" (onSendMessage)="startChat($event)"/>
     } 
     @else {
       <div class="flex flex-col items-center justify-center h-full text-center">

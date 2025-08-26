@@ -1,4 +1,6 @@
 export * from "./chat-list/chat-list.component"
 export * from "./chat-bubble/chat-bubble.component"
 export * from "./chat-window/chat-window.component"
+export * from "./chat-overlay/chat-overlay.component"
+export * from "./file-chat-selector/file-chat-selector.component"
 export * from "./message-status/message-status.component"

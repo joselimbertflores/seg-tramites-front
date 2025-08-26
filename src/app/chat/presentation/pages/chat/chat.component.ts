@@ -30,20 +30,11 @@ export default class ChatComponent {
   chatIndex = signal<number>(0);
   isChatSelected = computed(() => this.selectedChat() !== null);
 
-  messages = rxResource({
-    params: () => ({ chatId: this.selectedChat()?.id }),
-    stream: ({ params: { chatId } }) => {
-      if (!chatId) return of([]);
-      return this.chatService.getChatMessages(chatId);
-    },
-    defaultValue: [],
-  });
 
 
 
   ngOnInit() {
     this.getChats();
-    this.listenMessages();
     this.litenMessageRead();
   }
 
@@ -62,39 +53,26 @@ export default class ChatComponent {
     }
   }
 
-  listenMessages() {
-    this.chatService
-      .listenMessages()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(({ chat, message }) => {
-        if (this.selectedChat() && this.selectedChat()?.id === chat.id) {
-          chat.unreadCount = 0;
-          this.chatService.markChatAsRead(chat.id).subscribe();
-          this.messages.value.update((msgs) => [...msgs, message]);
-        }
-        this.startChat(chat);
-      });
-  }
 
   litenMessageRead() {
-    this.chatService
-      .listenMessageRead()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((chatId) => {
-        this.chats.update((chats) => {
-          const index = chats.findIndex((chat) => chat.id === chatId);
-          if (index === -1) return chats;
-          if (chats[index].lastMessage) {
-            chats[index].lastMessage.isRead = true;
-          }
-          return [...chats];
-        });
-        if (this.selectedChat() && this.selectedChat()?.id === chatId) {
-          this.messages.update((msgs) =>
-            msgs.map((item) => ({ ...item, isRead: true }))
-          );
-        }
-      });
+    // this.chatService
+    //   .listenMessageRead()
+    //   .pipe(takeUntilDestroyed(this.destroyRef))
+    //   .subscribe((chatId) => {
+    //     this.chats.update((chats) => {
+    //       const index = chats.findIndex((chat) => chat.id === chatId);
+    //       if (index === -1) return chats;
+    //       if (chats[index].lastMessage) {
+    //         chats[index].lastMessage.isRead = true;
+    //       }
+    //       return [...chats];
+    //     });
+    //     if (this.selectedChat() && this.selectedChat()?.id === chatId) {
+    //       this.messages.update((msgs) =>
+    //         msgs.map((item) => ({ ...item, isRead: true }))
+    //       );
+    //     }
+    //   });
   }
 
   startChat(chat: Chat): void {

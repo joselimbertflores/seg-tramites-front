@@ -1,7 +1,7 @@
 import {
   ChangeDetectionStrategy,
-  AfterViewInit,
   ElementRef,
+  DestroyRef,
   Component,
   viewChild,
   inject,
@@ -9,15 +9,17 @@ import {
   output,
   model,
 } from '@angular/core';
-import { InfiniteScrollDirective } from 'ngx-infinite-scroll';
+import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { InfiniteScrollDirective } from 'ngx-infinite-scroll';
 import { finalize } from 'rxjs';
 
 import { ChatBubbleComponent } from '../chat-bubble/chat-bubble.component';
-import { Chat, Message } from '../../../domain';
 import { ChatService } from '../../services';
+import { Chat } from '../../../domain';
+import { FileChatSelectorComponent } from '../file-chat-selector/file-chat-selector.component';
 
 @Component({
   selector: 'chat-window',
@@ -26,31 +28,45 @@ import { ChatService } from '../../services';
     CommonModule,
     MatInputModule,
     ChatBubbleComponent,
+    FileChatSelectorComponent,
     InfiniteScrollDirective,
   ],
   templateUrl: './chat-window.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ChatWindowComponent implements AfterViewInit {
+export class ChatWindowComponent {
   private chatService = inject(ChatService);
+  private destroyRef = inject(DestroyRef);
 
-  selectedChat = model.required<Chat>();
+  chat = model.required<Chat>();
   onSendMessage = output<Chat>();
 
   messageContent = signal<string>('');
-  messages = model.required<Message[]>();
+  // messages = model.required<Message[]>();
   chatIndex = model<number>(0);
   isLoading = signal<boolean>(false);
 
   scrollableDiv = viewChild.required<ElementRef<HTMLDivElement>>('chatPanel');
 
-  ngAfterViewInit(): void {
-    this.scrollToBottom();
+  messages = rxResource({
+    params: () => ({ chatId: this.chat().id }),
+    stream: ({ params: { chatId } }) => {
+      return this.chatService
+        .getChatMessages(chatId)
+        .pipe(finalize(() => this.scrollToBottom()));
+    },
+    defaultValue: [],
+  });
+
+
+  ngOnInit() {
+    this.listenMessages();
+    this.litenMessageRead();
   }
 
   sendMessage() {
     this.chatService
-      .sendMessage(this.selectedChat().id, this.messageContent())
+      .sendMessage(this.chat().id, this.messageContent())
       .subscribe(({ chat, message }) => {
         this.messageContent.set('');
         this.messages.update((msgs) => [...msgs, message]);
@@ -69,12 +85,34 @@ export class ChatWindowComponent implements AfterViewInit {
     const prevHeight = this.scrollableDiv().nativeElement.scrollHeight;
 
     this.chatService
-      .getChatMessages(this.selectedChat().id, this.chatIndex())
+      .getChatMessages(this.chat().id, this.chatIndex())
       .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe((messages) => {
         if (messages.length === 0) return;
         this.messages.update((values) => [...messages, ...values]);
         this.restoreScrollPosition(prevHeight);
+      });
+  }
+
+  private listenMessages() {
+    this.chatService
+      .listenMessages()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ message }) => {
+        this.messages.update((msgs) => [...msgs, message]);
+      });
+  }
+
+  private litenMessageRead() {
+    this.chatService
+      .listenMessageRead()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((chatId) => {
+        if (chatId === this.chat().id) {
+          this.messages.update((msgs) =>
+            msgs.map((item) => ({ ...item, isRead: true }))
+          );
+        }
       });
   }
 

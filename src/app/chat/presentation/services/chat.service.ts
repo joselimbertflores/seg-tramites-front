@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, Injector } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { map, Observable, of, Subject, tap } from 'rxjs';
 import type { Socket } from 'socket.io-client';
@@ -12,6 +12,9 @@ import {
   MessageResponse,
 } from '../../infrastructure';
 import { Message } from '../../domain';
+import { Overlay, OverlayRef } from '@angular/cdk/overlay';
+import { ComponentPortal } from '@angular/cdk/portal';
+import { ChatOverlayComponent } from '../components';
 
 interface user {
   _id: string;
@@ -27,6 +30,7 @@ interface ChatEventData {
 })
 export class ChatService {
   private http = inject(HttpClient);
+  private overlay = inject(Overlay);
   private socketService = inject(SocketService);
   private readonly URL = `${environment.base_url}/chat`;
   private socketRef: Socket | null = null;
@@ -34,8 +38,15 @@ export class ChatService {
   private chatSubject$ = new Subject<ChatEventData>();
   private messageCache: Record<string, Message[]> = {};
 
+  // * Properties for chat panel
+  private injector: Injector;
+  private overlayRef: OverlayRef | null = null;
+
   constructor() {
-    this.startSocketConfig();
+    this.socketRef = this.socketService.getSocket();
+    this.socketRef?.on('sendMessage', (data: ChatEventData) => {
+      this.chatSubject$.next(data);
+    });
   }
 
   findOrCreateChat(receiverId: string) {
@@ -132,13 +143,32 @@ export class ChatService {
     });
   }
 
-  private startSocketConfig(): void {
-    // * Get socket reference
-    this.socketRef = this.socketService.getSocket();
-
-    //  * Start listen event
-    this.socketRef?.on('sendMessage', (data: ChatEventData) => {
-      this.chatSubject$.next(data);
+  openAccountChat(accountId: string) {
+    if (this.overlayRef) return;
+    this.overlayRef = this.overlay.create({
+      positionStrategy: this.overlay
+        .position()
+        .global()
+        .bottom('16px')
+        .right('16px'),
     });
+    const portalInjector = Injector.create({
+      providers: [
+        { provide: OverlayRef, useValue: this.overlayRef },
+        { provide: 'CHAT_DATA', useValue: { account: accountId } },
+      ],
+      parent: this.injector,
+    });
+    const portal = new ComponentPortal(
+      ChatOverlayComponent,
+      null,
+      portalInjector
+    );
+    this.overlayRef.attach(portal);
+  }
+
+  closeAccountChat() {
+    this.overlayRef?.dispose();
+    this.overlayRef = null;
   }
 }

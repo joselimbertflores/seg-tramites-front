@@ -6,38 +6,38 @@
       </div>
       <div class="ml-4">
         <p class="text-lg">
-          {{ selectedChat().name| titlecase }}
+          {{ chat().name | titlecase }}
         </p>
         <p class="text-grey-darker text-xs mt-1"></p>
       </div>
     </div>
   </div>
-  <div
-    class="flex-1 overflow-y-auto px-6 py-2"
-    infiniteScroll
-    [infiniteScrollDistance]="2"
-    [infiniteScrollThrottle]="50"
-    (scrolledUp)="onScrollUp()"
-    [scrollWindow]="false"
-    #chatPanel
-  >
-    @if(isLoading()){
-      <div class="text-center">
-        Cargando mensajes...
-      </div>
-    }
-    @if(!isLoading() && messages().length === 0){
+  <div class="flex-1 flex flex-col relative">
+    <div
+      class="flex-1 overflow-y-auto px-6 py-2"
+      infiniteScroll
+      [infiniteScrollDistance]="2"
+      [infiniteScrollThrottle]="50"
+      (scrolledUp)="onScrollUp()"
+      [scrollWindow]="false"
+      #chatPanel
+    >
+      @if(isLoading()){
+      <div class="text-center">Cargando mensajes...</div>
+      } @if(!isLoading() && messages.value().length === 0){
       <div class="text-center py-4">
         Escriba un mensaje para iniciar la conversacion.
       </div>
-    }
-    @for (item of messages(); track $index) {
+      } @for (item of messages.value(); track $index) {
       <chat-bubble [message]="item" />
-    }
-  </div>
-  <div>
-    <div class="px-4 py-4 flex items-center">
-      <div class="w-full h-[54px]">
+      }
+    </div>
+
+    <div class="p-4 flex items-center gap-x-4">
+      <div class="w-auto">
+        <file-chat-selector />
+      </div>
+      <div class="flex-1 h-[52px]">
         <mat-form-field>
           <mat-label>Ingrese un mensaje</mat-label>
           <input
