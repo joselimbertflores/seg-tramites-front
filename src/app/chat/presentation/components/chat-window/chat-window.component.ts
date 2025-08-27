@@ -14,12 +14,21 @@ import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InfiniteScrollDirective } from 'ngx-infinite-scroll';
-import { finalize } from 'rxjs';
+import {
+  catchError,
+  concatMap,
+  EMPTY,
+  finalize,
+  forkJoin,
+  from,
+  switchMap,
+  tap,
+} from 'rxjs';
 
+import { FileChatSelectorComponent } from '../file-chat-selector/file-chat-selector.component';
 import { ChatBubbleComponent } from '../chat-bubble/chat-bubble.component';
 import { ChatService } from '../../services';
 import { Chat } from '../../../domain';
-import { FileChatSelectorComponent } from '../file-chat-selector/file-chat-selector.component';
 
 @Component({
   selector: 'chat-window',
@@ -42,7 +51,6 @@ export class ChatWindowComponent {
   onSendMessage = output<Chat>();
 
   messageContent = signal<string>('');
-  // messages = model.required<Message[]>();
   chatIndex = model<number>(0);
   isLoading = signal<boolean>(false);
 
@@ -58,20 +66,51 @@ export class ChatWindowComponent {
     defaultValue: [],
   });
 
+  files = signal<File[]>([]);
 
   ngOnInit() {
     this.listenMessages();
     this.litenMessageRead();
   }
 
-  sendMessage() {
+  sendMessage(): void {
     this.chatService
-      .sendMessage(this.chat().id, this.messageContent())
+      .sendMessage({
+        chatId: this.chat().id,
+        content: this.messageContent(),
+        type: 'text',
+      })
       .subscribe(({ chat, message }) => {
         this.messageContent.set('');
         this.messages.update((msgs) => [...msgs, message]);
         this.onSendMessage.emit(chat);
         this.scrollToBottom();
+      });
+  }
+
+  sendFiles(files: File[]):void {
+    from(files)
+      .pipe(
+        concatMap((file) =>
+          this.chatService.uploadFile(file).pipe(
+            switchMap((media) =>
+              this.chatService.sendMessage({
+                chatId: this.chat().id,
+                type: 'media',
+                media,
+              })
+            ),
+            catchError(() => EMPTY)
+          )
+        ),
+        finalize(() => {
+          this.messageContent.set('');
+          this.scrollToBottom();
+        })
+      )
+      .subscribe(({ chat, message }) => {
+        this.messages.update((msgs) => [...msgs, message]);
+        this.onSendMessage.emit(chat);
       });
   }
 

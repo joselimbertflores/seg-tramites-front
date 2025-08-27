@@ -6,8 +6,15 @@ export interface MessageResponse {
   sentAt: string;
   updatedAt: string;
   isRead: boolean;
+  media: Media;
+  type: 'text' | 'media';
 }
 
+interface Media {
+  fileName: string;
+  originalName: string;
+  type: string;
+}
 interface Sender {
   _id: string;
   fullname: string;

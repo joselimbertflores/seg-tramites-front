@@ -25,6 +25,19 @@ interface ChatEventData {
   chat: ChatResponse;
   message: MessageResponse;
 }
+
+interface UploadedFile {
+  fileName: string;
+  originalName: string;
+  type: string;
+}
+
+interface CreateMessageData {
+  chatId: string;
+  content?: string;
+  media?: UploadedFile;
+  type: 'text' | 'media';
+}
 @Injectable({
   providedIn: 'root',
 })
@@ -97,6 +110,7 @@ export class ChatService {
       .pipe(
         map((resp) => resp.map((item) => MessageMapper.fromResponse(item))),
         tap((messages) => {
+          console.log(messages);
           if (messages.length > 0) {
             this.messageCache[key] = messages;
           }
@@ -104,11 +118,15 @@ export class ChatService {
       );
   }
 
-  sendMessage(chatId: string, content: string) {
+  sendMessage({ chatId, content, type, media }: CreateMessageData) {
+    const data = {
+      ...(type === 'text' ? { content, type } : { media, type }),
+    };
+    console.log(data);
     return this.http
       .post<{ chat: ChatResponse; message: MessageResponse }>(
         `${this.URL}/${chatId}/message`,
-        { content }
+        data
       )
       .pipe(
         map(({ chat, message }) => ({
@@ -141,6 +159,13 @@ export class ChatService {
         observable.next(chatId);
       });
     });
+  }
+
+  uploadFile(file: File) {
+    const uploadUrl = `${environment.base_url}/files/chat`;
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<UploadedFile>(uploadUrl, formData);
   }
 
   openAccountChat(accountId: string) {

@@ -2,10 +2,12 @@ interface MessageProperties {
   id: string;
   chat: string;
   sender: Sender;
-  content: string;
+  content?: string;
+  media?: Media;
   sentAt: Date;
   updatedAt: Date;
   isRead: boolean;
+  type: 'text' | 'media';
 }
 
 interface Sender {
@@ -13,30 +15,41 @@ interface Sender {
   fullname: string;
 }
 
+interface Media {
+  fileName: string;
+  originalName: string;
+  type: string;
+}
 export class Message {
   id: string;
   chat: string;
   sender: Sender;
-  content: string;
+  content?: string;
   sentAt: Date;
   updatedAt: Date;
   isRead: boolean;
+  media?: Media;
+  type: 'text' | 'media';
 
   constructor({
     id,
     chat,
     sender,
     content,
-    sentAt: createdAt,
+    sentAt,
     updatedAt,
     isRead,
+    media,
+    type,
   }: MessageProperties) {
     this.id = id;
     this.chat = chat;
     this.sender = sender;
     this.content = content;
-    this.sentAt = createdAt;
+    this.sentAt = sentAt;
     this.updatedAt = updatedAt;
     this.isRead = isRead;
+    this.media = media;
+    this.type = type;
   }
 }

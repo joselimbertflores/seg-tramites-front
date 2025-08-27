@@ -8,6 +8,7 @@ type fileGroup = 'resource' | 'post';
 interface uploadedFile {
   fileName: string;
   originalName: string;
+  type: string;
 }
 @Injectable({
   providedIn: 'root',
@@ -17,7 +18,7 @@ export class FileUploadService {
   private readonly URL = `${environment.base_url}/files`;
 
   getFile(url: string) {
-    return this.http.get(url, { responseType: 'blob' })
+    return this.http.get(url, { responseType: 'blob' });
   }
 
   uploadFile(file: File, group: fileGroup) {

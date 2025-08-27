@@ -1,68 +1,72 @@
 @if(selectedFiles().length > 0){
-<div class="absolute inset-0 flex flex-col z-10 bg-slate-800">
-  <div class="flex items-center justify-center relative py-3 bg-slate-600">
-    <div class="absolute top-0 left-0 pt-1 pl-3">
-      <button mat-icon-button (click)="close()">
-        <mat-icon>close</mat-icon>
-      </button>
+  <div class="absolute inset-0 flex flex-col z-10 file-panel p-2">
+    <div class="flex items-center justify-between px-3">
+      <div class="w-10">
+        <button mat-icon-button (click)="close()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      <div class="truncate flex-1 text-right">{{ currentFile().file.name }}</div>
     </div>
-    <p>{{ currentFile()?.file?.name }}</p>
-  </div>
 
-  <div class="flex-1 flex items-center justify-center bg-slate-700">
-    @if(currentFile()?.preview){
-    <img [src]="currentFile()?.preview" class="max-h-[60%] max-w-[80%]" />
-    } @else {
-    <div class="flex flex-col items-center">
-      <div class="text-6xl">📄</div>
+    <div class="flex-1 flex items-center justify-center">
+      @if(currentFile().preview){
+        <img [src]="currentFile().preview" class="max-h-[50%] max-w-[50%]" />
+      } 
+      @else {
+        <div class="flex flex-col items-center">
+          <img src="images/icons/files/unknown.png" class="max-h-[60%] max-w-[80%]" />
+          <div>Vista previa no disponible</div>
+        </div>
+      }
     </div>
-    }
-  </div>
-  <div class="flex gap-2 overflow-x-auto p-2 justify-center w-full">
-    @for (file of selectedFiles(); track $index; let i=$index) {
-    <div
-      class="relative w-16 h-16 border border-gray-600 rounded flex items-center justify-center cursor-pointer"
-      [class.ring-2]="i === currentIndex()"
-      (click)="currentIndex.set(i)"
-    >
-      <img
-        *ngIf="file.preview"
-        [src]="file.preview"
-        class="w-full h-full object-cover rounded"
-      />
-      <span *ngIf="!file.preview">📄</span>
-      <button
-        (click)="removeFile(i); $event.stopPropagation()"
-        class="absolute -top-2 -right-2 bg-red-500 rounded-full text-xs px-1"
+
+    <div class="flex gap-2 overflow-x-auto p-2 justify-center">
+      @for (itemFile of selectedFiles(); track $index; let i = $index) {
+        <div
+          class="relative w-16 h-16 border border-gray-600 rounded flex items-center justify-center cursor-pointer"
+          [class.ring-4]="i === currentIndex()"
+          (click)="currentIndex.set(i)"
+        > 
+          @if(itemFile.preview){
+            <img [src]="itemFile.preview" class="w-full h-full object-cover rounded"/>
+          }
+          @else {
+            <img src="images/icons/files/unknown.png" class="w-full h-full object-cover"/>
+          }
+          <button
+            (click)="removeFile(i); $event.stopPropagation()"
+            class="absolute -top-2 -right-2 bg-red-500 rounded-full text-sm px-1.5"
+          >
+            X
+          </button>
+        </div>
+      }
+      <div
+        class="size-16 border border-gray-600 rounded flex items-center justify-center cursor-pointer"
+        (click)="fileInput.click()"
       >
-        X
+        <mat-icon>add</mat-icon>
+      </div>
+      <input
+        #fileInput
+        type="file"
+        [hidden]="true"
+        [multiple]="true"
+        (change)="onFileSelected($event)"
+      />
+    </div>
+
+    <div class="p-4 flex justify-end">
+      <button matFab extended (click)="upload()">
+        <mat-icon>send</mat-icon>
+        Enviar
       </button>
     </div>
-    }
-    <div
-      class="size-16 border border-gray-600 rounded flex items-center justify-center cursor-pointer"
-      (click)="fileInput.click()"
-    >
-      <mat-icon>add</mat-icon>
-    </div>
-    <input
-      #fileInput
-      type="file"
-      [hidden]="true"
-      [multiple]="true"
-      (change)="onFileSelected($event)"
-    />
   </div>
-
-  <div class="p-4 flex justify-end">
-    <button matFab extended>
-      <mat-icon>send</mat-icon>
-      Enviar
-    </button>
-  </div>
-</div>
-} @else {
-  <button mat-mini-fab aria-label="Attach file" (click)="fileInput.click()">
+}
+@else {
+  <button mat-mini-fab (click)="fileInput.click()">
     <mat-icon>attach_file</mat-icon>
   </button>
   <input
