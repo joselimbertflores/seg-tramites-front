@@ -1,53 +1,50 @@
-<div class="py-2 px-4 flex flex-row justify-between items-center h-4/10 bg-green-400">
-  <div class="flex items-center">
-    <div>
-      <img class="w-10 h-10 rounded-full" src="images/avatar.png" />
-    </div>
-    <div class="ml-4">
-      <p class="text-lg">
-        {{ chat().name | titlecase }}
-      </p>
-      <p class="text-grey-darker text-xs mt-1"></p>
+<div class="flex flex-col h-full relative">
+  <!-- HEADER -->
+  <div class="py-2 px-4 flex flex-row justify-between items-center">
+    <div class="flex items-center">
+      <div>
+        <img class="w-10 h-10 rounded-full" src="images/avatar.png" />
+      </div>
+      <div class="ml-4">
+        <p class="text-lg">
+          {{ chat().name | titlecase }}
+        </p>
+      </div>
     </div>
   </div>
-</div>
-<div class="flex flex-col border-4 h-[90%] ">
-  hol
-  <!-- <div class="flex-grow relative flex flex-col ">
-    <div
-      class="h-[200px] overflow-y-auto px-6 py-2 relative"
-      infiniteScroll
-      [infiniteScrollDistance]="2"
-      [infiniteScrollThrottle]="50"
-      (scrolledUp)="onScrollUp()"
-      [scrollWindow]="false"
-      #chatPanel
-    >
-      @if(isLoading()){
-      <div class="text-center">Cargando mensajes...</div>
-      } @if(!isLoading() && messages.value().length === 0){
-      <div class="text-center py-4">
-        Escriba un mensaje para iniciar la conversacion.
-      </div>
-      } @for (item of messages.value(); track $index) {
-      <chat-bubble [message]="item" />
-      }
+  <!-- CHAT CONTENT -->
+  <div
+    class="flex-1 overflow-y-auto px-6 py-2"
+    infiniteScroll
+    [infiniteScrollDistance]="2"
+    [infiniteScrollThrottle]="50"
+    (scrolledUp)="onScrollUp()"
+    [scrollWindow]="false"
+    #chatPanel
+  >
+    @if(isLoading()){
+    <div class="text-center">Cargando mensajes...</div>
+    } @if(!isLoading() && messages.value().length === 0){
+    <div class="text-center py-4">
+      Escriba un mensaje para iniciar la conversacion.
     </div>
-
-    <div class="flex items-center gap-x-4 px-4 h-[100px]">
-      <div class="w-11">
-        <file-chat-selector (onCofirmFiles)="sendFiles($event)" />
-      </div>
-      <div class="flex-1 h-[48px]">
-        <mat-form-field>
-          <mat-label>Ingrese un mensaje</mat-label>
-          <input
-            matInput
-            [(ngModel)]="messageContent"
-            (keydown.enter)="sendMessage()"
-          />
-        </mat-form-field>
-      </div>
+    } 
+    @for (item of messages.value(); track $index) {
+    <chat-bubble [message]="item" />
+    }
+  </div>
+  <!-- CHAT OPTIONS -->
+  <div class="flex items-center gap-x-4 px-4 h-[100px]">
+    <file-chat-selector (onCofirmFiles)="sendFiles($event)" />
+    <div class="flex-1 h-[48px]">
+      <mat-form-field>
+        <mat-label>Ingrese un mensaje</mat-label>
+        <input
+          matInput
+          [(ngModel)]="messageContent"
+          (keydown.enter)="sendMessage()"
+        />
+      </mat-form-field>
     </div>
-  </div> -->
+  </div>
 </div>

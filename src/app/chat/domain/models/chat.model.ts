@@ -16,6 +16,7 @@ interface LastMessage {
   senderName: string;
   sentAt: Date;
   isRead: boolean;
+  type: 'text' | 'image' | 'video' | 'audio' | 'document';
 }
 
 export class Chat {

@@ -7,7 +7,7 @@ interface MessageProperties {
   sentAt: Date;
   updatedAt: Date;
   isRead: boolean;
-  type: 'text' | 'media';
+  type: 'text' | 'image' | 'video' | 'audio' | 'document';
 }
 
 interface Sender {
@@ -18,7 +18,6 @@ interface Sender {
 interface Media {
   fileName: string;
   originalName: string;
-  type: string;
 }
 export class Message {
   id: string;
@@ -29,7 +28,7 @@ export class Message {
   updatedAt: Date;
   isRead: boolean;
   media?: Media;
-  type: 'text' | 'media';
+  type: 'text' | 'image' | 'video' | 'audio' | 'document';
 
   constructor({
     id,

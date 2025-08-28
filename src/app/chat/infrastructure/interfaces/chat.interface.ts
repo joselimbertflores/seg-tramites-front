@@ -16,4 +16,5 @@ interface LastMessage {
   senderName: string;
   createdAt: string;
   isRead: boolean;
+  type: 'text' | 'image' | 'video' | 'audio' | 'document';
 }

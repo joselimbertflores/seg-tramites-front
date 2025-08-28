@@ -29,7 +29,7 @@ import { SecureImageViewerComponent } from '../../../../shared';
           @if(publication().image){
           <div class="flex justify-center w-full">
             <figure class="h-auto sm:h-[400px]">
-              <secure-image-viewer [imageUrl]="publication().image" />
+              <secure-image-viewer [url]="publication().image" />
             </figure>
           </div>
           }
@@ -40,14 +40,14 @@ import { SecureImageViewerComponent } from '../../../../shared';
           @if(publication().attachments.length > 0){
           <ul class="list-disc px-6">
             @for (item of publication().attachments; track $index) {
-            <li>
-              <a
-                (click)="openFile(item.fileName)"
-                class="text-blue-600 hover:underline cursor-pointer"
-              >
-                {{ item.originalName }}
-              </a>
-            </li>
+              <li>
+                <a
+                  (click)="openFile(item.fileName)"
+                  class="text-blue-600 hover:underline cursor-pointer"
+                >
+                  {{ item.originalName }}
+                </a>
+              </li>
             }
           </ul>
           }

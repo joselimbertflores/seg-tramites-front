@@ -1,5 +1,8 @@
 import { inject, Injectable, Injector } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { Overlay, OverlayRef } from '@angular/cdk/overlay';
+import { ComponentPortal } from '@angular/cdk/portal';
+
 import { map, Observable, of, Subject, tap } from 'rxjs';
 import type { Socket } from 'socket.io-client';
 
@@ -12,10 +15,9 @@ import {
   MessageResponse,
 } from '../../infrastructure';
 import { Message } from '../../domain';
-import { Overlay, OverlayRef } from '@angular/cdk/overlay';
-import { ComponentPortal } from '@angular/cdk/portal';
 import { ChatOverlayComponent } from '../components';
 
+type MediaType = 'text' | 'image' | 'audio' | 'video' | 'document';
 interface user {
   _id: string;
   fullname: string;
@@ -29,14 +31,13 @@ interface ChatEventData {
 interface UploadedFile {
   fileName: string;
   originalName: string;
-  type: string;
+  type: MediaType;
 }
 
 interface CreateMessageData {
   chatId: string;
   content?: string;
   media?: UploadedFile;
-  type: 'text' | 'media';
 }
 @Injectable({
   providedIn: 'root',
@@ -100,7 +101,7 @@ export class ChatService {
   getChatMessages(chatId: string, index: number = 0) {
     const key = `${chatId}-${index}`;
 
-    if (this.messageCache[key]) return of(this.messageCache[key]);
+    if (this.messageCache[key]) return of([...this.messageCache[key]]);
 
     const params = new HttpParams({
       fromObject: { limit: 20, offset: index * 20 },
@@ -110,7 +111,6 @@ export class ChatService {
       .pipe(
         map((resp) => resp.map((item) => MessageMapper.fromResponse(item))),
         tap((messages) => {
-          console.log(messages);
           if (messages.length > 0) {
             this.messageCache[key] = messages;
           }
@@ -118,11 +118,17 @@ export class ChatService {
       );
   }
 
-  sendMessage({ chatId, content, type, media }: CreateMessageData) {
-    const data = {
-      ...(type === 'text' ? { content, type } : { media, type }),
-    };
-    console.log(data);
+  sendMessage({ chatId, content, media }: CreateMessageData) {
+    const data = media
+      ? {
+          type: media.type,
+          media: {
+            fileName: media.fileName,
+            originalName: media.originalName,
+          },
+        }
+      : { type: 'text', content };
+
     return this.http
       .post<{ chat: ChatResponse; message: MessageResponse }>(
         `${this.URL}/${chatId}/message`,
@@ -132,7 +138,15 @@ export class ChatService {
         map(({ chat, message }) => ({
           message: MessageMapper.fromResponse(message),
           chat: ChatMapper.fromResponse(chat),
-        }))
+        })),
+        tap(({ message }) => {
+          // * Index 0 = last messages
+          const key = `${chatId}-0`;
+          if (this.messageCache[key]) {
+            // * Deep clone for break reference
+            this.messageCache[key] = [...this.messageCache[key], message];
+          }
+        })
       );
   }
 

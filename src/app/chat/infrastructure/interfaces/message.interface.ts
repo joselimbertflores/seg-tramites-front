@@ -7,13 +7,12 @@ export interface MessageResponse {
   updatedAt: string;
   isRead: boolean;
   media: Media;
-  type: 'text' | 'media';
+  type: 'text' | 'image' | 'video' | 'audio' | 'document';
 }
 
 interface Media {
   fileName: string;
   originalName: string;
-  type: string;
 }
 interface Sender {
   _id: string;

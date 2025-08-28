@@ -66,9 +66,40 @@
                   @if(item.lastMessage.sender === userId){
                     <message-status [isRead]="item.lastMessage.isRead"/>
                   }
+                  @if(item.lastMessage.type === 'text'){
                     <p class="text-sm truncate">
-                    {{ item.lastMessage.content }}
-                  </p>
+                      {{ item.lastMessage.content }}
+                    </p>
+                  }
+                  @else {
+                    <div class="flex items-center gap-x-2">
+                      @switch (item.lastMessage.type) {
+                        @case ('image') {
+                          <mat-icon>image</mat-icon>
+                          <p class="text-sm truncate">Foto</p>
+                        }
+                        @case ('video') {
+                          <mat-icon>videocam</mat-icon>
+                          <p class="text-sm truncate">Video</p>
+                        }
+                        @case ('audio') {
+                          <mat-icon>headphones</mat-icon>
+                          <p class="text-sm truncate">Audio</p>
+                        }
+                        @case ('document') {
+                          <mat-icon>insert_drive_file</mat-icon>
+                          <p class="text-sm truncate">
+                           {{ item.lastMessage.content || 'Documento' }}
+                          </p>
+                        }
+                        @default {
+                          <p class="text-sm truncate italic font-extralight">
+                            Unknown message type
+                          </p>
+                        }
+                      }
+                    </div>
+                  }
                 </div>
               }
               @else {

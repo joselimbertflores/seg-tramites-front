@@ -13,17 +13,9 @@ import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
+import { catchError, concatMap, EMPTY, finalize, from, switchMap } from 'rxjs';
 import { InfiniteScrollDirective } from 'ngx-infinite-scroll';
-import {
-  catchError,
-  concatMap,
-  EMPTY,
-  finalize,
-  forkJoin,
-  from,
-  switchMap,
-  tap,
-} from 'rxjs';
 
 import { FileChatSelectorComponent } from '../file-chat-selector/file-chat-selector.component';
 import { ChatBubbleComponent } from '../chat-bubble/chat-bubble.component';
@@ -78,7 +70,6 @@ export class ChatWindowComponent {
       .sendMessage({
         chatId: this.chat().id,
         content: this.messageContent(),
-        type: 'text',
       })
       .subscribe(({ chat, message }) => {
         this.messageContent.set('');
@@ -88,7 +79,7 @@ export class ChatWindowComponent {
       });
   }
 
-  sendFiles(files: File[]):void {
+  sendFiles(files: File[]): void {
     from(files)
       .pipe(
         concatMap((file) =>
@@ -96,8 +87,7 @@ export class ChatWindowComponent {
             switchMap((media) =>
               this.chatService.sendMessage({
                 chatId: this.chat().id,
-                type: 'media',
-                media,
+                media
               })
             ),
             catchError(() => EMPTY)
