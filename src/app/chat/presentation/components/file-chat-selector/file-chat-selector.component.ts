@@ -3,8 +3,8 @@ import {
   ChangeDetectionStrategy,
   linkedSignal,
   Component,
-  signal,
   computed,
+  signal,
   output,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -40,13 +40,33 @@ export class FileChatSelectorComponent {
 
   onCofirmFiles = output<File[]>();
 
+  ALLOWED_EXTENSIONS: string[] = [
+    'jpg',
+    'jpeg',
+    'png',
+    'gif',
+    'webp',
+    'mp4',
+    'mp3',
+    'pdf',
+    'doc',
+    'docx',
+    'xls',
+    'xlsx',
+    'ods',
+    'odp',
+  ];
+  ACCEPTED_FILE_TYPES = this.ALLOWED_EXTENSIONS.map((type) => `.${type}`).join(
+    ','
+  );
+
   onFileSelected(event: Event): void {
     const inputElement = event.target as HTMLInputElement | null;
 
     if (!inputElement?.files || inputElement.files?.length === 0) return;
 
     const files = Array.from(inputElement.files).filter(
-      (file) => !this.isDuplicate(file)
+      (file) => !this.isDuplicate(file) && this.isValidTYpe(file)
     );
 
     files.forEach((file: File) => {
@@ -90,5 +110,13 @@ export class FileChatSelectorComponent {
         item.file.size === file.size &&
         item.file.lastModified === file.lastModified
     );
+  }
+
+  private isValidTYpe(file: File): boolean {
+    const extension = file.name.split('.').pop()?.toLowerCase();
+    if (!extension || !this.ALLOWED_EXTENSIONS.includes(extension)) {
+      return false;
+    }
+    return true;
   }
 }

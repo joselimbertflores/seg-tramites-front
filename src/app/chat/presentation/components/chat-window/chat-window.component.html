@@ -1,4 +1,4 @@
-<div class="flex flex-col h-full relative">
+<div class="flex flex-col h-full relative w-full">
   <!-- HEADER -->
   <div class="py-2 px-4 flex flex-row justify-between items-center">
     <div class="flex items-center">
@@ -13,31 +13,54 @@
     </div>
   </div>
   <!-- CHAT CONTENT -->
+   {{chatIndex()}}
   <div
     class="flex-1 overflow-y-auto px-6 py-2"
     infiniteScroll
     [infiniteScrollDistance]="2"
     [infiniteScrollThrottle]="50"
     (scrolledUp)="onScrollUp()"
+    (scroll)="onScroll()"
     [scrollWindow]="false"
     #chatPanel
   >
     @if(isLoading()){
     <div class="text-center">Cargando mensajes...</div>
-    } @if(!isLoading() && messages.value().length === 0){
+    } @if(!isLoading() && messages().length === 0){
     <div class="text-center py-4">
       Escriba un mensaje para iniciar la conversacion.
     </div>
-    } 
-    @for (item of messages.value(); track $index) {
+    }
+    
+    @for (item of messages(); track $index) {
     <chat-bubble [message]="item" />
     }
   </div>
+  @if(!isAtBottom()){
+  <button
+    matMiniFab
+    class="!fixed bottom-24 right-6"
+    (click)="scrollToBottom()"
+  >
+    <mat-icon>arrow_downward</mat-icon>
+  </button>
+  } @if(newMessagesCount() > 0 && !isAtBottom()){
+  <div
+    style="background-color: var(--mat-sys-secondary-container)"
+    class="absolute bottom-[100px] left-1/2 -translate-x-1/2 text-sm font-medium px-4 py-2 rounded-full cursor-pointer"
+    (click)="scrollToBottom()"
+  >
+    {{ newMessagesCount() }} nuevo{{
+      newMessagesCount() > 1 ? "s" : ""
+    }}
+    mensaje{{ newMessagesCount() > 1 ? "s" : "" }}
+  </div>
+  }
   <!-- CHAT OPTIONS -->
-  <div class="flex items-center gap-x-4 px-4 h-[100px]">
+  <div class="flex items-center gap-x-4 px-4 h-[80px]">
     <file-chat-selector (onCofirmFiles)="sendFiles($event)" />
-    <div class="flex-1 h-[48px]">
-      <mat-form-field>
+    <div class="flex-1">
+      <mat-form-field style="margin-bottom: 0px; padding-bottom: 0px">
         <mat-label>Ingrese un mensaje</mat-label>
         <input
           matInput

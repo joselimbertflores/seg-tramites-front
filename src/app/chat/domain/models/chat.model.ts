@@ -2,7 +2,7 @@ interface ChatProperties {
   id: string;
   name: string;
   type: string;
-  lastMessage: LastMessage;
+  lastMessage?: LastMessage;
   sentAt: Date;
   updatedAt: Date;
   unreadCount: number;
@@ -47,5 +47,12 @@ export class Chat {
     this.updatedAt = updatedAt;
     this.unreadCount = unreadCount;
     this.lastActivity = lastActivity;
+  }
+
+  public copyWith(modifyObject: Partial<ChatProperties>): Chat {
+    return new Chat({
+      ...this,
+      ...modifyObject,
+    });
   }
 }

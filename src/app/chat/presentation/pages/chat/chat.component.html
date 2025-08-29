@@ -4,7 +4,8 @@
   </div>
   <div class="w-2/3 h-full">
     @if(selectedChat()){
-       <chat-window [(chat)]="currentChat" [(chatIndex)]="chatIndex" (onSendMessage)="startChat($event)"/>
+      <!-- <chat-window [chat]="currentChat()!" (chatChange)="setChat($event)" [(chatIndex)]="chatIndex" (onSendMessage)="startChat($event)"/> -->
+      <chat-window [chat]="selectedChat()!" [(chatIndex)]="chatIndex" />
     } 
     @else {
       <div class="flex flex-col items-center justify-center h-full text-center">

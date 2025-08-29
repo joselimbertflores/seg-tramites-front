@@ -20,7 +20,7 @@ import { FileUploadService } from '../../services/file-upload.service';
   template: `
     @if(imageData.isLoading()){
       <div class="h-full flex items-center justify-center">
-        <div class="size-[120px] m-10 border-8 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        <div class="size-[100px] m-10 border-8 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     }
     @else {

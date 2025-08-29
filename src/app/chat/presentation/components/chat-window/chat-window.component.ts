@@ -1,5 +1,6 @@
 import {
   ChangeDetectionStrategy,
+  linkedSignal,
   ElementRef,
   DestroyRef,
   Component,
@@ -9,28 +10,32 @@ import {
   output,
   model,
 } from '@angular/core';
-import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MatInputModule } from '@angular/material/input';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { catchError, concatMap, EMPTY, finalize, from, switchMap } from 'rxjs';
 import { InfiniteScrollDirective } from 'ngx-infinite-scroll';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
+import { catchError, concatMap, EMPTY, finalize, from, switchMap } from 'rxjs';
 
 import { FileChatSelectorComponent } from '../file-chat-selector/file-chat-selector.component';
 import { ChatBubbleComponent } from '../chat-bubble/chat-bubble.component';
+import { Chat, Message } from '../../../domain';
 import { ChatService } from '../../services';
-import { Chat } from '../../../domain';
 
 @Component({
   selector: 'chat-window',
   imports: [
     FormsModule,
     CommonModule,
+    MatIconModule,
     MatInputModule,
+    MatButtonModule,
+    InfiniteScrollDirective,
     ChatBubbleComponent,
     FileChatSelectorComponent,
-    InfiniteScrollDirective,
   ],
   templateUrl: './chat-window.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -48,14 +53,20 @@ export class ChatWindowComponent {
 
   scrollableDiv = viewChild.required<ElementRef<HTMLDivElement>>('chatPanel');
 
-  messages = rxResource({
+  isAtBottom = signal(true);
+  newMessagesCount = signal(0);
+
+  private messagesResource = rxResource({
     params: () => ({ chatId: this.chat().id }),
-    stream: ({ params: { chatId } }) => {
-      return this.chatService
+    stream: ({ params: { chatId } }) =>
+      this.chatService
         .getChatMessages(chatId)
-        .pipe(finalize(() => this.scrollToBottom()));
-    },
-    defaultValue: [],
+        .pipe(finalize(() => this.scrollToBottom())),
+  });
+
+  messages = linkedSignal<Message[]>(() => {
+    if (!this.messagesResource.hasValue()) return [];
+    return this.messagesResource.value();
   });
 
   files = signal<File[]>([]);
@@ -87,7 +98,7 @@ export class ChatWindowComponent {
             switchMap((media) =>
               this.chatService.sendMessage({
                 chatId: this.chat().id,
-                media
+                media,
               })
             ),
             catchError(() => EMPTY)
@@ -105,14 +116,10 @@ export class ChatWindowComponent {
   }
 
   onScrollUp() {
-    if (this.isLoading()) return;
-
-    this.isLoading.set(true);
-
-    this.chatIndex.update((i) => (i += 1));
-
     const prevHeight = this.scrollableDiv().nativeElement.scrollHeight;
-
+    if (this.isLoading()) return;
+    this.isLoading.set(true);
+    this.chatIndex.update((i) => (i += 1));
     this.chatService
       .getChatMessages(this.chat().id, this.chatIndex())
       .pipe(finalize(() => this.isLoading.set(false)))
@@ -123,16 +130,52 @@ export class ChatWindowComponent {
       });
   }
 
-  private listenMessages() {
+  onScroll() {
+    const el = this.scrollableDiv().nativeElement;
+    const threshold = 100;
+    const position = el.scrollTop + el.clientHeight;
+    const height = el.scrollHeight;
+    this.isAtBottom.set(position >= height - threshold);
+    if (this.isAtBottom()) {
+      this.newMessagesCount.set(0);
+    }
+  }
+
+  scrollToBottom(): void {
+    setTimeout(() => {
+      const container = this.scrollableDiv().nativeElement;
+      container.scrollTop = container.scrollHeight;
+    });
+  }
+
+  private setMessageToSeen() {
+    // if (this.chat().unreadCount > 0) {
+    //   console.log('SETTING MESSAGES VIEW');
+    //   this.chatService.markChatAsRead(this.chat().id).subscribe(() => {
+    //     this.chat.update((chat) => chat.copyWith({ unreadCount: 0 }));
+    //   });
+    // }
+  }
+
+  private listenMessages(): void {
     this.chatService
       .listenMessages()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(({ message }) => {
-        this.messages.update((msgs) => [...msgs, message]);
+      .subscribe(({ chat, message }) => {
+        if (chat.id === this.chat().id) {
+          // this.onSendMessage.emit(chat);
+          this.messages.update((msgs) => [...msgs, message]);
+          this.readMessages();
+          if (this.isAtBottom()) {
+            this.scrollToBottom();
+          } else {
+            this.newMessagesCount.update((count) => count + 1);
+          }
+        }
       });
   }
 
-  private litenMessageRead() {
+  private litenMessageRead(): void {
     this.chatService
       .listenMessageRead()
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -145,18 +188,19 @@ export class ChatWindowComponent {
       });
   }
 
-  private scrollToBottom(): void {
-    setTimeout(() => {
-      const container = this.scrollableDiv().nativeElement;
-      container.scrollTop = container.scrollHeight;
-    });
-  }
-
   private restoreScrollPosition(prevHeight: number): void {
     setTimeout(() => {
       const container = this.scrollableDiv().nativeElement;
       const newHeight = container.scrollHeight;
       container.scrollTop = newHeight - prevHeight;
+    });
+  }
+
+  private readMessages(): void {
+    this.chatService.markChatAsRead(this.chat().id).subscribe(() => {
+      this.messages.update((msgs) =>
+        msgs.map((item) => ({ ...item, isRead: true }))
+      );
     });
   }
 }

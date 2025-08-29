@@ -53,11 +53,11 @@ export class ChatOverlayComponent {
       .getAccountChat(this.data.account)
       .pipe(
         tap((chat) => this.chat.set(chat)),
-        switchMap((chat) => this.chatService.getChatMessages(chat.id)),
+        // switchMap((chat) => this.chatService.getChatMessages(chat.id)),
         finalize(() => this.isLoading.set(false))
       )
       .subscribe((messages) => {
-        this.messages.set(messages);
+        // this.messages.set(messages);
       });
   }
 

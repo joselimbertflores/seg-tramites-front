@@ -3,12 +3,11 @@ import {
   ChangeDetectionStrategy,
   Component,
   inject,
-  input,
-  model,
   output,
   signal,
+  model,
+  input,
 } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
@@ -18,7 +17,7 @@ import { of } from 'rxjs';
 
 import { MessageStatusComponent } from '../message-status/message-status.component';
 import { AuthService } from '../../../../auth/presentation/services/auth.service';
-import { AlertService, SearchInputComponent } from '../../../../shared';
+import { SearchInputComponent } from '../../../../shared';
 import { Chat, IContact } from '../../../domain';
 import { ChatService } from '../../services';
 
@@ -43,13 +42,12 @@ import { ChatService } from '../../services';
 })
 export class ChatListComponent {
   private chatService = inject(ChatService);
-  private route = inject(ActivatedRoute);
-  private alertService = inject(AlertService);
-
   userId = inject(AuthService).user()?.userId;
+
   chats = model.required<Chat[]>();
   selectedChat = input.required<Chat | null>();
   onSelectChat = output<Chat>();
+
   term = signal<string>('');
 
   contacts = rxResource({
@@ -60,10 +58,6 @@ export class ChatListComponent {
     },
   });
 
-  ngOnInit() {
-    this.initAccountChat();
-  }
-
   selectContact(contact: IContact) {
     this.chatService.findOrCreateChat(contact.id).subscribe((chat) => {
       this.onSelectChat.emit(chat);
@@ -72,23 +66,5 @@ export class ChatListComponent {
 
   selectChat(chat: Chat) {
     this.onSelectChat.emit(chat);
-  }
-
-  private initAccountChat(): void {
-    const accountId: string = this.route.snapshot.queryParams['account'];
-    if (!accountId) return;
-    this.chatService.getAccountChat(accountId).subscribe({
-      next: (chat) => {
-        this.onSelectChat.emit(chat);
-      },
-      error: () => {
-        this.alertService
-          .messageDialog({
-            title: 'No se puede iniciar la conversacion',
-            description: 'El usuario seleccionado no esta habilitado o no existe.',
-          })
-          .subscribe();
-      },
-    });
   }
 }

@@ -12,7 +12,7 @@ import { of } from 'rxjs';
 
 import { ChatListComponent, ChatWindowComponent } from '../../components';
 import { ChatService } from '../../services';
-import { Chat } from '../../../domain';
+import { Chat, Message } from '../../../domain';
 
 @Component({
   selector: 'app-chat',
@@ -24,14 +24,12 @@ export default class ChatComponent {
   private chatService = inject(ChatService);
   private destroyRef = inject(DestroyRef);
 
-
   chats = signal<Chat[]>([]);
   selectedChat = signal<Chat | null>(null);
   chatIndex = signal<number>(0);
   isChatSelected = computed(() => this.selectedChat() !== null);
 
-
-
+  
 
   ngOnInit() {
     this.getChats();
@@ -47,12 +45,14 @@ export default class ChatComponent {
   onSelectChat(chat: Chat) {
     this.chatIndex.set(0);
     this.selectedChat.set(chat);
-    if (chat.unreadCount > 0) {
-      chat.unreadCount = 0;
-      this.chatService.markChatAsRead(chat.id).subscribe();
-    }
-  }
 
+    // if (chat.unreadCount > 0) {
+    //   this.chatService.markChatAsRead(chat.id).subscribe();
+    // }
+    // chat.unreadCount = 0;
+    // this.chatIndex.set(0);
+    // this.selectedChat.set(chat);
+  }
 
   litenMessageRead() {
     // this.chatService
@@ -89,7 +89,11 @@ export default class ChatComponent {
     });
   }
 
+  setChat(chat: Chat) {
+    this.selectedChat.set(chat);
+  }
+
   get currentChat() {
-    return this.selectedChat()!;
+    return this.selectedChat!;
   }
 }

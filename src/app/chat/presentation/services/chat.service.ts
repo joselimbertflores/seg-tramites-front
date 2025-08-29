@@ -99,6 +99,7 @@ export class ChatService {
   }
 
   getChatMessages(chatId: string, index: number = 0) {
+    console.log("GETTING MESSAGES FROM BACKEND, INDEX:", index);
     const key = `${chatId}-${index}`;
 
     if (this.messageCache[key]) return of([...this.messageCache[key]]);
@@ -111,6 +112,7 @@ export class ChatService {
       .pipe(
         map((resp) => resp.map((item) => MessageMapper.fromResponse(item))),
         tap((messages) => {
+          console.log(messages);
           if (messages.length > 0) {
             this.messageCache[key] = messages;
           }

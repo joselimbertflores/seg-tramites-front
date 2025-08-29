@@ -62,6 +62,7 @@
       type="file"
       [hidden]="true"
       [multiple]="true"
+      [attr.accept]="ACCEPTED_FILE_TYPES"
       (change)="onFileSelected($event)"
     />
   </div>
@@ -82,6 +83,7 @@
   type="file"
   [hidden]="true"
   [multiple]="true"
+  [attr.accept]="ACCEPTED_FILE_TYPES"
   (change)="onFileSelected($event)"
 />
 }
