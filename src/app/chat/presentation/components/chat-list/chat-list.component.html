@@ -5,12 +5,12 @@
 
   <div class="py-3 px-2">
     <div class="h-[48px]">
-      <search-input (onSearch)="term.set($event)" [clearable]="true" title="Buscar contacto" placeholder="Nombre del usuario" />
+      <search-input [initValue]="searchTerm()" (onSearch)="searchTerm.set($event)" [clearable]="true" title="Buscar contacto" placeholder="Nombre del usuario" />
     </div>
   </div>
   
   <div class="flex-1 overflow-auto px-3">
-    @if(term()){ 
+    @if(searchTerm()){ 
       @if(!contacts.isLoading()){
         @for (item of contacts.value(); track $index) {
           <div class="px-3 flex items-center cursor-pointer" (click)="selectContact(item)">

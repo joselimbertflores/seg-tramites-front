@@ -73,7 +73,7 @@ export class ChatWindowComponent {
 
   ngOnInit() {
     this.listenMessages();
-    this.litenMessageRead();
+    this.listenForChatSeen();
   }
 
   sendMessage(): void {
@@ -147,7 +147,6 @@ export class ChatWindowComponent {
       container.scrollTop = container.scrollHeight;
     });
   }
-  
 
   private setMessageToSeen() {
     // if (this.chat().unreadCount > 0) {
@@ -160,13 +159,12 @@ export class ChatWindowComponent {
 
   private listenMessages(): void {
     this.chatService
-      .listenMessages()
+      .listenForNewMessages()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(({ chat, message }) => {
         if (chat.id === this.chat().id) {
-          // this.onSendMessage.emit(chat);
           this.messages.update((msgs) => [...msgs, message]);
-          this.readMessages();
+          this.markChatAsRead();
           if (this.isAtBottom()) {
             this.scrollToBottom();
           } else {
@@ -176,9 +174,9 @@ export class ChatWindowComponent {
       });
   }
 
-  private litenMessageRead(): void {
+  private listenForChatSeen(): void {
     this.chatService
-      .listenMessageRead()
+      .listenForChatSeen()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((chatId) => {
         if (chatId === this.chat().id) {
@@ -197,13 +195,11 @@ export class ChatWindowComponent {
     });
   }
 
-  private readMessages(): void {
+  private markChatAsRead(): void {
     this.chatService.markChatAsRead(this.chat().id).subscribe(() => {
       this.messages.update((msgs) =>
         msgs.map((item) => ({ ...item, isRead: true }))
       );
     });
   }
-
-  
 }

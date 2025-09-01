@@ -6,13 +6,12 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { of } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { ChatListComponent, ChatWindowComponent } from '../../components';
 import { ChatService } from '../../services';
-import { Chat, Message } from '../../../domain';
+import { Chat } from '../../../domain';
 
 @Component({
   selector: 'app-chat',
@@ -25,15 +24,17 @@ export default class ChatComponent {
   private destroyRef = inject(DestroyRef);
 
   chats = signal<Chat[]>([]);
-  selectedChat = signal<Chat | null>(null);
-  chatIndex = signal<number>(0);
-  isChatSelected = computed(() => this.selectedChat() !== null);
 
-  
+  currentChat = signal<Chat | null>(null);
+  paginatorIndex = signal<number>(0);
+  isChatSelected = computed(() => this.currentChat() !== null);
+
+  searchTerm = signal<string>('');
 
   ngOnInit() {
     this.getChats();
-    this.litenMessageRead();
+    this.listenForNewMessages();
+    this.listenForChatSeen();
   }
 
   getChats(): void {
@@ -42,40 +43,21 @@ export default class ChatComponent {
     });
   }
 
-  onSelectChat(chat: Chat) {
-    this.chatIndex.set(0);
-    this.selectedChat.set(chat);
+  selectChat(chat: Chat) {
+    if (chat.id === this.currentChat()?.id) return;
 
-    // if (chat.unreadCount > 0) {
-    //   this.chatService.markChatAsRead(chat.id).subscribe();
-    // }
-    // chat.unreadCount = 0;
-    // this.chatIndex.set(0);
-    // this.selectedChat.set(chat);
+    this.paginatorIndex.set(0);
+
+    if (chat.unreadCount > 0) {
+      chat.unreadCount = 0;
+      this.chatService.markChatAsRead(chat.id).subscribe();
+    }
+
+    this.currentChat.set(chat);
   }
 
-  litenMessageRead() {
-    // this.chatService
-    //   .listenMessageRead()
-    //   .pipe(takeUntilDestroyed(this.destroyRef))
-    //   .subscribe((chatId) => {
-    //     this.chats.update((chats) => {
-    //       const index = chats.findIndex((chat) => chat.id === chatId);
-    //       if (index === -1) return chats;
-    //       if (chats[index].lastMessage) {
-    //         chats[index].lastMessage.isRead = true;
-    //       }
-    //       return [...chats];
-    //     });
-    //     if (this.selectedChat() && this.selectedChat()?.id === chatId) {
-    //       this.messages.update((msgs) =>
-    //         msgs.map((item) => ({ ...item, isRead: true }))
-    //       );
-    //     }
-    //   });
-  }
-
-  startChat(chat: Chat): void {
+  setNewChat(chat: Chat): void {
+    this.searchTerm.set('');
     this.chats.update((chats) => {
       const index = chats.findIndex((item) => item.id === chat.id);
       if (index === -1) {
@@ -89,11 +71,32 @@ export default class ChatComponent {
     });
   }
 
-  setChat(chat: Chat) {
-    this.selectedChat.set(chat);
+  private listenForNewMessages(): void {
+    this.chatService
+      .listenForNewMessages()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ chat }) => {
+        // * Chat window execute markRead method on new message
+        // if (chat.id === this.currentChat()?.id) {
+        //   chat.unreadCount = 0;
+        // }
+        this.setNewChat(chat);
+      });
   }
 
-  get currentChat() {
-    return this.selectedChat!;
+  private listenForChatSeen(): void {
+    this.chatService
+      .listenForChatSeen()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((chatId) => {
+        // * currentChat lastMessage is update by chat window
+        const index = this.chats().findIndex((item) => item.id === chatId);
+        if (index !== -1 && this.chats()[index].lastMessage) {
+          this.chats.update((chats) => {
+            chats[index].lastMessage!.isRead = true;
+            return [...chats];
+          });
+        }
+      });
   }
 }

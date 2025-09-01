@@ -48,10 +48,10 @@ export class ChatListComponent {
   selectedChat = input.required<Chat | null>();
   onSelectChat = output<Chat>();
 
-  term = signal<string>('');
+  searchTerm = model.required<string>();
 
   contacts = rxResource({
-    params: () => ({ term: this.term() }),
+    params: () => ({ term: this.searchTerm() }),
     stream: ({ params }) => {
       if (!params.term.trim()) return of([]);
       return this.chatService.searchContact(params.term);
@@ -67,5 +67,4 @@ export class ChatListComponent {
   selectChat(chat: Chat) {
     this.onSelectChat.emit(chat);
   }
-  
 }

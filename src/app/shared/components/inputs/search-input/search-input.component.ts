@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  effect,
   inject,
   input,
   OnInit,
@@ -18,7 +19,13 @@ import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'search-input',
-  imports: [CommonModule, ReactiveFormsModule, MatInputModule, MatIconModule, MatButtonModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatInputModule,
+    MatIconModule,
+    MatButtonModule,
+  ],
   template: `
     <mat-form-field>
       <mat-icon matPrefix>search</mat-icon>
@@ -48,6 +55,12 @@ export class SearchInputComponent implements OnInit {
   clearable = input<boolean>(false);
 
   control = new FormControl('', { nonNullable: true });
+
+  constructor() {
+    effect(() => {
+      this.control.setValue(this.initValue());
+    });
+  }
 
   ngOnInit(): void {
     if (this.initValue()) this.control.setValue(this.initValue());

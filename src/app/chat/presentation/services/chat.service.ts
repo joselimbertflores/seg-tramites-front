@@ -1,9 +1,9 @@
-import { inject, Injectable, Injector } from '@angular/core';
+import { inject, Injectable, Injector, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 
-import { map, Observable, of, Subject, tap } from 'rxjs';
+import { map, Observable, of, share, Subject, tap } from 'rxjs';
 import type { Socket } from 'socket.io-client';
 
 import { SocketService } from '../../../layout/presentation/services';
@@ -14,7 +14,7 @@ import {
   MessageMapper,
   MessageResponse,
 } from '../../infrastructure';
-import { Message } from '../../domain';
+import { Chat, Message } from '../../domain';
 import { ChatOverlayComponent } from '../components';
 
 type MediaType = 'text' | 'image' | 'audio' | 'video' | 'document';
@@ -49,18 +49,34 @@ export class ChatService {
   private readonly URL = `${environment.base_url}/chat`;
   private socketRef: Socket | null = null;
 
-  private chatSubject$ = new Subject<ChatEventData>();
-  private messageCache: Record<string, Message[]> = {};
-
   // * Properties for chat panel
   private injector: Injector;
   private overlayRef: OverlayRef | null = null;
+
+  private messagesCache: Record<string, Message[]> = {};
+  private chatSubject$ = new Subject<ChatEventData>();
+  private chatReadSubject$ = new Subject<string>();
+
+  chatCache: Chat[] = [];
 
   constructor() {
     this.socketRef = this.socketService.getSocket();
     this.socketRef?.on('sendMessage', (data: ChatEventData) => {
       this.chatSubject$.next(data);
     });
+    this.socketRef?.on('readMessage', (chatId: string) => {
+      this.chatReadSubject$.next(chatId);
+    });
+  }
+
+  geChats() {
+    if (this.chatCache.length > 0) return of(this.chatCache);
+    return this.http.get<ChatResponse[]>(this.URL).pipe(
+      map((resp) => resp.map((item) => ChatMapper.fromResponse(item))),
+      tap((chats) => {
+        this.chatCache = chats;
+      })
+    );
   }
 
   findOrCreateChat(receiverId: string) {
@@ -92,17 +108,10 @@ export class ChatService {
     );
   }
 
-  geChats() {
-    return this.http
-      .get<ChatResponse[]>(this.URL)
-      .pipe(map((resp) => resp.map((item) => ChatMapper.fromResponse(item))));
-  }
-
   getChatMessages(chatId: string, index: number = 0) {
-    console.log("GETTING MESSAGES FROM BACKEND, INDEX:", index);
     const key = `${chatId}-${index}`;
 
-    if (this.messageCache[key]) return of([...this.messageCache[key]]);
+    if (this.messagesCache[key]) return of([...this.messagesCache[key]]);
 
     const params = new HttpParams({
       fromObject: { limit: 20, offset: index * 20 },
@@ -112,9 +121,8 @@ export class ChatService {
       .pipe(
         map((resp) => resp.map((item) => MessageMapper.fromResponse(item))),
         tap((messages) => {
-          console.log(messages);
           if (messages.length > 0) {
-            this.messageCache[key] = messages;
+            this.messagesCache[key] = messages;
           }
         })
       );
@@ -141,40 +149,61 @@ export class ChatService {
           message: MessageMapper.fromResponse(message),
           chat: ChatMapper.fromResponse(chat),
         })),
-        tap(({ message }) => {
+        tap(({ chat, message }) => {
           // * Index 0 = last messages
           const key = `${chatId}-0`;
-          if (this.messageCache[key]) {
+          if (this.messagesCache[key]) {
             // * Deep clone for break reference
-            this.messageCache[key] = [...this.messageCache[key], message];
+            this.messagesCache[key] = [...this.messagesCache[key], message];
           }
         })
       );
   }
 
   markChatAsRead(chatId: string) {
-    return this.http.patch<{ message: string }>(
-      `${this.URL}/${chatId}/read`,
-      {}
-    );
+    return this.http
+      .patch<{ message: string }>(`${this.URL}/${chatId}/read`, {})
+      .pipe(
+        tap(() => {
+          const key = `${chatId}-0`;
+          if (this.messagesCache[key]) {
+            this.messagesCache[key] = this.messagesCache[key].map((item) => ({
+              ...item,
+              isRead: true,
+            }));
+          }
+        })
+      );
   }
 
-  listenMessages() {
-    return this.chatSubject$.asObservable().pipe(
+  listenForNewMessages() {
+    return this.chatSubject$.pipe(
       map((data) => {
         const chat = ChatMapper.fromResponse(data.chat);
         const message = MessageMapper.fromResponse(data.message);
+        const key = `${chat.id}-0`;
+        if (this.messagesCache[key]) {
+          this.messagesCache[key] = [...this.messagesCache[key], message];
+        }
         return { chat, message };
-      })
+      }),
+      share()
     );
   }
 
-  listenMessageRead(): Observable<string> {
-    return new Observable((observable) => {
-      this.socketRef?.on('readMessage', (chatId: string) => {
-        observable.next(chatId);
-      });
-    });
+  listenForChatSeen(): Observable<string> {
+    return this.chatReadSubject$.pipe(
+      tap((chatId) => {
+        const key = `${chatId}-0`;
+        if (this.messagesCache[key]) {
+          this.messagesCache[key] = this.messagesCache[key].map((item) => ({
+            ...item,
+            isRead: true,
+          }));
+        }
+      }),
+      share()
+    );
   }
 
   uploadFile(file: File) {
