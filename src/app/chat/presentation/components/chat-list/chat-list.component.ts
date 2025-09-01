@@ -67,4 +67,5 @@ export class ChatListComponent {
   selectChat(chat: Chat) {
     this.onSelectChat.emit(chat);
   }
+  
 }

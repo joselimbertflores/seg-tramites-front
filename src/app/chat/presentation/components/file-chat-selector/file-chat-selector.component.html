@@ -1,89 +1,92 @@
 @if(selectedFiles().length > 0){
-<div class="absolute inset-0 flex flex-col z-10 file-panel p-2">
-  <div class="relative flex items-center p-2">
-    <div class="absolute left-2">
-      <button mat-icon-button (click)="close()">
-        <mat-icon>close</mat-icon>
-      </button>
+  <div class="absolute inset-0 flex flex-col z-10 file-panel p-2">
+    <div class="relative flex items-center p-2">
+      <div class="absolute left-2">
+        <button mat-icon-button (click)="close()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      <div class="mx-auto truncate px-12 text-center">
+        {{ currentFile().file.name }}
+      </div>
     </div>
-    <div class="mx-auto truncate px-12 text-center">
-      {{ currentFile().file.name }}
-    </div>
-  </div>
 
-  <div class="flex-1 flex items-center justify-center">
-    @if(currentFile().preview){
-    <img [src]="currentFile().preview" class="max-h-[50%] max-w-[50%]" />
-    } @else {
-    <div class="flex flex-col items-center">
-      <img
-        src="images/icons/files/unknown.png"
-        class="max-h-[60%] max-w-[80%]"
-      />
-      <div>Vista previa no disponible</div>
-    </div>
-    }
-  </div>
-
-  <div class="flex gap-2 overflow-x-auto p-2 justify-center">
-    @for (itemFile of selectedFiles(); track $index; let i = $index) {
-    <div
-      class="relative w-16 h-16 border border-gray-600 rounded flex items-center justify-center cursor-pointer"
-      [class.ring-4]="i === currentIndex()"
-      (click)="currentIndex.set(i)"
-    >
-      @if(itemFile.preview){
-      <img
-        [src]="itemFile.preview"
-        class="w-full h-full object-cover rounded"
-      />
-      } @else {
-      <img
-        src="images/icons/files/unknown.png"
-        class="w-full h-full object-cover"
-      />
+    <div class="flex-1 flex items-center justify-center">
+      @if(currentFile().preview){
+        <img [src]="currentFile().preview" class="max-h-[50%] max-w-[50%]" />
       }
-      <button
-        (click)="removeFile(i); $event.stopPropagation()"
-        class="absolute -top-2 -right-2 bg-red-500 rounded-full text-sm px-1.5"
+      @else {
+        <div class="flex flex-col items-center">
+          <img
+            src="images/icons/files/unknown.png"
+            class="max-h-[60%] max-w-[80%]"
+          />
+          <div>Vista previa no disponible</div>
+        </div>
+      }
+    </div>
+
+    <div class="flex gap-2 overflow-x-auto p-2 justify-center">
+      @for (itemFile of selectedFiles(); track $index; let i = $index) {
+        <div
+          class="relative w-16 h-16 border border-gray-600 rounded flex items-center justify-center cursor-pointer"
+          [class.ring-4]="i === currentIndex()"
+          (click)="currentIndex.set(i)"
+        >
+          @if(itemFile.preview){
+            <img
+              [src]="itemFile.preview"
+              class="w-full h-full object-cover rounded"
+            />
+          } 
+          @else {
+            <img
+              src="images/icons/files/unknown.png"
+              class="w-full h-full object-cover"
+            />
+          }
+          <button
+            (click)="removeFile(i); $event.stopPropagation()"
+            class="absolute -top-2 -right-2 bg-red-500 rounded-full text-sm px-1.5"
+          >
+            X
+          </button>
+        </div>
+      }
+      <div
+        class="size-16 border border-gray-600 rounded flex items-center justify-center cursor-pointer"
+        (click)="fileInput.click()"
       >
-        X
+        <mat-icon>add</mat-icon>
+      </div>
+      <input
+        #fileInput
+        type="file"
+        [hidden]="true"
+        [multiple]="true"
+        [attr.accept]="ACCEPTED_FILE_TYPES"
+        (change)="onFileSelected($event)"
+      />
+    </div>
+
+    <div class="p-4 flex justify-end">
+      <button matFab extended (click)="upload()">
+        <mat-icon>send</mat-icon>
+        Enviar
       </button>
     </div>
-    }
-    <div
-      class="size-16 border border-gray-600 rounded flex items-center justify-center cursor-pointer"
-      (click)="fileInput.click()"
-    >
-      <mat-icon>add</mat-icon>
-    </div>
-    <input
-      #fileInput
-      type="file"
-      [hidden]="true"
-      [multiple]="true"
-      [attr.accept]="ACCEPTED_FILE_TYPES"
-      (change)="onFileSelected($event)"
-    />
   </div>
-
-  <div class="p-4 flex justify-end">
-    <button matFab extended (click)="upload()">
-      <mat-icon>send</mat-icon>
-      Enviar
-    </button>
-  </div>
-</div>
-} @else {
-<button mat-mini-fab (click)="fileInput.click()">
-  <mat-icon>attach_file</mat-icon>
-</button>
-<input
-  #fileInput
-  type="file"
-  [hidden]="true"
-  [multiple]="true"
-  [attr.accept]="ACCEPTED_FILE_TYPES"
-  (change)="onFileSelected($event)"
-/>
+} 
+@else {
+  <button mat-mini-fab (click)="fileInput.click()">
+    <mat-icon>attach_file</mat-icon>
+  </button>
+  <input
+    #fileInput
+    type="file"
+    [hidden]="true"
+    [multiple]="true"
+    [attr.accept]="ACCEPTED_FILE_TYPES"
+    (change)="onFileSelected($event)"
+  />
 }

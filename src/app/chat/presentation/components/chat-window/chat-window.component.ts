@@ -147,6 +147,7 @@ export class ChatWindowComponent {
       container.scrollTop = container.scrollHeight;
     });
   }
+  
 
   private setMessageToSeen() {
     // if (this.chat().unreadCount > 0) {
@@ -203,4 +204,6 @@ export class ChatWindowComponent {
       );
     });
   }
+
+  
 }

@@ -1,6 +1,5 @@
 <div class="flex flex-col h-full relative w-full">
-  <!-- HEADER -->
-  <div class="py-2 px-4 flex flex-row justify-between items-center">
+  <div class="py-2 px-4 flex flex-row justify-between items-center" style="background-color: var(--mat-sys-surface-container-high);">
     <div class="flex items-center">
       <div>
         <img class="w-10 h-10 rounded-full" src="images/avatar.png" />
@@ -12,8 +11,6 @@
       </div>
     </div>
   </div>
-  <!-- CHAT CONTENT -->
-   {{chatIndex()}}
   <div
     class="flex-1 overflow-y-auto px-6 py-2"
     infiniteScroll
@@ -56,18 +53,14 @@
     mensaje{{ newMessagesCount() > 1 ? "s" : "" }}
   </div>
   }
-  <!-- CHAT OPTIONS -->
-  <div class="flex items-center gap-x-4 px-4 h-[80px]">
-    <file-chat-selector (onCofirmFiles)="sendFiles($event)" />
-    <div class="flex-1">
-      <mat-form-field style="margin-bottom: 0px; padding-bottom: 0px">
-        <mat-label>Ingrese un mensaje</mat-label>
-        <input
-          matInput
-          [(ngModel)]="messageContent"
-          (keydown.enter)="sendMessage()"
-        />
-      </mat-form-field>
-    </div>
+  <div class="flex items-center gap-4 p-4 w-full" style="background-color: var(--mat-sys-surface-container-high);">
+      <file-chat-selector (onCofirmFiles)="sendFiles($event)" />
+      <input
+        type="text"
+        placeholder="Escribe un mensaje"
+        class="flex-1 rounded-xl border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        [(ngModel)]="messageContent"
+        (keydown.enter)="sendMessage()"
+      />
   </div>
 </div>
