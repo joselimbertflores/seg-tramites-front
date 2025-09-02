@@ -60,13 +60,16 @@ export class ChatService {
   chatCache: Chat[] = [];
 
   constructor() {
+    console.log("socket service star");
     this.socketRef = this.socketService.getSocket();
-    this.socketRef?.on('sendMessage', (data: ChatEventData) => {
-      this.chatSubject$.next(data);
-    });
-    this.socketRef?.on('readMessage', (chatId: string) => {
-      this.chatReadSubject$.next(chatId);
-    });
+    if (this.socketRef) {
+      this.socketRef.on('sendMessage', (data: ChatEventData) => {
+        this.chatSubject$.next(data);
+      });
+      this.socketRef.on('readMessage', (chatId: string) => {
+        this.chatReadSubject$.next(chatId);
+      });
+    }
   }
 
   geChats() {
@@ -177,17 +180,23 @@ export class ChatService {
   }
 
   listenForNewMessages() {
-    return this.chatSubject$.pipe(
+    return this.chatSubject$.asObservable().pipe(
+      share(),
       map((data) => {
         const chat = ChatMapper.fromResponse(data.chat);
         const message = MessageMapper.fromResponse(data.message);
-        const key = `${chat.id}-0`;
-        if (this.messagesCache[key]) {
-          this.messagesCache[key] = [...this.messagesCache[key], message];
-        }
         return { chat, message };
       }),
-      share()
+      tap(({ chat, message }) => {
+        console.log('EXECE LIENST');
+        const key = `${chat.id}-0`;
+        if (this.messagesCache[key]) {
+          this.messagesCache[key] = [
+            ...structuredClone(this.messagesCache[key]),
+            message,
+          ];
+        }
+      })
     );
   }
 

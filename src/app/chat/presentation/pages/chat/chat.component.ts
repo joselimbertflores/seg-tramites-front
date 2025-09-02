@@ -2,12 +2,11 @@ import {
   ChangeDetectionStrategy,
   DestroyRef,
   Component,
-  computed,
   inject,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CommonModule } from '@angular/common';
 
 import { ChatListComponent, ChatWindowComponent } from '../../components';
 import { ChatService } from '../../services';
@@ -24,11 +23,8 @@ export default class ChatComponent {
   private destroyRef = inject(DestroyRef);
 
   chats = signal<Chat[]>([]);
-
   currentChat = signal<Chat | null>(null);
   paginatorIndex = signal<number>(0);
-  isChatSelected = computed(() => this.currentChat() !== null);
-
   searchTerm = signal<string>('');
 
   ngOnInit() {
@@ -76,10 +72,11 @@ export default class ChatComponent {
       .listenForNewMessages()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(({ chat }) => {
-        // * Chat window execute markRead method on new message
-        // if (chat.id === this.currentChat()?.id) {
-        //   chat.unreadCount = 0;
-        // }
+        if (chat.id === this.currentChat()?.id) {
+          // * chatService.markChatAsRead for update isRead property => chat-window is the component call this method
+          // * This componet only reset unreadCount
+          chat.unreadCount = 0;
+        }
         this.setNewChat(chat);
       });
   }
@@ -90,13 +87,13 @@ export default class ChatComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((chatId) => {
         // * currentChat lastMessage is update by chat window
-        const index = this.chats().findIndex((item) => item.id === chatId);
-        if (index !== -1 && this.chats()[index].lastMessage) {
-          this.chats.update((chats) => {
-            chats[index].lastMessage!.isRead = true;
-            return [...chats];
-          });
-        }
+        this.chats.update((values) => {
+          const index = values.findIndex((item) => item.id === chatId);
+          if (index !== -1 && values[index].lastMessage) {
+            values[index].lastMessage.isRead = true;
+          }
+          return [...values];
+        });
       });
   }
 }

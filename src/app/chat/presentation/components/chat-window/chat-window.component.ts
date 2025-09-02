@@ -72,7 +72,7 @@ export class ChatWindowComponent {
   files = signal<File[]>([]);
 
   ngOnInit() {
-    this.listenMessages();
+    this.listenForNewMessages();
     this.listenForChatSeen();
   }
 
@@ -148,23 +148,14 @@ export class ChatWindowComponent {
     });
   }
 
-  private setMessageToSeen() {
-    // if (this.chat().unreadCount > 0) {
-    //   console.log('SETTING MESSAGES VIEW');
-    //   this.chatService.markChatAsRead(this.chat().id).subscribe(() => {
-    //     this.chat.update((chat) => chat.copyWith({ unreadCount: 0 }));
-    //   });
-    // }
-  }
-
-  private listenMessages(): void {
+  private listenForNewMessages(): void {
     this.chatService
       .listenForNewMessages()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(({ chat, message }) => {
         if (chat.id === this.chat().id) {
-          this.messages.update((msgs) => [...msgs, message]);
-          this.markChatAsRead();
+          // this.messages.update((msgs) => [...msgs, message]);
+          this.setMessageToSeen();
           if (this.isAtBottom()) {
             this.scrollToBottom();
           } else {
@@ -195,11 +186,10 @@ export class ChatWindowComponent {
     });
   }
 
-  private markChatAsRead(): void {
+  private setMessageToSeen(): void {
     this.chatService.markChatAsRead(this.chat().id).subscribe(() => {
-      this.messages.update((msgs) =>
-        msgs.map((item) => ({ ...item, isRead: true }))
-      );
+      this.messages.update((msgs) =>  msgs.map((item) => ({ ...item, isRead: true })));
+      this.chat.update((chat) => chat.copyWith({ unreadCount: 0 }))
     });
   }
 }
