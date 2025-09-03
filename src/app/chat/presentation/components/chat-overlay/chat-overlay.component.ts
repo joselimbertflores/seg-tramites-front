@@ -31,7 +31,7 @@ interface ChatOverlayData {
       </div>
       <div class="h-[600px]">
         @if(chat() && !isLoading()){
-        <chat-window [(chat)]="currentChat" />
+        <!-- <chat-window [(chat)]="currentChat" /> -->
         }
       </div>
     </div>

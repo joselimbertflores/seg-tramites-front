@@ -9,6 +9,10 @@ import {
   signal,
   output,
   model,
+  computed,
+  input,
+  OnChanges,
+  SimpleChanges,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -18,7 +22,15 @@ import { InfiniteScrollDirective } from 'ngx-infinite-scroll';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { catchError, concatMap, EMPTY, finalize, from, switchMap } from 'rxjs';
+import {
+  catchError,
+  concatMap,
+  EMPTY,
+  finalize,
+  from,
+  Observable,
+  switchMap,
+} from 'rxjs';
 
 import { FileChatSelectorComponent } from '../file-chat-selector/file-chat-selector.component';
 import { ChatBubbleComponent } from '../chat-bubble/chat-bubble.component';
@@ -44,34 +56,40 @@ export class ChatWindowComponent {
   private chatService = inject(ChatService);
   private destroyRef = inject(DestroyRef);
 
-  chat = model.required<Chat>();
+  chat = input.required<Chat>();
   onSendMessage = output<Chat>();
 
   messageContent = signal<string>('');
   chatIndex = model<number>(0);
-  isLoading = signal<boolean>(false);
 
   scrollableDiv = viewChild.required<ElementRef<HTMLDivElement>>('chatPanel');
 
   isAtBottom = signal(true);
   newMessagesCount = signal(0);
 
-  private messagesResource = rxResource({
-    params: () => ({ chatId: this.chat().id }),
-    stream: ({ params: { chatId } }) =>
-      this.chatService
-        .getChatMessages(chatId)
-        .pipe(finalize(() => this.scrollToBottom())),
-  });
+  readonly isLoadingMoreMessages = signal<boolean>(false);
 
-  messages = linkedSignal<Message[]>(() => {
-    if (!this.messagesResource.hasValue()) return [];
-    return this.messagesResource.value();
-  });
+  // readonly messagesResource = rxResource({
+  //   params: () => ({ chatId: this.chat().id }),
+  //   stream: ({ params: { chatId } }) => {
+  //     return this.chatService
+  //       .getChatMessages(chatId)
+  //       .pipe(finalize(() => this.scrollToBottom()));
+  //   },
+  // });
+
+  // messages$: Observable<Message[]>=;i
+
+  // messages = linkedSignal<Message[]>(() => {
+  //   if (!this.messagesResource.hasValue()) return [];
+  //   return this.messagesResource.value();
+  // });
+  messages$: Observable<Message[]>;
 
   files = signal<File[]>([]);
 
   ngOnInit() {
+    // this.chatService.getChatMessages(this.chat().id).subscribe();
     this.listenForNewMessages();
     this.listenForChatSeen();
   }
@@ -84,7 +102,7 @@ export class ChatWindowComponent {
       })
       .subscribe(({ chat, message }) => {
         this.messageContent.set('');
-        this.messages.update((msgs) => [...msgs, message]);
+        // this.messages.update((msgs) => [...msgs, message]);
         this.onSendMessage.emit(chat);
         this.scrollToBottom();
       });
@@ -110,24 +128,31 @@ export class ChatWindowComponent {
         })
       )
       .subscribe(({ chat, message }) => {
-        this.messages.update((msgs) => [...msgs, message]);
+        // this.messages.update((msgs) => [...msgs, message]);
         this.onSendMessage.emit(chat);
       });
   }
 
   onScrollUp() {
-    const prevHeight = this.scrollableDiv().nativeElement.scrollHeight;
-    if (this.isLoading()) return;
-    this.isLoading.set(true);
-    this.chatIndex.update((i) => (i += 1));
-    this.chatService
-      .getChatMessages(this.chat().id, this.chatIndex())
-      .pipe(finalize(() => this.isLoading.set(false)))
-      .subscribe((messages) => {
-        if (messages.length === 0) return;
-        this.messages.update((values) => [...messages, ...values]);
-        this.restoreScrollPosition(prevHeight);
-      });
+    // const prevHeight = this.scrollableDiv().nativeElement.scrollHeight;
+
+    // if (this.isLoadingMoreMessages()) return;
+
+    // this.isLoadingMoreMessages.set(true);
+
+    // // this.chatIndex.update((i) => (i += 1));
+    // // this.chatService.loadMore(this.chatId).subscribe();
+
+    // this.chatService
+    //   .getChatMessages(this.chat().id)
+    //   .pipe(finalize(() => this.isLoadingMoreMessages.set(false)))
+    //   .subscribe((messages) => {
+    //     if (messages.length > 0) {
+    //       // this.messages.update((values) => [...messages, ...values]);
+    //       this.restoreScrollPosition(prevHeight);
+    //     }
+    //   });
+    // this.chatService.loadMore(this.chat().id).subscribe();
   }
 
   onScroll() {
@@ -171,9 +196,9 @@ export class ChatWindowComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((chatId) => {
         if (chatId === this.chat().id) {
-          this.messages.update((msgs) =>
-            msgs.map((item) => ({ ...item, isRead: true }))
-          );
+          // this.messages.update((msgs) =>
+          //   msgs.map((item) => ({ ...item, isRead: true }))
+          // );
         }
       });
   }
@@ -188,8 +213,10 @@ export class ChatWindowComponent {
 
   private setMessageToSeen(): void {
     this.chatService.markChatAsRead(this.chat().id).subscribe(() => {
-      this.messages.update((msgs) =>  msgs.map((item) => ({ ...item, isRead: true })));
-      this.chat.update((chat) => chat.copyWith({ unreadCount: 0 }))
+      // this.messages.update((msgs) =>
+      //   msgs.map((item) => ({ ...item, isRead: true }))
+      // );
+      // this.chat.update((chat) => chat.copyWith({ unreadCount: 0 }));
     });
   }
 }

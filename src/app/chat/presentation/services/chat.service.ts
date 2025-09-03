@@ -1,4 +1,4 @@
-import { inject, Injectable, Injector, signal } from '@angular/core';
+import { computed, inject, Injectable, Injector, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
@@ -39,6 +39,13 @@ interface CreateMessageData {
   content?: string;
   media?: UploadedFile;
 }
+
+interface ChatCache {
+  messages: Message[];
+  hasMore: boolean; // para saber si quedan mensajes por pedir
+  page: number; // cuántas páginas ya cargaste
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -59,8 +66,16 @@ export class ChatService {
 
   chatCache: Chat[] = [];
 
+  private cache = new Map<string, ChatCache>();
+
+  index = signal(0);
+  offsete = computed(() => this.index() * 20);
+
+  currentChat = signal<Chat | null>(null);
+  messages = signal<Message[]>([]);
+
   constructor() {
-    console.log("socket service star");
+    console.log('socket service star');
     this.socketRef = this.socketService.getSocket();
     if (this.socketRef) {
       this.socketRef.on('sendMessage', (data: ChatEventData) => {
@@ -129,6 +144,34 @@ export class ChatService {
           }
         })
       );
+  }
+
+  loadMessages(chatId: string): Observable<void> {
+    const itemCache = this.ensureChat(chatId);
+    if (!itemCache.hasMore) return of(void 0);
+
+    return this.http
+      .get<MessageResponse[]>(`${this.URL}/${chatId}/messages`, {
+        params: { limit: 20, offset: itemCache.page * 20 },
+      })
+      .pipe(
+        map((resp) => resp.map((item) => MessageMapper.fromResponse(item))),
+        tap((newMessages) => {
+          if (newMessages.length < 20) {
+            itemCache.hasMore = false;
+          }
+          itemCache.page++;
+          itemCache.messages.unshift(...newMessages);
+        }),
+        map(() => void 0)
+      );
+  }
+
+  private ensureChat(chatId: string) {
+    if (!this.cache.has(chatId)) {
+      this.cache.set(chatId, { messages: [], hasMore: true, page: 0 });
+    }
+    return this.cache.get(chatId)!;
   }
 
   sendMessage({ chatId, content, media }: CreateMessageData) {

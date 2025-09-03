@@ -1,5 +1,8 @@
 <div class="flex flex-col h-full relative w-full">
-  <div class="py-2 px-4 flex flex-row justify-between items-center" style="background-color: var(--mat-sys-surface-container-high);">
+  <div
+    class="py-2 px-4 flex flex-row justify-between items-center"
+    style="background-color: var(--mat-sys-surface-container-high)"
+  >
     <div class="flex items-center">
       <div>
         <img class="w-10 h-10 rounded-full" src="images/avatar.png" />
@@ -15,21 +18,22 @@
     class="flex-1 overflow-y-auto px-6 py-2"
     infiniteScroll
     [infiniteScrollDistance]="2"
+    [infiniteScrollUpDistance]="1"
     [infiniteScrollThrottle]="50"
     (scrolledUp)="onScrollUp()"
     (scroll)="onScroll()"
     [scrollWindow]="false"
     #chatPanel
   >
-    @if(isLoading()){
+    @if(isLoadingMoreMessages()){
     <div class="text-center">Cargando mensajes...</div>
-    } @if(!isLoading() && messages().length === 0){
+    }
+    <!-- @if(!isLoadingMoreMessages() && (messages$|async). === 0){
     <div class="text-center py-4">
       Escriba un mensaje para iniciar la conversacion.
     </div>
-    }
-    
-    @for (item of messages(); track $index) {
+    }  -->
+    @for (item of messages$|async; track $index) {
     <chat-bubble [message]="item" />
     }
   </div>
@@ -53,14 +57,17 @@
     mensaje{{ newMessagesCount() > 1 ? "s" : "" }}
   </div>
   }
-  <div class="flex items-center gap-4 p-4 w-full" style="background-color: var(--mat-sys-surface-container-high);">
-      <file-chat-selector (onCofirmFiles)="sendFiles($event)" />
-      <input
-        type="text"
-        placeholder="Escribe un mensaje"
-        class="flex-1 rounded-xl border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        [(ngModel)]="messageContent"
-        (keydown.enter)="sendMessage()"
-      />
+  <div
+    class="flex items-center gap-4 p-4 w-full"
+    style="background-color: var(--mat-sys-surface-container-high)"
+  >
+    <file-chat-selector (onCofirmFiles)="sendFiles($event)" />
+    <input
+      type="text"
+      placeholder="Escribe un mensaje"
+      class="flex-1 rounded-xl border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      [(ngModel)]="messageContent"
+      (keydown.enter)="sendMessage()"
+    />
   </div>
 </div>
