@@ -147,7 +147,7 @@
           <button
             mat-menu-item
             (click)="cancelOne(item)"
-            [disabled]="item.status !== 'pending'"
+            [disabled]="item.status !== 'pending' && item.status !== 'auto-rejected'"
           >
             <mat-icon>delete</mat-icon>
             <span>Cancelar</span>
