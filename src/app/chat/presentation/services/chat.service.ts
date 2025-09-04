@@ -3,7 +3,15 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 
-import { map, Observable, of, share, Subject, tap } from 'rxjs';
+import {
+  BehaviorSubject,
+  map,
+  Observable,
+  of,
+  share,
+  Subject,
+  tap,
+} from 'rxjs';
 import type { Socket } from 'socket.io-client';
 
 import { SocketService } from '../../../layout/presentation/services';
@@ -41,11 +49,14 @@ interface CreateMessageData {
 }
 
 interface ChatCache {
-  messages: Message[];
-  hasMore: boolean; // para saber si quedan mensajes por pedir
-  page: number; // cuántas páginas ya cargaste
+  messages: Message[]; // Ordenados cronológicamente (antiguos -> nuevos)
+  currentPage: number; // Página actual del backend
+  hasMore: boolean;
+  displayedCount: number; // Cuántos mensajes están siendo mostrados
+  subject: BehaviorSubject<Message[]>;
 }
 
+type ScrollMode = 'bottom' | 'restore';
 @Injectable({
   providedIn: 'root',
 })
@@ -60,22 +71,13 @@ export class ChatService {
   private injector: Injector;
   private overlayRef: OverlayRef | null = null;
 
-  private messagesCache: Record<string, Message[]> = {};
   private chatSubject$ = new Subject<ChatEventData>();
   private chatReadSubject$ = new Subject<string>();
 
-  chatCache: Chat[] = [];
-
-  private cache = new Map<string, ChatCache>();
-
-  index = signal(0);
-  offsete = computed(() => this.index() * 20);
-
-  currentChat = signal<Chat | null>(null);
-  messages = signal<Message[]>([]);
+  chatCache = new Map<string, ChatCache>();
+  private limit = 20;
 
   constructor() {
-    console.log('socket service star');
     this.socketRef = this.socketService.getSocket();
     if (this.socketRef) {
       this.socketRef.on('sendMessage', (data: ChatEventData) => {
@@ -87,14 +89,102 @@ export class ChatService {
     }
   }
 
+  // Suscribirse en el componente
+  getMessages$(chatId: string): Observable<Message[]> {
+    const chatCache = this.ensureChat(chatId);
+
+    return chatCache.subject.asObservable();
+  }
+
   geChats() {
-    if (this.chatCache.length > 0) return of(this.chatCache);
-    return this.http.get<ChatResponse[]>(this.URL).pipe(
-      map((resp) => resp.map((item) => ChatMapper.fromResponse(item))),
-      tap((chats) => {
-        this.chatCache = chats;
-      })
-    );
+    return this.http
+      .get<ChatResponse[]>(this.URL)
+      .pipe(map((resp) => resp.map((item) => ChatMapper.fromResponse(item))));
+  }
+
+  // Mejorar loadMessages
+  loadMessages(chatId: string, mode: ScrollMode): void {
+    const chatCache = this.ensureChat(chatId);
+
+    // Si hay mensajes en cache que no se han mostrado
+    if (chatCache.displayedCount < chatCache.messages.length) {
+      const newDisplayedCount = Math.min(
+        chatCache.displayedCount + this.limit,
+        chatCache.messages.length
+      );
+
+      // Tomar desde el final menos los que ya se muestran
+      const startIndex = Math.max(
+        0,
+        chatCache.messages.length - newDisplayedCount
+      );
+      const messagesToShow = chatCache.messages.slice(startIndex);
+
+      chatCache.displayedCount = newDisplayedCount;
+      chatCache.subject.next(messagesToShow);
+      this.scrollAction$.next(mode);
+      return;
+    }
+
+    // Si no hay más en cache, pedir al backend
+    if (chatCache.hasMore) {
+      this.fetchFromBackend(chatId, chatCache.currentPage).subscribe(
+        (newMessages) => {
+          if (newMessages.length < this.limit) {
+            chatCache.hasMore = false;
+          }
+
+          // Agregar los nuevos mensajes AL INICIO del array (son más antiguos)
+          chatCache.messages = [...newMessages, ...chatCache.messages];
+          chatCache.currentPage++;
+
+          // Actualizar la cuenta de mostrados
+          chatCache.displayedCount = Math.min(
+            chatCache.displayedCount + newMessages.length,
+            chatCache.messages.length
+          );
+
+          // Mostrar desde el final del array (más nuevos al final)
+          const startIndex = Math.max(
+            0,
+            chatCache.messages.length - chatCache.displayedCount
+          );
+          const messagesToShow = chatCache.messages.slice(startIndex);
+
+          chatCache.subject.next(messagesToShow);
+          this.scrollAction$.next(mode);
+        }
+      );
+    }
+  }
+
+  private fetchFromBackend(
+    chatId: string,
+    page: number
+  ): Observable<Message[]> {
+    const offset = page * this.limit;
+    return this.http.get<Message[]>(`${this.URL}/${chatId}/messages`, {
+      params: { limit: this.limit, offset },
+    });
+  }
+  resetChatView(chatId: string): void {
+    const chatCache = this.ensureChat(chatId);
+    chatCache.displayedCount = 0;
+    chatCache.subject.next([]);
+
+    // Si ya hay mensajes en cache, mostrar los últimos 20
+    if (chatCache.messages.length > 0) {
+      const startIndex = Math.max(0, chatCache.messages.length - this.limit);
+      chatCache.displayedCount = Math.min(
+        this.limit,
+        chatCache.messages.length
+      );
+      chatCache.subject.next(chatCache.messages.slice(startIndex));
+      this.scrollAction$.next('bottom');
+    } else {
+      // Si no hay cache, cargar del backend
+      this.loadMessages(chatId, 'bottom');
+    }
   }
 
   findOrCreateChat(receiverId: string) {
@@ -129,7 +219,7 @@ export class ChatService {
   getChatMessages(chatId: string, index: number = 0) {
     const key = `${chatId}-${index}`;
 
-    if (this.messagesCache[key]) return of([...this.messagesCache[key]]);
+    // if (this.messagesCache[key]) return of([...this.messagesCache[key]]);
 
     const params = new HttpParams({
       fromObject: { limit: 20, offset: index * 20 },
@@ -139,39 +229,29 @@ export class ChatService {
       .pipe(
         map((resp) => resp.map((item) => MessageMapper.fromResponse(item))),
         tap((messages) => {
-          if (messages.length > 0) {
-            this.messagesCache[key] = messages;
-          }
+          // if (messages.length > 0) {
+          //   this.messagesCache[key] = messages;
+          // }
         })
       );
   }
 
-  loadMessages(chatId: string): Observable<void> {
-    const itemCache = this.ensureChat(chatId);
-    if (!itemCache.hasMore) return of(void 0);
-
-    return this.http
-      .get<MessageResponse[]>(`${this.URL}/${chatId}/messages`, {
-        params: { limit: 20, offset: itemCache.page * 20 },
-      })
-      .pipe(
-        map((resp) => resp.map((item) => MessageMapper.fromResponse(item))),
-        tap((newMessages) => {
-          if (newMessages.length < 20) {
-            itemCache.hasMore = false;
-          }
-          itemCache.page++;
-          itemCache.messages.unshift(...newMessages);
-        }),
-        map(() => void 0)
-      );
+  private scrollAction$ = new Subject<ScrollMode>();
+  getScrollAction$(): Observable<ScrollMode> {
+    return this.scrollAction$.asObservable();
   }
 
-  private ensureChat(chatId: string) {
-    if (!this.cache.has(chatId)) {
-      this.cache.set(chatId, { messages: [], hasMore: true, page: 0 });
+  ensureChat(chatId: string) {
+    if (!this.chatCache.has(chatId)) {
+      this.chatCache.set(chatId, {
+        messages: [],
+        hasMore: true,
+        displayedCount: 0,
+        currentPage: 0,
+        subject: new BehaviorSubject<Message[]>([]),
+      });
     }
-    return this.cache.get(chatId)!;
+    return this.chatCache.get(chatId)!;
   }
 
   sendMessage({ chatId, content, media }: CreateMessageData) {
@@ -196,12 +276,12 @@ export class ChatService {
           chat: ChatMapper.fromResponse(chat),
         })),
         tap(({ chat, message }) => {
-          // * Index 0 = last messages
-          const key = `${chatId}-0`;
-          if (this.messagesCache[key]) {
-            // * Deep clone for break reference
-            this.messagesCache[key] = [...this.messagesCache[key], message];
-          }
+          // // * Index 0 = last messages
+          // const key = `${chatId}-0`;
+          // if (this.messagesCache[key]) {
+          //   // * Deep clone for break reference
+          //   this.messagesCache[key] = [...this.messagesCache[key], message];
+          // }
         })
       );
   }
@@ -211,13 +291,13 @@ export class ChatService {
       .patch<{ message: string }>(`${this.URL}/${chatId}/read`, {})
       .pipe(
         tap(() => {
-          const key = `${chatId}-0`;
-          if (this.messagesCache[key]) {
-            this.messagesCache[key] = this.messagesCache[key].map((item) => ({
-              ...item,
-              isRead: true,
-            }));
-          }
+          // const key = `${chatId}-0`;
+          // if (this.messagesCache[key]) {
+          //   this.messagesCache[key] = this.messagesCache[key].map((item) => ({
+          //     ...item,
+          //     isRead: true,
+          //   }));
+          // }
         })
       );
   }
@@ -231,14 +311,13 @@ export class ChatService {
         return { chat, message };
       }),
       tap(({ chat, message }) => {
-        console.log('EXECE LIENST');
-        const key = `${chat.id}-0`;
-        if (this.messagesCache[key]) {
-          this.messagesCache[key] = [
-            ...structuredClone(this.messagesCache[key]),
-            message,
-          ];
-        }
+        // const key = `${chat.id}-0`;
+        // if (this.messagesCache[key]) {
+        //   this.messagesCache[key] = [
+        //     ...structuredClone(this.messagesCache[key]),
+        //     message,
+        //   ];
+        // }
       })
     );
   }
@@ -246,13 +325,13 @@ export class ChatService {
   listenForChatSeen(): Observable<string> {
     return this.chatReadSubject$.pipe(
       tap((chatId) => {
-        const key = `${chatId}-0`;
-        if (this.messagesCache[key]) {
-          this.messagesCache[key] = this.messagesCache[key].map((item) => ({
-            ...item,
-            isRead: true,
-          }));
-        }
+        // const key = `${chatId}-0`;
+        // if (this.messagesCache[key]) {
+        //   this.messagesCache[key] = this.messagesCache[key].map((item) => ({
+        //     ...item,
+        //     isRead: true,
+        //   }));
+        // }
       }),
       share()
     );

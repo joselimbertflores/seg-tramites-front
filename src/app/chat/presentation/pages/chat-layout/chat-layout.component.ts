@@ -13,12 +13,12 @@ import { ChatService } from '../../services';
 import { Chat } from '../../../domain';
 
 @Component({
-  selector: 'app-chat-dashboard',
+  selector: 'app-chat-layout',
   imports: [CommonModule, ChatListComponent, ChatWindowComponent],
-  templateUrl: './chat-dashboard.component.html',
+  templateUrl: './chat-layout.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export default class ChatDashboardComponent {
+export default class ChatLayoutComponent {
   private chatService = inject(ChatService);
   private destroyRef = inject(DestroyRef);
 

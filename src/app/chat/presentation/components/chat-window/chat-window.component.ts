@@ -13,6 +13,7 @@ import {
   input,
   OnChanges,
   SimpleChanges,
+  effect,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -85,13 +86,36 @@ export class ChatWindowComponent {
   //   return this.messagesResource.value();
   // });
   messages$: Observable<Message[]>;
+  previusHeigh = 0;
 
   files = signal<File[]>([]);
+
+  readonly messagesResource = rxResource({
+    params: () => ({ chatId: this.chat().id }),
+    stream: ({ params: { chatId } }) => {
+      return this.chatService.getMessages$(chatId);
+    },
+  });
+
+  constructor() {
+    effect(() => {
+      this.chatService.resetChatView(this.chat().id);
+    });
+  }
 
   ngOnInit() {
     // this.chatService.getChatMessages(this.chat().id).subscribe();
     this.listenForNewMessages();
     this.listenForChatSeen();
+
+    // Suscribirse a acciones de scroll
+    this.chatService.getScrollAction$().subscribe((mode) => {
+      if (mode === 'bottom') {
+        this.scrollToBottom();
+      } else if (mode === 'restore') {
+        this.restoreScrollPosition();
+      }
+    });
   }
 
   sendMessage(): void {
@@ -134,15 +158,12 @@ export class ChatWindowComponent {
   }
 
   onScrollUp() {
-    // const prevHeight = this.scrollableDiv().nativeElement.scrollHeight;
-
+    this.previusHeigh = this.scrollableDiv().nativeElement.scrollHeight;
+    this.chatService.loadMessages(this.chat().id, "restore");
     // if (this.isLoadingMoreMessages()) return;
-
     // this.isLoadingMoreMessages.set(true);
-
     // // this.chatIndex.update((i) => (i += 1));
     // // this.chatService.loadMore(this.chatId).subscribe();
-
     // this.chatService
     //   .getChatMessages(this.chat().id)
     //   .pipe(finalize(() => this.isLoadingMoreMessages.set(false)))
@@ -203,11 +224,11 @@ export class ChatWindowComponent {
       });
   }
 
-  private restoreScrollPosition(prevHeight: number): void {
+  private restoreScrollPosition(): void {
     setTimeout(() => {
       const container = this.scrollableDiv().nativeElement;
       const newHeight = container.scrollHeight;
-      container.scrollTop = newHeight - prevHeight;
+      container.scrollTop = newHeight - this.previusHeigh;
     });
   }
 

@@ -250,7 +250,7 @@ export const routes: Routes = [
       {
         path: 'chat',
         data:{ animation: 'ChatPage'},
-        loadComponent: () => import('./chat/presentation/pages/chat-dashboard/chat-dashboard.component'),
+        loadComponent: () => import('./chat/presentation/pages/chat-layout/chat-layout.component'),
        
       },
     ],

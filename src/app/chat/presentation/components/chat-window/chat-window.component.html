@@ -18,11 +18,12 @@
     class="flex-1 overflow-y-auto px-6 py-2"
     infiniteScroll
     [infiniteScrollDistance]="2"
-    [infiniteScrollUpDistance]="1"
+    [infiniteScrollUpDistance]="0"
     [infiniteScrollThrottle]="50"
     (scrolledUp)="onScrollUp()"
     (scroll)="onScroll()"
     [scrollWindow]="false"
+    [alwaysCallback]="true"
     #chatPanel
   >
     @if(isLoadingMoreMessages()){
@@ -33,7 +34,7 @@
       Escriba un mensaje para iniciar la conversacion.
     </div>
     }  -->
-    @for (item of messages$|async; track $index) {
+    @for (item of messagesResource.value(); track $index) {
     <chat-bubble [message]="item" />
     }
   </div>
