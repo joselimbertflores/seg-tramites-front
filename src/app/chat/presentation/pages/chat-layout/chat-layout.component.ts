@@ -42,13 +42,10 @@ export default class ChatLayoutComponent {
   selectChat(chat: Chat) {
     if (chat.id === this.currentChat()?.id) return;
 
-    this.paginatorIndex.set(0);
-
     if (chat.unreadCount > 0) {
       chat.unreadCount = 0;
       this.chatService.markChatAsRead(chat.id).subscribe();
     }
-
     this.currentChat.set(chat);
   }
 
@@ -68,16 +65,15 @@ export default class ChatLayoutComponent {
   }
 
   private listenForNewMessages(): void {
-    this.chatService
-      .listenForNewMessages()
+    this.chatService.chatSubject$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(({ chat }) => {
-        if (chat.id === this.currentChat()?.id) {
-          // * chatService.markChatAsRead for update isRead property => chat-window is the component call this method
-          // * This componet only reset unreadCount
-          chat.unreadCount = 0;
-        }
-        this.setNewChat(chat);
+        // if (chat.id === this.currentChat()?.id) {
+        //   // * chatService.markChatAsRead for update isRead property => chat-window is the component call this method
+        //   // * This componet only reset unreadCount
+        //   chat.unreadCount = 0;
+        // }
+        // this.setNewChat(chat);
       });
   }
 

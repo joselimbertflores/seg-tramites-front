@@ -19,7 +19,7 @@ import { Message } from '../../../domain';
         </div>
       }
       @case ("video") {
-        <div class="flex items-center p-3 border rounded-lg w-full">
+        <div class="flex items-center p-3 border border-gray-400 rounded-lg w-full">
           <mat-icon class="mr-2">videocam</mat-icon>
           <div class="flex-1 truncate text-sm">
             {{ message().media?.originalName }}
@@ -30,7 +30,7 @@ import { Message } from '../../../domain';
         </div>
       }
       @case ("audio") {
-        <div class="flex items-center p-3 border rounded-lg w-full">
+        <div class="flex items-center p-3 border border-gray-400 rounded-lg w-full">
           <mat-icon class="mr-2">headphones</mat-icon>
           <div class="flex-1 truncate text-sm">
             {{ message().media?.originalName }}
@@ -41,7 +41,7 @@ import { Message } from '../../../domain';
         </div>
       }
       @case ("document"){
-        <div class="flex items-center p-3 border rounded-lg w-full">
+        <div class="flex items-center p-3 border border-gray-400 rounded-lg w-full">
           <mat-icon class="mr-2">insert_drive_file</mat-icon>
           <div class="flex-1 truncate text-sm">
             {{ message().media?.originalName }}

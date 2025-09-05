@@ -21,7 +21,7 @@ interface ChatOverlayData {
   imports: [MatButtonModule, MatIconModule, ChatWindowComponent],
   template: `
     <div class="overlay sm:w-[600px]" @overlayAnimation>
-      <div class="flex items-center justify-between w-full px-3 mb-2">
+      <div class="flex items-center justify-between w-full px-4 py-2">
         <div class="text-lg font-medium">Chat</div>
         <div>
           <button mat-icon-button (click)="close()">
@@ -31,7 +31,7 @@ interface ChatOverlayData {
       </div>
       <div class="h-[600px]">
         @if(chat() && !isLoading()){
-        <!-- <chat-window [(chat)]="currentChat" /> -->
+        <chat-window [chat]="chat()!" />
         }
       </div>
     </div>
@@ -63,9 +63,5 @@ export class ChatOverlayComponent {
 
   close() {
     this.chatService.closeAccountChat();
-  }
-
-  get currentChat() {
-    return this.chat()!;
   }
 }

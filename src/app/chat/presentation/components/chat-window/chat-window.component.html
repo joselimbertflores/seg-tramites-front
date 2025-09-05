@@ -19,23 +19,23 @@
     infiniteScroll
     [infiniteScrollDistance]="2"
     [infiniteScrollUpDistance]="0"
-    [infiniteScrollThrottle]="50"
-    (scrolledUp)="onScrollUp()"
-    (scroll)="onScroll()"
+    [infiniteScrollThrottle]="150"
     [scrollWindow]="false"
     [alwaysCallback]="true"
+    (scrolledUp)="scrollUp()"
+    (scroll)="scroll()"
     #chatPanel
   >
-    @if(isLoadingMoreMessages()){
-    <div class="text-center">Cargando mensajes...</div>
+    @if(isLoading()){
+      <div class="text-center">Cargando mensajes...</div>
     }
-    <!-- @if(!isLoadingMoreMessages() && (messages$|async). === 0){
-    <div class="text-center py-4">
-      Escriba un mensaje para iniciar la conversacion.
-    </div>
-    }  -->
-    @for (item of messagesResource.value(); track $index) {
-    <chat-bubble [message]="item" />
+    @if(!isLoading() && messages().length === 0){
+      <div class="text-center py-4">
+        Escriba un mensaje para iniciar la conversacion.
+      </div>
+    } 
+    @for (item of messages(); track $index) {
+      <chat-bubble [message]="item" />
     }
   </div>
   @if(!isAtBottom()){

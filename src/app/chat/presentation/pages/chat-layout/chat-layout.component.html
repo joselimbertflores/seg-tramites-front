@@ -9,11 +9,7 @@
   </div>
   <div class="w-2/3 h-full">
     @if(currentChat()){
-      <chat-window
-        [chat]="currentChat()!"
-        [(chatIndex)]="paginatorIndex"
-        (onSendMessage)="setNewChat($event)"
-      />
+      <chat-window [chat]="currentChat()!"/>
     } 
     @else {
     <div class="flex flex-col items-center justify-center h-full text-center">

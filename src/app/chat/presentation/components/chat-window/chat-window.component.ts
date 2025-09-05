@@ -61,61 +61,29 @@ export class ChatWindowComponent {
   onSendMessage = output<Chat>();
 
   messageContent = signal<string>('');
-  chatIndex = model<number>(0);
 
-  scrollableDiv = viewChild.required<ElementRef<HTMLDivElement>>('chatPanel');
+  chatPanel = viewChild.required<ElementRef<HTMLDivElement>>('chatPanel');
 
   isAtBottom = signal(true);
   newMessagesCount = signal(0);
 
-  readonly isLoadingMoreMessages = signal<boolean>(false);
-
-  // readonly messagesResource = rxResource({
-  //   params: () => ({ chatId: this.chat().id }),
-  //   stream: ({ params: { chatId } }) => {
-  //     return this.chatService
-  //       .getChatMessages(chatId)
-  //       .pipe(finalize(() => this.scrollToBottom()));
-  //   },
-  // });
-
-  // messages$: Observable<Message[]>=;i
-
-  // messages = linkedSignal<Message[]>(() => {
-  //   if (!this.messagesResource.hasValue()) return [];
-  //   return this.messagesResource.value();
-  // });
-  messages$: Observable<Message[]>;
-  previusHeigh = 0;
+  previusHeight = 0;
 
   files = signal<File[]>([]);
+  messages = signal<Message[]>([]);
 
-  readonly messagesResource = rxResource({
-    params: () => ({ chatId: this.chat().id }),
-    stream: ({ params: { chatId } }) => {
-      return this.chatService.getMessages$(chatId);
-    },
-  });
+  isLoading = this.chatService.isLoading;
 
   constructor() {
     effect(() => {
-      this.chatService.resetChatView(this.chat().id);
+      this.chatService.selectChat(this.chat().id);
     });
   }
 
   ngOnInit() {
-    // this.chatService.getChatMessages(this.chat().id).subscribe();
     this.listenForNewMessages();
     this.listenForChatSeen();
-
-    // Suscribirse a acciones de scroll
-    this.chatService.getScrollAction$().subscribe((mode) => {
-      if (mode === 'bottom') {
-        this.scrollToBottom();
-      } else if (mode === 'restore') {
-        this.restoreScrollPosition();
-      }
-    });
+    this.setMessagesConfig();
   }
 
   sendMessage(): void {
@@ -157,58 +125,38 @@ export class ChatWindowComponent {
       });
   }
 
-  onScrollUp() {
-    this.previusHeigh = this.scrollableDiv().nativeElement.scrollHeight;
-    this.chatService.loadMessages(this.chat().id, "restore");
-    // if (this.isLoadingMoreMessages()) return;
-    // this.isLoadingMoreMessages.set(true);
-    // // this.chatIndex.update((i) => (i += 1));
-    // // this.chatService.loadMore(this.chatId).subscribe();
-    // this.chatService
-    //   .getChatMessages(this.chat().id)
-    //   .pipe(finalize(() => this.isLoadingMoreMessages.set(false)))
-    //   .subscribe((messages) => {
-    //     if (messages.length > 0) {
-    //       // this.messages.update((values) => [...messages, ...values]);
-    //       this.restoreScrollPosition(prevHeight);
-    //     }
-    //   });
-    // this.chatService.loadMore(this.chat().id).subscribe();
+  scrollUp() {
+    if (this.isLoading()) return;
+    this.previusHeight = this.chatPanel().nativeElement.scrollHeight;
+    this.chatService.loadMore();
   }
 
-  onScroll() {
-    const el = this.scrollableDiv().nativeElement;
-    const threshold = 100;
-    const position = el.scrollTop + el.clientHeight;
-    const height = el.scrollHeight;
-    this.isAtBottom.set(position >= height - threshold);
+  scroll() {
+    const element = this.chatPanel().nativeElement;
+    const position = element.scrollTop + element.clientHeight;
+    const height = element.scrollHeight;
+    this.isAtBottom.set(position >= height - 100);
     if (this.isAtBottom()) {
       this.newMessagesCount.set(0);
     }
   }
 
-  scrollToBottom(): void {
-    setTimeout(() => {
-      const container = this.scrollableDiv().nativeElement;
-      container.scrollTop = container.scrollHeight;
-    });
+  private listenForNewMessages(): void {
+    this.chatService.chatSubject$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
   }
 
-  private listenForNewMessages(): void {
-    this.chatService
-      .listenForNewMessages()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(({ chat, message }) => {
-        if (chat.id === this.chat().id) {
-          // this.messages.update((msgs) => [...msgs, message]);
-          this.setMessageToSeen();
-          if (this.isAtBottom()) {
-            this.scrollToBottom();
-          } else {
-            this.newMessagesCount.update((count) => count + 1);
-          }
-        }
-      });
+  private setMessagesConfig() {
+    this.chatService.messages$().subscribe((msgs) => {
+      console.log(msgs);
+      this.messages.set(msgs);
+      if (this.previusHeight === 0) {
+        this.scrollToBottom();
+      } else {
+        this.restoreScroll();
+      }
+    });
   }
 
   private listenForChatSeen(): void {
@@ -224,11 +172,18 @@ export class ChatWindowComponent {
       });
   }
 
-  private restoreScrollPosition(): void {
+  scrollToBottom(): void {
     setTimeout(() => {
-      const container = this.scrollableDiv().nativeElement;
-      const newHeight = container.scrollHeight;
-      container.scrollTop = newHeight - this.previusHeigh;
+      const container = this.chatPanel().nativeElement;
+      container.scrollTop = container.scrollHeight;
+    });
+  }
+
+  private restoreScroll(): void {
+    setTimeout(() => {
+      const container = this.chatPanel().nativeElement;
+      container.scrollTop = container.scrollHeight - this.previusHeight;
+      this.previusHeight = 0;
     });
   }
 
