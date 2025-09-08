@@ -9,25 +9,24 @@
   </div>
   <div class="w-2/3 h-full">
     @if(currentChat()){
-      <chat-window [chat]="currentChat()!"/>
+      <chat-window [chat]="currentChat()!" (onSendMessage)="handleSendMessage($event)"/>
     } 
     @else {
-    <div class="flex flex-col items-center justify-center h-full text-center">
-      <div class="max-w-md mx-auto">
-        <img
-          src="images/icons/chat-bubbles.png"
-          class="w-24 h-24 mb-6 mx-auto"
-          alt="Chat icon"
-        />
+      <div class="flex flex-col items-center justify-center h-full text-center">
+        <div class="max-w-md mx-auto">
+          <img
+            src="images/icons/chat-bubbles.png"
+            class="w-24 h-24 mb-6 mx-auto"
+          />
 
-        <h1 class="text-2xl font-semibold mb-2">Seleccione una conversación</h1>
+          <h1 class="text-2xl font-semibold mb-2">Seleccione una conversación</h1>
 
-        <p class="text-sm">
-          Inicie una nueva conversación o seleccione una de las existentes para
-          empezar a chatear.
-        </p>
+          <p class="text-sm">
+            Inicie una nueva conversación o seleccione una de las existentes para
+            empezar a chatear.
+          </p>
+        </div>
       </div>
-    </div>
     }
   </div>
 </div>

@@ -24,7 +24,6 @@ export default class ChatLayoutComponent {
 
   chats = signal<Chat[]>([]);
   currentChat = signal<Chat | null>(null);
-  paginatorIndex = signal<number>(0);
   searchTerm = signal<string>('');
 
   ngOnInit() {
@@ -39,7 +38,7 @@ export default class ChatLayoutComponent {
     });
   }
 
-  selectChat(chat: Chat) {
+  selectChat(chat: Chat): void {
     if (chat.id === this.currentChat()?.id) return;
 
     if (chat.unreadCount > 0) {
@@ -50,7 +49,6 @@ export default class ChatLayoutComponent {
   }
 
   setNewChat(chat: Chat): void {
-    this.searchTerm.set('');
     this.chats.update((chats) => {
       const index = chats.findIndex((item) => item.id === chat.id);
       if (index === -1) {
@@ -64,27 +62,31 @@ export default class ChatLayoutComponent {
     });
   }
 
+  handleSendMessage(chat: Chat) {
+    this.searchTerm.set('');
+    this.setNewChat(chat);
+  }
+
   private listenForNewMessages(): void {
     this.chatService.chatSubject$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(({ chat }) => {
-        // if (chat.id === this.currentChat()?.id) {
-        //   // * chatService.markChatAsRead for update isRead property => chat-window is the component call this method
-        //   // * This componet only reset unreadCount
-        //   chat.unreadCount = 0;
-        // }
-        // this.setNewChat(chat);
+        if (chat.id === this.currentChat()?.id) {
+          // * chatService.markChatAsRead for update isRead property => chat-window is the component call this method
+          // * This componet only reset unreadCount
+          chat.unreadCount = 0;
+        }
+        this.setNewChat(chat);
       });
   }
 
   private listenForChatSeen(): void {
-    this.chatService
-      .listenForChatSeen()
+    this.chatService.chatReadSubject$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((chatId) => {
         // * currentChat lastMessage is update by chat window
         this.chats.update((values) => {
-          const index = values.findIndex((item) => item.id === chatId);
+          const index = values.findIndex(({ id }) => id === chatId);
           if (index !== -1 && values[index].lastMessage) {
             values[index].lastMessage.isRead = true;
           }

@@ -14,11 +14,11 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { InfiniteScrollDirective } from 'ngx-infinite-scroll';
-import { MatButtonModule } from '@angular/material/button';
-import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
 import { catchError, concatMap, EMPTY, finalize, from, switchMap } from 'rxjs';
+import { InfiniteScrollDirective } from 'ngx-infinite-scroll';
 
 import { FileChatSelectorComponent } from '../file-chat-selector/file-chat-selector.component';
 import { ChatBubbleComponent } from '../chat-bubble/chat-bubble.component';
@@ -47,17 +47,15 @@ export class ChatWindowComponent {
   chat = input.required<Chat>();
   onSendMessage = output<Chat>();
 
-  messageContent = signal<string>('');
-
   chatPanel = viewChild.required<ElementRef<HTMLDivElement>>('chatPanel');
 
   previusHeight = 0;
   isAtBottom = signal(true);
   newMessagesCount = signal(0);
 
-
-  files = signal<File[]>([]);
+  messageContent = signal<string>('');
   messages = signal<Message[]>([]);
+  files = signal<File[]>([]);
 
   isLoading = this.chatService.isLoading;
 
@@ -71,15 +69,19 @@ export class ChatWindowComponent {
     this.listenForNewMessages();
     this.listenForChatSeen();
     this.setMessagesConfig();
+    if (this.chat().unreadCount > 0) {
+      this.setMessageToSeen();
+    }
   }
 
   sendMessage(): void {
+    if (!this.messageContent()) return;
     this.chatService
       .sendMessage({
         chatId: this.chat().id,
         content: this.messageContent(),
       })
-      .subscribe(({ chat, message }) => {
+      .subscribe(({ chat }) => {
         this.messageContent.set('');
         this.onSendMessage.emit(chat);
       });
@@ -104,8 +106,7 @@ export class ChatWindowComponent {
           this.scrollToBottom();
         })
       )
-      .subscribe(({ chat, message }) => {
-        // this.messages.update((msgs) => [...msgs, message]);
+      .subscribe(({ chat }) => {
         this.onSendMessage.emit(chat);
       });
   }
@@ -142,16 +143,9 @@ export class ChatWindowComponent {
   }
 
   private listenForChatSeen(): void {
-    this.chatService
-      .listenForChatSeen()
+    this.chatService.chatReadSubject$
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((chatId) => {
-        if (chatId === this.chat().id) {
-          // this.messages.update((msgs) =>
-          //   msgs.map((item) => ({ ...item, isRead: true }))
-          // );
-        }
-      });
+      .subscribe();
   }
 
   private listenForNewMessages(): void {
@@ -161,6 +155,7 @@ export class ChatWindowComponent {
         if (!this.isAtBottom()) {
           this.newMessagesCount.update((value) => (value += 1));
         }
+        this.chatService.markChatAsRead(this.chat().id).subscribe();
       });
   }
 
@@ -187,11 +182,6 @@ export class ChatWindowComponent {
   }
 
   private setMessageToSeen(): void {
-    this.chatService.markChatAsRead(this.chat().id).subscribe(() => {
-      // this.messages.update((msgs) =>
-      //   msgs.map((item) => ({ ...item, isRead: true }))
-      // );
-      // this.chat.update((chat) => chat.copyWith({ unreadCount: 0 }));
-    });
+    this.chatService.markChatAsRead(this.chat().id).subscribe();
   }
 }

@@ -23,6 +23,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatBadgeModule } from '@angular/material/badge';
 import { MatDialog } from '@angular/material/dialog';
 import { OverlayModule } from '@angular/cdk/overlay';
 
@@ -37,6 +38,7 @@ import { routeAnimations } from '../../../../shared/animations/route-animations'
 import { AuthService } from '../../../../auth/presentation/services/auth.service';
 import { SocketService } from '../../services';
 import { ProfileComponent, SidenavMenuComponent } from '../../components';
+import { ChatService } from '../../../../chat/presentation/services';
 
 @Component({
   selector: 'app-home',
@@ -48,6 +50,7 @@ import { ProfileComponent, SidenavMenuComponent } from '../../components';
     RouterModule,
     OverlayModule,
     MatButtonModule,
+    MatBadgeModule,
     ScrollingModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
@@ -61,11 +64,13 @@ import { ProfileComponent, SidenavMenuComponent } from '../../components';
   animations: [routeAnimations, overlayAnimation],
 })
 export default class HomeComponent {
-  private socketService = inject(SocketService);
-  private alertservice = inject(AlertService);
-  private authService = inject(AuthService);
   private destroyRef = inject(DestroyRef);
   private router = inject(Router);
+
+  private socketService = inject(SocketService);
+  private chatService = inject(ChatService);
+  private authService = inject(AuthService);
+  private alertservice = inject(AlertService);
 
   readonly dialogRef = inject(MatDialog);
   isLoading = inject(LoadingService).isLoading;
@@ -80,6 +85,8 @@ export default class HomeComponent {
   private _mobileQuery: MediaQueryList;
   private _mobileQueryListener: () => void;
 
+  unreadMessagesCount = signal(0);
+
   constructor(protected route: ActivatedRoute) {
     const media = inject(MediaMatcher);
 
@@ -90,6 +97,7 @@ export default class HomeComponent {
     this._mobileQuery.addEventListener('change', this._mobileQueryListener);
 
     this.socketService.connect();
+    this.chatService.setupConfig();
 
     this.destroyRef.onDestroy(() => {
       this.socketService.disconnect();
@@ -103,6 +111,7 @@ export default class HomeComponent {
   ngOnInit(): void {
     this.listenUserConnections();
     this.listenKickUser();
+    this.listenNewMessages();
     this.socketService.listNews().subscribe((publication) => {
       if (publication.user._id === this.authService.user()?.userId) {
         return;
@@ -119,6 +128,11 @@ export default class HomeComponent {
     this.socketService.disconnect();
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  navigateToChat() {
+    this.router.navigate(['/home/chat']);
+    this.unreadMessagesCount.set(0);
   }
 
   prepareRoute() {
@@ -147,5 +161,13 @@ export default class HomeComponent {
         });
         this.logout();
       });
+  }
+
+  private listenNewMessages() {
+    this.chatService.chatSubject$.subscribe(() => {
+      if (this.router.url !== '/home/chat') {
+        this.unreadMessagesCount.update((count) => count + 1);
+      }
+    });
   }
 }
