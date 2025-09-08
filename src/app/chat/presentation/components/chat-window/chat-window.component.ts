@@ -1,6 +1,5 @@
 import {
   ChangeDetectionStrategy,
-  linkedSignal,
   ElementRef,
   DestroyRef,
   Component,
@@ -8,30 +7,18 @@ import {
   inject,
   signal,
   output,
-  model,
-  computed,
   input,
-  OnChanges,
-  SimpleChanges,
   effect,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { InfiniteScrollDirective } from 'ngx-infinite-scroll';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import {
-  catchError,
-  concatMap,
-  EMPTY,
-  finalize,
-  from,
-  Observable,
-  switchMap,
-} from 'rxjs';
+import { catchError, concatMap, EMPTY, finalize, from, switchMap } from 'rxjs';
 
 import { FileChatSelectorComponent } from '../file-chat-selector/file-chat-selector.component';
 import { ChatBubbleComponent } from '../chat-bubble/chat-bubble.component';
@@ -64,10 +51,10 @@ export class ChatWindowComponent {
 
   chatPanel = viewChild.required<ElementRef<HTMLDivElement>>('chatPanel');
 
+  previusHeight = 0;
   isAtBottom = signal(true);
   newMessagesCount = signal(0);
 
-  previusHeight = 0;
 
   files = signal<File[]>([]);
   messages = signal<Message[]>([]);
@@ -94,9 +81,7 @@ export class ChatWindowComponent {
       })
       .subscribe(({ chat, message }) => {
         this.messageContent.set('');
-        // this.messages.update((msgs) => [...msgs, message]);
         this.onSendMessage.emit(chat);
-        this.scrollToBottom();
       });
   }
 
@@ -141,21 +126,18 @@ export class ChatWindowComponent {
     }
   }
 
-  private listenForNewMessages(): void {
-    this.chatService.chatSubject$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe();
+  scrollToBottom(): void {
+    setTimeout(() => {
+      const container = this.chatPanel().nativeElement;
+      container.scrollTop = container.scrollHeight;
+    });
   }
 
-  private setMessagesConfig() {
-    this.chatService.messages$().subscribe((msgs) => {
-      console.log(msgs);
-      this.messages.set(msgs);
-      if (this.previusHeight === 0) {
-        this.scrollToBottom();
-      } else {
-        this.restoreScroll();
-      }
+  restoreScroll(): void {
+    setTimeout(() => {
+      const container = this.chatPanel().nativeElement;
+      container.scrollTop = container.scrollHeight - this.previusHeight;
+      this.previusHeight = 0;
     });
   }
 
@@ -172,18 +154,35 @@ export class ChatWindowComponent {
       });
   }
 
-  scrollToBottom(): void {
-    setTimeout(() => {
-      const container = this.chatPanel().nativeElement;
-      container.scrollTop = container.scrollHeight;
-    });
+  private listenForNewMessages(): void {
+    this.chatService.chatSubject$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        if (!this.isAtBottom()) {
+          this.newMessagesCount.update((value) => (value += 1));
+        }
+      });
   }
 
-  private restoreScroll(): void {
-    setTimeout(() => {
-      const container = this.chatPanel().nativeElement;
-      container.scrollTop = container.scrollHeight - this.previusHeight;
-      this.previusHeight = 0;
+  private setMessagesConfig() {
+    this.chatService.messages$().subscribe(({ messages, scrollType }) => {
+      this.messages.set(messages);
+      switch (scrollType) {
+        case 'init':
+          this.scrollToBottom();
+          break;
+        case 'scroll':
+          this.restoreScroll();
+          break;
+        case 'new':
+          if (this.isAtBottom()) {
+            this.scrollToBottom();
+          }
+          break;
+
+        default:
+          break;
+      }
     });
   }
 

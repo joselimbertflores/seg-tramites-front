@@ -54,6 +54,12 @@ interface ChatCache {
   hasMore: boolean; // si quedan más mensajes
 }
 
+type scrollType = 'init' | 'scroll' | 'new';
+interface ActiveMessagesData {
+  scrollType?: scrollType;
+  messages: Message[];
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -86,7 +92,9 @@ export class ChatService {
   private limit = 20;
   private caches = new Map<string, ChatCache>();
   private activeChatId: string | null = null;
-  private activeMessages$ = new BehaviorSubject<Message[]>([]);
+  private activeMessages$ = new BehaviorSubject<ActiveMessagesData>({
+    messages: [],
+  });
   private _isLoading = signal(false);
   isLoading = computed(() => this._isLoading());
 
@@ -95,46 +103,39 @@ export class ChatService {
     this.initListeners();
   }
 
-  /** Observable que usan los componentes */
-  messages$(): Observable<Message[]> {
+  messages$(): Observable<ActiveMessagesData> {
     return this.activeMessages$.asObservable();
   }
 
   /** Selecciona un chat (siempre muestra los últimos 20) */
   selectChat(chatId: string): void {
     this.activeChatId = chatId;
-    this.activeMessages$.next([]);
+    this.activeMessages$.next({ messages: [] });
     const cache = this.ensureCache(chatId);
-
-    // const currentCount = this.activeMessages$.value.length;
-    // const pages = Math.ceil(currentCount / this.limit) + 1;
-    // * Siempre da 1
-
     if (cache.messages.length > 0) {
-      console.log('firsr load');
-      // ya hay cache → mostrar últimos 20
-      this.emitSlice(cache, 1);
+      this.emitSlice(cache, 1, "init");
     } else {
-      // no hay cache → pedir al backend
-      this.fetchAndCache(chatId, 1);
+      this.fetchAndCache(chatId, 0).subscribe(() => {
+        this.emitSlice(this.ensureCache(chatId), 1, 'init');
+      });
     }
   }
 
-  /** Cargar más mensajes (scroll up) */
   loadMore(): void {
     if (!this.activeChatId || this._isLoading()) return;
+    const chatId = this.activeChatId;
 
-    const cache = this.caches.get(this.activeChatId)!;
-    const currentCount = this.activeMessages$.value.length;
+    const cache = this.ensureCache(chatId);
+    const currentCount = this.activeMessages$.value.messages.length;
 
-    const pages = Math.ceil(currentCount / this.limit) + 1;
     if (currentCount < cache.messages.length) {
-      this.emitSlice(cache, pages);
-      console.log('LOADED MORE FROM CACHE');
+      const pages = Math.ceil(currentCount / this.limit) + 1;
+      this.emitSlice(cache, pages, "scroll");
     } else if (cache.hasMore) {
-      console.log('LOADED MORE FROM BACKEND');
-
-      this.fetchAndCache(this.activeChatId, pages);
+      this.fetchAndCache(chatId, cache.page).subscribe(() => {
+        const pages = Math.ceil(currentCount / this.limit) + 1;
+        this.emitSlice(this.ensureCache(chatId), pages, 'scroll');
+      });
     }
   }
 
@@ -146,50 +147,41 @@ export class ChatService {
     return this.caches.get(chatId)!;
   }
 
-  private emitSlice(cache: ChatCache, pages: number): void {
+  private emitSlice(
+    cache: ChatCache,
+    pages: number,
+    scrollType?: scrollType
+  ): void {
     const toTake = this.limit * pages;
-    this.activeMessages$.next(cache.messages.slice(-toTake));
+    this.activeMessages$.next({
+      messages: cache.messages.slice(-toTake),
+      scrollType,
+    });
   }
 
-  private fetchFromBackend(chatId: string, page: number) {
+  private fetchAndCache(chatId: string, page: number): Observable<Message[]> {
     this._isLoading.set(true);
+    console.log('GETTING FORM BACKEND PAGE:', page);
     return this.http
       .get<MessageResponse[]>(`${this.URL}/${chatId}/messages`, {
         params: { offset: page * this.limit, limit: this.limit },
       })
       .pipe(
         map((resp) => resp.map((item) => MessageMapper.fromResponse(item))),
-        finalize(() => this._isLoading.set(false))
-      );
-  }
-
-  private fetchAndCache(chatId: string, page: number) {
-    this._isLoading.set(true);
-    const cache = this.ensureCache(chatId);
-
-    this.http
-      .get<MessageResponse[]>(`${this.URL}/${chatId}/messages`, {
-        params: { offset: cache.page * this.limit, limit: this.limit },
-      })
-      .pipe(
-        map((resp) => resp.map((item) => MessageMapper.fromResponse(item))),
         tap((msgs) => {
-          // if (page === 0) {
-          //   // primera carga
-          //   cache.messages = msgs;
-          // } else {
-          //   // scroll up → prepend
-          //   cache.messages = [...msgs, ...cache.messages];
-          // }
+          const cache = this.ensureCache(chatId);
+          if (page === 0) {
+            // primera carga
+            cache.messages = msgs;
+          } else {
+            // scroll up → prepend
+            cache.messages = [...msgs, ...cache.messages];
+          }
+          cache.page = page + 1;
           cache.hasMore = msgs.length === this.limit;
-          cache.messages = [...msgs, ...cache.messages];
-          console.log(cache.messages.length);
-          cache.page++;
-          this.emitSlice(cache, page);
         }),
         finalize(() => this._isLoading.set(false))
-      )
-      .subscribe();
+      );
   }
 
   geChats() {
@@ -340,7 +332,7 @@ export class ChatService {
 
     if (this.activeChatId === msg.chat) {
       // si es el chat activo → emitir
-      const currentCount = this.activeMessages$.value.length;
+      const currentCount = this.activeMessages$.value.messages.length;
       const pages = Math.ceil(currentCount / this.limit);
       this.emitSlice(cache, pages);
     }
