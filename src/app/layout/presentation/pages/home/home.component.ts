@@ -5,25 +5,25 @@ import {
   ChangeDetectionStrategy,
   DestroyRef,
   Component,
-  ViewChild,
+  OnDestroy,
   inject,
   signal,
 } from '@angular/core';
 import {
-  Router,
-  RouterModule,
-  ActivatedRoute,
   ChildrenOutletContexts,
+  ActivatedRoute,
+  RouterModule,
+  Router,
 } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { CdkScrollable, ScrollingModule } from '@angular/cdk/scrolling';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatBadgeModule } from '@angular/material/badge';
+import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { OverlayModule } from '@angular/cdk/overlay';
 
@@ -36,25 +36,25 @@ import {
 
 import { routeAnimations } from '../../../../shared/animations/route-animations';
 import { AuthService } from '../../../../auth/presentation/services/auth.service';
-import { SocketService } from '../../services';
 import { ProfileComponent, SidenavMenuComponent } from '../../components';
 import { ChatService } from '../../../../chat/presentation/services';
+import { SocketService } from '../../services';
 
 @Component({
   selector: 'app-home',
   imports: [
+    RouterModule,
     CommonModule,
     MatIconModule,
-    MatToolbarModule,
-    MatSidenavModule,
-    RouterModule,
     OverlayModule,
-    MatButtonModule,
     MatBadgeModule,
     ScrollingModule,
+    MatButtonModule,
+    MatToolbarModule,
+    MatSidenavModule,
     MatTooltipModule,
-    MatProgressSpinnerModule,
     MatProgressBarModule,
+    MatProgressSpinnerModule,
     ProfileComponent,
     SidenavMenuComponent,
   ],
@@ -63,7 +63,7 @@ import { ChatService } from '../../../../chat/presentation/services';
   changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [routeAnimations, overlayAnimation],
 })
-export default class HomeComponent {
+export default class HomeComponent implements OnDestroy {
   private destroyRef = inject(DestroyRef);
   private router = inject(Router);
 
@@ -79,8 +79,6 @@ export default class HomeComponent {
 
   contexts = inject(ChildrenOutletContexts);
 
-  @ViewChild(CdkScrollable) matContent!: CdkScrollable;
-
   protected isMobile = signal(true);
   private _mobileQuery: MediaQueryList;
   private _mobileQueryListener: () => void;
@@ -88,40 +86,20 @@ export default class HomeComponent {
   unreadMessagesCount = signal(0);
 
   constructor(protected route: ActivatedRoute) {
-    const media = inject(MediaMatcher);
-
-    this._mobileQuery = media.matchMedia('(max-width: 600px)');
-    this.isMobile.set(this._mobileQuery.matches);
-    this._mobileQueryListener = () =>
-      this.isMobile.set(this._mobileQuery.matches);
-    this._mobileQuery.addEventListener('change', this._mobileQueryListener);
-
-    this.socketService.connect();
-    this.chatService.setupConfig();
-
-    this.destroyRef.onDestroy(() => {
-      this.socketService.disconnect();
-      this._mobileQuery.removeEventListener(
-        'change',
-        this._mobileQueryListener
-      );
-    });
+    this.setupLayoutConfig();
+    this.setupSocketEvents();
   }
 
   ngOnInit(): void {
     this.listenUserConnections();
     this.listenKickUser();
+    this.listenNews();
     this.listenNewMessages();
-    this.socketService.listNews().subscribe((publication) => {
-      if (publication.user._id === this.authService.user()?.userId) {
-        return;
-      }
-      this.dialogRef.open(PublicationDialogComponent, {
-        data: [publication],
-        minWidth: '900px',
-        height: '600px',
-      });
-    });
+  }
+
+  ngOnDestroy(): void {
+    this._mobileQuery.removeEventListener('change', this._mobileQueryListener);
+    this.socketService.disconnect();
   }
 
   logout() {
@@ -164,10 +142,37 @@ export default class HomeComponent {
   }
 
   private listenNewMessages() {
-    this.chatService.chatSubject$.subscribe(() => {
+    this.chatService.listenMessages$.subscribe(() => {
       if (this.router.url !== '/home/chat') {
         this.unreadMessagesCount.update((count) => count + 1);
       }
     });
+  }
+
+  private listenNews() {
+    this.socketService.listNews().subscribe((publication) => {
+      if (publication.user._id === this.authService.user()?.userId) {
+        return;
+      }
+      this.dialogRef.open(PublicationDialogComponent, {
+        data: [publication],
+        minWidth: '900px',
+        height: '600px',
+      });
+    });
+  }
+
+  private setupLayoutConfig(): void {
+    const media = inject(MediaMatcher);
+    this._mobileQuery = media.matchMedia('(max-width: 600px)');
+    this.isMobile.set(this._mobileQuery.matches);
+    this._mobileQueryListener = () =>
+      this.isMobile.set(this._mobileQuery.matches);
+    this._mobileQuery.addEventListener('change', this._mobileQueryListener);
+  }
+
+  private setupSocketEvents(): void {
+    this.socketService.connect();
+    this.chatService.initChatEvents();
   }
 }

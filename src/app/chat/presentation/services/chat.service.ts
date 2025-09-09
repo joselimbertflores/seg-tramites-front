@@ -1,17 +1,7 @@
-import { computed, inject, Injectable, Injector, signal } from '@angular/core';
-import { Overlay, OverlayRef } from '@angular/cdk/overlay';
-import { ComponentPortal } from '@angular/cdk/portal';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import {
-  BehaviorSubject,
-  Observable,
-  finalize,
-  Subject,
-  share,
-  map,
-  tap,
-} from 'rxjs';
+import { BehaviorSubject, finalize, Subject, share, map, tap } from 'rxjs';
 import type { Socket } from 'socket.io-client';
 
 import { SocketService } from '../../../layout/presentation/services';
@@ -22,120 +12,150 @@ import {
   MessageMapper,
   MessageResponse,
 } from '../../infrastructure';
-import { Message } from '../../domain';
-import { ChatOverlayComponent } from '../components';
-
-type MediaType = 'text' | 'image' | 'audio' | 'video' | 'document';
-interface user {
-  _id: string;
-  fullname: string;
-}
-
+import { ActiveMessagesData, Message, ScrollType } from '../../domain';
+import { user } from '../../../users/infrastructure';
 interface ChatEventData {
   chat: ChatResponse;
   message: MessageResponse;
 }
-
 interface UploadedFile {
   fileName: string;
   originalName: string;
-  type: MediaType;
+  type: string;
 }
-
 interface CreateMessageData {
   chatId: string;
   content?: string;
   media?: UploadedFile;
 }
-
 interface ChatCache {
   messages: Message[];
-  page: number; // página del backend
-  hasMore: boolean; // si quedan más mensajes
+  page: number;
+  hasMore: boolean;
 }
-
-type scrollType = 'init' | 'scroll' | 'new';
-interface ActiveMessagesData {
-  scrollType?: scrollType;
-  messages: Message[];
-}
-
 @Injectable({
   providedIn: 'root',
 })
 export class ChatService {
   private http = inject(HttpClient);
-  private overlay = inject(Overlay);
   private socketRef: Socket | null = null;
   private socketService = inject(SocketService);
   private readonly URL = `${environment.base_url}/chat`;
 
-  // * Properties for chat panel
-  private injector: Injector;
-  private overlayRef: OverlayRef | null = null;
-
-  // * Listen messages
-  private _chatSubject = new Subject<ChatEventData>();
-  chatSubject$ = this.setListenMessagesSubject();
-
-  // * Listen read mnessages
-  private _chatReadSubject = new Subject<string>();
-  chatReadSubject$ = this.setListenReadMessagesSubject();
-
-  // * Cache messages
-  private limit = 20;
+  private readonly LIMIT = 20;
   private caches = new Map<string, ChatCache>();
   private activeChatId: string | null = null;
-  private activeMessages$ = new BehaviorSubject<ActiveMessagesData>({
+  private activeMessagesData = new BehaviorSubject<ActiveMessagesData>({
     messages: [],
   });
+
   private _isLoading = signal(false);
   isLoading = computed(() => this._isLoading());
 
+  private _chatSubject = new Subject<ChatEventData>();
+  readonly listenMessages$ = this._chatSubject.asObservable().pipe(
+    map(({ message, chat }) => ({
+      chat: ChatMapper.fromResponse(chat),
+      message: MessageMapper.fromResponse(message),
+    })),
+    tap(({ message }) => this.insertNewMessage(message, 'new')),
+    share()
+  );
+
+  private _chatReadSubject = new Subject<string>();
+  readonly listenReadMessages$ = this._chatReadSubject.asObservable().pipe(
+    tap((chatId: string) => {
+      const cache = this.caches.get(chatId);
+      if (!cache) return;
+
+      cache.messages = cache.messages.map((msgs) => ({
+        ...msgs,
+        isRead: true,
+      }));
+
+      if (chatId === this.activeChatId) {
+        this.updateChatView(cache.messages);
+      }
+    }),
+    share()
+  );
+
   constructor() {}
 
-  setupConfig() {
+  messages$() {
+    return this.activeMessagesData.asObservable();
+  }
+
+  // * Execute after socket initialize
+  initChatEvents(): void {
     this.socketRef = this.socketService.getSocket();
-    this.initListeners();
+    if (!this.socketRef) return;
+
+    this.socketRef.on('sendMessage', (data: ChatEventData) => {
+      this._chatSubject.next(data);
+    });
+
+    this.socketRef.on('readMessage', (chatId: string) => {
+      this._chatReadSubject.next(chatId);
+    });
   }
 
-  messages$(): Observable<ActiveMessagesData> {
-    return this.activeMessages$.asObservable();
-  }
-
-  /** Selecciona un chat (siempre muestra los últimos 20) */
-  selectChat(chatId: string): void {
+  openChat(chatId: string): void {
     this.activeChatId = chatId;
-    this.activeMessages$.next({ messages: [] });
-    const cache = this.ensureCache(chatId);
-    if (cache.messages.length > 0) {
-      this.emitSlice(cache, 1, 'init');
-    } else {
-      this.fetchAndCache(chatId, 0).subscribe(() => {
-        this.emitSlice(this.ensureCache(chatId), 1, 'init');
-      });
-    }
+    this.activeMessagesData.next({ messages: [] });
+    this.loadMessages(chatId);
   }
 
-  loadMore(): void {
+  loadOlderMessages(): void {
     if (!this.activeChatId || this._isLoading()) return;
-    const chatId = this.activeChatId;
+    this.loadMessages(this.activeChatId);
+  }
 
+  private loadMessages(chatId: string): void {
     const cache = this.ensureCache(chatId);
-    const currentCount = this.activeMessages$.value.messages.length;
+
+    const currentCount = this.activeMessagesData.value.messages.length;
+
+    const scrollType = currentCount === 0 ? 'init' : 'scroll';
 
     if (currentCount < cache.messages.length) {
-      const pages = Math.ceil(currentCount / this.limit) + 1;
-      this.emitSlice(cache, pages, 'scroll');
-    } else if (cache.hasMore) {
-      this.fetchAndCache(chatId, cache.page).subscribe(() => {
-        const pages = Math.ceil(currentCount / this.limit) + 1;
-        this.emitSlice(this.ensureCache(chatId), pages, 'scroll');
-      });
+      this.updateChatView(cache.messages, scrollType);
+      return;
     }
+
+    if (!cache.hasMore) return;
+
+    this.fetchBackend(chatId, cache.page).subscribe((msgs) => {
+      cache.messages = [...msgs, ...cache.messages];
+      cache.page += 1;
+      cache.hasMore = msgs.length === this.LIMIT;
+      this.updateChatView(cache.messages, scrollType);
+    });
   }
 
-  // ---------------- helpers ----------------
+  private fetchBackend(chatId: string, page: number) {
+    this._isLoading.set(true);
+    return this.http
+      .get<MessageResponse[]>(`${this.URL}/${chatId}/messages`, {
+        params: { offset: page * this.LIMIT, limit: this.LIMIT },
+      })
+      .pipe(
+        map((resp) => resp.map(MessageMapper.fromResponse)),
+        finalize(() => this._isLoading.set(false))
+      );
+  }
+
+  private updateChatView(messages: Message[], scroll?: ScrollType): void {
+    const currentCount = this.activeMessagesData.value.messages.length;
+    const pages = Math.ceil(currentCount / this.LIMIT) + 1;
+
+    const toTake = this.LIMIT * pages;
+    this.activeMessagesData.next({
+      messages: messages.slice(-toTake),
+      scroll: scroll,
+    });
+  }
+
   private ensureCache(chatId: string): ChatCache {
     if (!this.caches.has(chatId)) {
       this.caches.set(chatId, { messages: [], page: 0, hasMore: true });
@@ -143,53 +163,25 @@ export class ChatService {
     return this.caches.get(chatId)!;
   }
 
-  private emitSlice(
-    cache: ChatCache,
-    pages: number,
-    scrollType?: scrollType
-  ): void {
-    const toTake = this.limit * pages;
-    this.activeMessages$.next({
-      messages: cache.messages.slice(-toTake),
-      scrollType,
-    });
-  }
+  private insertNewMessage(msg: Message, scroll?: ScrollType): void {
+    const cache = this.ensureCache(msg.chat);
+    cache.messages.push(msg);
 
-  private fetchAndCache(chatId: string, page: number): Observable<Message[]> {
-    this._isLoading.set(true);
-    console.log('GETTING FORM BACKEND PAGE:', page);
-    return this.http
-      .get<MessageResponse[]>(`${this.URL}/${chatId}/messages`, {
-        params: { offset: page * this.limit, limit: this.limit },
-      })
-      .pipe(
-        map((resp) => resp.map((item) => MessageMapper.fromResponse(item))),
-        tap((msgs) => {
-          const cache = this.ensureCache(chatId);
-          if (page === 0) {
-            // primera carga
-            cache.messages = msgs;
-          } else {
-            // scroll up → prepend
-            cache.messages = [...msgs, ...cache.messages];
-          }
-          cache.page = page + 1;
-          cache.hasMore = msgs.length === this.limit;
-        }),
-        finalize(() => this._isLoading.set(false))
-      );
-  }
-
-  geChats() {
-    return this.http
-      .get<ChatResponse[]>(this.URL)
-      .pipe(map((resp) => resp.map((item) => ChatMapper.fromResponse(item))));
+    if (this.activeChatId === msg.chat) {
+      this.updateChatView(cache.messages, scroll);
+    }
   }
 
   findOrCreateChat(receiverId: string) {
     return this.http
       .get<ChatResponse>(`${this.URL}/start/${receiverId}`)
       .pipe(map((resp) => ChatMapper.fromResponse(resp)));
+  }
+
+  getChats() {
+    return this.http
+      .get<ChatResponse[]>(this.URL)
+      .pipe(map((resp) => resp.map(ChatMapper.fromResponse)));
   }
 
   getAccountChat(accountId: string) {
@@ -215,15 +207,16 @@ export class ChatService {
     );
   }
 
+  markChatAsRead(chatId: string) {
+    return this.http.patch<{ message: string }>(
+      `${this.URL}/${chatId}/read`,
+      {}
+    );
+  }
+
   sendMessage({ chatId, content, media }: CreateMessageData) {
     const data = media
-      ? {
-          type: media.type,
-          media: {
-            fileName: media.fileName,
-            originalName: media.originalName,
-          },
-        }
+      ? { type: media.type, media }
       : { type: 'text', content };
 
     return this.http
@@ -236,114 +229,7 @@ export class ChatService {
           message: MessageMapper.fromResponse(message),
           chat: ChatMapper.fromResponse(chat),
         })),
-        tap(({ message }) => {
-          this.insertNewMessage(message, 'init');
-        })
+        tap(({ message }) => this.insertNewMessage(message, 'init'))
       );
-  }
-
-  markChatAsRead(chatId: string) {
-    return this.http.patch<{ message: string }>(
-      `${this.URL}/${chatId}/read`,
-      {}
-    );
-  }
-
-  uploadFile(file: File) {
-    const uploadUrl = `${environment.base_url}/files/chat`;
-    const formData = new FormData();
-    formData.append('file', file);
-    return this.http.post<UploadedFile>(uploadUrl, formData);
-  }
-
-  openAccountChat(accountId: string) {
-    if (this.overlayRef) return;
-    this.overlayRef = this.overlay.create({
-      positionStrategy: this.overlay
-        .position()
-        .global()
-        .bottom('16px')
-        .right('16px'),
-    });
-    const portalInjector = Injector.create({
-      providers: [
-        { provide: OverlayRef, useValue: this.overlayRef },
-        { provide: 'CHAT_DATA', useValue: { account: accountId } },
-      ],
-      parent: this.injector,
-    });
-    const portal = new ComponentPortal(
-      ChatOverlayComponent,
-      null,
-      portalInjector
-    );
-    this.overlayRef.attach(portal);
-  }
-
-  closeAccountChat() {
-    this.overlayRef?.dispose();
-    this.overlayRef = null;
-  }
-
-  private initListeners(): void {
-    if (!this.socketRef) return;
-
-    this.socketRef.on('sendMessage', (data: ChatEventData) => {
-      this._chatSubject.next(data);
-    });
-
-    this.socketRef.on('readMessage', (chatId: string) => {
-      this._chatReadSubject.next(chatId);
-    });
-  }
-
-  private insertNewMessage(msg: Message, scrollType?: scrollType): void {
-    const cache = this.caches.get(msg.chat);
-
-    if (!cache) return;
-
-    this.caches.get(msg.chat)?.messages.push(msg);
-
-    if (this.activeChatId === msg.chat) {
-      const currentCount = this.activeMessages$.value.messages.length;
-      const pages = Math.ceil(currentCount / this.limit);
-      this.emitSlice(cache, pages, scrollType);
-    }
-  }
-
-  private setListenMessagesSubject() {
-    return this._chatSubject.asObservable().pipe(
-      map(({ message, chat }) => ({
-        chat: ChatMapper.fromResponse(chat),
-        message: MessageMapper.fromResponse(message),
-      })),
-      tap(({ message }) => {
-        this.insertNewMessage(message);
-      }),
-      share()
-    );
-  }
-
-  private setListenReadMessagesSubject() {
-    return this._chatReadSubject.asObservable().pipe(
-      tap((chatId: string) => {
-        const cache = this.caches.get(chatId);
-
-        if (!cache) return;
-
-        cache.messages = cache.messages.map((item) => ({
-          ...item,
-          isRead: true,
-        }));
-
-        if (chatId === this.activeChatId) {
-          const currentCount = this.activeMessages$.value.messages.length;
-          console.log(currentCount);
-          this.emitSlice(cache, Math.ceil(currentCount / this.limit));
-          console.log(this.activeMessages$.value.messages.length);
-        }
-      }),
-      share()
-    );
   }
 }

@@ -260,7 +260,7 @@ export default class InboxComponent implements OnInit {
   }
 
   chat(item: Communication) {
-    this.chatService.openAccountChat(item.sender.account);
+    // this.chatService.openAccountChat(item.sender.account);
   }
 
   search(term: string) {

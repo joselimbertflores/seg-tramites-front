@@ -24,6 +24,7 @@ import { FileChatSelectorComponent } from '../file-chat-selector/file-chat-selec
 import { ChatBubbleComponent } from '../chat-bubble/chat-bubble.component';
 import { Chat, Message } from '../../../domain';
 import { ChatService } from '../../services';
+import { FileUploadService } from '../../../../shared';
 
 @Component({
   selector: 'chat-window',
@@ -43,6 +44,7 @@ import { ChatService } from '../../services';
 export class ChatWindowComponent {
   private chatService = inject(ChatService);
   private destroyRef = inject(DestroyRef);
+  private fileUploadService = inject(FileUploadService);
 
   chat = input.required<Chat>();
   onSendMessage = output<Chat>();
@@ -61,7 +63,7 @@ export class ChatWindowComponent {
 
   constructor() {
     effect(() => {
-      this.chatService.selectChat(this.chat().id);
+      this.chatService.openChat(this.chat().id);
     });
   }
 
@@ -91,7 +93,7 @@ export class ChatWindowComponent {
     from(files)
       .pipe(
         concatMap((file) =>
-          this.chatService.uploadFile(file).pipe(
+          this.fileUploadService.uploadFile(file, 'chat').pipe(
             switchMap((media) =>
               this.chatService.sendMessage({
                 chatId: this.chat().id,
@@ -114,7 +116,7 @@ export class ChatWindowComponent {
   scrollUp() {
     if (this.isLoading()) return;
     this.previusHeight = this.chatPanel().nativeElement.scrollHeight;
-    this.chatService.loadMore();
+    this.chatService.loadOlderMessages();
   }
 
   scroll() {
@@ -143,13 +145,13 @@ export class ChatWindowComponent {
   }
 
   private listenForChatSeen(): void {
-    this.chatService.chatReadSubject$
+    this.chatService.listenReadMessages$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe();
   }
 
   private listenForNewMessages(): void {
-    this.chatService.chatSubject$
+    this.chatService.listenMessages$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         if (!this.isAtBottom()) {
@@ -160,7 +162,7 @@ export class ChatWindowComponent {
   }
 
   private setMessagesConfig() {
-    this.chatService.messages$().subscribe(({ messages, scrollType }) => {
+    this.chatService.messages$().subscribe(({ messages, scroll: scrollType }) => {
       this.messages.set(messages);
       switch (scrollType) {
         case 'init':

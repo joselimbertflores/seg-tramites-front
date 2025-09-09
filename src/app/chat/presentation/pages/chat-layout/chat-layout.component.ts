@@ -5,8 +5,8 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { ChatListComponent, ChatWindowComponent } from '../../components';
 import { ChatService } from '../../services';
@@ -33,7 +33,7 @@ export default class ChatLayoutComponent {
   }
 
   getChats(): void {
-    this.chatService.geChats().subscribe((chats) => {
+    this.chatService.getChats().subscribe((chats) => {
       this.chats.set(chats);
     });
   }
@@ -68,7 +68,7 @@ export default class ChatLayoutComponent {
   }
 
   private listenForNewMessages(): void {
-    this.chatService.chatSubject$
+    this.chatService.listenMessages$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(({ chat }) => {
         if (chat.id === this.currentChat()?.id) {
@@ -81,7 +81,7 @@ export default class ChatLayoutComponent {
   }
 
   private listenForChatSeen(): void {
-    this.chatService.chatReadSubject$
+    this.chatService.listenReadMessages$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((chatId) => {
         // * currentChat lastMessage is update by chat window

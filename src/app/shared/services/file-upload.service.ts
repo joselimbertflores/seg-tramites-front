@@ -3,11 +3,12 @@ import { inject, Injectable } from '@angular/core';
 
 import { environment } from '../../../environments/environment';
 
-type fileGroup = 'resource' | 'post';
+type fileGroup = 'resource' | 'post' | 'chat';
+type MediaType = 'text' | 'image' | 'audio' | 'video' | 'document';
 interface UploadedFile {
   fileName: string;
   originalName: string;
-  type: string;
+  type: MediaType;
 }
 @Injectable({
   providedIn: 'root',

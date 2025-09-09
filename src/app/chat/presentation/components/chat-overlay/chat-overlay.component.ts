@@ -62,6 +62,6 @@ export class ChatOverlayComponent {
   }
 
   close() {
-    this.chatService.closeAccountChat();
+    // this.chatService.closeAccountChat();
   }
 }

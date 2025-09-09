@@ -21,16 +21,15 @@
     [infiniteScrollUpDistance]="0"
     [infiniteScrollThrottle]="150"
     [scrollWindow]="false"
-    [alwaysCallback]="true"
     (scrolledUp)="scrollUp()"
     (scroll)="scroll()"
     #chatPanel
   >
     @if(isLoading()){
-      <div class="text-center py-2">Cargando mensajes...</div>
+      <div class="text-center">Cargando mensajes...</div>
     }
     @if(!isLoading() && messages().length === 0){
-      <div class="text-center py-2">
+      <div class="text-center">
         Escriba un mensaje para iniciar la conversacion.
       </div>
     } 
