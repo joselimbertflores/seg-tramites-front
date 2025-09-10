@@ -36,7 +36,6 @@ import {
 
 interface cache {
   pieChartData: GeneriChartData;
-  barChartData: GeneriChartData;
   results: totalProcedureBySegmentResponse | null;
 }
 @Component({
@@ -72,12 +71,14 @@ export default class ReportSegmentsComponent {
     { label: 'Tramites de Contrataciones', value: procedureGroup.Procurement },
   ];
   readonly PROCEDURE_STATUS_LIST = [
-    { label: 'Anulado', value: procedureState.Anulado },
-    { label: 'Concluido', value: procedureState.Concluido },
-    { label: 'Archivado', value: procedureState.Inscrito },
-    { label: 'Observadors', value: procedureState.Observado },
+    { label: 'Inscrito', value: procedureState.Inscrito },
     { label: 'En Revision', value: procedureState.Revision },
+    { label: 'Observado', value: procedureState.Observado },
+    { label: 'Concluido', value: procedureState.Concluido },
+    { label: 'Abandonado', value: procedureState.Abandono },
     { label: 'Suspendido', value: procedureState.Suspendido },
+    { label: 'Retirado', value: procedureState.Retirado },
+    { label: 'Anulado', value: procedureState.Anulado },
   ];
 
   filterForm: FormGroup = inject(FormBuilder).group({
@@ -95,15 +96,10 @@ export default class ReportSegmentsComponent {
     datasets: [],
   });
 
-  barChartData = signal<GeneriChartData>({
-    labels: [],
-    datasets: [],
-  });
-
   constructor() {
-    this.destroyRef.onDestroy(()=>{
-      this.saveCache()
-    })
+    this.destroyRef.onDestroy(() => {
+      this.saveCache();
+    });
   }
 
   ngOnInit(): void {
@@ -118,28 +114,52 @@ export default class ReportSegmentsComponent {
       .subscribe((data) => {
         this.results.set(data);
         this.pieChartData.set({
-          labels: ['Pendientes', 'Finalizados'],
+          labels: ['Pendientes', 'Archivados'],
           datasets: [
             {
               data: [
                 data.globalTotals.totalPending,
                 data.globalTotals.totalCompleted,
               ],
+              backgroundColor:["#FFD166", "#06D6A0"]
             },
           ],
-        });
-        this.barChartData.set({
-          labels: Object.values(procedureState),
-          datasets: data.segments.map((item) => ({
-            label: item.prefix,
-            data: item.breakdown.map((value) => value.count),
-          })),
         });
       });
   }
 
   selectInstitution(value: string) {
     this.filterForm.patchValue({ institutionId: value });
+  }
+
+  saveCache() {
+    this.cacheService.saveCache('report-segments', {
+      results: this.results(),
+      pieChartData: this.pieChartData(),
+    });
+  }
+
+  loadCache() {
+    const cache = this.cacheService.loadCache('report-segments');
+    if (!cache) return;
+    this.results.set(cache.results);
+    this.pieChartData.set(cache.pieChartData);
+  }
+
+  getCountState(
+    state: procedureState,
+    items: { state: procedureState; count: number }[]
+  ) {
+    return items.find((item) => item.state === state)?.count ?? 0;
+  }
+
+  getTotalByState(state: procedureState): number {
+    return (
+      this.results()?.segments.reduce((acc, seg) => {
+        const found = seg.breakdown.find((b) => b.state === state);
+        return acc + (found?.count ?? 0);
+      }, 0) ?? 0
+    );
   }
 
   private getInstitutionsSubscription(): Observable<selectOption<string>[]> {
@@ -150,21 +170,5 @@ export default class ReportSegmentsComponent {
           resp.map((item) => ({ value: item._id, label: item.nombre }))
         )
       );
-  }
-
-  saveCache() {
-    this.cacheService.saveCache('report-segments', {
-      results: this.results(),
-      pieChartData: this.pieChartData(),
-      barChartData: this.barChartData(),
-    });
-  }
-
-  loadCache() {
-    const cache = this.cacheService.loadCache('report-segments');
-    if (!cache) return;
-    this.results.set(cache.results);
-    this.pieChartData.set(cache.pieChartData);
-    this.barChartData.set(cache.barChartData);
   }
 }

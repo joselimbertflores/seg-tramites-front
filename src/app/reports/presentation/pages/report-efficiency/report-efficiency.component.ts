@@ -132,8 +132,9 @@ export default class ReportEfficiencyComponent implements OnInit {
       });
   }
 
-  addType(event: MatAutocompleteSelectedEvent): void {
+  selectedType(event: MatAutocompleteSelectedEvent): void {
     const newType: typeProcedureOption = event.option.value;
+
     this.selectedTypes.update((values) => {
       if (values.find((item) => item.value === newType.value)) {
         return values;
@@ -142,7 +143,10 @@ export default class ReportEfficiencyComponent implements OnInit {
     });
 
     this.filterInputTypes.reset();
+
     event.option.deselect();
+
+    this.filterForm.patchValue({ types: this.selectedTypes().map(({ value }) => value)});
   }
 
   removeType(option: typeProcedureOption): void {
@@ -150,6 +154,7 @@ export default class ReportEfficiencyComponent implements OnInit {
       this.announcer.announce(`Removed ${option.label}`);
       return values.filter((item) => item.value !== option.value);
     });
+    this.filterForm.patchValue({ types: this.selectedTypes().map(({ value }) => value)});
   }
 
   selectInstitution(value: string) {

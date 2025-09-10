@@ -59,7 +59,10 @@ import {
   SubmissionDialogComponent,
   RouteSheetData,
 } from '../../dialogs';
-import { ChatService } from '../../../../chat/presentation/services';
+import {
+  ChatOverlayService,
+  ChatService,
+} from '../../../../chat/presentation/services';
 
 @Component({
   selector: 'app-inbox',
@@ -105,7 +108,7 @@ export default class InboxComponent implements OnInit {
   private socketService = inject(SocketService);
   private alertService = inject(AlertService);
   private cacheService: CacheService<inboxCache> = inject(CacheService);
-  private chatService = inject(ChatService);
+  private chatOverlayService = inject(ChatOverlayService);
   // private pdfService = inject(PdfService);
 
   datasource = signal<Communication[]>([]);
@@ -259,8 +262,8 @@ export default class InboxComponent implements OnInit {
     });
   }
 
-  chat(item: Communication) {
-    // this.chatService.openAccountChat(item.sender.account);
+  startChat(item: Communication) {
+    this.chatOverlayService.openAccountChat(item.sender.account);
   }
 
   search(term: string) {

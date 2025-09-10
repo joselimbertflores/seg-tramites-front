@@ -105,6 +105,8 @@ export default class ReportSearchComponent {
 
   readonly STATES = Object.values(procedureState).map((value) => value);
 
+  title = this.cacheService.currentReport;
+
   constructor() {
     this.destroyRef.onDestroy(() => {
       this.saveCache();
@@ -116,7 +118,7 @@ export default class ReportSearchComponent {
   }
 
   getData() {
-    if(this.filterForm().invalid) return
+    if (this.filterForm().invalid) return;
     this.isLoading.set(true);
     this.hasSearched.set(true);
     this.reportService

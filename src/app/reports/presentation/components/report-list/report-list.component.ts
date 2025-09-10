@@ -6,7 +6,7 @@ import {
   MatBottomSheetModule,
 } from '@angular/material/bottom-sheet';
 
-import { ReportCacheService } from '../../services';
+import { ReportCacheService, ReportItem } from '../../services';
 
 @Component({
   selector: 'app-report-list',
@@ -21,7 +21,7 @@ import { ReportCacheService } from '../../services';
         #link="routerLinkActive"
         [activated]="link.isActive"
         mat-list-item
-        (click)="openLink($event)"
+        (click)="openLink($event, item)"
       >
         <span matListItemTitle>{{ item.label }}</span>
         <span matListItemLine>{{ item.description }}</span>
@@ -32,10 +32,12 @@ import { ReportCacheService } from '../../services';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReportListComponent {
+  private reportCacheService = inject(ReportCacheService);
   private _bottomSheetRef = inject(MatBottomSheetRef);
-  menu = inject(ReportCacheService).menu;
+  menu = this.reportCacheService.menu;
 
-  openLink(event: MouseEvent): void {
+  openLink(event: MouseEvent, item:ReportItem): void {
+    this.reportCacheService.setCurrentReportProps(item);
     this._bottomSheetRef.dismiss();
     event.preventDefault();
   }

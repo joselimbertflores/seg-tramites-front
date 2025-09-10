@@ -86,7 +86,7 @@ export const getRouteSheetReport = async (
           bold: true,
         },
         {
-          text: '\nDirección: Pasaje Constitucional S-002 - Teléfonos: No. Piloto 4701677 - 4702301 - 4703059 - Fax interno: 143',
+          text: '\nDirección: Pasaje Constitucional S-002 - Teléfonos: No. Piloto 4701677 - 4702301 - 4703059',
         },
         {
           text: '\nE-mail: info@sacaba.gob.bo - Pagina web: www.sacaba.gob.bo  Sacaba - Cochabamba - Bolivia',

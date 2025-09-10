@@ -30,9 +30,12 @@ import { ReportCacheService } from '../../services';
     MatTooltipModule,
   ],
   template: `
-    <mat-toolbar>
-      <span>Reportes</span>
-      <span class="flex-1"></span>
+    <div class="flex justify-between px-4 py-2 gap-2">
+      <div>
+        <h2 class="text-2xl font-bold">{{ currentReportProps()?.label }}</h2>
+        <p class=" text-lg">{{ currentReportProps()?.description }}</p>
+      </div>
+
       <button
         mat-mini-fab
         aria-label="Menu reports"
@@ -41,7 +44,8 @@ import { ReportCacheService } from '../../services';
       >
         <mat-icon>menu</mat-icon>
       </button>
-    </mat-toolbar>
+    </div>
+
     <router-outlet />
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -51,6 +55,8 @@ export default class ReportDashboardComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private bottomSheet = inject(MatBottomSheet);
   private reportCacheService = inject(ReportCacheService);
+
+  currentReportProps = this.reportCacheService.currentReport;
 
   ngOnInit(): void {
     this.listenReportRoutes();

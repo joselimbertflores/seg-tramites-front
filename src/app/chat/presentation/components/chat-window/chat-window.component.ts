@@ -8,7 +8,8 @@ import {
   signal,
   output,
   input,
-  effect,
+  OnChanges,
+  SimpleChanges,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -22,9 +23,9 @@ import { InfiniteScrollDirective } from 'ngx-infinite-scroll';
 
 import { FileChatSelectorComponent } from '../file-chat-selector/file-chat-selector.component';
 import { ChatBubbleComponent } from '../chat-bubble/chat-bubble.component';
+import { FileUploadService } from '../../../../shared';
 import { Chat, Message } from '../../../domain';
 import { ChatService } from '../../services';
-import { FileUploadService } from '../../../../shared';
 
 @Component({
   selector: 'chat-window',
@@ -41,9 +42,9 @@ import { FileUploadService } from '../../../../shared';
   templateUrl: './chat-window.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ChatWindowComponent {
-  private chatService = inject(ChatService);
+export class ChatWindowComponent implements OnChanges {
   private destroyRef = inject(DestroyRef);
+  private chatService = inject(ChatService);
   private fileUploadService = inject(FileUploadService);
 
   chat = input.required<Chat>();
@@ -61,11 +62,12 @@ export class ChatWindowComponent {
 
   isLoading = this.chatService.isLoading;
 
-  constructor() {
-    effect(() => {
-      console.log('efect exect');
+  constructor() {}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['chat']) {
       this.chatService.openChat(this.chat().id);
-    });
+    }
   }
 
   ngOnInit() {
@@ -75,6 +77,7 @@ export class ChatWindowComponent {
     if (this.chat().unreadCount > 0) {
       this.setMessageToSeen();
     }
+    // this.closeChatOverlay();
   }
 
   sendMessage(): void {

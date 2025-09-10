@@ -4,11 +4,7 @@ import { finalize, tap } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
 import { groupedResource, resourceFile } from '../../infrastructure';
-
-interface fileProps {
-  fileName: string;
-  originalName: string;
-}
+import { UploadedFile } from '../../../chat/domain';
 interface newResource {
   category: string;
   files: resourceFile[];
@@ -27,11 +23,14 @@ export class ResourceService {
     this.findAllGroupedByCategory();
   }
 
-  create(category: string, fileProps: fileProps[]) {
+  create(category: string, uploadedFiles: UploadedFile[]) {
     return this.http
       .post<newResource>(`${this.URL}`, {
         category,
-        items: fileProps,
+        items: uploadedFiles.map(({ fileName, originalName }) => ({
+          fileName,
+          originalName,
+        })),
       })
       .pipe(tap((resp) => this.addResource(resp)));
   }

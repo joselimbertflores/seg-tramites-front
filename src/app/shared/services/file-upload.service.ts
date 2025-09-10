@@ -5,7 +5,7 @@ import { environment } from '../../../environments/environment';
 
 type fileGroup = 'resource' | 'post' | 'chat';
 type MediaType = 'text' | 'image' | 'audio' | 'video' | 'document';
-interface UploadedFile {
+export interface UploadedFile {
   fileName: string;
   originalName: string;
   type: MediaType;

@@ -1,7 +1,4 @@
 <div class="p-2 sm:p-6 max-w-7xl mx-auto">
-  <h2 class="text-2xl font-medium mb-4">
-    Reporte eficiencia de trámites
-  </h2>
   <form [formGroup]="filterForm" (ngSubmit)="generate()">
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-4">
       <div class="sm:col-span-2">
@@ -34,7 +31,7 @@
       <div class="sm:col-span-3">
         <mat-form-field>
           <mat-label>Tipos de trámite</mat-label>
-          <mat-chip-grid #chipGrid formControlName="types">
+          <mat-chip-grid #chipGrid>
             @for (type of selectedTypes(); track $index) {
             <mat-chip-row [value]="type.value" (removed)="removeType(type)">
               {{ type.label | titlecase }}
@@ -53,7 +50,7 @@
           />
           <mat-autocomplete
             #auto="matAutocomplete"
-            (optionSelected)="addType($event); filterInput.value = ''"
+            (optionSelected)="selectedType($event); filterInput.value = ''"
           >
             @for (type of typesProcedures(); track $index) {
             <mat-option [value]="type">
@@ -89,7 +86,7 @@
     <div class="overflow-x-auto mt-6 overflow-y-hidden">
       <table class="min-w-full divide-y-2 divide-gray-200">
         <thead>
-          <tr class="*:font-medium *:text-gray-900">
+          <tr class="*:font-medium">
             <th class="px-3 py-2 whitespace-nowrap text-start w-full">
               Tipo de tramite
             </th>

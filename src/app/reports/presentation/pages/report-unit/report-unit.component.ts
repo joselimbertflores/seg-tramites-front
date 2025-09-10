@@ -94,7 +94,7 @@ export default class ReportUnitComponent {
   ];
 
   readonly statusColumnsToDisplay = [
-    { columnDef: sendStatus.Pending, header: 'Pendientes' },
+    { columnDef: sendStatus.Pending, header: 'Sin Recibir' },
     { columnDef: sendStatus.Received, header: 'Recibidos' },
     { columnDef: sendStatus.Rejected, header: 'Rechazados' },
     { columnDef: sendStatus.AutoRejected, header: 'Auto Rechazados' },

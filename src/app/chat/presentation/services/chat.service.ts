@@ -116,12 +116,9 @@ export class ChatService {
     this.activeChatId = chatId;
     this.activeMessagesData.next({ messages: [] });
     this.loadMessages(chatId);
-    console.log('CHAT OPEN');
   }
 
   loadMessages(chatId: string): void {
-    console.log("Load MORE");
-    // if(this.isLoading()) return
     const cache = this.ensureCache(chatId);
 
     const currentCount = this.activeMessagesData.value.messages.length;
@@ -133,7 +130,7 @@ export class ChatService {
       return;
     }
 
-    if (!cache.hasMore) return;
+    if (!cache.hasMore || this.isLoading()) return;
 
     this.fetchBackend(chatId, cache.page)
       .pipe(takeUntil(this.destroy$))
@@ -176,9 +173,9 @@ export class ChatService {
   }
 
   private insertNewMessage(msg: Message, scroll?: ScrollType): void {
-    const cache = this.ensureCache(msg.chat);
+    const cache = this.caches.get(msg.chat);
+    if (!cache) return;
     cache.messages.push(msg);
-
     if (this.activeChatId === msg.chat) {
       this.updateChatView(cache.messages, scroll);
     }
@@ -228,7 +225,10 @@ export class ChatService {
 
   sendMessage({ chatId, content, media }: CreateMessageData) {
     const data = media
-      ? { type: media.type, media }
+      ? {
+          type: media.type,
+          media: { fileName: media.fileName, originalName: media.originalName },
+        }
       : { type: 'text', content };
 
     return this.http

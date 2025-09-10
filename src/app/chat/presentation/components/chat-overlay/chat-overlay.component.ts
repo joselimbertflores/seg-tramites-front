@@ -5,13 +5,14 @@ import {
   Inject,
   signal,
 } from '@angular/core';
-import { ChatService } from '../../services';
-import { ChatWindowComponent } from '../chat-window/chat-window.component';
-import { Chat, Message } from '../../../domain';
-import { finalize, switchMap, tap } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { finalize, tap } from 'rxjs';
+
+import { ChatWindowComponent } from '../chat-window/chat-window.component';
+import { ChatOverlayService, ChatService } from '../../services';
 import { overlayAnimation } from '../../../../shared';
+import { Chat, Message } from '../../../domain';
 
 interface ChatOverlayData {
   account: string;
@@ -45,6 +46,7 @@ export class ChatOverlayComponent {
   isLoading = signal<boolean>(true);
 
   private chatService = inject(ChatService);
+  private chatOverlayService = inject(ChatOverlayService);
 
   constructor(@Inject('CHAT_DATA') public data: ChatOverlayData) {}
 
@@ -53,15 +55,12 @@ export class ChatOverlayComponent {
       .getAccountChat(this.data.account)
       .pipe(
         tap((chat) => this.chat.set(chat)),
-        // switchMap((chat) => this.chatService.getChatMessages(chat.id)),
         finalize(() => this.isLoading.set(false))
       )
-      .subscribe((messages) => {
-        // this.messages.set(messages);
-      });
+      .subscribe();
   }
 
   close() {
-    // this.chatService.closeAccountChat();
+    this.chatOverlayService.closeAccountChat();
   }
 }

@@ -1,9 +1,15 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
+import {
+  computed,
+  inject,
+  Injectable,
+  linkedSignal,
+  signal,
+} from '@angular/core';
 
 import { AuthService } from '../../../auth/presentation/services/auth.service';
 import { validResource } from '../../../auth/infrastructure';
 
-export interface reportMenu {
+export interface ReportItem {
   label: string;
   link: string;
   description: string;
@@ -20,16 +26,15 @@ export class ReportCacheService<T> {
 
   cache: Record<string, T> = {};
 
-  defaultRoute = computed<string | null>(() => {
-    const reportResource =
-      this.authService.permissions()[validResource.reports];
+  defaultReport = computed<ReportItem | null>(() => {
+    const reportResource = this.authService.permissions()[validResource.reports];
     if (!reportResource) return null;
     return reportResource.find((action) => action === 'search')
-      ? 'home/reports/search'
+      ? this.permissionMappings["search"]
       : null;
   });
 
-  private readonly permissionMappings: Record<string, reportMenu> = {
+  private readonly permissionMappings: Record<string, ReportItem> = {
     search: {
       label: 'Busquedas',
       link: 'home/reports/search',
@@ -69,7 +74,7 @@ export class ReportCacheService<T> {
     efficiency: {
       label: 'Eficiencia',
       description:
-        'Total de tramites finalizados y su promedio en dias habiles',
+        'Total de tramites archivados y su promedio en dias habiles',
       link: 'home/reports/efficiency',
       order: 7,
     },
@@ -79,8 +84,13 @@ export class ReportCacheService<T> {
     const actions = this.authService.permissions()[validResource.reports] ?? [];
     return actions
       .map((action) => this.permissionMappings[action])
-      .filter((item) => !!item).sort((a, b) => a.order - b.order);
+      .filter((item) => !!item)
+      .sort((a, b) => a.order - b.order);
   });
+
+  private _currentReport = linkedSignal(() => this.defaultReport() );
+
+  currentReport = computed(() => this._currentReport());
 
   saveCache(key: string, data: T) {
     this.cache[key] = data;
@@ -88,5 +98,9 @@ export class ReportCacheService<T> {
 
   loadCache(key: string): T | null {
     return this.cache[key] ?? null;
+  }
+
+  setCurrentReportProps(item: ReportItem) {
+    this._currentReport.set(item);
   }
 }

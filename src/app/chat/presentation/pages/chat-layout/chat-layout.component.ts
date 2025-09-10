@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { ChatListComponent, ChatWindowComponent } from '../../components';
-import { ChatService } from '../../services';
+import { ChatOverlayService, ChatService } from '../../services';
 import { Chat } from '../../../domain';
 
 @Component({
@@ -20,6 +20,7 @@ import { Chat } from '../../../domain';
 })
 export default class ChatLayoutComponent {
   private chatService = inject(ChatService);
+  private chatOverlayService = inject(ChatOverlayService);
   private destroyRef = inject(DestroyRef);
 
   chats = signal<Chat[]>([]);
@@ -30,6 +31,7 @@ export default class ChatLayoutComponent {
     this.getChats();
     this.listenForNewMessages();
     this.listenForChatSeen();
+    this.closeChatOverlay();
   }
 
   getChats(): void {
@@ -93,5 +95,9 @@ export default class ChatLayoutComponent {
           return [...values];
         });
       });
+  }
+
+  private closeChatOverlay() {
+    this.chatOverlayService.closeAccountChat();
   }
 }
