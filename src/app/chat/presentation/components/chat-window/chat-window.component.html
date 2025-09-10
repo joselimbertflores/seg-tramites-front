@@ -33,7 +33,7 @@
         Escriba un mensaje para iniciar la conversacion.
       </div>
     } 
-    @for (item of messages(); track $index) {
+    @for (item of messages(); track item.id) {
       <chat-bubble [message]="item" />
     }
   </div>

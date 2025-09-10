@@ -63,6 +63,7 @@ export class ChatWindowComponent {
 
   constructor() {
     effect(() => {
+      console.log('efect exect');
       this.chatService.openChat(this.chat().id);
     });
   }
@@ -114,9 +115,8 @@ export class ChatWindowComponent {
   }
 
   scrollUp() {
-    if (this.isLoading()) return;
     this.previusHeight = this.chatPanel().nativeElement.scrollHeight;
-    this.chatService.loadOlderMessages();
+    this.chatService.loadMessages(this.chat().id);
   }
 
   scroll() {
@@ -162,9 +162,9 @@ export class ChatWindowComponent {
   }
 
   private setMessagesConfig() {
-    this.chatService.messages$().subscribe(({ messages, scroll: scrollType }) => {
+    this.chatService.messages$().subscribe(({ messages, scroll }) => {
       this.messages.set(messages);
-      switch (scrollType) {
+      switch (scroll) {
         case 'init':
           this.scrollToBottom();
           break;

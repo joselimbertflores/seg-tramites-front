@@ -1,7 +1,15 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { BehaviorSubject, finalize, Subject, share, map, tap } from 'rxjs';
+import {
+  BehaviorSubject,
+  finalize,
+  Subject,
+  share,
+  map,
+  tap,
+  takeUntil,
+} from 'rxjs';
 import type { Socket } from 'socket.io-client';
 
 import { SocketService } from '../../../layout/presentation/services';
@@ -80,6 +88,9 @@ export class ChatService {
     share()
   );
 
+  // * Cancel subscription if selected chat is quick change
+  private destroy$ = new Subject<void>();
+
   constructor() {}
 
   messages$() {
@@ -101,36 +112,37 @@ export class ChatService {
   }
 
   openChat(chatId: string): void {
+    this.destroy$.next(); // Cancel previus subscription
     this.activeChatId = chatId;
     this.activeMessagesData.next({ messages: [] });
     this.loadMessages(chatId);
+    console.log('CHAT OPEN');
   }
 
-  loadOlderMessages(): void {
-    if (!this.activeChatId || this._isLoading()) return;
-    this.loadMessages(this.activeChatId);
-  }
-
-  private loadMessages(chatId: string): void {
+  loadMessages(chatId: string): void {
+    console.log("Load MORE");
+    // if(this.isLoading()) return
     const cache = this.ensureCache(chatId);
 
     const currentCount = this.activeMessagesData.value.messages.length;
 
-    const scrollType = currentCount === 0 ? 'init' : 'scroll';
+    const scroll = currentCount === 0 ? 'init' : 'scroll';
 
     if (currentCount < cache.messages.length) {
-      this.updateChatView(cache.messages, scrollType);
+      this.updateChatView(cache.messages, scroll);
       return;
     }
 
     if (!cache.hasMore) return;
 
-    this.fetchBackend(chatId, cache.page).subscribe((msgs) => {
-      cache.messages = [...msgs, ...cache.messages];
-      cache.page += 1;
-      cache.hasMore = msgs.length === this.LIMIT;
-      this.updateChatView(cache.messages, scrollType);
-    });
+    this.fetchBackend(chatId, cache.page)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((msgs) => {
+        cache.messages = [...msgs, ...cache.messages];
+        cache.page += 1;
+        cache.hasMore = msgs.length === this.LIMIT;
+        this.updateChatView(cache.messages, scroll);
+      });
   }
 
   private fetchBackend(chatId: string, page: number) {
