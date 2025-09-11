@@ -3,8 +3,8 @@ import { inject, Injectable } from '@angular/core';
 
 import { environment } from '../../../environments/environment';
 
-type fileGroup = 'resource' | 'post' | 'chat';
-type MediaType = 'text' | 'image' | 'audio' | 'video' | 'document';
+type FileGroup = 'resource' | 'post' | 'chat';
+type MediaType = 'image' | 'audio' | 'video' | 'document';
 export interface UploadedFile {
   fileName: string;
   originalName: string;
@@ -21,13 +21,13 @@ export class FileUploadService {
     return this.http.get(url, { responseType: 'blob' });
   }
 
-  uploadFile(file: File, group: fileGroup) {
+  uploadFile(file: File, group: FileGroup) {
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post<UploadedFile>(`${this.URL}/${group}`, formData);
   }
 
-  downloadFileFromUrl(url: string, originalName: string): void {
+  downloadFileFromUrl(url: string, originalName: string = 'Archivo'): void {
     this.getFile(url).subscribe({
       next: (blob) => {
         const objectUrl = URL.createObjectURL(blob);

@@ -27,10 +27,11 @@ export class ReportCacheService<T> {
   cache: Record<string, T> = {};
 
   defaultReport = computed<ReportItem | null>(() => {
-    const reportResource = this.authService.permissions()[validResource.reports];
+    const reportResource =
+      this.authService.permissions()[validResource.reports];
     if (!reportResource) return null;
     return reportResource.find((action) => action === 'search')
-      ? this.permissionMappings["search"]
+      ? this.permissionMappings['search']
       : null;
   });
 
@@ -50,7 +51,7 @@ export class ReportCacheService<T> {
     unit: {
       label: 'Unidades',
       link: 'home/reports/unit',
-      description: 'Listado de tramites pendientes por unidad',
+      description: 'Cantidad de tramites (enviados / recibidos) por unidad',
       order: 3,
     },
     segments: {
@@ -73,8 +74,7 @@ export class ReportCacheService<T> {
     },
     efficiency: {
       label: 'Eficiencia',
-      description:
-        'Total de tramites archivados y su promedio en dias habiles',
+      description: 'Total de tramites archivados y su promedio en dias habiles',
       link: 'home/reports/efficiency',
       order: 7,
     },
@@ -88,7 +88,7 @@ export class ReportCacheService<T> {
       .sort((a, b) => a.order - b.order);
   });
 
-  private _currentReport = linkedSignal(() => this.defaultReport() );
+  private _currentReport = linkedSignal(() => this.defaultReport());
 
   currentReport = computed(() => this._currentReport());
 

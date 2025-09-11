@@ -10,12 +10,12 @@ import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 
-import { PublicationCardComponent } from '../publication-card/publication-card.component';
+import { PublicationCardComponent } from '../../components/publication-card/publication-card.component';
 import { PublicationService } from '../../services/publication.service';
 import { publication } from '../../../infrastructure';
 
 @Component({
-  selector: 'app-publication-dialog',
+  selector: 'app-news-dialog',
   imports: [
     CommonModule,
     MatDialogModule,
@@ -56,7 +56,7 @@ import { publication } from '../../../infrastructure';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PublicationDialogComponent {
+export class NewsDialogComponent {
   private publicationService = inject(PublicationService);
   data = inject<publication[]>(MAT_DIALOG_DATA);
 

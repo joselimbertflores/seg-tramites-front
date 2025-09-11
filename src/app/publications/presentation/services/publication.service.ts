@@ -1,39 +1,72 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { forkJoin, of, switchMap } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
-import { publication } from '../../infrastructure/interfaces/publications.interface';
-import { attachmentFile } from '../../domain';
+import { FileUploadService } from '../../../shared';
+import { publication } from '../../infrastructure';
 
 interface updatePublicationProps {
   id: string;
   form: Object;
-  image: string | null;
-  attachments: attachmentFile[];
+  currentImage: string | null;
+  currentFiles: attachmentFile[];
+  newImage: File | null;
+  newFiles: File[];
+}
+interface attachmentFile {
+  fileName: string;
+  originalName: string;
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class PublicationService {
-  private readonly URL = `${environment.base_url}/posts`;
   private http = inject(HttpClient);
+  private fileUploadService = inject(FileUploadService);
+  private readonly URL = `${environment.base_url}/posts`;
+
   constructor() {}
 
-  create(form: Object, image: string | null, attachments: attachmentFile[]) {
-    return this.http.post<publication>(this.URL, {
-      ...form,
-      image,
-      attachments,
-    });
+  create(form: Object, image: File | null, files: File[]) {
+    return this.buildFileUploadTask(image, files).pipe(
+      switchMap(([image, ...uploadedFiles]) =>
+        this.http.post<publication>(this.URL, {
+          ...form,
+          image: image?.fileName,
+          attachments: uploadedFiles.map((file) => ({
+            fileName: file.fileName,
+            originalName: file.originalName,
+          })),
+        })
+      )
+    );
   }
 
-  update({ id, attachments, image, form }: updatePublicationProps) {
-    return this.http.patch<publication>(`${this.URL}/${id}`, {
-      ...form,
-      image,
-      attachments,
-    });
+  update({
+    id,
+    form,
+    newFiles,
+    newImage,
+    currentImage,
+    currentFiles = [],
+  }: updatePublicationProps) {
+    return this.buildFileUploadTask(newImage, newFiles).pipe(
+      switchMap(([image, ...uploadedFiles]) =>
+        this.http.patch<publication>(`${this.URL}/${id}`, {
+          ...form,
+          image: image?.fileName ?? currentImage?.split('/').pop() ?? null,
+          attachments: [
+            ...currentFiles.map((item) => ({
+              fileName: item.fileName.split('/').pop(),
+              originalName: item.originalName,
+            })),
+            ...uploadedFiles,
+          ],
+        })
+      )
+    );
   }
 
   delete(id: string) {
@@ -64,5 +97,12 @@ export class PublicationService {
 
   getFile(url: string) {
     return this.http.get(url, { responseType: 'blob' });
+  }
+
+  private buildFileUploadTask(image: File | null, files: File[]) {
+    return forkJoin([
+      image ? this.fileUploadService.uploadFile(image, 'post') : of(null),
+      ...files.map((file) => this.fileUploadService.uploadFile(file, 'post')),
+    ]);
   }
 }

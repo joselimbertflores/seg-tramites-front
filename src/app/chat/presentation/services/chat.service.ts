@@ -3,12 +3,17 @@ import { HttpClient } from '@angular/common/http';
 
 import {
   BehaviorSubject,
+  takeUntil,
   finalize,
   Subject,
   share,
   map,
   tap,
-  takeUntil,
+  from,
+  concatMap,
+  switchMap,
+  catchError,
+  EMPTY,
 } from 'rxjs';
 import type { Socket } from 'socket.io-client';
 
@@ -22,6 +27,7 @@ import {
 } from '../../infrastructure';
 import { ActiveMessagesData, Message, ScrollType } from '../../domain';
 import { user } from '../../../users/infrastructure';
+import { FileUploadService } from '../../../shared';
 interface ChatEventData {
   chat: ChatResponse;
   message: MessageResponse;
@@ -48,6 +54,7 @@ export class ChatService {
   private http = inject(HttpClient);
   private socketRef: Socket | null = null;
   private socketService = inject(SocketService);
+  private fileUploadService = inject(FileUploadService);
   private readonly URL = `${environment.base_url}/chat`;
 
   private readonly LIMIT = 20;
@@ -243,5 +250,16 @@ export class ChatService {
         })),
         tap(({ message }) => this.insertNewMessage(message, 'init'))
       );
+  }
+
+  sendFiles(chatId: string, files: File[]) {
+    return from(files).pipe(
+      concatMap((file) =>
+        this.fileUploadService.uploadFile(file, 'chat').pipe(
+          switchMap((media) => this.sendMessage({ chatId, media })),
+          catchError(() => EMPTY)
+        )
+      )
+    );
   }
 }

@@ -25,31 +25,28 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 
-import { forkJoin, of, switchMap } from 'rxjs';
-
-import { PublicationService } from '../../../services/publication.service';
 import {
-  FileUploadService,
   FileUploaderComponent,
   SecureImageUploaderComponent,
-} from '../../../../../shared';
-import { attachmentFile } from '../../../../domain';
-import { publication } from '../../../../infrastructure';
+} from '../../../../shared';
+import { PublicationAttachment, publication } from '../../../infrastructure';
+import { PublicationService } from '../../services/publication.service';
 
-interface uploadedFiles {
-  attachments: attachmentFile[];
+interface PublicacionFiles {
+  attachments: PublicationAttachment[];
   image: string | null;
 }
+
 @Component({
-  selector: 'app-publication-dialog',
+  selector: 'app-news-dialog',
   imports: [
     ReactiveFormsModule,
+    MatDatepickerModule,
+    MatFormFieldModule,
     MatDialogModule,
     MatButtonModule,
-    MatFormFieldModule,
     MatSelectModule,
     MatInputModule,
-    MatDatepickerModule,
     FileUploaderComponent,
     SecureImageUploaderComponent,
   ],
@@ -60,8 +57,7 @@ interface uploadedFiles {
 export class PublicationDialogComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
   private postService = inject(PublicationService);
-  private fileUploadService = inject(FileUploadService);
-  private readonly dialogRef = inject(MatDialogRef<PublicationDialogComponent>);
+  private readonly dialogRef = inject(MatDialogRef);
   readonly minDate = new Date();
   readonly prioritys = [
     { value: 0, label: 'Baja' },
@@ -79,7 +75,7 @@ export class PublicationDialogComponent implements OnInit {
     expirationDate: [this.minDate, Validators.required],
   });
 
-  uploadedFiles = signal<uploadedFiles>({
+  uploadedFiles = signal<PublicacionFiles>({
     attachments: [],
     image: null,
   });
@@ -92,11 +88,18 @@ export class PublicationDialogComponent implements OnInit {
 
   save() {
     if (this.form.invalid) return;
-    const subscription = this.buildFileUploadTask().pipe(
-      switchMap(([image, ...attachments]) =>
-        this.buildSaveMethod(image?.fileName ?? null, attachments)
-      )
-    );
+
+    const subscription = this.data
+      ? this.postService.update({
+          id: this.data._id,
+          form: this.form.value,
+          currentFiles: this.uploadedFiles().attachments,
+          currentImage: this.uploadedFiles().image,
+          newFiles: this.files(),
+          newImage: this.image(),
+        })
+      : this.postService.create(this.form.value, this.image(), this.files());
+
     subscription.subscribe((resp) => {
       this.dialogRef.close(resp);
     });
@@ -104,41 +107,11 @@ export class PublicationDialogComponent implements OnInit {
 
   private loadFormData() {
     if (!this.data) return;
+
     const { image, attachments, ...props } = this.data;
+
     this.form.patchValue(props);
-    this.uploadedFiles.set({ attachments: [...attachments], image });
-  }
 
-  private buildFileUploadTask() {
-    return forkJoin([
-      this.image()
-        ? this.fileUploadService.uploadFile(this.image()!, 'post')
-        : of(null),
-      ...this.files().map((file) =>
-        this.fileUploadService.uploadFile(file, 'post')
-      ),
-    ]);
-  }
-
-  private buildSaveMethod(
-    newImage: string | null,
-    newAttachments: attachmentFile[]
-  ) {
-    if (!this.data) {
-      return this.postService.create(this.form.value, newImage, newAttachments);
-    }
-    // * If image is null, send uploaded file
-    return this.postService.update({
-      id: this.data._id,
-      form: this.form.value,
-      image: newImage ?? this.uploadedFiles().image?.split('/').pop() ?? null,
-      attachments: [
-        ...this.uploadedFiles().attachments.map((item) => ({
-          fileName: item.fileName.split('/').pop()!,
-          originalName: item.originalName,
-        })),
-        ...newAttachments,
-      ],
-    });
+    this.uploadedFiles.set({ attachments, image });
   }
 }

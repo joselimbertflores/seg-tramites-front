@@ -7,7 +7,7 @@ export class FileIconPipe implements PipeTransform {
   private readonly PATH = 'images/icons/files';
   private readonly FILE_ICONS: Record<string, string[]> = {
     'image.png': ['jpg', 'png', 'jpeg'],
-    'vide.png': ['mp4'],
+    'video.png': ['mp4'],
     'pdf.png': ['pdf'],
   };
 

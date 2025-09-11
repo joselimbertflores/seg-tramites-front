@@ -36,6 +36,7 @@ import {
 } from '../../dialogs';
 import { Communication, sendStatus } from '../../../domain';
 import { HumanizeDurationPipe } from '../../pipes/humanize-duration.pipe';
+import { ChatOverlayService } from '../../../../chat/presentation/services';
 
 @Component({
   selector: 'outbox',
@@ -61,6 +62,7 @@ export default class OutboxComponent {
   private dialogRef = inject(MatDialog);
   private alertService = inject(AlertService);
   private outboxService = inject(OutboxService);
+  private chatOverlayService = inject(ChatOverlayService);
 
   dataSource = signal<Communication[]>([]);
   dataSize = signal<number>(0);
@@ -187,6 +189,10 @@ export default class OutboxComponent {
 
   toggle(element: Communication) {
     this.expandedElement = this.isExpanded(element) ? null : element;
+  }
+
+  startChat(item: Communication) {
+    this.chatOverlayService.openAccountChat(item.sender.account);
   }
 
   private cancel(items: Communication[]): void {

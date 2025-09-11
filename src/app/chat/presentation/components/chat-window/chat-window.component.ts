@@ -18,12 +18,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { catchError, concatMap, EMPTY, finalize, from, switchMap } from 'rxjs';
 import { InfiniteScrollDirective } from 'ngx-infinite-scroll';
 
 import { FileChatSelectorComponent } from '../file-chat-selector/file-chat-selector.component';
 import { ChatBubbleComponent } from '../chat-bubble/chat-bubble.component';
-import { FileUploadService } from '../../../../shared';
 import { Chat, Message } from '../../../domain';
 import { ChatService } from '../../services';
 
@@ -45,7 +43,6 @@ import { ChatService } from '../../services';
 export class ChatWindowComponent implements OnChanges {
   private destroyRef = inject(DestroyRef);
   private chatService = inject(ChatService);
-  private fileUploadService = inject(FileUploadService);
 
   chat = input.required<Chat>();
   onSendMessage = output<Chat>();
@@ -94,27 +91,11 @@ export class ChatWindowComponent implements OnChanges {
   }
 
   sendFiles(files: File[]): void {
-    from(files)
-      .pipe(
-        concatMap((file) =>
-          this.fileUploadService.uploadFile(file, 'chat').pipe(
-            switchMap((media) =>
-              this.chatService.sendMessage({
-                chatId: this.chat().id,
-                media,
-              })
-            ),
-            catchError(() => EMPTY)
-          )
-        ),
-        finalize(() => {
-          this.messageContent.set('');
-          this.scrollToBottom();
-        })
-      )
-      .subscribe(({ chat }) => {
-        this.onSendMessage.emit(chat);
-      });
+    this.chatService.sendFiles(this.chat().id, files).subscribe(({ chat }) => {
+      this.messageContent.set('');
+      this.scrollToBottom();
+      this.onSendMessage.emit(chat);
+    });
   }
 
   scrollUp() {

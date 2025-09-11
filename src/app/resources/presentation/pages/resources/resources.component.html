@@ -50,7 +50,7 @@
       <div>
         <ul class="divide-y divide-gray-400">
           @for (file of item.files; track $index) {
-          <li class="flex items-center justify-between p-2 hover:bg-gray-100">
+          <li class="flex items-center justify-between p-2 hover:bg-[var(--mat-sys-surface-container)]">
             <div class="flex items-center space-x-4">
               <img class="size-5" [src]="file.fileName | fileIcon" />
               <div>
@@ -63,7 +63,7 @@
               </div>
             </div>
             <div class="flex gap-x-2">
-              <button mat-icon-button (click)="download(file)">
+              <button mat-icon-button (click)="preview(file)">
                 <mat-icon>download</mat-icon>
               </button>
               <ng-container>

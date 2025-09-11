@@ -3,7 +3,7 @@ export interface publication {
   user: user;
   title: string;
   content: string;
-  attachments: Attachment[];
+  attachments: PublicationAttachment[];
   priority: number;
   createdAt: string;
   updatedAt: string;
@@ -12,12 +12,12 @@ export interface publication {
   expirationDate: string;
 }
 
-export interface Attachment {
+export interface PublicationAttachment {
   originalName: string;
   fileName: string;
 }
 
-export interface user {
+interface user {
   _id: string;
   fullname: string;
 }

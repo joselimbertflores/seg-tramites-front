@@ -78,8 +78,7 @@ export const routes: Routes = [
         title: 'Bandeja de entrada',
         data: { animation: 'InboxPage' },
         canActivate: [accountGuard],
-        loadComponent: () =>
-          import('./communications/presentation/pages/inbox/inbox.component'),
+        loadComponent: () => import('./communications/presentation/pages/inbox/inbox.component'),
       },
       {
         path: 'inbox/:id',
@@ -251,7 +250,6 @@ export const routes: Routes = [
         path: 'chat',
         data:{ animation: 'ChatPage'},
         loadComponent: () => import('./chat/presentation/pages/chat-layout/chat-layout.component'),
-       
       },
     ],
   },

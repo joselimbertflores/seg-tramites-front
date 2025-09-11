@@ -17,10 +17,10 @@ import { MatDialog } from '@angular/material/dialog';
 
 import { filter, switchMap } from 'rxjs';
 
-import { PublicationDialogComponent } from './publication-dialog/publication-dialog.component';
 import { publication } from '../../../infrastructure/interfaces/publications.interface';
 import { PublicationService } from '../../services/publication.service';
 import { AlertService, SearchInputComponent } from '../../../../shared';
+import { PublicationDialogComponent } from '../../dialogs';
 
 @Component({
   selector: 'app-publications-manage',

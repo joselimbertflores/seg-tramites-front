@@ -27,7 +27,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { OverlayModule } from '@angular/cdk/overlay';
 
-import { PublicationDialogComponent } from '../../../../publications/presentation/components';
 import {
   AlertService,
   LoadingService,
@@ -39,6 +38,7 @@ import { AuthService } from '../../../../auth/presentation/services/auth.service
 import { ProfileComponent, SidenavMenuComponent } from '../../components';
 import { ChatService } from '../../../../chat/presentation/services';
 import { SocketService } from '../../services';
+import { NewsDialogComponent } from '../../../../publications/presentation/dialogs';
 
 @Component({
   selector: 'app-home',
@@ -134,7 +134,7 @@ export default class HomeComponent implements OnDestroy {
       .subscribe((description) => {
         this.dialogRef.closeAll();
         this.alertservice.messageDialog({
-          title: 'Usted ha sido expulsado',
+          title: 'Notificación',
           description,
         });
         this.logout();
@@ -154,7 +154,7 @@ export default class HomeComponent implements OnDestroy {
       if (publication.user._id === this.authService.user()?.userId) {
         return;
       }
-      this.dialogRef.open(PublicationDialogComponent, {
+      this.dialogRef.open(NewsDialogComponent, {
         data: [publication],
         minWidth: '900px',
         height: '600px',

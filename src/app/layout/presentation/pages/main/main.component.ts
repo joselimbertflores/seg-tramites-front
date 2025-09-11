@@ -7,9 +7,9 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 
-import { PublicationDialogComponent } from '../../../../publications/presentation/components';
 import { PublicationService } from '../../../../publications/presentation/services/publication.service';
 import { AuthService } from '../../../../auth/presentation/services/auth.service';
+import { NewsDialogComponent } from '../../../../publications/presentation/dialogs';
 
 @Component({
   selector: 'app-main',
@@ -37,10 +37,9 @@ import { AuthService } from '../../../../auth/presentation/services/auth.service
 export default class MainComponent implements OnInit {
   private dialogRef = inject(MatDialog);
   private publicationService = inject(PublicationService);
-  private authService=inject(AuthService)
+  private authService = inject(AuthService);
 
   userName = this.authService.user()?.fullname.split(' ')[0].toUpperCase();
-
 
   ngOnInit(): void {
     this.showNews();
@@ -49,7 +48,7 @@ export default class MainComponent implements OnInit {
   private showNews(): void {
     this.publicationService.getNews().subscribe((publications) => {
       if (publications.length === 0) return;
-      this.dialogRef.open(PublicationDialogComponent, {
+      this.dialogRef.open(NewsDialogComponent, {
         minWidth: '900px',
         height: '600px',
         data: publications,

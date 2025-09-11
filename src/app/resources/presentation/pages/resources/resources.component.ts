@@ -18,16 +18,18 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { filter, switchMap } from 'rxjs';
 
-import { ResourceDialogComponent } from '../../dialogs/resource-dialog/resource-dialog.component';
 import {
   AlertService,
   FileIconPipe,
+  FilePreviewDialogComponent,
   FileUploadService,
   HasPermissionDirective,
 } from '../../../../shared';
 import { ResourceService } from '../../services/resource.service';
 import { validResource } from '../../../../auth/infrastructure';
 import { resourceFile } from '../../../infrastructure';
+import { ResourceDialogComponent } from '../../dialogs/resource-dialog/resource-dialog.component';
+import { Dialog } from '@angular/cdk/dialog';
 @Component({
   selector: 'app-resources',
   imports: [
@@ -60,6 +62,7 @@ export default class ResourcesComponent {
   term = signal<string>('');
 
   public readonly PERMISSION = validResource;
+  dialog = inject(Dialog);
 
   filteredGroupedResources = computed(() => {
     if (!this.term()) return this.resourceService.resources();
@@ -102,5 +105,19 @@ export default class ResourcesComponent {
 
   download({ fileName, originalName }: resourceFile) {
     this.fileUploadService.downloadFileFromUrl(fileName, originalName);
+  }
+
+  isPreviewable(file: resourceFile): boolean {
+    const ext = file.originalName.split('.').pop()?.toLowerCase();
+    return ['jpg', 'jpeg', 'png', 'gif', 'mp4', 'webm'].includes(ext ?? '');
+  }
+
+  preview(file: resourceFile) {
+    this.dialog.open(FilePreviewDialogComponent, {
+      height: '100vh',
+      width: '100vw',
+      data: {fileName:file.fileName},
+      panelClass: 'file-preview-dialog',
+    });
   }
 }

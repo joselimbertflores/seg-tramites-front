@@ -11,25 +11,23 @@ import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
-import { forkJoin, map, switchMap } from 'rxjs';
+import { map } from 'rxjs';
 
 import {
   AutocompleteComponent,
   FileUploaderComponent,
-  FileUploadService,
 } from '../../../../shared';
 import { ResourceService } from '../../services/resource.service';
-
 
 @Component({
   selector: 'app-resource-dialog',
   imports: [
     CommonModule,
-    ReactiveFormsModule,
+    MatInputModule,
     MatDialogModule,
     MatButtonModule,
+    ReactiveFormsModule,
     FileUploaderComponent,
-    MatInputModule,
     AutocompleteComponent,
   ],
   template: `
@@ -61,7 +59,6 @@ import { ResourceService } from '../../services/resource.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResourceDialogComponent {
-  private fileUploadService = inject(FileUploadService);
   private resourceServioce = inject(ResourceService);
 
   private dialogRef = inject(MatDialogRef);
@@ -96,12 +93,8 @@ export class ResourceDialogComponent {
   });
 
   create() {
-    this.buildUploadFileTask()
-      .pipe(
-        switchMap((files) =>
-          this.resourceServioce.create(this.category.value, files)
-        )
-      )
+    this.resourceServioce
+      .create(this.category.value, this.files())
       .subscribe((data) => {
         this.dialogRef.close(data);
       });
@@ -117,13 +110,5 @@ export class ResourceDialogComponent {
 
   get isFromValid() {
     return this.category.valid && this.files().length > 0;
-  }
-
-  private buildUploadFileTask() {
-    return forkJoin(
-      this.files().map((file) =>
-        this.fileUploadService.uploadFile(file, 'resource')
-      )
-    );
   }
 }

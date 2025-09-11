@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Observable } from 'rxjs'
 import { ConfirmDialogComponent, confirmDialogData } from '../components/dialogs/confirm-dialog/confirm-dialog.component';
 import { DescriptionDialogComponent, descriptionDialogProps } from '../components/dialogs/description-dialog/description-dialog.component';
-import { MessageDialogComponent, messageDialogProps } from '../components/dialogs/message-dialog/message-dialog.component';
+import { MessageDialogComponent, MessageDialogProps } from '../components/dialogs/message-dialog/message-dialog.component';
 @Injectable({
   providedIn: 'root',
 })
@@ -31,7 +31,7 @@ export class AlertService {
       .afterClosed();
   }
 
-  messageDialog(data: messageDialogProps): Observable<void> {
+  messageDialog(data: MessageDialogProps): Observable<void> {
     return this.dialogRef
       .open(MessageDialogComponent, {
         data: data,

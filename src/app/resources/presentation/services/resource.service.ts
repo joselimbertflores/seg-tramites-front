@@ -1,10 +1,10 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { finalize, tap } from 'rxjs';
+import { finalize, forkJoin, map, switchMap, tap } from 'rxjs';
 
-import { environment } from '../../../../environments/environment';
 import { groupedResource, resourceFile } from '../../infrastructure';
-import { UploadedFile } from '../../../chat/domain';
+import { environment } from '../../../../environments/environment';
+import { FileUploadService } from '../../../shared';
 interface newResource {
   category: string;
   files: resourceFile[];
@@ -14,6 +14,7 @@ interface newResource {
 })
 export class ResourceService {
   private http = inject(HttpClient);
+  private fileUploadService = inject(FileUploadService);
   private readonly URL = `${environment.base_url}/resources`;
 
   isLoading = signal(true);
@@ -23,16 +24,21 @@ export class ResourceService {
     this.findAllGroupedByCategory();
   }
 
-  create(category: string, uploadedFiles: UploadedFile[]) {
-    return this.http
-      .post<newResource>(`${this.URL}`, {
-        category,
-        items: uploadedFiles.map(({ fileName, originalName }) => ({
-          fileName,
-          originalName,
-        })),
-      })
-      .pipe(tap((resp) => this.addResource(resp)));
+  create(category: string, files: File[]) {
+    return forkJoin(
+      files.map((file) => this.fileUploadService.uploadFile(file, 'resource'))
+    ).pipe(
+      switchMap((uploadedFiles) =>
+        this.http.post<newResource>(`${this.URL}`, {
+          category,
+          items: uploadedFiles.map(({ fileName, originalName }) => ({
+            fileName,
+            originalName,
+          })),
+        })
+      ),
+      tap((resp) => this.addResource(resp))
+    );
   }
 
   remove(id: string, category: string) {
