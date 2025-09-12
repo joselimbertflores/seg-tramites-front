@@ -39,6 +39,8 @@ import { ProcurementDialogComponent } from './procurement-dialog/procurement-dia
 
 import { DocProcurementDialogComponent } from './doc-procurement-dialog/doc-procurement-dialog.component';
 import {
+  RouteSheetData,
+  RouteSheetDialogComponent,
   submissionData,
   SubmissionDialogComponent,
 } from '../../../../communications/presentation/dialogs';
@@ -223,6 +225,21 @@ export default class ProcurementsManageComponent implements OnInit {
         break;
     }
   }
+
+   generateRouteSheet(procedure: ProcurementProcedure) {
+      const data: RouteSheetData = {
+        requestParams: {
+          procedure: { id: procedure.id, group: procedure.group },
+        },
+        preloadedData: { procedure },
+      };
+      this.dialog.open(RouteSheetDialogComponent, {
+        data,
+        width: '1200px',
+        maxWidth: '1200px',
+      });
+    }
+  
 
   search(term: string) {
     this.term.set(term);

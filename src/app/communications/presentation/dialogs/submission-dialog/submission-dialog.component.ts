@@ -53,7 +53,7 @@ import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { SocketService } from '../../../../layout/presentation/services';
 import {
   AlertService,
-  selectOption,
+  SelectSearchOption,
   SelectSearchComponent,
 } from '../../../../shared';
 import { InboxService, OutboxService } from '../../services';
@@ -111,11 +111,11 @@ export class SubmissionDialogComponent implements OnInit {
 
   data: submissionData = inject(MAT_DIALOG_DATA);
   accounts = signal<onlineAccount[]>([]);
-  documents = signal<selectOption<doc>[]>([]);
+  documents = signal<SelectSearchOption<doc>[]>([]);
   institutions = toSignal(this.inboxService.getInstitucions(), {
     initialValue: [],
   });
-  dependencies = signal<selectOption<string>[]>([]);
+  dependencies = signal<SelectSearchOption<string>[]>([]);
   dependencyId = signal<string | null>(null);
 
   formSubmission: FormGroup = this._formBuilder.group({

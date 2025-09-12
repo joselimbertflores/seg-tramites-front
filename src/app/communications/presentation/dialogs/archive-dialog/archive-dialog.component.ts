@@ -20,7 +20,7 @@ import {
 import { filter, map, Observable, switchMap } from 'rxjs';
 import {
   AlertService,
-  selectOption,
+  SelectSearchOption,
   SelectSearchComponent,
 } from '../../../../shared';
 import { procedureState } from '../../../../procedures/domain';
@@ -161,7 +161,7 @@ export class ArchiveDialogComponent {
       });
   }
 
-  private getFolders(): Observable<selectOption<string>[]> {
+  private getFolders(): Observable<SelectSearchOption<string>[]> {
     return this.folderService
       .getFolders()
       .pipe(

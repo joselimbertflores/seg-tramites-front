@@ -1,0 +1,113 @@
+<div class="p-2 sm:p-4">
+  <mat-accordion>
+    <form [formGroup]="form" (ngSubmit)="generate()" class="mt-2">
+      <mat-expansion-panel expanded="true">
+        <mat-expansion-panel-header>
+          <mat-panel-title>PARAMENTROS BUSQUEDA </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <select-search
+              [items]="institutions()"
+              title="Institucion"
+              [required]="true"
+              placeholder="Seleccione una institucion"
+              (onSelect)="selectInstitution($event)"
+            />
+          </div>
+          <div class="sm:col-span-2">
+            <select-search
+              [items]="dependencies()"
+              title="Dependencia"
+              [required]="true"
+              placeholder="Seleccione una deoendencia"
+              (onSelect)="onSelectDependency($event)"
+            />
+          </div>
+          <div>
+            <mat-form-field>
+              <mat-label>Tipo de busqueda</mat-label>
+              <mat-select
+                formControlName="filterBy"
+                (selectionChange)="setFilterByProperty($event.value)"
+              >
+                @for (option of FILTER_OPTIONS; track $index) {
+                <mat-option [value]="option.value">{{
+                  option.label
+                }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+        <mat-action-row>
+          <button
+            matButton="filled"
+            type="submit"
+            [disabled]="isLoading() || form.invalid"
+          >
+            Buscar
+          </button>
+        </mat-action-row>
+      </mat-expansion-panel>
+    </form>
+  </mat-accordion>
+
+  @if (isLoading()){
+    <div class="flex flex-col gap-y-1 mt-4">
+      <p class="text-xl">Generando reporte....</p>
+      <mat-progress-bar mode="indeterminate" />
+    </div>
+  } 
+  @if(!isLoading() && hasSearched()){
+    <table mat-table [dataSource]="dataSource()" class="mt-6">
+      <ng-container matColumnDef="officer">
+        <th mat-header-cell *matHeaderCellDef>Usuario</th>
+        <td mat-cell *matCellDef="let element">
+          <div class="block font-medium text-sm">
+            @if(element.fullName){
+            {{ element.fullName }}
+            } @else {
+            <span class="text-red-600">Sin asignar</span>
+            }
+          </div>
+          <div class="block text-xs">{{ element.jobTitle }}</div>
+        </td>
+        <td mat-footer-cell *matFooterCellDef>Total</td>
+      </ng-container>
+
+      @for (column of columnsToDisplay(); track $index) {
+      <ng-container [matColumnDef]="column.columnDef">
+        <th mat-header-cell *matHeaderCellDef>{{ column.header }}</th>
+        <td mat-cell *matCellDef="let element" class="w-40">
+          {{ getStatusCount(element.statusCounts, column.columnDef) }}
+        </td>
+      </ng-container>
+      }
+
+      <ng-container matColumnDef="total">
+        <th mat-header-cell *matHeaderCellDef>Total</th>
+        <td mat-cell *matCellDef="let element" class="w-20">
+          {{ element.total }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="options">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let element" class="w-40">
+          <button
+            matButton
+            (click)="viewAccountDetail(element)"
+            [disabled]="isDetailLoading()"
+          >
+            <mat-icon>print</mat-icon>
+            Ver Detalle
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns()"></tr>
+    </table>
+  }
+</div>

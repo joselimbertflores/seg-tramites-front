@@ -16,7 +16,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatSelectModule } from '@angular/material/select';
 import { BehaviorSubject, debounceTime, distinctUntilChanged } from 'rxjs';
 
-export type selectOption<T> = {
+export type SelectSearchOption<T> = {
   label: string;
   value: T;
 };
@@ -71,7 +71,7 @@ export class SelectSearchComponent<T> implements OnInit {
   placeholder = input<string>('Buscar elemento');
   placeholderLabel = input<string>('Ingrese el termino a buscar');
   title = input<string>('');
-  items = input<selectOption<T>[]>([]);
+  items = input<SelectSearchOption<T>[]>([]);
   autoFilter = input<boolean>(true);
   required = input<boolean>(false);
   onTyped = output<string>();
@@ -82,7 +82,7 @@ export class SelectSearchComponent<T> implements OnInit {
 
   optionFilterCtrl: FormControl<string> = new FormControl();
 
-  filteredOptions = new BehaviorSubject<selectOption<T>[]>([]);
+  filteredOptions = new BehaviorSubject<SelectSearchOption<T>[]>([]);
 
   compareKey = input<keyof T>();
 

@@ -22,11 +22,11 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
-import { finalize, map, switchMap } from 'rxjs';
+import { finalize, map } from 'rxjs';
 
 import {
   PdfService,
-  selectOption,
+  SelectSearchOption,
   SelectSearchComponent,
 } from '../../../../shared';
 
@@ -46,7 +46,7 @@ interface cache {
   dataSource: object[];
   form: object;
   hasSearched: boolean;
-  dependencies: selectOption<dependency>[];
+  dependencies: SelectSearchOption<dependency>[];
   selectedInstitution: institution | null;
   selectedDependency: dependency | null;
 }
@@ -100,6 +100,7 @@ export default class ReportUnitComponent {
     { columnDef: sendStatus.AutoRejected, header: 'Auto Rechazados' },
     { columnDef: sendStatus.Forwarding, header: 'Reenviados' },
     { columnDef: sendStatus.Completed, header: 'Completados' },
+    { columnDef: sendStatus.Archived, header: 'Archivados' },
   ];
   readonly CURRENT_DATE = new Date();
 
@@ -107,7 +108,6 @@ export default class ReportUnitComponent {
     'officer',
     ...this.statusColumnsToDisplay.map((item) => item.columnDef),
     'total',
-    'options',
   ];
   dataSource = signal<object[]>([]);
   isLoading = signal(false);
@@ -123,7 +123,7 @@ export default class ReportUnitComponent {
   });
 
   institutions = toSignal(this.getInstitutions(), { initialValue: [] });
-  dependencies = signal<selectOption<dependency>[]>([]);
+  dependencies = signal<SelectSearchOption<dependency>[]>([]);
   selectedInstitution = signal<institution | null>(null);
   selectedDependency = signal<dependency | null>(null);
 
@@ -186,38 +186,6 @@ export default class ReportUnitComponent {
           },
         },
       })
-      .subscribe((pdf) => {
-        pdf.open();
-      });
-  }
-
-  getInbox(account: { id: string; fullName?: string; jobTitle: string }) {
-    this.isLoadingInbox.set(true);
-    this.reportService
-      .getInboxByAccount(account.id)
-      .pipe(
-        switchMap((data) => {
-          return this.pdfService.tableSheet({
-            title: 'Reporte "Pendientes por Unidad" - Bandeja de entrada',
-            dataSource: data,
-            displayColumns: [
-              { columnDef: 'senderFullName', header: 'Emisor' },
-              { columnDef: 'code', header: 'Alterno' },
-              { columnDef: 'reference', header: 'Refenrecia', width: '*' },
-              { columnDef: 'sentDate', header: 'Fecha envio' },
-              { columnDef: 'received', header: 'Recibido' },
-            ],
-            filterParams: {
-              params: {
-                Funcionario: `${account.fullName ?? 'SIN ASIGNAR'}  --  ${
-                  account.jobTitle
-                }`,
-              },
-            },
-          });
-        }),
-        finalize(() => this.isLoadingInbox.set(false))
-      )
       .subscribe((pdf) => {
         pdf.open();
       });

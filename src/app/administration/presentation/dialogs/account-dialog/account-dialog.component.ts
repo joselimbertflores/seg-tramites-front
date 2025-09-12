@@ -26,7 +26,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { firstValueFrom, of } from 'rxjs';
 
-import { selectOption, SelectSearchComponent } from '../../../../shared';
+import { SelectSearchOption, SelectSearchComponent } from '../../../../shared';
 import { Account, Officer } from '../../../domain';
 import { AccountService } from '../../services';
 
@@ -78,7 +78,7 @@ export class AccountDialogComponent {
   selectedInstitution = signal<string | null>(null);
   selectedOfficer = signal<Officer | null>(null);
   roles = toSignal(this.accountService.getRoles(), { initialValue: [] });
-  officers = signal<selectOption<Officer>[]>([]);
+  officers = signal<SelectSearchOption<Officer>[]>([]);
   institutions = toSignal(this.accountService.getInstitutions(), {
     initialValue: [],
   });
@@ -160,10 +160,7 @@ export class AccountDialogComponent {
     } else if (nameParts.length >= 2) {
       lastName = nameParts[1];
     }
-
-    const ciFragment = dni.replace(/\D/g, '').slice(-4);
-
-    return `${firstNameInitial}${lastName}${ciFragment}`;
+    return `${firstNameInitial}${lastName}`.toUpperCase();
   }
 
   private normalizeText(text: string): string {

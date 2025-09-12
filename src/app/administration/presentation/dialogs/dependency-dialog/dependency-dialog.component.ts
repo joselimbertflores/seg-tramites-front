@@ -23,7 +23,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 
-import { SelectSearchComponent, selectOption } from '../../../../shared';
+import { SelectSearchComponent, SelectSearchOption } from '../../../../shared';
 import { DependencyService } from '../../services';
 import { dependency } from '../../../infrastructure';
 
@@ -49,7 +49,7 @@ export class DependencyDialogComponent {
   private dependencyService = inject(DependencyService);
 
   data?: dependency = inject(MAT_DIALOG_DATA);
-  institutions = signal<selectOption<string>[]>([]);
+  institutions = signal<SelectSearchOption<string>[]>([]);
 
   public dependencyForm: FormGroup = this._formBuilder.nonNullable.group({
     nombre: ['', Validators.required],

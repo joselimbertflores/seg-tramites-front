@@ -75,8 +75,14 @@ export class ReportCacheService<T> {
     efficiency: {
       label: 'Eficiencia',
       description: 'Total de tramites archivados y su promedio en dias habiles',
-      link: 'home/reports/efficiency',
+      link: 'home/reports/efficiency',  
       order: 7,
+    },
+    unit_correspondence_status: {
+      label: 'Estado correspondencia por unidad',
+      description: 'Total de tramites en bandejas',
+      link: 'home/reports/correspondence-status',
+      order: 8,
     },
   };
 

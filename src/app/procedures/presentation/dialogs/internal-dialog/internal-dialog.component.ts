@@ -23,7 +23,7 @@ import { MatInputModule } from '@angular/material/input';
 import {
   AutocompleteComponent,
   AutocompleteOption,
-  selectOption,
+  SelectSearchOption,
 } from '../../../../shared';
 
 import { InternalService, ProfileService } from '../../services';
@@ -57,7 +57,7 @@ export class InternalDialogComponent {
 
   data?: InternalProcedure = inject(MAT_DIALOG_DATA);
   officers = signal<participantOptions>({ sender: [], recipient: [] });
-  documents = signal<selectOption<doc>[]>([]);
+  documents = signal<SelectSearchOption<doc>[]>([]);
 
   formProcedure: FormGroup = this.formBuilder.nonNullable.group({
     numberOfDocuments: ['', Validators.required],

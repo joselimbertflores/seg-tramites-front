@@ -21,7 +21,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { toSignal } from '@angular/core/rxjs-interop';
 
-import { selectOption, SelectSearchComponent } from '../../../../shared';
+import { SelectSearchOption, SelectSearchComponent } from '../../../../shared';
 import { ExternalService } from '../../services';
 import { ExternalProcedure } from '../../../domain';
 import { typeProcedure } from '../../../../administration/infrastructure';
@@ -68,7 +68,7 @@ export class ExternalDialogComponent {
   hasRepresentative = signal<boolean>(false);
 
   segments = toSignal(this.externalService.getSegments(), { initialValue: [] });
-  typesProcedures = signal<selectOption<typeProcedure>[]>([]);
+  typesProcedures = signal<SelectSearchOption<typeProcedure>[]>([]);
   requirements = signal<requirementOption[]>([]);
 
   formProcedure: FormGroup = this.formBuilder.group({

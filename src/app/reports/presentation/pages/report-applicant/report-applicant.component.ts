@@ -27,7 +27,7 @@ import { MatIconModule } from '@angular/material/icon';
 
 import {
   PdfService,
-  selectOption,
+  SelectSearchOption,
   SelectSearchComponent,
 } from '../../../../shared';
 
@@ -49,7 +49,7 @@ interface cache {
   datasize: number;
   limit: number;
   index: number;
-  typeProcedures: selectOption<typeProcedureOption>[];
+  typeProcedures: SelectSearchOption<typeProcedureOption>[];
   selectedTypeProcedure: typeProcedureOption | null;
   hasSearched: boolean;
 }
@@ -99,7 +99,7 @@ export default class ReportApplicantComponent {
 
   private readonly KEY_CACHE = 'report-applicant';
 
-  typesProcedures = signal<selectOption<typeProcedureOption>[]>([]);
+  typesProcedures = signal<SelectSearchOption<typeProcedureOption>[]>([]);
   selectedTypeProcedure = signal<typeProcedureOption | null>(null);
 
   datasource = signal<tableProcedureData[]>([]);

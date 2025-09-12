@@ -210,6 +210,15 @@ export const routes: Routes = [
               ),
           },
           {
+            path: 'correspondence-status',
+            data: { action: 'unit_correspondence_status' },
+            canActivate: [reportPermissionGuard],
+            loadComponent: () =>
+              import(
+                './reports/presentation/pages/report-unit-correspondence-status/report-unit-correspondence-status.component'
+              ),
+          },
+          {
             path: 'detail/:group/:id',
             data: { animation: 'slide' },
             loadComponent: () => import('./procedures/presentation/pages/detail/detail.component'),

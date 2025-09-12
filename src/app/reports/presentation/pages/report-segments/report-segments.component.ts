@@ -31,7 +31,7 @@ import {
   GenericChartComponent,
   SelectSearchComponent,
   GeneriChartData,
-  selectOption,
+  SelectSearchOption,
 } from '../../../../shared';
 
 interface cache {
@@ -162,7 +162,7 @@ export default class ReportSegmentsComponent {
     );
   }
 
-  private getInstitutionsSubscription(): Observable<selectOption<string>[]> {
+  private getInstitutionsSubscription(): Observable<SelectSearchOption<string>[]> {
     return this.commonReportService
       .getInstitutions()
       .pipe(

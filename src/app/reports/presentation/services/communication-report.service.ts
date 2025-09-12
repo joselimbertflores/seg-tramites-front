@@ -7,6 +7,7 @@ import {
   unlinkDataResponse,
   totalCommunicationsByUnitResponse,
   accountTrayStatus,
+  CorrespondenceStatusByUnitResponse,
 } from '../../infrastructure';
 import { communication } from '../../../communications/infrastructure';
 import { environment } from '../../../../environments/environment';
@@ -18,7 +19,7 @@ interface totalCommunicationsByUnitParams {
   endDate: Date;
   group: string;
   dependencyId: string;
-  filterBy:string
+  filterBy: string;
 }
 
 interface historyParams {
@@ -28,6 +29,16 @@ interface historyParams {
   startDate?: Date;
   endDate?: Date;
 }
+
+const STATUS_MAP = {
+  [sendStatus.Pending]: 'Sin recibir',
+  [sendStatus.AutoRejected]: 'Rechazdo auttomatico',
+  [sendStatus.Completed]: 'Completado',
+  [sendStatus.Forwarding]: 'Reenviado',
+  [sendStatus.Archived]: 'Archivado',
+  [sendStatus.Received]: 'Recibido',
+  [sendStatus.Rejected]: 'Rechazado',
+};
 
 @Injectable({
   providedIn: 'root',
@@ -47,7 +58,7 @@ export class CommunicationReportService {
       startDate: startDate.toString(),
       endDate: endDate.toString(),
       group,
-      filterBy
+      filterBy,
     };
     return this.http
       .post<totalCommunicationsByUnitResponse[]>(
@@ -77,16 +88,33 @@ export class CommunicationReportService {
       );
   }
 
-  getInboxByAccount(accountId: string) {
+  getCorrespondenceStatusByUnit(id: string, filterBy: 'recipient' | 'sender') {
+    return this.http.post<CorrespondenceStatusByUnitResponse[]>(
+      `${this.URL}/correspondence-status/${id}`,
+      { filterBy },
+      { context: skipUploadIndicator() }
+    );
+  }
+
+  getCorrespondenceByAccount(
+    accountId: string,
+    filterBy?: 'recipient' | 'sender'
+  ) {
+    const params = new HttpParams({
+      fromObject: filterBy ? { filterBy } : {},
+    });
     return this.http
-      .get<communication[]>(`${this.URL}/inbox/${accountId}`)
+      .get<communication[]>(`${this.URL}/inbox/${accountId}`, { params })
       .pipe(
         map((resp) =>
-          resp.map(({ procedure, sender, sentDate, status }) => ({
+          resp.map(({ procedure, sender, recipient, sentDate, status }) => ({
             ...procedure,
-            senderFullName: `${sender.fullname}`,
+            fullName:
+              filterBy === 'recipient'
+                ? `${recipient.fullname}`
+                : `${sender.fullname}`,
             sentDate: new Date(sentDate).toLocaleDateString(),
-            received: status === 'received' ? 'SI' : 'NO',
+            status: STATUS_MAP[status as sendStatus],
           }))
         )
       );
@@ -142,7 +170,8 @@ export class CommunicationReportService {
             },
             outbox: {
               total: outbox.total,
-              items: Object.entries(outbox.breakdown).map(([status, count]) => ({
+              items: Object.entries(outbox.breakdown).map(
+                ([status, count]) => ({
                   status: statusMap[status],
                   count,
                 })

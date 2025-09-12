@@ -170,7 +170,7 @@
           <mat-menu #menu="matMenu">
             <button
               mat-menu-item
-              [disabled]="!row.isActionable"
+            
               (click)="update(row)"
             >
               <mat-icon>edit</mat-icon>
@@ -180,6 +180,10 @@
               <mat-icon>send</mat-icon>
               <span>Remitir</span>
             </button>
+             <button mat-menu-item (click)="generateRouteSheet(row)">
+            <mat-icon>feed</mat-icon>
+            <span>Hoja de ruta</span>
+          </button>
             <!-- <button mat-menu-item (click)="generateRouteMap(row)">
                 <mat-icon>feed</mat-icon>
                 <span>Hoja de ruta</span>
