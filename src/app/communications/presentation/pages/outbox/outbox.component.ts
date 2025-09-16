@@ -192,7 +192,7 @@ export default class OutboxComponent {
   }
 
   startChat(item: Communication) {
-    this.chatOverlayService.openAccountChat(item.sender.account);
+    this.chatOverlayService.openAccountChat(item.recipient.account);
   }
 
   private cancel(items: Communication[]): void {

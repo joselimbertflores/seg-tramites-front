@@ -8,6 +8,7 @@ import {
   totalCommunicationsByUnitResponse,
   accountTrayStatus,
   CorrespondenceStatusByUnitResponse,
+  CommunicationHistoryResponse,
 } from '../../infrastructure';
 import { communication } from '../../../communications/infrastructure';
 import { environment } from '../../../../environments/environment';
@@ -134,7 +135,7 @@ export class CommunicationReportService {
       fromObject: { limit, offset, ...(term && { term }) },
     });
     return this.http
-      .post<{ communications: communication[]; length: number }>(
+      .post<{ communications: CommunicationHistoryResponse[]; length: number }>(
         `${this.URL}/history`,
         props,
         { params, context: skipUploadIndicator() }
@@ -143,12 +144,13 @@ export class CommunicationReportService {
         map(({ communications, length }) => ({
           length,
           data: communications.map(({ procedure, recipient, sentDate }) => ({
-            id: procedure.ref,
+            id: procedure.ref._id,
             group: procedure.group,
             code: procedure.code,
             reference: procedure.reference,
             createdAt: new Date(sentDate).toLocaleString(),
             person: recipient.fullname,
+            state: procedure.ref.state,
           })),
         }))
       );

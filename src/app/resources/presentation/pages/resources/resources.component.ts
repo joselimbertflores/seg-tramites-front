@@ -107,17 +107,18 @@ export default class ResourcesComponent {
     this.fileUploadService.downloadFileFromUrl(fileName, originalName);
   }
 
-  isPreviewable(file: resourceFile): boolean {
-    const ext = file.originalName.split('.').pop()?.toLowerCase();
-    return ['jpg', 'jpeg', 'png', 'gif', 'mp4', 'webm'].includes(ext ?? '');
-  }
-
-  preview(file: resourceFile) {
+  preview(item: resourceFile) {
+    if (!this.isPreviewable(item)) return;
     this.dialog.open(FilePreviewDialogComponent, {
       height: '100vh',
       width: '100vw',
-      data: {fileName:file.fileName},
+      data: { fileName: item.fileName },
       panelClass: 'file-preview-dialog',
     });
+  }
+
+  private isPreviewable(file: resourceFile): boolean {
+    const ext = file.originalName.split('.').pop()?.toLowerCase();
+    return ['jpg', 'jpeg', 'png', 'gif', 'mp4', 'webm'].includes(ext ?? '');
   }
 }

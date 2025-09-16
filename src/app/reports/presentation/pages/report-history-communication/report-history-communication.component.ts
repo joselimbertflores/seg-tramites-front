@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { provideNativeDateAdapter } from '@angular/material/core';
@@ -43,6 +44,7 @@ interface cache {
     MatExpansionModule,
     MatDatepickerModule,
     MatPaginatorModule,
+    MatProgressBarModule,
     ReportProcedureTableComponent,
   ],
   templateUrl:"./report-history-communication.component.html",
@@ -60,6 +62,7 @@ export default class ReportHistoryCommunicationComponent {
     { columnDef: 'code', header: 'Codigo' },
     { columnDef: 'reference', header: 'Referencia', width: '*' },
     { columnDef: 'person', header: 'Destinatario' },
+    { columnDef: 'state', header: 'Estado' },
     { columnDef: 'createdAt', header: 'Fecha envio' },
   ] as const;
 

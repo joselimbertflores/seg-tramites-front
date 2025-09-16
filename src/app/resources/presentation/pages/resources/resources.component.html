@@ -16,77 +16,77 @@
 
 <div class="mx-auto max-w-4xl py-4 px-2">
   @if(isLoading()){
-  <p class="text-xl py-4">Cargando contenido...</p>
-  } @else {
-  <div
-    class="flex flex-col sm:flex-row items-center sm:justify-between mb-6 gap-2"
-  >
-    <div class="flex gap-2">
-      <button mat-stroked-button (click)="accordion().openAll()">
-        <mat-icon>keyboard_arrow_down</mat-icon>
-        Ver todo
-      </button>
-      <button mat-stroked-button (click)="accordion().closeAll()">
-        <mat-icon>keyboard_arrow_up</mat-icon>
-        Cerrar todo
-      </button>
-    </div>
-    <div class="h-12 w-full sm:w-1/3">
-      <mat-form-field>
-        <mat-label>Buscar</mat-label>
-        <input matInput [(ngModel)]="term" placeholder="Nombre del archivo" />
-      </mat-form-field>
-    </div>
-  </div>
-  <mat-accordion multi>
-    @for (item of filteredGroupedResources(); track item; let i = $index) {
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <div class="flex items-center gap-x-4">
-          <img src="images/icons/folder.png" alt="folder" class="size-6" />
-          <span class="font-medium">{{ item.category }}</span>
-        </div>
-      </mat-expansion-panel-header>
-      <div>
-        <ul class="divide-y divide-gray-400">
-          @for (file of item.files; track $index) {
-          <li class="flex items-center justify-between p-2 hover:bg-[var(--mat-sys-surface-container)]">
-            <div class="flex items-center space-x-4">
-              <img class="size-5" [src]="file.fileName | fileIcon" />
-              <div>
-                <p class="font-medium">
-                  {{ file.originalName }}
-                </p>
-                <p class="text-xs">
-                  Creacion: {{ file.createdAt | date : "dd/MM/yyyy" }}
-                </p>
-              </div>
-            </div>
-            <div class="flex gap-x-2">
-              <button mat-icon-button (click)="preview(file)">
-                <mat-icon>download</mat-icon>
-              </button>
-              <ng-container>
-                <button
-                  mat-icon-button
-                  *hasPermission="{
-                    resource: PERMISSION.resources,
-                    actions: ['delete']
-                  }"
-                  (click)="remove(file)"
-                >
-                  <mat-icon>close</mat-icon>
-                </button>
-              </ng-container>
-            </div>
-          </li>
-          }
-        </ul>
+    <p class="text-xl py-4">Cargando contenido...</p>
+  } 
+  @else {
+    <div class="flex flex-col sm:flex-row items-center sm:justify-between mb-6 gap-2">
+      <div class="flex gap-2">
+        <button mat-stroked-button (click)="accordion().openAll()">
+          <mat-icon>keyboard_arrow_down</mat-icon>
+          Ver todo
+        </button>
+        <button mat-stroked-button (click)="accordion().closeAll()">
+          <mat-icon>keyboard_arrow_up</mat-icon>
+          Cerrar todo
+        </button>
       </div>
-    </mat-expansion-panel>
-    } @empty {
-    <li class="py-2">Sin elementos</li>
-    }
-  </mat-accordion>
+      <div class="h-12 w-full sm:w-1/3">
+        <mat-form-field>
+          <mat-label>Buscar</mat-label>
+          <input matInput [(ngModel)]="term" placeholder="Nombre del archivo" />
+        </mat-form-field>
+      </div>
+    </div>
+    <mat-accordion multi>
+      @for (item of filteredGroupedResources(); track item; let i = $index) {
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <div class="flex items-center gap-x-4">
+              <img src="images/icons/folder.png" alt="folder" class="size-6" />
+              <span class="font-medium">{{ item.category }}</span>
+            </div>
+          </mat-expansion-panel-header>
+          <div>
+            <ul class="divide-y divide-gray-400">
+              @for (file of item.files; track $index) {
+              <li class="flex items-center justify-between p-2 hover:bg-[var(--mat-sys-surface-container)]">
+                <div class="flex items-center space-x-4 hover:text-blue-500 cursor-pointer">
+                  <img class="size-5" [src]="file.fileName | fileIcon" />
+                  <div>
+                    <a (click)="preview(file)" class="font-medium">
+                      {{ file.originalName }}
+                    </a>
+                    <p class="text-xs">
+                      Creacion: {{ file.createdAt | date : "dd/MM/yyyy" }}
+                    </p>
+                  </div>
+                </div>
+                <div class="flex gap-x-2">
+                  <button mat-icon-button (click)="download(file)">
+                    <mat-icon>download</mat-icon>
+                  </button>
+                  <ng-container>
+                    <button
+                      mat-icon-button
+                      *hasPermission="{
+                        resource: PERMISSION.resources,
+                        actions: ['delete']
+                      }"
+                      (click)="remove(file)"
+                    >
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </ng-container>
+                </div>
+              </li>
+              }
+            </ul>
+          </div>
+        </mat-expansion-panel>
+      }
+      @empty {
+        <li class="py-2">Sin elementos</li>
+      }
+    </mat-accordion>
   }
 </div>

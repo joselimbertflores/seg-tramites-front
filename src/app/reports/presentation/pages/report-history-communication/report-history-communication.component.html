@@ -1,4 +1,4 @@
-<div class="p-4 space-y-6">
+<div class="p-4 space-y-4">
   <mat-accordion>
     <mat-expansion-panel expanded="true">
       <mat-expansion-panel-header>
@@ -53,17 +53,19 @@
   </mat-accordion>
 
   @if(!isLoading() && dataSource().length > 0){
-    <report-procedure-table [data]="dataSource()" [columns]="COLUMNS" />
-    @if (limit() < dataSize()){
-      <mat-paginator
-        showFirstLastButtons
-        [pageSizeOptions]="[10, 20, 30, 50]"
-        [pageSize]="limit()"
-        [pageIndex]="index()"
-        [length]="dataSize()"
-        (page)="onPageChange($event)"
-      />
-    } 
+    <div>
+      <report-procedure-table [data]="dataSource()" [columns]="COLUMNS" />
+      @if (limit() < dataSize()){
+        <mat-paginator
+          showFirstLastButtons
+          [pageSizeOptions]="[10, 20, 30, 50]"
+          [pageSize]="limit()"
+          [pageIndex]="index()"
+          [length]="dataSize()"
+          (page)="onPageChange($event)"
+        />
+      } 
+    </div>
   } 
   
  @if(!isLoading() && hasSearched() && dataSource().length === 0){
@@ -71,4 +73,12 @@
         No se encontraron resultados para los filtros seleccionados.
     </div>
  }
+
+  @if (isLoading()){
+    <div class="flex flex-col gap-y-1 mt-4">
+      <p class="text-xl">Generando reporte....</p>
+      <mat-progress-bar mode="indeterminate" />
+    </div>
+  } 
+  
 </div>
