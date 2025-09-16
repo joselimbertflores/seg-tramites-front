@@ -93,23 +93,23 @@ export const getInicioContratacionReport = async (
               type: WidthType.PERCENTAGE,
             },
             rows: [
-              ...to.map((recipient) =>
-                this._communicatioPropsRow(
-                  'A:',
-                  recipient.fullname,
-                  recipient.jobtitle
-                )
-              ),
-              ...via.map((recipient) =>
-                this._communicatioPropsRow(
-                  'VIA:',
-                  recipient.fullname,
-                  recipient.jobtitle
-                )
-              ),
-              this._communicatioPropsRow('DE:', from.fullname, from.jobtitle),
-              this._communicatioPropsRow('MOTIVO:', referenec),
-              this._communicatioPropsRow('FECHA', `Sacaba, ${created}`),
+              // ...to.map((recipient) =>
+              //   this._communicatioPropsRow(
+              //     'A:',
+              //     recipient.fullname,
+              //     recipient.jobtitle
+              //   )
+              // ),
+              // ...via.map((recipient) =>
+              //   this._communicatioPropsRow(
+              //     'VIA:',
+              //     recipient.fullname,
+              //     recipient.jobtitle
+              //   )
+              // ),
+              // this._communicatioPropsRow('DE:', from.fullname, from.jobtitle),
+              // this._communicatioPropsRow('MOTIVO:', referenec),
+              // this._communicatioPropsRow('FECHA', `Sacaba, ${created}`),
             ],
           }),
         ],
