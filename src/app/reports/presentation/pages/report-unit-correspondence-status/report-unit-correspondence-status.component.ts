@@ -3,19 +3,20 @@ import {
   Component,
   computed,
   inject,
+  OnInit,
   signal,
 } from '@angular/core';
 import {
+  ReactiveFormsModule,
   FormBuilder,
   FormGroup,
-  ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
-import { MatTableModule } from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -35,7 +36,7 @@ import { sendStatus } from '../../../../communications/domain';
 
 type FilterByProp = 'recipient' | 'sender';
 @Component({
-  selector: 'app-report-unit-correspondence-status',
+  selector: 'report-unit-correspondence-status',
   imports: [
     ReactiveFormsModule,
     MatExpansionModule,
@@ -50,14 +51,14 @@ type FilterByProp = 'recipient' | 'sender';
   templateUrl: './report-unit-correspondence-status.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export default class ReportUnitCorrespondenceStatusComponent {
+export default class ReportUnitCorrespondenceStatusComponent implements OnInit {
   private commonService = inject(CommonReportService);
   private reportService = inject(CommunicationReportService);
   private pdfService = inject(PdfService);
 
   private formBuilder = inject(FormBuilder);
   form: FormGroup = this.formBuilder.nonNullable.group({
-    dependencyId: ['', Validators.required],
+    dependencyId: [null, Validators.required],
     filterBy: ['recipient', Validators.required],
   });
 
@@ -72,8 +73,7 @@ export default class ReportUnitCorrespondenceStatusComponent {
   ];
 
   isLoading = signal(false);
-  dataSource = signal<CorrespondenceStatusByUnitResponse[]>([]);
-
+  dataSource = new MatTableDataSource();
   filterBy = signal<FilterByProp>('recipient');
 
   readonly columnsToDisplay = computed(() =>
@@ -84,7 +84,6 @@ export default class ReportUnitCorrespondenceStatusComponent {
         ]
       : [
           { columnDef: sendStatus.Pending, header: 'Sin recibir' },
-          { columnDef: sendStatus.Rejected, header: 'Rechazados' },
           { columnDef: sendStatus.AutoRejected, header: 'Auto rechazados' },
         ]
   );
@@ -99,24 +98,26 @@ export default class ReportUnitCorrespondenceStatusComponent {
   hasSearched = signal(false);
   isDetailLoading = signal(false);
 
+  ngOnInit(): void {
+    this.generate();
+  }
+
   generate() {
     const { dependencyId, filterBy } = this.form.value;
     this.isLoading.set(true);
     this.reportService
-      .getCorrespondenceStatusByUnit(dependencyId, filterBy)
+      .getCorrespondenceStatusByUnit(filterBy, dependencyId)
       .subscribe((result) => {
-        this.dataSource.set(result);
         this.isLoading.set(false);
         this.hasSearched.set(true);
+        this.dataSource.data = result;
       });
   }
 
-  clear() {}
-
   setFilterByProperty(value: FilterByProp) {
     this.filterBy.set(value);
-    this.dataSource.set([]);
-    this.hasSearched.set(false);
+    this.dataSource.data = [];
+    this.generate();
   }
 
   selectInstitution(value: string): void {
@@ -129,6 +130,7 @@ export default class ReportUnitCorrespondenceStatusComponent {
 
   onSelectDependency(value: string): void {
     this.form.patchValue({ dependencyId: value });
+    this.generate();
   }
 
   getStatusCount(item: { status: string; count: number }[], status: string) {
@@ -138,7 +140,7 @@ export default class ReportUnitCorrespondenceStatusComponent {
   viewAccountDetail(item: CorrespondenceStatusByUnitResponse) {
     this.isDetailLoading.set(true);
     this.reportService
-      .getCorrespondenceByAccount(item.id)
+      .getCorrespondenceByAccount(item.id, this.filterBy())
       .pipe(
         switchMap((data) => {
           return this.pdfService.tableSheet({

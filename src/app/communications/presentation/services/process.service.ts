@@ -29,6 +29,7 @@ export class ProcessService {
       .get<procedureResponses>(`${this.url}/detail/${group}/${id}`)
       .pipe(
         map((resp) => {
+          console.log(resp);
           switch (resp.group) {
             case procedureGroup.External:
               return ExternalMapper.fromResponse(resp as external);

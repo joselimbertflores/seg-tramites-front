@@ -46,35 +46,30 @@ import { MatButtonModule } from '@angular/material/button';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SearchInputComponent implements OnInit {
-  private destroyRef = inject(DestroyRef);
-
   title = input<string>('Buscar');
-  placeholder = input<string>('');
+  placeholder = input<string>('Texto a buscar');
   initValue = input<string>('');
-  onSearch = output<string>();
   clearable = input<boolean>(false);
+  onSearch = output<string>();
 
-  control = new FormControl('', { nonNullable: true });
+  control = new FormControl<string>('', { nonNullable: true });
 
   constructor() {
-    effect(() => {
-      this.control.setValue(this.initValue());
-    });
+    this.setupInput();
   }
 
   ngOnInit(): void {
     if (this.initValue()) this.control.setValue(this.initValue());
-    this.control.valueChanges
-      .pipe(
-        debounceTime(400),
-        distinctUntilChanged(),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe((term) => this.onSearch.emit(term));
   }
 
   clear() {
     this.control.setValue('');
     this.onSearch.emit('');
+  }
+
+  private setupInput(): void {
+    this.control.valueChanges
+      .pipe(debounceTime(400), distinctUntilChanged(), takeUntilDestroyed())
+      .subscribe((value) => this.onSearch.emit(value));
   }
 }

@@ -8,6 +8,7 @@ export interface ProcedureProps {
   group: procedureGroup;
   state: procedureState;
   createdAt: Date;
+  completedAt?: Date;
 }
 
 export interface OriginDetails {
@@ -66,6 +67,7 @@ export abstract class Procedure {
     reference,
     numberOfDocuments,
     createdAt,
+    completedAt,
     group,
   }: ProcedureProps) {
     this.id = id;
@@ -77,7 +79,7 @@ export abstract class Procedure {
     this.numberOfDocuments = numberOfDocuments;
     this.group = group;
     this.createdAt = createdAt;
-    // if (endDate) this.endDate = new Date(endDate);
+    if (completedAt) this.completedAt = completedAt;
   }
 
   abstract originDetails(): OriginDetails;

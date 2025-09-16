@@ -13,7 +13,7 @@ import { SafePipe } from '../../pipes/safe.pipe';
   selector: 'pdf-display',
   imports: [SafePipe],
   template: `
-    <div class="w-full h-[550px]">
+    <div class="w-full h-[550px] mt-2">
       <iframe [src]="pfdBlobUrl() | safe" class="w-full h-full"></iframe>
     </div>
   `,

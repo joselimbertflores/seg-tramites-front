@@ -59,6 +59,7 @@ export default class ReportDashboardComponent implements OnInit {
   currentReportProps = this.reportCacheService.currentReport;
 
   ngOnInit(): void {
+    this.setCurrentReport();
     this.listenReportRoutes();
   }
 
@@ -79,7 +80,12 @@ export default class ReportDashboardComponent implements OnInit {
       .subscribe((event) => {
         const url = event.urlAfterRedirects;
         if (url.includes('/detail') || url.endsWith('/home')) return;
-        this.reportCacheService.lastReportPath.set(url);
+        this.reportCacheService.setCurrentReportByRoute(url);
       });
+  }
+
+  private setCurrentReport() {
+    const url = this.router.routerState.snapshot.url;
+    this.reportCacheService.setCurrentReportByRoute(url);
   }
 }

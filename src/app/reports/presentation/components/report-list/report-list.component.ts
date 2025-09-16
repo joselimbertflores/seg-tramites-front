@@ -17,7 +17,7 @@ import { ReportCacheService, ReportItem } from '../../services';
       @for (item of menu(); track $index) {
       <a
         routerLinkActive
-        [routerLink]="item.link"
+        [routerLink]="item.route"
         #link="routerLinkActive"
         [activated]="link.isActive"
         mat-list-item
@@ -36,8 +36,8 @@ export class ReportListComponent {
   private _bottomSheetRef = inject(MatBottomSheetRef);
   menu = this.reportCacheService.menu;
 
-  openLink(event: MouseEvent, item:ReportItem): void {
-    this.reportCacheService.setCurrentReportProps(item);
+  openLink(event: MouseEvent, item: ReportItem): void {
+    this.reportCacheService.setCurrentReport(item);
     this._bottomSheetRef.dismiss();
     event.preventDefault();
   }

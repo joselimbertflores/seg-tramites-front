@@ -5,7 +5,7 @@
         <mat-expansion-panel-header>
           <mat-panel-title>PARAMENTROS BUSQUEDA </mat-panel-title>
         </mat-expansion-panel-header>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
           <div>
             <select-search
               [items]="institutions()"
@@ -40,15 +40,7 @@
             </mat-form-field>
           </div>
         </div>
-        <mat-action-row>
-          <button
-            matButton="filled"
-            type="submit"
-            [disabled]="isLoading() || form.invalid"
-          >
-            Buscar
-          </button>
-        </mat-action-row>
+      
       </mat-expansion-panel>
     </form>
   </mat-accordion>
@@ -60,7 +52,7 @@
     </div>
   } 
   @if(!isLoading() && hasSearched()){
-    <table mat-table [dataSource]="dataSource()" class="mt-6">
+    <table mat-table [dataSource]="dataSource" class="mt-6">
       <ng-container matColumnDef="officer">
         <th mat-header-cell *matHeaderCellDef>Usuario</th>
         <td mat-cell *matCellDef="let element">
@@ -108,6 +100,9 @@
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns()"></tr>
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell p-3" [attr.colspan]="displayedColumns().length">SIN RESULTADOS.</td>
+      </tr>
     </table>
   }
 </div>

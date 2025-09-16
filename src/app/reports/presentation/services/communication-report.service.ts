@@ -88,10 +88,16 @@ export class CommunicationReportService {
       );
   }
 
-  getCorrespondenceStatusByUnit(id: string, filterBy: 'recipient' | 'sender') {
+  getCorrespondenceStatusByUnit(
+    filterBy: 'recipient' | 'sender',
+    dependencyId?: string
+  ) {
+    const params = new HttpParams({
+      fromObject: { filterBy, ...(dependencyId && { dependencyId }) },
+    });
     return this.http.post<CorrespondenceStatusByUnitResponse[]>(
-      `${this.URL}/correspondence-status/${id}`,
-      { filterBy },
+      `${this.URL}/correspondence-status`,
+      params,
       { context: skipUploadIndicator() }
     );
   }

@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 
 import { firstValueFrom, forkJoin, map, of, switchMap } from 'rxjs';
@@ -43,6 +44,7 @@ interface preloadedDataProps {
 interface pdfBlobItem {
   blob: Blob;
   title: string;
+  isOriginal:boolean
 }
 
 @Component({
@@ -54,34 +56,47 @@ interface pdfBlobItem {
     MatButtonModule,
     MatProgressSpinnerModule,
     PdfDisplayComponent,
+    MatIconModule,
   ],
   template: `
     <h2 mat-dialog-title>Hoja de Ruta</h2>
     <mat-dialog-content>
       @if(pdfBlobList.isLoading()){
-      <div class="flex items-center justify-center h-[500px]">
-        <mat-spinner />
-      </div>
-      } @else if(pdfBlobList.error()) {
-      <div class="flex items-center justify-center h-[500px]">
-        <div class="flex flex-col text-center text-red-400">
-          <p class="font-medium text-xl tracking-wide">
-            Error al generar la hoja de ruta
-          </p>
-          <p>
-            Ha ocurrido un error interno por lo que este reporte no esta
-            disponible.
-          </p>
+        <div class="flex items-center justify-center h-[500px]">
+          <mat-spinner />
         </div>
-      </div>
-      } @else if(pdfBlobList.value()) {
-      <mat-tab-group>
-        @for (item of pdfBlobList.value(); track $index) {
-        <mat-tab [label]="item.title">
-          <pdf-display [pdfBlob]="item.blob" />
-        </mat-tab>
-        }
-      </mat-tab-group>
+      } 
+      @else if(pdfBlobList.error()) {
+        <div class="flex items-center justify-center h-[500px]">
+          <div class="flex flex-col text-center text-red-400">
+            <p class="font-medium text-xl tracking-wide">
+              Error al generar la hoja de ruta
+            </p>
+            <p>
+              Ha ocurrido un error interno por lo que este reporte no esta
+              disponible.
+            </p>
+          </div>
+        </div>
+      } 
+      @else if(pdfBlobList.value()) {
+        <mat-tab-group class="test">
+          @for (item of pdfBlobList.value(); track $index) {
+            <mat-tab [label]="item.title">
+              <ng-template mat-tab-label>
+                @if(item.isOriginal) {
+                <mat-icon class="mr-2" style="color: var(--mat-sys-primary)"> task </mat-icon>
+                } @else {
+                <mat-icon class="mr-2" style="color: var(--mat-sys-outline)">
+                  description
+                </mat-icon>
+                }
+                {{item.title}}
+              </ng-template>
+              <pdf-display [pdfBlob]="item.blob" />
+            </mat-tab>
+          }
+        </mat-tab-group>
       }
     </mat-dialog-content>
     <mat-dialog-actions align="end">
@@ -126,7 +141,7 @@ export class RouteSheetDialogComponent {
               paths.map(({ path, isOriginal, title }) =>
                 this.pdfservice
                   .routeSheet(procedure, path, isOriginal)
-                  .pipe(map((blob) => ({ title, blob })))
+                  .pipe(map((blob) => ({ title, blob, isOriginal })))
               )
             )
           )

@@ -12,6 +12,7 @@ export class ExternalMapper {
     state,
     type,
     createdAt,
+    completedAt,
     representative,
     ...props
   }: external): ExternalProcedure {
@@ -19,6 +20,7 @@ export class ExternalMapper {
       id: _id,
       type: type.nombre,
       createdAt: new Date(createdAt),
+      ...(completedAt && { completedAt: new Date(completedAt) }),
       group: group as procedureGroup,
       state: state as procedureState,
       ...(representative && {

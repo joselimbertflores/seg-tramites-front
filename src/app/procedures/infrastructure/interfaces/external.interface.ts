@@ -15,6 +15,7 @@ export interface external {
   group: string;
   createdAt: string;
   updatedAt: string;
+  completedAt: string;
   isSend: boolean;
 }
 
