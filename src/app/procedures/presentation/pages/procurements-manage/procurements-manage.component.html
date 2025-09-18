@@ -133,12 +133,11 @@
                       <mat-menu #menu="matMenu">
                         <button
                           mat-menu-item
-                          (click)="updateDocument(element._id, doc, $index)"
+                          (click)="updateDocument(element.id, doc, $index)"
                         >
                           <mat-icon>edit</mat-icon>
                           <span>Editar</span>
                         </button>
-                        <!-- [disabled]="!element.isPrintEnabled($index)" -->
                         <button
                           mat-menu-item
                           (click)="generateDocument(element, $index)"

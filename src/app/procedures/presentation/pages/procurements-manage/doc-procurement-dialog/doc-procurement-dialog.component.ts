@@ -101,6 +101,7 @@ export class DocProcurementDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    console.log(this.data);
     this._loadForm();
   }
 
