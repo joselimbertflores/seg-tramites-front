@@ -29,7 +29,7 @@ import { NewsDialogComponent } from '../../../../publications/presentation/dialo
       <p class="text-gray-600 mt-2 italic">
         "Gestiona tus trámites, desde el inicio hasta su conclusión"
       </p>
-      <p class="text-xs mt-8">Versión 2.0.0</p>
+      <p class="text-xs mt-8">Versión 2.1.0</p>
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
