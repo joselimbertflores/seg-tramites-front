@@ -1,16 +1,17 @@
+import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 @Component({
   selector: 'procurement-description',
-  imports: [],
+  imports: [CommonModule],
   template: `
     <div class="py-4 sm:px-8">
       <div class="px-4 sm:px-0">
-        <h3 class="text-xl text-gray-900">
-          {{ data().type }}
+        <h3 class="text-xl text-gray-900 font-semibold">
+          {{ data().type|uppercase }}
         </h3>
-        <p class="mt-1 max-w-2xl text-sm/6 text-gray-500">
-          {{ data().reference }}
+        <p class="mt-1 max-w-2xl text-gray-500">
+          {{ data().reference |uppercase}}
         </p>
       </div>
       <div class="mt-6 border-t border-gray-100">
@@ -44,7 +45,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
           <div class="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
             <dt class="text-sm/6 font-medium text-gray-900">CREACION</dt>
             <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">
-              {{ data().createdAt }}
+              {{ data().createdAt|date:"short" }}
             </dd>
           </div>
           <div class="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
@@ -54,9 +55,15 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
             </dd>
           </div>
           <div class="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-            <dt class="text-sm/6 font-medium text-gray-900">PRECIO</dt>
+            <dt class="text-sm/6 font-medium text-gray-900">MONTO INICIAL</dt>
             <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">
-              {{ data()?.precio ?? '-----' }}
+              {{ data()?.price ?? '-----' }}
+            </dd>
+          </div>
+           <div class="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+            <dt class="text-sm/6 font-medium text-gray-900">MONTO MODIFICADO</dt>
+            <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">
+              {{ data()?.price_updated ?? '-----' }}
             </dd>
           </div>
           <div class="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">

@@ -4,6 +4,7 @@ import {
   Component,
   ChangeDetectionStrategy,
   OnInit,
+  computed,
 } from '@angular/core';
 import {
   FormGroup,
@@ -53,15 +54,21 @@ export class ProcurementDialogComponent implements OnInit {
   selectedDocProps = signal<{ cite: string; docId: string } | null>(null);
   private dialogRef = inject(MatDialogRef);
 
-  readonly modes = [
-    'Menor a 20 mil',
-    '20 mil a 50 mil',
-    'Mayor a 50 mil',
-    'Mayor a 200 mil',
-    'Mayor a 1 millon',
-  ];
+  readonly modes = ['OBRA', 'SERVICIO'];
 
-  readonly types = ['BIEN', 'SERVICIO'];
+  selectedMode = signal<string | null>(null);
+
+  types = computed(() =>
+    this.selectedMode() === 'OBRA'
+      ? [
+          'Contratacion menor: 1 a 50.000',
+          'Contratación directa: 50.001 a 100.000',
+          'ANPE: 100.000 a 1.000.000',
+          'LP: Mayor a 1.000.000',
+          'Contratación por excepcion',
+        ]
+      : ['Contratacion menor: Menor a 40.000', 'ANPE: Mayor a 40.000']
+  );
 
   readonly metodosAdjudicacion = [
     'Precio evaluado mas bajo',
@@ -91,6 +98,7 @@ export class ProcurementDialogComponent implements OnInit {
     metodoAdjudicacion: [''],
     formaAdjudicacion: [''],
     price: [''],
+    price_updated:[],
     deliveryTimeframe: [''],
     deliveryLocation: [''],
     warranty: [''],

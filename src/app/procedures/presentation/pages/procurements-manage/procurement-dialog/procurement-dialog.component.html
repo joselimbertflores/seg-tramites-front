@@ -1,11 +1,14 @@
-<h2 mat-dialog-title>{{ data ? "Edicion" : "Inicio" }} Proceso Contratacion</h2>
+<h2 mat-dialog-title>{{ data ? "Edicion" : "Inicio" }} Proceso</h2>
 <mat-dialog-content>
   <form [formGroup]="formProcedure" class="pt-2">
     <div class="grid grid-cols-4 gap-x-4">
       <div>
         <mat-form-field>
           <mat-label>Modalidad</mat-label>
-          <mat-select formControlName="mode">
+          <mat-select
+            formControlName="mode"
+            (valueChange)="selectedMode.set($event)"
+          >
             @for (type of modes; track $index) {
             <mat-option [value]="type">{{ type }}</mat-option>
             }
@@ -14,8 +17,12 @@
       </div>
       <div class="col-span-3">
         <mat-form-field>
-          <mat-label>Nombre del proceso</mat-label>
-          <input formControlName="reference" matInput />
+          <mat-label>Tipo (Detalle Modalidad)</mat-label>
+          <mat-select formControlName="type">
+            @for (type of types(); track $index) {
+            <mat-option [value]="type">{{ type }}</mat-option>
+            }
+          </mat-select>
         </mat-form-field>
       </div>
       <div>
@@ -30,29 +37,40 @@
           <input formControlName="descripcionAperturaProg" matInput />
         </mat-form-field>
       </div>
+      <div class="col-span-4">
+        <mat-form-field>
+          <mat-label>Nombre del proceso</mat-label>
+          <input formControlName="reference" matInput />
+        </mat-form-field>
+      </div>
 
-      <div class="col-span-2">
-        <mat-form-field>
-          <mat-label>Metodo de adjudicacion</mat-label>
-          <mat-select formControlName="metodoAdjudicacion">
-            @for (type of metodosAdjudicacion; track $index) {
-            <mat-option [value]="type">{{ type }}</mat-option>
-            }
-          </mat-select>
+      
+      <div>
+        <mat-form-field floatLabel="always">
+          <mat-label>Monto inicial</mat-label>
+          <input
+            formControlName="price"
+            matInput
+            type="number"
+            placeholder="0"
+          />
+          <span matTextPrefix>Bs.&nbsp;</span>
         </mat-form-field>
       </div>
-      <div class="col-span-2">
-        <mat-form-field>
-          <mat-label>Forma de adjudicacion</mat-label>
-          <mat-select formControlName="formaAdjudicacion">
-            @for (type of formasAdjudicacion; track $index) {
-            <mat-option [value]="type">{{ type }}</mat-option>
-            }
-          </mat-select>
+      <div>
+        <mat-form-field floatLabel="always">
+          <mat-label>Monto modificacion</mat-label>
+          <input
+            formControlName="price_updated"
+            matInput
+            type="number"
+            placeholder="0"
+          />
+          <span matTextPrefix>Bs.&nbsp;</span>
         </mat-form-field>
       </div>
-      <div class="col-span-4 px-2 mb-4">
-        <div class="flex items-center border-b-2 mb-3">
+      <div class="col-span-4 px-2 py-3 mb-6">
+        <div class="flex items-center border-b">
           <p class="text-lg">Objeto de gasto</p>
           <span class="flex-1"></span>
           <button mat-icon-button (click)="addRequirement()">
@@ -61,7 +79,10 @@
         </div>
         <div formArrayName="items">
           <div *ngFor="let control of requeriments.controls; let i = index">
-            <div [formGroupName]="i" class="flex items-center gap-x-2 overflow-y-hidden py-2">
+            <div
+              [formGroupName]="i"
+              class="flex items-center gap-x-2 overflow-y-hidden py-2"
+            >
               <div class="flex-1 min-w-0">
                 <div class="flex gap-x-2">
                   <div class="w-1/6">
@@ -114,26 +135,30 @@
           }
         </div>
       </div>
-      <div>
+        <div class="col-span-4">
         <mat-form-field>
-          <mat-label>Bien / Servicio</mat-label>
-          <mat-select formControlName="type">
-            @for (type of types; track $index) {
+          <mat-label>Justificacion</mat-label>
+          <textarea matInput formControlName="reason"></textarea>
+        </mat-form-field>
+      </div>
+      <div class="col-span-2">
+        <mat-form-field>
+          <mat-label>Metodo de adjudicacion</mat-label>
+          <mat-select formControlName="metodoAdjudicacion">
+            @for (type of metodosAdjudicacion; track $index) {
             <mat-option [value]="type">{{ type }}</mat-option>
             }
           </mat-select>
         </mat-form-field>
       </div>
-      <div>
-        <mat-form-field floatLabel="always">
-          <mat-label>Precio referencial</mat-label>
-          <input
-            formControlName="price"
-            matInput
-            type="number"
-            placeholder="0"
-          />
-          <span matTextPrefix>Bs.&nbsp;</span>
+      <div class="col-span-2">
+        <mat-form-field>
+          <mat-label>Forma de adjudicacion</mat-label>
+          <mat-select formControlName="formaAdjudicacion">
+            @for (type of formasAdjudicacion; track $index) {
+            <mat-option [value]="type">{{ type }}</mat-option>
+            }
+          </mat-select>
         </mat-form-field>
       </div>
       <div>
@@ -160,12 +185,7 @@
           <input formControlName="numberOfDocuments" matInput />
         </mat-form-field>
       </div>
-      <div class="col-span-4">
-        <mat-form-field>
-          <mat-label>Justificacion</mat-label>
-          <textarea matInput formControlName="reason"></textarea>
-        </mat-form-field>
-      </div>
+    
     </div>
   </form>
 </mat-dialog-content>
