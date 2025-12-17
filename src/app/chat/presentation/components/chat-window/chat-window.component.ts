@@ -38,6 +38,10 @@ import { ChatService } from '../../services';
     FileChatSelectorComponent,
   ],
   templateUrl: './chat-window.component.html',
+  styles: `textarea {
+  max-height: 150px;
+}
+`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChatWindowComponent implements OnChanges {
@@ -126,6 +130,21 @@ export class ChatWindowComponent implements OnChanges {
       container.scrollTop = container.scrollHeight - this.previusHeight;
       this.previusHeight = 0;
     });
+  }
+
+  autoResize(event: Event) {
+    const textarea = event.target as HTMLTextAreaElement;
+    textarea.style.height = 'auto';
+    textarea.style.height = textarea.scrollHeight + 'px';
+  }
+
+  onEnter(event: Event) {
+    const keyboardEvent = event as KeyboardEvent;
+
+    if (!keyboardEvent.shiftKey) {
+      keyboardEvent.preventDefault();
+      this.sendMessage();
+    }
   }
 
   private listenForChatSeen(): void {

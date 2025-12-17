@@ -4,6 +4,7 @@ export interface unlinkDataResponse {
   officer: officerProps;
   summary: summary;
   inboxItems: communication[];
+  outboxItems: communication[];
 }
 
 interface officerProps {
@@ -29,15 +30,13 @@ interface outbox {
   autoRejected: number;
 }
 
-
 export interface accountTrayStatus {
   inbox: {
-    total:number
-    breakdown:Record<string, number>
-  }
+    total: number;
+    breakdown: Record<string, number>;
+  };
   outbox: {
-    total:number,
-    breakdown:Record<string, number>
+    total: number;
+    breakdown: Record<string, number>;
   };
 }
-

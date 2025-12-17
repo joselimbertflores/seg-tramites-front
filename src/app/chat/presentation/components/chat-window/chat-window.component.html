@@ -26,46 +26,47 @@
     #chatPanel
   >
     @if(isLoading()){
-      <div class="text-center">Cargando mensajes...</div>
-    }
-    @if(!isLoading() && messages().length === 0){
-      <div class="text-center">
-        Escriba un mensaje para iniciar la conversacion.
-      </div>
-    } 
-    @for (item of messages(); track item.id) {
-      <chat-bubble [message]="item" />
+    <div class="text-center">Cargando mensajes...</div>
+    } @if(!isLoading() && messages().length === 0){
+    <div class="text-center">
+      Escriba un mensaje para iniciar la conversacion.
+    </div>
+    } @for (item of messages(); track item.id) {
+    <chat-bubble [message]="item" />
     }
   </div>
   @if(!isAtBottom()){
-    <button
-      matMiniFab
-      class="!fixed bottom-24 right-6"
-      (click)="scrollToBottom()"
-    >
-      <mat-icon>arrow_downward</mat-icon>
-    </button>
-  }
-  @if(newMessagesCount() > 0 && !isAtBottom()){
-    <div
-      style="background-color: var(--mat-sys-secondary-container)"
-      class="absolute bottom-[100px] left-1/2 -translate-x-1/2 text-sm font-medium px-4 py-2 rounded-full cursor-pointer"
-      (click)="scrollToBottom()"
-    >
-       {{ newMessagesCount() + (newMessagesCount() > 1 ?  " nuevos mensajes" : " nuevo mensaje")}}
-    </div>
+  <button
+    matMiniFab
+    class="!fixed bottom-24 right-6"
+    (click)="scrollToBottom()"
+  >
+    <mat-icon>arrow_downward</mat-icon>
+  </button>
+  } @if(newMessagesCount() > 0 && !isAtBottom()){
+  <div
+    style="background-color: var(--mat-sys-secondary-container)"
+    class="absolute bottom-[100px] left-1/2 -translate-x-1/2 text-sm font-medium px-4 py-2 rounded-full cursor-pointer"
+    (click)="scrollToBottom()"
+  >
+    {{
+      newMessagesCount() +
+        (newMessagesCount() > 1 ? " nuevos mensajes" : " nuevo mensaje")
+    }}
+  </div>
   }
   <div
     class="flex items-center gap-4 p-4 w-full"
     style="background-color: var(--mat-sys-surface-container-high)"
   >
     <file-chat-selector (onCofirmFiles)="sendFiles($event)" />
-    <input
-      type="text"
+    <textarea
+      rows="1"
       placeholder="Escribe un mensaje"
-      class="flex-1 rounded-xl border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      class="flex-1 resize-none rounded-xl border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 overflow-hidden"
       [(ngModel)]="messageContent"
-      (keydown.enter)="sendMessage()"
-    />
+      (input)="autoResize($event)"
+      (keydown.enter)="onEnter($event)"
+    ></textarea>
   </div>
 </div>

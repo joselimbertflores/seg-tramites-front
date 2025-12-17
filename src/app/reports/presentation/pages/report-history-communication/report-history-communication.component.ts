@@ -5,7 +5,12 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -31,7 +36,7 @@ interface cache {
   limit: number;
   index: number;
   dataSize: number;
-  hasSearched:boolean
+  hasSearched: boolean;
 }
 @Component({
   selector: 'app-report-history-communication',
@@ -47,7 +52,7 @@ interface cache {
     MatProgressBarModule,
     ReportProcedureTableComponent,
   ],
-  templateUrl:"./report-history-communication.component.html",
+  templateUrl: './report-history-communication.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [provideNativeDateAdapter()],
 })
@@ -81,7 +86,7 @@ export default class ReportHistoryCommunicationComponent {
   dataSize = signal(0);
 
   constructor() {
-    this.loadCache()
+    this.loadCache();
   }
 
   getData() {
@@ -103,7 +108,7 @@ export default class ReportHistoryCommunicationComponent {
           form: this.filterForm.value,
           limit: this.limit(),
           index: this.index(),
-          hasSearched:this.hasSearched(),
+          hasSearched: this.hasSearched(),
           dataSize: length,
         };
       });
@@ -125,17 +130,22 @@ export default class ReportHistoryCommunicationComponent {
   }
 
   print() {
-    this.pdfService
-      .tableSheet({
-        title: 'Reporte: Historial de Envios',
-        dataSource: this.dataSource().map(({ group, ...props }) => ({
-          ...props,
-          group: this.translateProcedureGroup(group),
-        })),
-        displayColumns: this.COLUMNS,
+    this.reportService
+      .getHistory({
+        ...this.filterForm.value,
+        isExport: true,
       })
-      .subscribe((pdf) => {
-        pdf.print({ autoPrint: true });
+      .subscribe(({ data }) => {
+        this.pdfService
+          .tableSheet({
+            title: 'Reporte: Historial de Envios',
+            dataSource: data.map(({ group, ...props }) => ({
+              ...props,
+              group: this.translateProcedureGroup(group),
+            })),
+            displayColumns: this.COLUMNS,
+          })
+          .subscribe((pdf) => pdf.print({ autoPrint: true }));
       });
   }
 
@@ -155,11 +165,11 @@ export default class ReportHistoryCommunicationComponent {
   private loadCache() {
     const cache = this.cacheService.cache['report-history'];
     if (!cache) return;
-    this.filterForm.patchValue(cache.form)
+    this.filterForm.patchValue(cache.form);
     this.dataSource.set(cache.dataSource);
     this.dataSize.set(cache.dataSize);
     this.limit.set(cache.limit);
     this.index.set(cache.index);
-    this.hasSearched.set(cache.hasSearched)
+    this.hasSearched.set(cache.hasSearched);
   }
 }

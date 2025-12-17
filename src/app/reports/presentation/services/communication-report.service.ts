@@ -29,6 +29,7 @@ interface historyParams {
   term: string;
   startDate?: Date;
   endDate?: Date;
+  isExport?: boolean;
 }
 
 const STATUS_MAP = {
@@ -127,12 +128,18 @@ export class CommunicationReportService {
       );
   }
 
-  getHistory({ limit, offset, term, ...props }: historyParams): Observable<{
+  getHistory({
+    limit = 10,
+    offset = 0,
+    term,
+    isExport = false,
+    ...props
+  }: historyParams): Observable<{
     data: tableProcedureData[];
     length: number;
   }> {
     const params = new HttpParams({
-      fromObject: { limit, offset, ...(term && { term }) },
+      fromObject: { limit, offset, ...(term && { term }), export:isExport },
     });
     return this.http
       .post<{ communications: CommunicationHistoryResponse[]; length: number }>(

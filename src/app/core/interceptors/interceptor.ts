@@ -10,6 +10,8 @@ import { Observable, catchError, finalize, throwError } from 'rxjs';
 
 import { LoadingService, ToastService } from '../../shared';
 import { SHOW_PROGRESS_BAR, SHOW_UPLOAD_DIALOG } from './loading-context.token';
+import { Router } from '@angular/router';
+import { AuthService } from '../../auth/presentation/services/auth.service';
 
 export function loggingInterceptor(
   req: HttpRequest<unknown>,
@@ -17,9 +19,13 @@ export function loggingInterceptor(
 ): Observable<HttpEvent<unknown>> {
   const toastService = inject(ToastService);
   const loadingService = inject(LoadingService);
+  const router = inject(Router);
+  const authService = inject(AuthService);
 
   const load = req.method === 'GET' && req.context.get(SHOW_PROGRESS_BAR);
-  const upload = ['POST', 'PUT', 'PATCH'].includes(req.method) && req.context.get(SHOW_UPLOAD_DIALOG);
+  const upload =
+    ['POST', 'PUT', 'PATCH'].includes(req.method) &&
+    req.context.get(SHOW_UPLOAD_DIALOG);
 
   if (load) {
     loadingService.toggleLoading(true);
@@ -73,6 +79,10 @@ export function loggingInterceptor(
               title: 'Solictud incorrecta',
               description: message,
             });
+            break;
+          case 401:
+            authService.logout();
+            router.navigate(['/login']);
             break;
           default:
             break;

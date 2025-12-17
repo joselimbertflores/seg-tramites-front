@@ -198,7 +198,6 @@ export async function getUnlinkSheetReport(data: unlinkDataResponse) {
               {
                 text:
                   data.summary.outbox.pending +
-                  data.summary.outbox.rejected +
                   data.summary.outbox.autoRejected,
               },
             ],
@@ -373,7 +372,72 @@ export async function getUnlinkSheetReport(data: unlinkDataResponse) {
                     {
                       text: 'Sin tramites en bandeja',
                       colSpan: 5,
-                      fontSize: 14,
+                      fontSize: 12,
+                    },
+                    '',
+                    '',
+                    '',
+                    '',
+                  ],
+                ]),
+          ],
+        },
+      },
+      { text: '', pageBreak: 'before', pageOrientation: 'landscape' },
+      {
+        text: `LISTADO DE TRAMITES EN BANDEJA DE SALIDA: ${currentDate.toLocaleString()}\n\n`,
+        bold: true,
+        alignment: 'center',
+      },
+      {
+        fontSize: 8,
+        table: {
+          headerRows: 1,
+          dontBreakRows: true,
+          widths: [20, 120, '*', 70, 40],
+          body: [
+            [
+              { text: 'Nro.', bold: true, alignment: 'center' },
+              { text: 'Alterno', bold: true, alignment: 'center' },
+              { text: 'Descripcion', bold: true, alignment: 'center' },
+              { text: 'Fecha ingreso', bold: true, alignment: 'center' },
+              { text: 'Recibido', bold: true, alignment: 'center' },
+            ],
+            ...(data.outboxItems.length > 0
+              ? data.outboxItems.map((item, index) => [
+                  { text: `${index + 1}`, alignment: 'center' },
+                  item.procedure.code,
+                  item.procedure.reference,
+                  new Date(item.sentDate).toLocaleString('es-ES', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false,
+                  }),
+                  ...(item.status === 'pending'
+                    ? [
+                        {
+                          text: `Sin recibir`,
+                          alignment: 'center',
+                        },
+                      ]
+                    : [
+                        {
+                          text: `Auto Rechazado`,
+                          fillColor: '#FE5F55',
+                          alignment: 'center',
+                          color: 'white',
+                        },
+                      ]),
+                ])
+              : [
+                  [
+                    {
+                      text: 'Sin tramites en bandeja',
+                      colSpan: 5,
+                      fontSize: 12,
                     },
                     '',
                     '',

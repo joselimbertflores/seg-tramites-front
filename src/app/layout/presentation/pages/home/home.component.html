@@ -7,9 +7,32 @@
       <img src="images/logos/escudo.png" class="w-12" />
     </div>
     <span class="flex-1"></span>
-    <div class="flex gap-x-3">
-      <button mat-icon-button (click)="navigateToChat()" matTooltip="Chat"
-          [matBadge]="unreadMessagesCount() " matBadgeColor="warn" matBadgeHidden="{{ unreadMessagesCount() === 0 }}">
+    <div class="flex gap-x-4">
+      <button
+        matButton="filled"
+        [disabled]="isReportLoading()"
+        (click)="generateReport()"
+        *hasPermission="{
+          resource: PERMISSION.reports,
+          actions: ['unlink']
+        }"
+      >
+        @if(isReportLoading()){
+        <div class="flex items-center gap-x-4">
+          <mat-spinner [diameter]="20" />
+          Generando
+        </div>
+        } @else { Baja de usuario }
+      </button>
+
+      <button
+        mat-icon-button
+        (click)="navigateToChat()"
+        matTooltip="Chat"
+        [matBadge]="unreadMessagesCount()"
+        matBadgeColor="warn"
+        matBadgeHidden="{{ unreadMessagesCount() === 0 }}"
+      >
         <mat-icon>chat</mat-icon>
       </button>
 

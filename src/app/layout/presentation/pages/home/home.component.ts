@@ -29,8 +29,10 @@ import { OverlayModule } from '@angular/cdk/overlay';
 
 import {
   AlertService,
+  HasPermissionDirective,
   LoadingService,
   overlayAnimation,
+  PdfService,
 } from '../../../../shared';
 
 import { routeAnimations } from '../../../../shared/animations/route-animations';
@@ -39,6 +41,9 @@ import { ProfileComponent, SidenavMenuComponent } from '../../components';
 import { ChatService } from '../../../../chat/presentation/services';
 import { SocketService } from '../../services';
 import { NewsDialogComponent } from '../../../../publications/presentation/dialogs';
+import { CommunicationReportService } from '../../../../reports/presentation/services';
+import { finalize, switchMap } from 'rxjs';
+import { validResource } from '../../../../auth/infrastructure';
 
 @Component({
   selector: 'app-home',
@@ -57,6 +62,7 @@ import { NewsDialogComponent } from '../../../../publications/presentation/dialo
     MatProgressSpinnerModule,
     ProfileComponent,
     SidenavMenuComponent,
+    HasPermissionDirective,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
@@ -84,6 +90,7 @@ export default class HomeComponent implements OnDestroy {
   private _mobileQueryListener: () => void;
 
   unreadMessagesCount = signal(0);
+  public readonly PERMISSION = validResource;
 
   constructor(protected route: ActivatedRoute) {
     this.setupLayoutConfig();
@@ -174,5 +181,23 @@ export default class HomeComponent implements OnDestroy {
   private setupSocketEvents(): void {
     this.socketService.connect();
     this.chatService.initChatEvents();
+  }
+
+  private reportService = inject(CommunicationReportService);
+  private pdfService = inject(PdfService);
+
+  isReportLoading = signal(false);
+
+  generateReport() {
+    this.isReportLoading.set(true);
+    this.reportService
+      .getUnlinkData()
+      .pipe(
+        switchMap((data) => this.pdfService.unlinkSheet(data)),
+        finalize(() => this.isReportLoading.set(false))
+      )
+      .subscribe((pdf) => {
+        pdf.open();
+      });
   }
 }
