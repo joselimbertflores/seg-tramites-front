@@ -124,6 +124,7 @@ export default class OutboxComponent {
       attachmentsCount: item.attachmentsCount,
       procedure: { id: item.procedure.ref, code: item.procedure.code },
       isResend: item.status === 'pending' && item.isOriginal,
+      priority: item.priority,
     };
     const dialogRef = this.dialogRef.open<
       SubmissionDialogComponent,

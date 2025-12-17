@@ -73,6 +73,7 @@ export interface submissionData {
   isResend?: boolean;
   mode: communicationMode;
   reference?: string;
+  priority?: number;
 }
 interface procedureProps {
   id: string;
@@ -122,7 +123,7 @@ export class SubmissionDialogComponent implements OnInit {
     reference: [this.data.reference, Validators.required],
     attachmentsCount: [this.data.attachmentsCount, Validators.required],
     internalNumber: [''],
-    priority: [0, Validators.required],
+    priority: [this.data.priority ?? 0, Validators.required],
   });
   recipients = signal<recipient[]>([]);
 

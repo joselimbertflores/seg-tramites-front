@@ -18,12 +18,15 @@ import { MatButtonModule } from '@angular/material/button';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
+import { OverlayModule } from '@angular/cdk/overlay';
 
 import {
   AlertService,
   BackButtonDirective,
   CacheService,
+  PdfService,
   SearchInputComponent,
+  SelectSearchComponent,
 } from '../../../../shared';
 import { ArchiveService } from '../../services';
 import { Archive } from '../../../domain';
@@ -37,6 +40,16 @@ import {
 
 import { filter, switchMap } from 'rxjs';
 import { ProfileService } from '../../../../procedures/presentation/services';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { provideNativeDateAdapter } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 interface cache {
   datasource: Archive[];
@@ -44,6 +57,8 @@ interface cache {
   index: number;
   limit: number;
   term: string;
+  filerForm: object;
+  isFiltered: boolean;
 }
 
 @Component({
@@ -51,14 +66,20 @@ interface cache {
   imports: [
     CommonModule,
     RouterModule,
+    ReactiveFormsModule,
+    OverlayModule,
     MatIconModule,
     MatTableModule,
     MatButtonModule,
     MatToolbarModule,
     MatTooltipModule,
     MatPaginatorModule,
+    MatFormFieldModule,
+    MatDatepickerModule,
+    MatProgressSpinnerModule,
     BackButtonDirective,
     SearchInputComponent,
+    SelectSearchComponent,
   ],
   templateUrl: './archives.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -80,6 +101,7 @@ interface cache {
         border-bottom-width: 0;
       }
     `,
+  providers: [provideNativeDateAdapter()],
 })
 export default class ArchivesComponent implements OnInit {
   private archiveService = inject(ArchiveService);
@@ -109,9 +131,23 @@ export default class ArchivesComponent implements OnInit {
   expandedElement: Archive | null;
   selection = new SelectionModel<Archive>(true, []);
 
+  accountInDependency = this.archiveService.accountInDepepdency;
+
   private destroyRef = inject(DestroyRef);
 
   @Input('id') folderId: string;
+
+  readonly CURRENT_DATE = new Date();
+  filterForm: FormGroup = inject(FormBuilder).group({
+    accountId: [null],
+    startDate: [null, Validators.required],
+    endDate: [this.CURRENT_DATE, Validators.required],
+  });
+  isExporting = signal(false);
+
+  isFiltered = signal(false);
+
+  private pdfService = inject(PdfService);
 
   constructor() {
     this.destroyRef.onDestroy(() => this.saveCache());
@@ -129,11 +165,50 @@ export default class ArchivesComponent implements OnInit {
         term: this.term(),
         limit: this.limit(),
         offset: this.offset(),
+        ...this.filterForm.value,
       })
       .subscribe((data) => {
         this.datasource.set(data.archives);
         this.datasize.set(data.length);
         this.folderName.set(data.folderName);
+      });
+  }
+
+  exportData() {
+    this.isExporting.set(true);
+    const id = this.folderId === 'no-folder' ? null : this.folderId;
+    this.archiveService
+      .findAll({
+        folderId: id,
+        term: this.term(),
+        limit: this.limit(),
+        offset: this.offset(),
+        isExport: true,
+        ...this.filterForm.value,
+      })
+      .subscribe((data) => {
+        this.isExporting.set(false);
+        this.pdfService
+          .tableSheet({
+            title: `Reporte: Tramites archivados`,
+            dataSource: data.archives.map((item) => ({
+              document: `${item.documentLabel} - ${item.groupLabel}`,
+              code: item.procedure.code,
+              reference: item.procedure.reference,
+              account: `${item.officer.fullname} (${item.officer.jobtitle})`,
+              state: `${item.state}`,
+              date: `${item.createdAt.toLocaleDateString()}`,
+            })),
+            displayColumns: [
+              { header: 'Documento', columnDef: 'document' },
+              { header: 'Alterno', columnDef: 'code', width: 100 },
+              { header: 'Referencia', columnDef: 'reference' },
+              { header: 'Encargado', columnDef: 'account' },
+              { header: 'Estado', columnDef: 'state' },
+              { header: 'Fecha', columnDef: 'date' },
+            ],
+          })
+          .subscribe((pdf) => pdf.print({ autoPrint: true }));
       });
   }
 
@@ -146,6 +221,21 @@ export default class ArchivesComponent implements OnInit {
   search(term: string) {
     this.term.set(term);
     this.index.set(0);
+    this.getData();
+  }
+
+  applyFilter() {
+    this.index.set(0);
+    this.isOpen = false;
+    this.isFiltered.set(true);
+    this.getData();
+  }
+
+  reset() {
+    this.filterForm.reset({});
+    this.index.set(0);
+    this.isOpen = false;
+    this.isFiltered.set(false);
     this.getData();
   }
 
@@ -169,6 +259,10 @@ export default class ArchivesComponent implements OnInit {
       .subscribe(({ id }) => {
         this.removeItems([id]);
       });
+  }
+
+  selectAccount(value: string | null) {
+    this.filterForm.get('accountId')?.setValue(value);
   }
 
   toggleAllRows() {
@@ -197,6 +291,8 @@ export default class ArchivesComponent implements OnInit {
       limit: this.limit(),
       index: this.index(),
       term: this.term(),
+      filerForm: this.filterForm.value,
+      isFiltered: this.isFiltered(),
     });
   }
 
@@ -208,5 +304,7 @@ export default class ArchivesComponent implements OnInit {
     this.index.set(cache.index);
     this.datasize.set(cache.datasize);
     this.datasource.set(cache.datasource);
+    this.filterForm.patchValue(cache.filerForm);
+    this.isFiltered.set(cache.isFiltered);
   }
 }

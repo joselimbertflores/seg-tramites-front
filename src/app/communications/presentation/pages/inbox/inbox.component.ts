@@ -185,6 +185,7 @@ export default class InboxComponent implements OnInit {
       procedure: { id: item.procedure.ref, code: item.procedure.code },
       attachmentsCount: item.attachmentsCount,
       isOriginal: item.isOriginal,
+      priority: item.priority,
     };
     const dialogRef = this.dialogRef.open(SubmissionDialogComponent, {
       maxWidth: '1100px',

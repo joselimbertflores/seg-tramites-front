@@ -400,7 +400,7 @@ export async function getUnlinkSheetReport(data: unlinkDataResponse) {
               { text: 'Nro.', bold: true, alignment: 'center' },
               { text: 'Alterno', bold: true, alignment: 'center' },
               { text: 'Descripcion', bold: true, alignment: 'center' },
-              { text: 'Fecha ingreso', bold: true, alignment: 'center' },
+              { text: 'Fecha envio', bold: true, alignment: 'center' },
               { text: 'Recibido', bold: true, alignment: 'center' },
             ],
             ...(data.outboxItems.length > 0
@@ -426,9 +426,7 @@ export async function getUnlinkSheetReport(data: unlinkDataResponse) {
                     : [
                         {
                           text: `Auto Rechazado`,
-                          fillColor: '#FE5F55',
                           alignment: 'center',
-                          color: 'white',
                         },
                       ]),
                 ])

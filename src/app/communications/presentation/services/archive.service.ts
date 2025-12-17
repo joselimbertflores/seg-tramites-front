@@ -4,6 +4,8 @@ import { environment } from '../../../../environments/environment';
 import { archive } from '../../infrastructure/interfaces/archive.interface';
 import { map } from 'rxjs';
 import { ArchiveMapper } from '../../infrastructure';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { account } from '../../../administration/infrastructure';
 
 interface createArchiveProps {
   description: string;
@@ -17,6 +19,10 @@ interface findProps {
   term: string;
   limit: number;
   offset: number;
+  accountId?: string | null;
+  startDate?: Date | null;
+  endDate?: Date | null;
+  isExport: boolean;
 }
 @Injectable({
   providedIn: 'root',
@@ -24,6 +30,21 @@ interface findProps {
 export class ArchiveService {
   private readonly url = `${environment.base_url}/archives`;
   private http = inject(HttpClient);
+
+  accountInDepepdency = toSignal(
+    this.http.get<account[]>(`${this.url}/dependency`).pipe(
+      map((resp) =>
+        resp.map((el) => ({
+          value: el._id,
+          label: el.officer
+            ? `${el.officer.nombre} ${el.officer.paterno} ${el.officer.materno} (${el.jobtitle})`
+            : `SIN ASIGNAR (${el.jobtitle})`,
+        }))
+      )
+    ),
+    { initialValue: [] }
+  );
+
   constructor() {}
 
   create(form: createArchiveProps) {
@@ -33,11 +54,24 @@ export class ArchiveService {
     );
   }
 
-  findAll({ folderId, term, limit, offset }: findProps) {
+  findAll({
+    folderId,
+    term,
+    limit,
+    offset,
+    accountId,
+    startDate,
+    endDate,
+    isExport,
+  }: findProps) {
     const params = new HttpParams({
       fromObject: {
         ...(folderId && { folder: folderId }),
         ...(term && { term }),
+        ...(accountId && { accountId }),
+        ...(startDate && { startDate: startDate.toString() }),
+        ...(endDate && { endDate: endDate.toString() }),
+        isExport,
         limit,
         offset,
       },
