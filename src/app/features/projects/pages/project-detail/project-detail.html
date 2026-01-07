@@ -1,0 +1,124 @@
+<div class="p-4">
+  <h1 class="text-2xl font-medium">Detalle del proyecto</h1>
+</div>
+<div class="flex flex-col gap-y-4 p-4">
+  <div class="rounded-lg border shadow-sm p-6">
+    <h2 class="text-lg font-semibold mb-4">Detalle del Proyecto</h2>
+
+    <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+      <div>
+        <dt class="text-sm text-gray-500">Código</dt>
+        <dd class="font-medium text-gray-800">{{project.value()?.code}}</dd>
+      </div>
+
+      <div>
+        <dt class="text-sm text-gray-500">Estado</dt>
+        <dd class="font-medium text-gray-800">En proceso</dd>
+      </div>
+
+      <div>
+        <dt class="text-sm text-gray-500">Nombre</dt>
+        <dd class="font-medium text-gray-800">{{project.value()?.name}}</dd>
+      </div>
+
+      <div>
+        <dt class="text-sm text-gray-500">Fecha de creación</dt>
+        <dd class="font-medium text-gray-800">
+          {{project.value()?.createdAt | date:'short'}}
+        </dd>
+      </div>
+    </dl>
+  </div>
+
+  <div class="rounded-lg border shadow-sm p-6">
+    <h2 class="text-lg font-semibold mb-4">Trámites</h2>
+
+    <table class="w-full text-sm">
+      <thead class="text-left text-gray-500 border-b text-lg">
+        <tr>
+          <th class="py-2 w-1/6">Código</th>
+          <th class="py-2 w-3/6">Referencia</th>
+          <th class="py-2 w-1/6">Fecha</th>
+          <th class="py-2 w-1/6">Estado</th>
+        </tr>
+      </thead>
+
+      <tbody class="divide-y">
+        @for (item of project.value()?.procedures; track $index) {
+        <tr>
+          <td class="py-2">
+            <a class="text-blue-600 hover:underline font-medium text-lg" [routerLink]="['../../home', item.group, item._id]">
+              {{item.code}}
+            </a>
+          </td>
+          <td class="py-2 text-lg text-gray-700">{{item.reference}}</td>
+          <td class="py-2 text-lg text-gray-700">
+            {{item.createdAt|date:'short'}}
+          </td>
+          <td class="py-2 text-lg text-gray-700">{{item.state}}</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="rounded-lg border shadow-sm p-6">
+    <h2 class="text-lg font-semibold mb-4">Requisitos</h2>
+    <div
+      *ngFor="let req of project.value()?.requirements; let i = index"
+      class="flex items-start gap-4 p-4 border rounded-xl"
+      [class.bg-green-50]="req.completed"
+    >
+      <!-- Estado visual -->
+      <div class="pt-1">
+        <mat-icon *ngIf="req.completed" class="text-green-600">
+          check_circle
+        </mat-icon>
+
+        <mat-icon *ngIf="!req.completed" class="text-slate-400">
+          hourglass_empty
+        </mat-icon>
+      </div>
+
+      <!-- Contenido -->
+      <div class="flex-1">
+        <p class="font-medium text-slate-800">{{ req.name }}</p>
+
+        <p
+          class="text-sm mt-1"
+          [class.text-green-700]="req.completed"
+          [class.text-slate-500]="!req.completed"
+        >
+          @if(req.officer){ @if(req.completed){
+          <span class="text-lg">
+            Verificado por: {{ req.officer|titlecase }} · {{ req.date |
+            date:'short'}}
+          </span>
+          } @else(){
+          <span class="text-lg">
+            Removido por: {{ req.officer|titlecase }} · {{ req.date |
+            date:'short'}}
+          </span>
+          } } @else {
+          <span>Pendiente</span>
+          }
+        </p>
+      </div>
+
+      <!-- Acción -->
+      <div>
+        <button
+          type="button"
+          class="px-3 py-1.5 text-sm rounded-md transition"
+          [ngClass]="req.completed
+            ? 'bg-red-100 text-red-700 hover:bg-red-200'
+            : 'bg-green-600 text-white hover:bg-green-700'
+          "
+          (click)="confirm(i)"
+        >
+          {{ req.completed ? 'Desmarcar' : 'Confirmar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

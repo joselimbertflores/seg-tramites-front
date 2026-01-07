@@ -1,0 +1,157 @@
+<h2 mat-dialog-title>{{ data ? 'Editar' : 'Crear' }} Proyecto</h2>
+<mat-dialog-content>
+  <form [formGroup]="formProcedure" class="pt-2">
+    <div class="grid grid-cols-4 gap-x-4">
+      <div>
+        <mat-form-field>
+          <mat-label>Modalidad</mat-label>
+          <mat-select
+            formControlName="mode"
+            (valueChange)="selectedMode.set($event)"
+          >
+            @for (type of modes; track $index) {
+            <mat-option [value]="type">{{ type }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col-span-3">
+        <mat-form-field>
+          <mat-label>Tipo (Detalle Modalidad)</mat-label>
+          <mat-select formControlName="type">
+            @for (type of types(); track $index) {
+            <mat-option [value]="type">{{ type }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col-span-4">
+        <mat-form-field>
+          <mat-label>Nombre del proceso</mat-label>
+          <input formControlName="name" matInput />
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field floatLabel="always">
+          <mat-label>Monto inicial</mat-label>
+          <input
+            formControlName="price"
+            matInput
+            type="number"
+            placeholder="0"
+          />
+          <span matTextPrefix>Bs.&nbsp;</span>
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field floatLabel="always">
+          <mat-label>Monto modificacion</mat-label>
+          <input
+            formControlName="price_updated"
+            matInput
+            type="number"
+            placeholder="0"
+          />
+          <span matTextPrefix>Bs.&nbsp;</span>
+        </mat-form-field>
+      </div>
+      <div class="col-span-2"></div>
+      <div>
+        <mat-form-field>
+          <mat-label>Apertura programatica</mat-label>
+          <input formControlName="aperturaProg" matInput />
+        </mat-form-field>
+      </div>
+      <div class="col-span-3">
+        <mat-form-field>
+          <mat-label>Descripcion apertura programatica</mat-label>
+          <input formControlName="descripcionAperturaProg" matInput />
+        </mat-form-field>
+      </div>
+
+      <div class="col-span-4 px-2 py-3 mb-6">
+        <div class="flex items-center border-b border-slate-400">
+          <p class="text-lg">Objeto de gasto</p>
+          <span class="flex-1"></span>
+          <button mat-icon-button (click)="addRequirement()">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+        <div formArrayName="items">
+          <div *ngFor="let control of requeriments.controls; let i = index">
+            <div
+              [formGroupName]="i"
+              class="flex items-center gap-x-2 overflow-y-hidden pt-2"
+            >
+              <div class="flex-1 min-w-0">
+                <div class="flex gap-x-2">
+                  <div class="w-1/6">
+                    <mat-form-field>
+                      <mat-label>Codigo</mat-label>
+                      <input matInput formControlName="code" />
+                    </mat-form-field>
+                  </div>
+                  <div class="w-2/6">
+                    <mat-form-field>
+                      <mat-label>Nombre</mat-label>
+                      <input matInput formControlName="name" />
+                    </mat-form-field>
+                  </div>
+                  <div class="w-1/6">
+                    <mat-form-field>
+                      <mat-label>FF</mat-label>
+                      <input matInput formControlName="ff" />
+                    </mat-form-field>
+                  </div>
+                  <div class="w-1/6">
+                    <mat-form-field>
+                      <mat-label>OF</mat-label>
+                      <input matInput formControlName="of" />
+                    </mat-form-field>
+                  </div>
+                  <div class="w-1/6">
+                    <mat-form-field floatLabel="always">
+                      <mat-label>Monto</mat-label>
+                      <input
+                        formControlName="amount"
+                        matInput
+                        type="number"
+                        placeholder="0"
+                      />
+                      <span matTextPrefix>Bs.&nbsp;</span>
+                    </mat-form-field>
+                  </div>
+                </div>
+              </div>
+              <div class="w-14 h-12">
+                <button mat-icon-button (click)="removeRequirement(i)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+          @if(requeriments.length===0){
+          <p class="text-lg p-2">Sin elementos</p>
+          }
+        </div>
+      </div>
+      <div class="col-span-4">
+        <mat-form-field>
+          <mat-label>Justificacion</mat-label>
+          <textarea matInput formControlName="reason"></textarea>
+        </mat-form-field>
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close color="warn">Cancelar</button>
+  <button
+    mat-button
+    color="primary"
+    [disabled]="formProcedure.invalid"
+    (click)="save()"
+  >
+    Guardar
+  </button>
+</mat-dialog-actions>

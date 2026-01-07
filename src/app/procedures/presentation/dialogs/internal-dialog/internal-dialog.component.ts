@@ -23,6 +23,8 @@ import { MatInputModule } from '@angular/material/input';
 import {
   AutocompleteComponent,
   AutocompleteOption,
+  SearchInputComponent,
+  SelectSearchComponent,
   SelectSearchOption,
 } from '../../../../shared';
 
@@ -30,6 +32,8 @@ import { InternalService, ProfileService } from '../../services';
 import { doc } from '../../../../communications/infrastructure';
 import { Account } from '../../../../administration/domain';
 import { InternalProcedure } from '../../../domain';
+import { ProjectDataSource } from '../../../../features/projects/services';
+import { map } from 'rxjs';
 
 type validFormfield = 'sender' | 'recipient';
 type participantOptions = {
@@ -45,6 +49,7 @@ type participantOptions = {
     MatButtonModule,
     MatDialogModule,
     AutocompleteComponent,
+    SelectSearchComponent,
   ],
   templateUrl: './internal-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -54,6 +59,7 @@ export class InternalDialogComponent {
   private internalService = inject(InternalService);
   private formBuilder = inject(FormBuilder);
   private dialogRef = inject(MatDialogRef);
+  private projectDataSource = inject(ProjectDataSource);
 
   data?: InternalProcedure = inject(MAT_DIALOG_DATA);
   officers = signal<participantOptions>({ sender: [], recipient: [] });
@@ -71,7 +77,10 @@ export class InternalDialogComponent {
       fullname: ['', Validators.required],
       jobtitle: ['', Validators.required],
     }),
+    projectId: [''],
   });
+
+  projects = signal<any[]>([]);
 
   ngOnInit(): void {
     this.loadForm();
@@ -101,6 +110,29 @@ export class InternalDialogComponent {
       fullname: account.officer?.fullName,
       jobtitle: account.jobtitle,
     });
+  }
+
+  search(term: string) {
+    this.projectDataSource
+      .search(term)
+      .pipe(
+        map((resp) =>
+          resp.map((proj) => ({
+            label: `${proj.code} - ${proj.name}`,
+            value: proj._id,
+          }))
+        )
+      )
+      .subscribe((projects) => this.projects.set(projects));
+  }
+
+  select(event: string) {
+    console.log('select', event);
+    this.formProcedure.get('projectId')?.setValue(event);
+  }
+
+  onSelect(value: string) {
+    this.formProcedure.get('projectId')?.setValue(value);
   }
 
   private loadForm() {

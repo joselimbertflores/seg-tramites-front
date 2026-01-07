@@ -84,6 +84,22 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'projects',
+        // data: { animation: 'ProjectPage', resource: 'project' },
+        canActivate: [resourceGuard, accountGuard],
+        loadComponent: () =>
+          import(
+            './features/projects/pages/project-management/project-management'
+          ),
+      },
+      {
+        path: 'projects/:id',
+        // data: { animation: 'ProjectPage', resource: 'project' },
+        canActivate: [resourceGuard, accountGuard],
+        loadComponent: () =>
+          import('./features/projects/pages/project-detail/project-detail'),
+      },
+      {
         path: 'external',
         data: { animation: 'ExternalPage', resource: 'external' },
         canActivate: [resourceGuard, accountGuard],

@@ -1,55 +1,51 @@
-import {
-  inject,
-  signal,
-  Component,
-  ChangeDetectionStrategy,
-  OnInit,
-  computed,
-} from '@angular/core';
-import {
-  FormGroup,
-  Validators,
-  FormBuilder,
-  ReactiveFormsModule,
-  FormArray,
-} from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import {
-  MatDialogRef,
-  MatDialogModule,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
+import {
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import {
   MAT_DIALOG_DATA,
+  MatDialogModule,
+  MatDialogRef,
 } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
-import { MatStepperModule } from '@angular/material/stepper';
-import { MatFormFieldModule } from '@angular/material/form-field';
-
-import { ProcurementService } from '../../../services';
-import { ProcurementProcedure } from '../../../../domain';
+import { ProjectDataSource } from '../../services';
 
 @Component({
-  selector: 'app-procurement-dialog',
+  selector: 'app-project-editor',
   imports: [
-    ReactiveFormsModule,
     CommonModule,
-    MatIconModule,
+    ReactiveFormsModule,
     MatDialogModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatSelectModule,
     MatInputModule,
     MatButtonModule,
-    MatSelectModule,
-    MatStepperModule,
-    MatFormFieldModule,
   ],
-  templateUrl: './procurement-dialog.component.html',
+  templateUrl: './project-editor.html',
+  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProcurementDialogComponent implements OnInit {
+export class ProjectEditor {
   private formBuilder = inject(FormBuilder);
-  private precurementService = inject(ProcurementService);
+  private projectDataSource = inject(ProjectDataSource);
 
-  data: ProcurementProcedure = inject(MAT_DIALOG_DATA);
+  data = inject(MAT_DIALOG_DATA);
 
   selectedDocProps = signal<{ cite: string; docId: string } | null>(null);
   private dialogRef = inject(MatDialogRef);
@@ -88,20 +84,14 @@ export class ProcurementDialogComponent implements OnInit {
   readonly formasAdjudicacion = ['Por el total'];
 
   formProcedure: FormGroup = this.formBuilder.nonNullable.group({
-    reference: ['', Validators.required],
-    numberOfDocuments: ['', Validators.required],
+    name: ['', Validators.required],
     mode: [''],
     aperturaProg: [''],
     items: this.formBuilder.array([]),
     type: [''],
     descripcionAperturaProg: [''],
-    metodoAdjudicacion: [''],
-    formaAdjudicacion: [''],
     price: [''],
-    price_updated: [''],
-    deliveryTimeframe: [''],
-    deliveryLocation: [''],
-    warranty: [''],
+    price_updated: [],
     reason: [''],
   });
 
@@ -111,8 +101,8 @@ export class ProcurementDialogComponent implements OnInit {
 
   save() {
     const observable = this.data
-      ? this.precurementService.update(this.data.id, this.formProcedure.value)
-      : this.precurementService.create({
+      ? this.projectDataSource.update(this.data.id, this.formProcedure.value)
+      : this.projectDataSource.create({
           ...this.formProcedure.value,
           ...this.selectedDocProps(),
           documents: this.documents,

@@ -1,0 +1,94 @@
+<div class="p-4">
+  <div class="flex items-center">
+    <span class="text-2xl font-medium">Proyectos</span>
+    <span class="flex-1"></span>
+    <button matButton="filled" (click)="create()">
+      <mat-icon>add</mat-icon>
+      Agregar
+    </button>
+  </div>
+
+  <div class="flex justify-end py-2">
+    <div class="w-full px-2 sm:w-1/4 h-11">
+      <!-- <search-input
+        [initValue]="term()"
+        (onSearch)="search($event)"
+        placeholder="Alterno / Referencia"
+      /> -->
+    </div>
+  </div>
+
+  <table mat-table [dataSource]="dataSource()">
+    <ng-container matColumnDef="code">
+      <th mat-header-cell *matHeaderCellDef>Codigo</th>
+      <td mat-cell *matCellDef="let element">{{element.code}}</td>
+    </ng-container>
+    <ng-container matColumnDef="mode">
+      <th mat-header-cell *matHeaderCellDef>Modalidad</th>
+      <td mat-cell *matCellDef="let element" class="sm:max-w-96">
+        <p class="truncate">{{ element.mode }}</p>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="reference">
+      <th mat-header-cell *matHeaderCellDef>Nombre</th>
+      <td mat-cell *matCellDef="let element" class="sm:max-w-96">
+        <p class="truncate">{{ element.name }}</p>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="createdAt">
+      <th mat-header-cell *matHeaderCellDef>Fecha</th>
+      <td mat-cell *matCellDef="let element" class="sm:w-36">
+        {{ element.createdAt | date : "short" }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="view">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let element" class="w-8">
+        <a matIconButton [routerLink]="['/home/projects', element._id]">
+          <mat-icon>visibility</mat-icon>
+        </a>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="options">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let row" class="w-8">
+        <button
+          mat-icon-button
+          aria-label="menu options"
+          [matMenuTriggerFor]="menu"
+        >
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+          <!-- <button
+          mat-menu-item
+          [disabled]="!row.isActionable"
+          (click)="update(row)"
+        >
+          <mat-icon>edit</mat-icon>
+          <span>Editar</span>
+        </button>
+        <button
+          mat-menu-item
+          [disabled]="!row.isActionable"
+          (click)="send(row)"
+        >
+          <mat-icon>send</mat-icon>
+          <span>Remitir</span>
+        </button>
+        -->
+        </mat-menu>
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    <tr class="mat-row" *matNoDataRow>
+      <td class="mat-cell p-3" [attr.colspan]="displayedColumns.length">
+        No se encontraron resultados
+      </td>
+    </tr>
+  </table>
+</div>

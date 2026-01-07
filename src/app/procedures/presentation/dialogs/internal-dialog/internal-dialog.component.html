@@ -51,6 +51,18 @@
         <input formControlName="cite" matInput />
       </mat-form-field>
     </div>
+    @if(!data){
+    <div>
+      <select-search
+        title="Seleccionar proyecto (Opcional)"
+        [value]="formProcedure.get('projectId')?.value"
+        [autoFilter]="false"
+        (onTyped)="search($event)"
+        (onSelect)="select($event)"
+        [items]="projects()"
+      />
+    </div>
+    }
   </form>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
