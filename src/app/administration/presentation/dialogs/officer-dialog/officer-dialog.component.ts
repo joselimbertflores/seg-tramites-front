@@ -48,6 +48,7 @@ export class OfficerDialogComponent {
     nombre: ['', Validators.required],
     paterno: ['', Validators.required],
     materno: [''],
+    email: ['', Validators.email],
     dni: [
       '',
       [
@@ -72,6 +73,7 @@ export class OfficerDialogComponent {
 
   ngOnInit(): void {
     this.officerForm.patchValue(this.data ?? {});
+    console.log(this.data);
   }
 
   save() {

@@ -11,6 +11,7 @@ export class OfficerMapper {
       dni: response['dni']?.toString() ?? '',
       telefono: response['telefono'],
       activo: response['activo'],
+      email: response["email"],
     });
   }
 }

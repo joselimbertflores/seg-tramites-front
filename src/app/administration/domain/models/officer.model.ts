@@ -6,6 +6,7 @@ interface OfficerProps {
   dni: string;
   telefono: number;
   activo: boolean;
+  email?: string;
 }
 
 export class Officer {
@@ -16,6 +17,7 @@ export class Officer {
   public dni: string;
   public telefono: number;
   public activo: boolean;
+  public email?: string;
 
   constructor({
     id: _id,
@@ -25,6 +27,7 @@ export class Officer {
     dni,
     telefono,
     activo,
+    email,
   }: OfficerProps) {
     this.id = _id;
     this.nombre = nombre;
@@ -33,6 +36,7 @@ export class Officer {
     this.dni = dni;
     this.telefono = telefono;
     this.activo = activo;
+    this.email = email;
   }
 
   get fullName() {

@@ -7,4 +7,5 @@ export interface officer {
   telefono: number;
   direccion: string;
   activo: boolean;
+  email?: string;
 }

@@ -14,23 +14,27 @@
         <mat-label>Apellido materno</mat-label>
         <input formControlName="materno" matInput />
       </mat-form-field>
+      <mat-form-field>
+        <mat-label>Correo electronico</mat-label>
+        <input formControlName="email" matInput />
+      </mat-form-field>
       <div class="flex gap-x-2">
         <mat-form-field>
           <mat-label>Numero CI</mat-label>
           <input formControlName="dni" matInput />
           @if (officerForm.get('dni')?.hasError) {
-            <mat-error>
-              {{  officerForm.get("dni")?.errors | formErrorMessages:errorMessages?.['dni'] }}
-            </mat-error>
+          <mat-error>
+            {{  officerForm.get("dni")?.errors | formErrorMessages:errorMessages?.['dni'] }}
+          </mat-error>
           }
         </mat-form-field>
         <mat-form-field>
           <mat-label>Telefono</mat-label>
           <input formControlName="telefono" matInput />
-           @if (officerForm.get('telefono')?.hasError) {
-            <mat-error>
-              {{  officerForm.get("telefono")?.errors | formErrorMessages:errorMessages?.['telefono'] }}
-            </mat-error>
+          @if (officerForm.get('telefono')?.hasError) {
+          <mat-error>
+            {{  officerForm.get("telefono")?.errors | formErrorMessages:errorMessages?.['telefono'] }}
+          </mat-error>
           }
         </mat-form-field>
       </div>
