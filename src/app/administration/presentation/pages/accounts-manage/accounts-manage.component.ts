@@ -26,6 +26,7 @@ import {
   overlayAnimation,
   SearchInputComponent,
   SelectSearchComponent,
+  ToastService,
 } from '../../../../shared';
 import { AccountService } from '../../services';
 import { AccountDialogComponent } from '../../dialogs';
@@ -55,12 +56,15 @@ export default class AccountsManageComponent {
   private dialogRef = inject(MatDialog);
   private accountService = inject(AccountService);
   private alertService = inject(AlertService);
+  private toastService = inject(ToastService);
+
   readonly displayedColumns = [
     'visibility',
-    'login',
     'fullname',
+    'email',
     'jobtitle',
     'dependency',
+    'employmentType',
     'state',
     'options',
   ];
@@ -157,7 +161,16 @@ export default class AccountsManageComponent {
         filter((result) => result === true),
         switchMap(() => this.accountService.resetPassword(item.id))
       )
-      .subscribe();
+      .subscribe((mai) => {
+        if (mai) {
+          this.toastService.showToast({
+            title: 'Contraseña restablecida',
+            description: mai.message,
+            severity: mai.ok ? 'success' : 'warning',
+            duration: 14000,
+          });
+        }
+      });
   }
 
   search(term: string) {

@@ -9,13 +9,14 @@
           [value]="formProcedure.get('sender.fullname')?.value"
           (onTyped)="searchAccounts('sender', $event)"
           (onSelect)="onSelectAcount('sender', $event)"
+          [readOnly]="true"
           placeholder="Nombre del funcionario"
         />
       </div>
       <div class="flex-1">
         <mat-form-field>
           <mat-label>Cargo</mat-label>
-          <input formControlName="jobtitle" matInput />
+          <input formControlName="jobtitle" matInput [readonly]="true" />
         </mat-form-field>
       </div>
     </div>

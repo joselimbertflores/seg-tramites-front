@@ -7,7 +7,8 @@ interface AccountProps {
   dependencia: dependency;
   user: user;
   jobtitle: string;
-  area: number |null;
+  employmentType?: string;
+  area: number | null;
 }
 
 interface dependency {
@@ -29,7 +30,9 @@ export class Account {
   dependencia: dependency;
   jobtitle: string;
   user: user;
-  area:number|null
+  area: number | null;
+  employmentType?: string;
+
   constructor({
     id: _id,
     officer,
@@ -37,7 +40,8 @@ export class Account {
     dependencia,
     jobtitle,
     user,
-    area
+    area,
+    employmentType,
   }: AccountProps) {
     this.id = _id;
     this.officer = officer;
@@ -45,7 +49,8 @@ export class Account {
     this.isVisible = isVisible;
     this.jobtitle = jobtitle;
     this.user = user;
-    this.area=area
+    this.area = area;
+    this.employmentType = employmentType;
   }
 
   get fullnameManager(): string {

@@ -7,7 +7,13 @@ export interface account {
   dependencia: dependency;
   officer?: officer;
   jobtitle: string;
+  employmentType?: string;
   isVisible: boolean;
   user: user;
   area?: number;
+}
+
+export interface MailResult {
+  ok: boolean;
+  message: string;
 }

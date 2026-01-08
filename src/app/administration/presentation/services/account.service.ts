@@ -1,7 +1,6 @@
-import { inject, Injectable, resource, signal } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { firstValueFrom, map, Observable, of, tap } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
 import {
@@ -11,9 +10,9 @@ import {
   institution,
   AccountMapper,
   OfficerMapper,
+  MailResult,
 } from '../../infrastructure';
 import { role } from '../../../users/infrastructure';
-import { lab } from 'd3';
 
 interface FilterAccountsParams {
   limit: number;
@@ -110,19 +109,25 @@ export class AccountService {
 
   create(formUser: Object, formAccount: Object) {
     return this.http
-      .post<{ account: account; pdfBase64: string }>(this.URL, {
-        user: formUser,
-        account: formAccount,
-      })
+      .post<{ account: account; pdfBase64: string; mail?: MailResult }>(
+        this.URL,
+        {
+          user: formUser,
+          account: formAccount,
+        }
+      )
       .pipe(
         tap(({ pdfBase64 }) => this.showPdfFromBase64(pdfBase64)),
-        map((resp) => AccountMapper.fromResponse(resp.account))
+        map(({ account, mail }) => ({
+          account: AccountMapper.fromResponse(account),
+          mail,
+        }))
       );
   }
 
   update(id: string, formUser: object, formAccount: object) {
     return this.http
-      .patch<{ account: account; pdfBase64: string | null }>(
+      .patch<{ account: account; pdfBase64: string | null; mail?: MailResult }>(
         `${this.URL}/${id}`,
         {
           user: formUser,
@@ -135,14 +140,23 @@ export class AccountService {
             this.showPdfFromBase64(pdfBase64);
           }
         }),
-        map(({ account }) => AccountMapper.fromResponse(account))
+        map(({ account, mail }) => ({
+          account: AccountMapper.fromResponse(account),
+          mail,
+        }))
       );
   }
 
   resetPassword(id: string) {
     return this.http
-      .get<{ pdfBase64: string }>(`${this.URL}/reset-password/${id}`)
-      .pipe(tap(({ pdfBase64 }) => this.showPdfFromBase64(pdfBase64)));
+      .patch<{ pdfBase64: string; mail?: MailResult }>(
+        `${this.URL}/reset-password/${id}`,
+        {}
+      )
+      .pipe(
+        tap(({ pdfBase64 }) => this.showPdfFromBase64(pdfBase64)),
+        map(({ mail }) => mail)
+      );
   }
 
   showPdfFromBase64(base64: string): void {

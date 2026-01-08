@@ -64,8 +64,8 @@ export class InternalDialogComponent {
     reference: ['', Validators.required],
     cite: [this.account?.dependencia.codigo],
     sender: this.formBuilder.group({
-      fullname: [this.account?.officer?.fullName, Validators.required],
-      jobtitle: [this.account?.jobtitle, Validators.required],
+      fullname: [this.account?.officer?.fullName.trim(), Validators.required],
+      jobtitle: [this.account?.jobtitle.trim(), Validators.required],
     }),
     recipient: this.formBuilder.group({
       fullname: ['', Validators.required],

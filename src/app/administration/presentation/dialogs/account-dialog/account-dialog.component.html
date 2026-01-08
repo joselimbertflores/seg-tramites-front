@@ -4,42 +4,41 @@
     <mat-step [stepControl]="accountForm" label="Detalles Cuenta">
       <form [formGroup]="accountForm" class="py-2">
         @if(accountForm.get('dependencyId')){
-          <div class="mb-4">
-            <select-search
+        <div class="mb-4">
+          <select-search
             [required]="true"
             title="Institucion"
             [items]="institutions()"
             (onSelect)="selectedInstitution.set($event)"
-            />
-          </div>
-          <div class="mb-4">
-            <select-search
-              title="Dependencia"
-              [required]="true"
-              [items]="dependencies.value() ?? []"
-              (onSelect)="accountForm.get('dependencyId')?.setValue($event)"
-            />
-          </div>
-        } 
+          />
+        </div>
+        <div class="mb-4">
+          <select-search
+            title="Dependencia"
+            [required]="true"
+            [items]="dependencies.value() ?? []"
+            (onSelect)="accountForm.get('dependencyId')?.setValue($event)"
+          />
+        </div>
+        }
         <div class="mb-4">
           @if (selectedOfficer()) {
-            <mat-form-field>
-              <mat-label>Funcionario</mat-label>
-              <input matInput [value]="selectedOfficer()?.fullName" readonly />
-              <button matSuffix matIconButton (click)="unlink()">
-                <mat-icon>close</mat-icon>
-              </button>
-            </mat-form-field>
-          }        
-          @else {
-            <select-search
-              title="Funcionario"
-              [required]="!data"
-              [autoFilter]="false"
-              [items]="officers()"
-              (onTyped)="searchOfficer($event)"
-              (onSelect)="onSelectOfficer($event)"
-            />  
+          <mat-form-field>
+            <mat-label>Funcionario</mat-label>
+            <input matInput [value]="selectedOfficer()?.fullName" readonly />
+            <button matSuffix matIconButton (click)="unlink()">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+          } @else {
+          <select-search
+            title="Funcionario"
+            [required]="!data"
+            [autoFilter]="false"
+            [items]="officers()"
+            (onTyped)="searchOfficer($event)"
+            (onSelect)="onSelectOfficer($event)"
+          />
           }
         </div>
         <mat-form-field>
@@ -49,6 +48,16 @@
             formControlName="jobtitle"
             placeholder="Ingrese el cargo"
           />
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Tipo de contrato</mat-label>
+          <mat-select formControlName="employmentType">
+            @for (item of employmentTypes; track $index) {
+            <mat-option [value]="item">
+              {{ item }}
+            </mat-option>
+            }
+          </mat-select>
         </mat-form-field>
 
         <mat-checkbox formControlName="isVisible"> Visible </mat-checkbox>

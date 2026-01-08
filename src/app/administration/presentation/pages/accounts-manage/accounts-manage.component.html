@@ -78,6 +78,13 @@
       </td>
     </ng-container>
 
+    <ng-container matColumnDef="email">
+      <th mat-header-cell *matHeaderCellDef>Correo</th>
+      <td mat-cell *matCellDef="let element" class="w-[200px]">
+        <span>{{ element.officer?.email ?? "----" }}</span>
+      </td>
+    </ng-container>
+
     <ng-container matColumnDef="visibility">
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let element" class="w-8">
@@ -89,24 +96,24 @@
       </td>
     </ng-container>
 
-    <ng-container matColumnDef="login">
-      <th mat-header-cell *matHeaderCellDef>Login</th>
-      <td mat-cell *matCellDef="let element" class="w-8">
-       {{element.user.login}}
-      </td>
-    </ng-container>
-
     <ng-container matColumnDef="jobtitle">
       <th mat-header-cell *matHeaderCellDef>Cargo</th>
       <td mat-cell *matCellDef="let element">
-        {{ element.jobtitle }}
+        <span class="text-xs"> {{ element.jobtitle }}</span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="employmentType">
+      <th mat-header-cell *matHeaderCellDef>Tipo</th>
+      <td mat-cell *matCellDef="let element" class="w-[120px]">
+        {{ element.employmentType ?? "-----" }}
       </td>
     </ng-container>
 
     <ng-container matColumnDef="dependency">
       <th mat-header-cell *matHeaderCellDef>Dependencia</th>
       <td mat-cell *matCellDef="let element">
-        {{ element.dependencia?.nombre }}
+        <p class="text-xs">{{ element.dependencia?.nombre }}</p>
       </td>
     </ng-container>
 
@@ -137,7 +144,7 @@
             <mat-icon>edit</mat-icon>
             <span>Editar</span>
           </button>
-           <button mat-menu-item (click)="trayStatus(element)">
+          <button mat-menu-item (click)="trayStatus(element)">
             <mat-icon>all_inbox</mat-icon>
             <span>Resumen tramites</span>
           </button>

@@ -5,6 +5,7 @@ interface ToastConfig {
   title: string;
   description?: string;
   severity?: 'warning' | 'info' | 'success' | 'error';
+  duration?: number;
 }
 
 @Injectable({
@@ -15,26 +16,26 @@ export class ToastService {
 
   customToastData = signal<string | null>(null);
 
-  showToast({ title, description, severity }: ToastConfig) {
+  showToast({ title, description, severity, duration = 5000 }: ToastConfig) {
     switch (severity) {
       case 'warning':
-        toast.warning(title, { description, closeButton: true });
+        toast.warning(title, { description, closeButton: true, duration });
         break;
 
       case 'error':
-        toast.error(title, { description, closeButton: true });
+        toast.error(title, { description, closeButton: true, duration });
         break;
 
       case 'success':
-        toast.success(title, { description, closeButton: true });
+        toast.success(title, { description, closeButton: true, duration });
         break;
 
       case 'info':
-        toast.info(title, { description, closeButton: true });
+        toast.info(title, { description, closeButton: true, duration });
         break;
 
       default:
-        toast(title, { description, closeButton: true });
+        toast(title, { description, closeButton: true, duration });
         break;
     }
   }

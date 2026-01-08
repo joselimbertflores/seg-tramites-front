@@ -73,7 +73,6 @@ export class OfficerDialogComponent {
 
   ngOnInit(): void {
     this.officerForm.patchValue(this.data ?? {});
-    console.log(this.data);
   }
 
   save() {

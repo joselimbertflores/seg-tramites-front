@@ -20,13 +20,18 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatStepperModule } from '@angular/material/stepper';
+import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { firstValueFrom, of } from 'rxjs';
 
-import { SelectSearchOption, SelectSearchComponent } from '../../../../shared';
+import {
+  SelectSearchOption,
+  SelectSearchComponent,
+  ToastService,
+} from '../../../../shared';
 import { Account, Officer } from '../../../domain';
 import { AccountService } from '../../services';
 
@@ -39,6 +44,7 @@ import { AccountService } from '../../services';
     MatIconModule,
     MatDialogModule,
     MatButtonModule,
+    MatSelectModule,
     MatStepperModule,
     MatCheckboxModule,
     MatFormFieldModule,
@@ -51,6 +57,7 @@ export class AccountDialogComponent {
   private dialogRef = inject(MatDialogRef);
   private formBuilder = inject(FormBuilder);
   private accountService = inject(AccountService);
+  private toastService = inject(ToastService);
 
   data = inject<Account | undefined>(MAT_DIALOG_DATA);
 
@@ -58,6 +65,7 @@ export class AccountDialogComponent {
     dependencyId: ['', Validators.required],
     officerId: ['', Validators.required],
     jobtitle: ['', Validators.required],
+    employmentType: [null],
     isVisible: [true, Validators.required],
   });
 
@@ -92,6 +100,8 @@ export class AccountDialogComponent {
       ),
   });
 
+  employmentTypes = ['ITEM', 'CONTRATO', 'OTROS'];
+
   ngOnInit(): void {
     this.loadForm();
   }
@@ -105,7 +115,15 @@ export class AccountDialogComponent {
         )
       : this.accountService.create(this.userForm.value, this.accountForm.value);
 
-    subcription.subscribe((account) => {
+    subcription.subscribe(({ account, mail }) => {
+      if (mail) {
+        this.toastService.showToast({
+          title: this.data ? 'Cuenta actualizada' : 'Cuenta creada',
+          description: mail.message,
+          severity: mail.ok ? 'success' : 'warning',
+          duration: 14000,
+        });
+      }
       this.dialogRef.close(account);
     });
   }
@@ -134,13 +152,14 @@ export class AccountDialogComponent {
     if (!this.data) return;
     this.accountForm.removeControl('dependencyId');
     this.accountForm.get('officerId')?.removeValidators(Validators.required);
-    const { user, officer, jobtitle, isVisible } = this.data;
+    const { user, officer, jobtitle, isVisible, employmentType } = this.data;
 
     this.selectedOfficer.set(officer ?? null);
     this.accountForm.patchValue({
       isVisible,
       jobtitle,
       officerId: officer?.id,
+      employmentType,
     });
     this.userForm.patchValue(user);
   }
@@ -150,7 +169,9 @@ export class AccountDialogComponent {
   }
 
   private generarLogin({ fullName, dni }: Officer): string {
-    const nameParts = this.normalizeText(fullName.trim().toLowerCase()).split(/\s+/);
+    const nameParts = this.normalizeText(fullName.trim().toLowerCase()).split(
+      /\s+/
+    );
 
     const firstNameInitial = nameParts[0]?.charAt(0) || '';
 

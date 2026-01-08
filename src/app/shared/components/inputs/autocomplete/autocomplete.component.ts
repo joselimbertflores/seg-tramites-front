@@ -40,6 +40,7 @@ export type AutocompleteOption<T> = {
           [placeholder]="placeholder()"
           [matAutocomplete]="auto"
           (input)="onInputChange(input.value)"
+          [readonly]="readOnly()"
           [formControl]="control"
         />
         <mat-autocomplete
@@ -71,6 +72,7 @@ export class AutocompleteComponent<T> implements OnInit {
   requireSelection = input<boolean>(false);
   isRequired = input<boolean>();
   items = input.required<AutocompleteOption<T>[]>();
+  readOnly = input(false);
 
   onTyped = output<string>();
   onSelect = output<T>();
