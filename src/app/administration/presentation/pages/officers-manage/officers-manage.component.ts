@@ -44,6 +44,7 @@ export default class OfficersManageComponent {
   readonly displayedColumns = [
     'nombre',
     'dni',
+    'email',
     'telefono',
     'activo',
     'options',
