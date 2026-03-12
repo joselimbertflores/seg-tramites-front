@@ -37,10 +37,24 @@ interface FirstSectionParams {
 
 let imageCache: { left: string; right: string } | null = null;
 
+const dateFormatter = new Intl.DateTimeFormat('es-ES', {
+  timeZone: 'America/La_Paz',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+});
+
+const hourFormatter = new Intl.DateTimeFormat('es-ES', {
+  timeZone: 'America/La_Paz',
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false,
+});
+
 export const getRouteSheetReport = async (
   procedure: Procedure,
   workflow: workflow[],
-  isOriginal: boolean
+  isOriginal: boolean,
 ) => {
   const { left: leftImage, right: rightImage } = await getImages();
 
@@ -504,7 +518,7 @@ function stageContainer({
                     width: '*',
                     margin: [0, 5, 0, 0],
                     text: `DESTINATARIO ${toOrdinal(
-                      index + 1
+                      index + 1,
                     )} (NOMBRE Y CARGO): ${officer} ${
                       jobTitle ? `(${jobTitle})` : ''
                     }`,
@@ -676,12 +690,8 @@ function formatDateTime(date: string | Date | undefined) {
   if (!date) return { date: '', hour: '' };
   const dateFormat = date instanceof Date ? date : new Date(date);
   return {
-    date: dateFormat.toLocaleDateString('es-ES'),
-    hour: dateFormat.toLocaleTimeString('es-ES', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    }),
+    date: dateFormatter.format(dateFormat),
+    hour: hourFormatter.format(dateFormat),
   };
 }
 
@@ -709,7 +719,7 @@ function getNextStage(
   current: workflow,
   index: number,
   all: workflow[],
-  senderIndex: Map<string, workflow[]>
+  senderIndex: Map<string, workflow[]>,
 ): workflow | undefined {
   if (isModernWorkflow(all)) {
     return all.find((w) => w.parentId === current._id);

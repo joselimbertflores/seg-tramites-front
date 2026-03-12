@@ -1,4 +1,4 @@
-import { registerLocaleData } from '@angular/common';
+import { DATE_PIPE_DEFAULT_OPTIONS, registerLocaleData } from '@angular/common';
 import {
   provideRouter,
   withViewTransitions,
@@ -9,7 +9,6 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import localeEs from '@angular/common/locales/es-BO';
 import { ApplicationConfig } from '@angular/core';
 import { LOCALE_ID } from '@angular/core';
-
 
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
@@ -29,5 +28,9 @@ export const appConfig: ApplicationConfig = {
       useValue: { appearance: 'outline' },
     },
     provideCharts(withDefaultRegisterables()),
+    {
+      provide: DATE_PIPE_DEFAULT_OPTIONS,
+      useValue: { timezone: '-0400' }, // Configura UTC-4 para toda la app
+    },
   ],
 };

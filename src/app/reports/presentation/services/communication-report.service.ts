@@ -68,31 +68,34 @@ export class CommunicationReportService {
         body,
         {
           context: skipUploadIndicator(),
-        }
+        },
       )
       .pipe(
         map((resp) => {
           const statusList = Object.values(sendStatus);
           return resp.map(({ statusCounts, ...props }) => {
             const statusMap = new Map(
-              statusCounts.map(({ status, count }) => [status, count])
+              statusCounts.map(({ status, count }) => [status, count]),
             );
-            const flatStatusCounts = statusList.reduce((acc, current) => {
-              acc[current] = statusMap.get(current) || 0;
-              return acc;
-            }, {} as Record<string, number>);
+            const flatStatusCounts = statusList.reduce(
+              (acc, current) => {
+                acc[current] = statusMap.get(current) || 0;
+                return acc;
+              },
+              {} as Record<string, number>,
+            );
             return {
               ...props,
               ...flatStatusCounts,
             };
           });
-        })
+        }),
       );
   }
 
   getCorrespondenceStatusByUnit(
     filterBy: 'recipient' | 'sender',
-    dependencyId?: string
+    dependencyId?: string,
   ) {
     const params = new HttpParams({
       fromObject: { filterBy, ...(dependencyId && { dependencyId }) },
@@ -100,13 +103,13 @@ export class CommunicationReportService {
     return this.http.post<CorrespondenceStatusByUnitResponse[]>(
       `${this.URL}/correspondence-status`,
       params,
-      { context: skipUploadIndicator() }
+      { context: skipUploadIndicator() },
     );
   }
 
   getCorrespondenceByAccount(
     accountId: string,
-    filterBy?: 'recipient' | 'sender'
+    filterBy?: 'recipient' | 'sender',
   ) {
     const params = new HttpParams({
       fromObject: filterBy ? { filterBy } : {},
@@ -119,12 +122,12 @@ export class CommunicationReportService {
             ...procedure,
             fullName:
               filterBy === 'recipient'
-                ? `${recipient.fullname}`
-                : `${sender.fullname}`,
+                ? `${sender.fullname}`
+                : `${recipient.fullname}`,
             sentDate: new Date(sentDate).toLocaleDateString(),
             status: STATUS_MAP[status as sendStatus],
-          }))
-        )
+          })),
+        ),
       );
   }
 
@@ -139,14 +142,16 @@ export class CommunicationReportService {
     length: number;
   }> {
     const params = new HttpParams({
-      fromObject: { limit, offset, ...(term && { term }), export:isExport },
+      fromObject: { limit, offset, ...(term && { term }), export: isExport },
     });
     return this.http
-      .post<{ communications: CommunicationHistoryResponse[]; length: number }>(
-        `${this.URL}/history`,
-        props,
-        { params, context: skipUploadIndicator() }
-      )
+      .post<{
+        communications: CommunicationHistoryResponse[];
+        length: number;
+      }>(`${this.URL}/history`, props, {
+        params,
+        context: skipUploadIndicator(),
+      })
       .pipe(
         map(({ communications, length }) => ({
           length,
@@ -159,7 +164,7 @@ export class CommunicationReportService {
             person: recipient.fullname,
             state: procedure.ref.state,
           })),
-        }))
+        })),
       );
   }
 
@@ -189,11 +194,11 @@ export class CommunicationReportService {
                 ([status, count]) => ({
                   status: statusMap[status],
                   count,
-                })
+                }),
               ),
             },
           };
-        })
+        }),
       );
   }
 
