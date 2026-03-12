@@ -8,23 +8,26 @@
     </div>
     <span class="flex-1"></span>
     <div class="flex gap-x-4">
+      <a
+        matButton="tonal"
+        href="https://mimunicipio.sacaba.gob.bo/login"
+        target="_blank"
+      >
+        <mat-icon style="color: blue">account_balance</mat-icon>
+        Mi Municipio
+      </a>
       <button
-        matButton="filled"
         [disabled]="isReportLoading()"
         (click)="generateReport()"
         *hasPermission="{
           resource: PERMISSION.reports,
-          actions: ['unlink']
+          actions: ['unlink'],
         }"
+        matIconButton
+        matTooltip="Baja de Usuario"
       >
-        @if(isReportLoading()){
-        <div class="flex items-center gap-x-4">
-          <mat-spinner [diameter]="20" />
-          Generando
-        </div>
-        } @else { Baja de usuario }
+        <mat-icon style="color: red;">person_remove</mat-icon>
       </button>
-
       <button
         mat-icon-button
         (click)="navigateToChat()"
@@ -66,8 +69,8 @@
       </button>
     </div>
   </mat-toolbar>
-  @if(isLoading()){
-  <mat-progress-bar mode="indeterminate" class="loading-bar" />
+  @if (isLoading()) {
+    <mat-progress-bar mode="indeterminate" class="loading-bar" />
   }
   <ng-template
     cdkConnectedOverlay
