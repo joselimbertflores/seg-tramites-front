@@ -1,27 +1,48 @@
-# SegTramitesFront
+# Seguimiento de Trámites - Frontend
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.0.5.
+Aplicación web del sistema de **Seguimiento de Trámites** del **Gobierno Autónomo Municipal de Sacaba (GAMS)**.
 
-## Development server
+## Descripción
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+Este sistema permite visualizar y gestionar trámites internos y externos dentro de la institución, incluyendo el estado del trámite, participantes, historial de envíos, publicaciones de noticias y documentos asociados.
 
-## Code scaffolding
+## Funcionalidades principales
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+- Visualización de trámites
+- Seguimiento de estado
+- Historial de envíos
+- Gestión de participantes
+- Publicación de noticias
+- Visualización de documentos
 
-## Build
+## Requisitos previos
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+Antes de iniciar, asegúrate de tener instalado:
 
-## Running unit tests
+- Node.js
+- npm
+- Angular CLI
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+## Instalación
 
-## Running end-to-end tests
+```bash
+npm install
+```
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+## Configuración
 
-## Further help
+Configurar la URL del backend en los archivos de entorno: `src/environments/environment.ts` y `src/environments/environment.prod.ts` 
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+## Ejecución del proyecto
+
+### Modo desarrollo
+
+```bash
+ng serve
+```
+
+### Modo producción
+
+```bash
+ng build
+```
