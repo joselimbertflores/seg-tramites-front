@@ -53,11 +53,11 @@ import { SecureImageViewerComponent } from '../../../../shared';
           }
         </div>
       </mat-card-content>
-      <mat-card-footer>
+      <!-- <mat-card-footer>
         <div class="p-4 font-light">
           Creado el {{ publication().createdAt | date : 'short' }}
         </div>
-      </mat-card-footer>
+      </mat-card-footer> -->
     </mat-card>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
