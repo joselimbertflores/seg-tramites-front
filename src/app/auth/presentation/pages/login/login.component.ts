@@ -49,71 +49,65 @@ import { finalize } from 'rxjs';
           <p class="text-center">Inicio de sesion</p>
         </div>
 
-        <form [formGroup]="loginForm" (submit)="login()" autocomplete="off">
+        <form [formGroup]="loginForm" (ngSubmit)="login()" autocomplete="on">
           <div class="mb-2">
             <mat-form-field appearance="outline">
               <mat-label>Usuario</mat-label>
               <input
                 matInput
+                type="text"
+                name="username"
+                autocomplete="username"
                 placeholder="Ingrese su usuario"
                 formControlName="login"
               />
             </mat-form-field>
           </div>
+
           <div class="mb-2">
             <mat-form-field appearance="outline">
               <mat-label>Contraseña</mat-label>
               <input
-                [autocomplete]="false"
                 matInput
                 [type]="hidePassword ? 'password' : 'text'"
+                name="password"
+                autocomplete="current-password"
                 placeholder="Ingrese su contraseña"
                 formControlName="password"
               />
-              <!-- <button
-                type="button"
-                mat-icon-button
-                matSuffix
-                (click)="hidePassword = !hidePassword"
-                [attr.aria-label]="'Hide password'"
-                [attr.aria-pressed]="hidePassword"
-              >
-                <mat-icon>
-                  {{ hidePassword ? 'visibility_off' : 'visibility' }}
-                </mat-icon>
-              </button> -->
             </mat-form-field>
           </div>
+
           <div class="mb-4">
             <mat-checkbox formControlName="remember">
               Recordar Usuario
             </mat-checkbox>
           </div>
+
           <button
             type="submit"
             matButton="filled"
             [disabled]="loginForm.invalid || isLoading()"
             class="w-full"
           >
-            @if(isLoading()){ 
+            @if (isLoading()) {
               <mat-spinner [diameter]="25" [strokeWidth]="3" />
-            }
-            @else {
+            } @else {
               Ingresar
-            } 
+            }
           </button>
         </form>
       </div>
     </div>
   `,
   styles: `
-  .main {
-    background-color:var(--mat-sys-surface-container);
-  }
-  .box {
-    box-shadow: var(--mat-sys-level2);
-    background-color: var(--mat-sys-surface);
-  }
+    .main {
+      background-color: var(--mat-sys-surface-container);
+    }
+    .box {
+      box-shadow: var(--mat-sys-level2);
+      background-color: var(--mat-sys-surface);
+    }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -129,7 +123,7 @@ export default class LoginComponent {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private fb: FormBuilder
+    private fb: FormBuilder,
   ) {}
 
   ngOnInit(): void {

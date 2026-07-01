@@ -15,12 +15,12 @@ interface column {
 
 export const getProcedureListReport = async (
   data: TableProps,
-  userName?: string
+  userName?: string,
 ): Promise<TDocumentDefinitions> => {
   const { title, dataSource, displayColumns, parameters } = data;
 
   const rightImage = await imageToBase64('images/institution/alcaldia.jpeg');
-  const leftImage = await imageToBase64('images/institution/slogan.png');
+  // const leftImage = await imageToBase64('images/institution/slogan.png');
 
   const parametersList = parameters ? Object.entries(parameters) : null;
 
@@ -43,7 +43,8 @@ export const getProcedureListReport = async (
         },
         {
           width: 120,
-          image: leftImage,
+          text: '',
+          // image: leftImage,
           alignment: 'right',
         },
       ],
@@ -115,7 +116,7 @@ export const getProcedureListReport = async (
                     })),
                   ],
                   ...dataSource.map((row) =>
-                    displayColumns.map((col) => [row[col.columnDef]])
+                    displayColumns.map((col) => [row[col.columnDef]]),
                   ),
                 ],
               },

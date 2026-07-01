@@ -30,7 +30,7 @@ export interface ThemeColorOption {
 })
 export class ThemeService {
   private document = inject(DOCUMENT);
-  private _currentTheme = signal<ThemeClass>('azure-light');
+  private _currentTheme = signal<ThemeClass>('green-light');
   currentTheme = computed(() => this._currentTheme());
 
   constructor() {
@@ -47,6 +47,6 @@ export class ThemeService {
   private getThemeFromLocalStorage(): ThemeClass {
     const theme = localStorage.getItem('preferred-theme');
     const validTheme = THEME_CLASSES.find((validTheme) => validTheme === theme);
-    return validTheme ? validTheme : 'azure-light';
+    return validTheme ? validTheme : 'green-light';
   }
 }
