@@ -16,11 +16,17 @@ export class CommonReportService {
 
   constructor() {}
 
+  getProcedureTypesSegments() {
+    return this.http.get<string[]>(`${this.URL}/procedure-types-segments`);
+  }
+
   getInstitutions() {
     return this.http.get<institution[]>(`${this.URL}/institutions`);
   }
 
   getDependencies(institutionId: string) {
-    return this.http.get<dependency[]>(`${this.URL}/dependencies/${institutionId}`);
+    return this.http.get<dependency[]>(
+      `${this.URL}/dependencies/${institutionId}`,
+    );
   }
 }

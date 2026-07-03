@@ -12,8 +12,8 @@ import {
   procurement,
 } from '../../../procedures/infrastructure';
 import {
+  ProcedureEfficiencyResponse,
   tableProcedureData,
-  procedureEfficiencyResponse,
   totalProcedureBySegmentResponse,
 } from '../../infrastructure';
 
@@ -47,24 +47,23 @@ export class ProcedureReportService {
       .get<typeProcedure[]>(`${this.url}/types-procedures`, { params })
       .pipe(
         map((resp) =>
-          resp.map((item) => ({ label: item.nombre, value: item._id }))
-        )
+          resp.map((item) => ({ label: item.nombre, value: item._id })),
+        ),
       );
   }
 
   searchProcedureByProperties(
     limit: number,
     offset: number,
-    form: Object
+    form: Object,
   ): Observable<{ procedures: tableProcedureData[]; length: number }> {
     const params = new HttpParams({ fromObject: { limit, offset } });
     const properties = this.removeEmptyValuesFromObject(form);
     return this.http
-      .post<{ procedures: procedureResponse[]; length: number }>(
-        `${this.url}/search`,
-        properties,
-        { params, context: skipUploadIndicator() }
-      )
+      .post<{
+        procedures: procedureResponse[];
+        length: number;
+      }>(`${this.url}/search`, properties, { params, context: skipUploadIndicator() })
       .pipe(
         map(({ procedures, length }) => ({
           procedures: procedures.map((item) => ({
@@ -76,7 +75,7 @@ export class ProcedureReportService {
             createdAt: this.formatDate(item.createdAt),
           })),
           length,
-        }))
+        })),
       );
   }
 
@@ -93,11 +92,10 @@ export class ProcedureReportService {
     const params = new HttpParams({ fromObject: { limit, offset } });
     const properties = this.removeEmptyValuesFromObject(form);
     return this.http
-      .post<{ procedures: external[]; length: number }>(
-        `${this.url}/applicant`,
-        { by, properties, ...(typeProcedure && { typeProcedure }) },
-        { params, context: skipUploadIndicator() }
-      )
+      .post<{
+        procedures: external[];
+        length: number;
+      }>(`${this.url}/applicant`, { by, properties, ...(typeProcedure && { typeProcedure }) }, { params, context: skipUploadIndicator() })
       .pipe(
         map(({ procedures, length }) => ({
           procedures: procedures.map((item) => ({
@@ -112,15 +110,15 @@ export class ProcedureReportService {
             createdAt: this.formatDate(item.createdAt),
           })),
           length,
-        }))
+        })),
       );
   }
 
   getProceduresEfficiency(filterParams: object) {
-    return this.http.post<procedureEfficiencyResponse[]>(
+    return this.http.post<ProcedureEfficiencyResponse[]>(
       `${this.url}/eficiency`,
       filterParams,
-      { context: skipUploadIndicator() }
+      { context: skipUploadIndicator() },
     );
   }
 
@@ -128,14 +126,14 @@ export class ProcedureReportService {
     return this.http.post<totalProcedureBySegmentResponse>(
       `${this.url}/segments`,
       filterProps,
-      { context: skipUploadIndicator() }
+      { context: skipUploadIndicator() },
     );
   }
 
   private removeEmptyValuesFromObject(value: Object) {
     return Object.entries(value).reduce(
       (acc, [key, value]) => (value ? { ...acc, [key]: value } : acc),
-      {}
+      {},
     );
   }
 

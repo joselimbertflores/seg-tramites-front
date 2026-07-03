@@ -15,20 +15,17 @@ import {
   FormBuilder,
   ReactiveFormsModule,
 } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { LiveAnnouncer } from '@angular/cdk/a11y';
-import {
-  MatAutocompleteModule,
-  MatAutocompleteSelectedEvent,
-} from '@angular/material/autocomplete';
+
 import { debounceTime, finalize, map } from 'rxjs';
 
 import {
@@ -36,8 +33,9 @@ import {
   ProcedureReportService,
   ReportCacheService,
 } from '../../services';
-import { procedureEfficiencyResponse } from '../../../infrastructure';
 import { SelectSearchComponent } from '../../../../shared';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { ProcedureEfficiencyResponse } from '../../../infrastructure';
 
 interface typeProcedureOption {
   value: string;
@@ -46,10 +44,11 @@ interface typeProcedureOption {
 
 interface cache {
   form: object;
-  results: procedureEfficiencyResponse[];
+  results: ProcedureEfficiencyResponse[];
   typeProcedures: typeProcedureOption[];
   selectedTypes: typeProcedureOption[];
   hasSearched: boolean;
+  expandedTypeId: string | null;
 }
 @Component({
   selector: 'app-report-efficiency',
@@ -58,14 +57,14 @@ interface cache {
     FormsModule,
     ReactiveFormsModule,
     MatFormFieldModule,
-    MatAutocompleteModule,
     MatDatepickerModule,
     MatButtonModule,
     MatInputModule,
-    MatChipsModule,
     MatIconModule,
     MatProgressBarModule,
     SelectSearchComponent,
+    MatExpansionModule,
+    RouterLink,
   ],
   templateUrl: './report-efficiency.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -77,12 +76,10 @@ export default class ReportEfficiencyComponent implements OnInit {
   private commonReportService = inject(CommonReportService);
   private cacheService: ReportCacheService<cache> = inject(ReportCacheService);
 
-  readonly announcer = inject(LiveAnnouncer);
-
   CURRENT_DATE = new Date();
 
   filterForm: FormGroup = inject(FormBuilder).group({
-    types: ['', Validators.required],
+    segment: ['', Validators.required],
     institution: ['', Validators.required],
     startDate: ['', Validators.required],
     endDate: [this.CURRENT_DATE, Validators.required],
@@ -96,19 +93,38 @@ export default class ReportEfficiencyComponent implements OnInit {
       .getInstitutions()
       .pipe(
         map((resp) =>
-          resp.map((item) => ({ value: item._id, label: item.nombre }))
-        )
+          resp.map((item) => ({ value: item._id, label: item.nombre })),
+        ),
       ),
-    { initialValue: [] }
+    { initialValue: [] },
+  );
+
+  segments = toSignal(
+    this.commonReportService
+      .getProcedureTypesSegments()
+      .pipe(map((resp) => resp.map((item) => ({ value: item, label: item })))),
+    { initialValue: [] },
   );
   isLoading = signal(false);
   hasSearched = signal(false);
-  results = signal<procedureEfficiencyResponse[]>([]);
+  results = signal<ProcedureEfficiencyResponse[]>([]);
 
   constructor() {
     this.destroyRef.onDestroy(() => {
       this.saveCache();
     });
+  }
+
+  expandedTypeId = signal<string | null>(null);
+
+  toggleType(typeId: string) {
+    this.expandedTypeId.update((current) =>
+      current === typeId ? null : typeId,
+    );
+  }
+
+  formatWorkingDays(days: number): string {
+    return `${days} ${days === 1 ? 'día hábil' : 'días hábiles'}`;
   }
 
   ngOnInit(): void {
@@ -132,33 +148,18 @@ export default class ReportEfficiencyComponent implements OnInit {
       });
   }
 
-  selectedType(event: MatAutocompleteSelectedEvent): void {
-    const newType: typeProcedureOption = event.option.value;
-
-    this.selectedTypes.update((values) => {
-      if (values.find((item) => item.value === newType.value)) {
-        return values;
-      }
-      return [...values, newType];
-    });
-
-    this.filterInputTypes.reset();
-
-    event.option.deselect();
-
-    this.filterForm.patchValue({ types: this.selectedTypes().map(({ value }) => value)});
-  }
-
-  removeType(option: typeProcedureOption): void {
-    this.selectedTypes.update((values) => {
-      this.announcer.announce(`Removed ${option.label}`);
-      return values.filter((item) => item.value !== option.value);
-    });
-    this.filterForm.patchValue({ types: this.selectedTypes().map(({ value }) => value)});
+  selectSegment(value: string) {
+    this.filterForm.patchValue({ segment: value });
   }
 
   selectInstitution(value: string) {
     this.filterForm.patchValue({ institution: value });
+  }
+
+  toggleRow(typeId: string) {
+    this.expandedTypeId.update((current) =>
+      current === typeId ? null : typeId,
+    );
   }
 
   private searchProcedureTypes(term: string) {
@@ -174,6 +175,7 @@ export default class ReportEfficiencyComponent implements OnInit {
       typeProcedures: this.typesProcedures(),
       selectedTypes: this.selectedTypes(),
       hasSearched: this.hasSearched(),
+      expandedTypeId: this.expandedTypeId(),
     });
   }
 
@@ -185,5 +187,6 @@ export default class ReportEfficiencyComponent implements OnInit {
     this.results.set(cache.results);
     this.typesProcedures.set(cache.typeProcedures);
     this.selectedTypes.set(cache.selectedTypes);
+    this.expandedTypeId.set(cache.expandedTypeId);
   }
 }
