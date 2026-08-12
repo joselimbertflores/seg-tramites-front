@@ -13,6 +13,7 @@ interface applicant {
   middlename?: string;
   lastname?: string;
   phone: string;
+   email?: string;
   dni?: string;
   type: 'NATURAL' | 'JURIDICO';
 }

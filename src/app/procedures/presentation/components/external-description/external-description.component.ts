@@ -56,13 +56,13 @@ import { ExternalProcedure } from '../../../domain';
                 {{ data().fullnameApplicant }}
               </div>
             </div>
-            @if(data().applicant.dni){
-            <div class="flex">
-              <div class="w-32 font-medium">CI:</div>
-              <div class="w-full">
-                {{ data().applicant.dni }}
+            @if (data().applicant.dni) {
+              <div class="flex">
+                <div class="w-32 font-medium">CI:</div>
+                <div class="w-full">
+                  {{ data().applicant.dni }}
+                </div>
               </div>
-            </div>
             }
             <div class="flex">
               <div class="w-32 font-medium">Telefono:</div>
@@ -70,46 +70,52 @@ import { ExternalProcedure } from '../../../domain';
                 {{ data().applicant.phone }}
               </div>
             </div>
+            <div class="flex">
+              <div class="w-32 font-medium">Correo:</div>
+              <div class="w-full">
+                {{ data().applicant.email || '----' }}
+              </div>
+            </div>
           </dd>
         </div>
 
-        @if(data().representative){
-        <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-4 sm:gap-4">
-          <dt class="font-medium">Representante</dt>
-          <dd class="sm:col-span-3">
-            <div class="flex">
-              <div class="w-32 font-medium">Nombre</div>
-              <div class="w-full">
-                {{ data().fullnameRepresentative }}
+        @if (data().representative) {
+          <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-4 sm:gap-4">
+            <dt class="font-medium">Representante</dt>
+            <dd class="sm:col-span-3">
+              <div class="flex">
+                <div class="w-32 font-medium">Nombre</div>
+                <div class="w-full">
+                  {{ data().fullnameRepresentative }}
+                </div>
               </div>
-            </div>
-            <div class="flex">
-              <div class="w-32 font-medium">CI</div>
-              <div class="w-full">
-                {{ data().representative?.dni }}
+              <div class="flex">
+                <div class="w-32 font-medium">CI</div>
+                <div class="w-full">
+                  {{ data().representative?.dni }}
+                </div>
               </div>
-            </div>
-            <div class="flex">
-              <div class="w-32 font-medium">Telefono</div>
-              <div class="w-full">
-                {{ data().representative?.phone }}
+              <div class="flex">
+                <div class="w-32 font-medium">Telefono</div>
+                <div class="w-full">
+                  {{ data().representative?.phone }}
+                </div>
               </div>
-            </div>
-          </dd>
-        </div>
+            </dd>
+          </div>
         }
 
         <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-4 sm:gap-4">
           <dt class="font-medium">Fecha de creacion</dt>
           <dd class="sm:col-span-3">
-            {{ data().createdAt | date : 'short' }}
+            {{ data().createdAt | date: 'short' }}
           </dd>
         </div>
-         <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-4 sm:gap-4">
+        <div class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-4 sm:gap-4">
           <dt class="font-medium">Fecha de conclusion</dt>
-           <dd class="sm:col-span-3">
+          <dd class="sm:col-span-3">
             {{
-              data().completedAt ? (data().completedAt | date : 'short') : '----'
+              data().completedAt ? (data().completedAt | date: 'short') : '----'
             }}
           </dd>
         </div>
@@ -118,25 +124,25 @@ import { ExternalProcedure } from '../../../domain';
       <div class="mt-8 font-medium text-sm">Requerimientos presentados</div>
       <ol class="mt-4 space-y-4 text-justify text-sm">
         @for (item of data().requirements; track $index) {
-        <li class="flex items-center space-x-3 rtl:space-x-reverse">
-          <svg
-            class="shrink-0 w-3.5 h-3.5 text-green-500"
-            aria-hidden="true"
-            fill="none"
-            viewBox="0 0 16 12"
-          >
-            <path
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M1 5.917 5.724 10.5 15 1.5"
-            />
-          </svg>
-          <span>{{ item }}</span>
-        </li>
+          <li class="flex items-center space-x-3 rtl:space-x-reverse">
+            <svg
+              class="shrink-0 w-3.5 h-3.5 text-green-500"
+              aria-hidden="true"
+              fill="none"
+              viewBox="0 0 16 12"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M1 5.917 5.724 10.5 15 1.5"
+              />
+            </svg>
+            <span>{{ item }}</span>
+          </li>
         } @empty {
-        <li>Sin requerimientos</li>
+          <li>Sin requerimientos</li>
         }
       </ol>
     </div>

@@ -82,13 +82,13 @@ export class ExternalDialogComponent {
   formApplicant = computed<FormGroup>(() =>
     this.applicantType() === 'NATURAL'
       ? this._createFormApplicantNatural()
-      : this._createFormApplicantJuridico()
+      : this._createFormApplicantJuridico(),
   );
 
   formRepresentative = computed<FormGroup>(() =>
     this.hasRepresentative()
       ? this._createFormRepresentative()
-      : this.formBuilder.group({})
+      : this.formBuilder.group({}),
   );
 
   ngOnInit(): void {
@@ -102,7 +102,7 @@ export class ExternalDialogComponent {
       .getTypesProceduresBySegment(segment)
       .subscribe((types) => {
         this.typesProcedures.set(
-          types.map((type) => ({ value: type, label: type.nombre }))
+          types.map((type) => ({ value: type, label: type.nombre })),
         );
       });
   }
@@ -112,7 +112,7 @@ export class ExternalDialogComponent {
     this.requirements.set(
       type.requerimientos
         .filter((requirement) => requirement.activo)
-        .map((type) => ({ name: type.nombre, isSelected: true }))
+        .map((type) => ({ name: type.nombre, isSelected: true })),
     );
   }
 
@@ -155,6 +155,15 @@ export class ExternalDialogComponent {
           Validators.pattern('^[a-zA-Z0-9-]*$'),
         ],
       ],
+      email: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern(
+            /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+          ),
+        ],
+      ],
       phone: [
         '',
         [
@@ -177,6 +186,14 @@ export class ExternalDialogComponent {
           Validators.required,
           Validators.minLength(6),
           Validators.pattern('^[a-zA-Z0-9-]*$'),
+        ],
+      ],
+      email: [
+        '',
+        [
+          Validators.pattern(
+            /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+          ),
         ],
       ],
       phone: [

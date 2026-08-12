@@ -5,20 +5,20 @@
       <form [formGroup]="formProcedure" class="py-2">
         <div class="grid grid-cols-4 gap-x-2 gap-y-1">
           @if (!data) {
-          <div>
-            <select-search
-              title="Segmento"
-              [items]="segments()"
-              (onSelect)="selectSegment($event)"
-            />
-          </div>
-          <div class="col-span-3">
-            <select-search
-              title="Tipo de tramite"
-              [items]="typesProcedures()"
-              (onSelect)="selectTypeProcedure($event)"
-            />
-          </div>
+            <div>
+              <select-search
+                title="Segmento"
+                [items]="segments()"
+                (onSelect)="selectSegment($event)"
+              />
+            </div>
+            <div class="col-span-3">
+              <select-search
+                title="Tipo de tramite"
+                [items]="typesProcedures()"
+                (onSelect)="selectTypeProcedure($event)"
+              />
+            </div>
           }
           <div class="col-span-4">
             <mat-form-field>
@@ -40,16 +40,16 @@
           </div>
         </div>
       </form>
-      @if(formProcedure.get('type')?.value ){
-      <ol class="overflow-y-scroll max-h-72 divide-y-2 border rounded-xl">
-        @for (requirement of requirements(); track $index) {
-        <li class="p-2 px-4">
-          <mat-checkbox [(ngModel)]="requirement.isSelected">
-            <p class="ml-2 text-justify">{{ requirement.name }}</p>
-          </mat-checkbox>
-        </li>
-        }
-      </ol>
+      @if (formProcedure.get("type")?.value) {
+        <ol class="overflow-y-scroll max-h-72 divide-y-2 border rounded-xl">
+          @for (requirement of requirements(); track $index) {
+            <li class="p-2 px-4">
+              <mat-checkbox [(ngModel)]="requirement.isSelected">
+                <p class="ml-2 text-justify">{{ requirement.name }}</p>
+              </mat-checkbox>
+            </li>
+          }
+        </ol>
       }
       <div class="flex justify-end">
         <button mat-button matStepperNext>Siguiente</button>
@@ -72,84 +72,102 @@
           </mat-checkbox>
         </div>
       </div>
-      @if(!data){ }
+      @if (!data) {}
       <form [formGroup]="formApplicant()">
         <div class="grid grid-cols-3 gap-x-2">
-          @if(applicantType()==="NATURAL"){
-          <mat-form-field>
-            <mat-label>Nombres</mat-label>
-            <input matInput formControlName="firstname" />
-          </mat-form-field>
-          <mat-form-field>
-            <mat-label>Apellido paterno</mat-label>
-            <input matInput formControlName="middlename" />
-          </mat-form-field>
-          <mat-form-field>
-            <mat-label>Apellido materno</mat-label>
-            <input matInput formControlName="lastname" />
-          </mat-form-field>
-          <mat-form-field>
-            <mat-label>DNI</mat-label>
-            <input matInput formControlName="dni" />
-          </mat-form-field>
-          <mat-form-field>
-            <mat-label>Telefono</mat-label>
-            <input matInput formControlName="phone" />
-          </mat-form-field>
-          } @else {
-          <div class="col-span-2">
+          @if (applicantType() === "NATURAL") {
             <mat-form-field>
               <mat-label>Nombres</mat-label>
               <input matInput formControlName="firstname" />
             </mat-form-field>
-          </div>
-          <mat-form-field>
-            <mat-label>Telefono</mat-label>
-            <input matInput formControlName="phone" />
-          </mat-form-field>
+            <mat-form-field>
+              <mat-label>Apellido paterno</mat-label>
+              <input matInput formControlName="middlename" />
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Apellido materno</mat-label>
+              <input matInput formControlName="lastname" />
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>DNI</mat-label>
+              <input matInput formControlName="dni" />
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Telefono</mat-label>
+              <input matInput formControlName="phone" />
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Correo</mat-label>
+              <input
+                type="email"
+                matInput
+                formControlName="email"
+                placeholder="nombre@correo.com"
+              />
+            </mat-form-field>
+          } @else {
+            <div class="col-span-2">
+              <mat-form-field>
+                <mat-label>Nombres</mat-label>
+                <input matInput formControlName="firstname" />
+              </mat-form-field>
+            </div>
+            <mat-form-field>
+              <mat-label>Telefono</mat-label>
+              <input matInput formControlName="phone" />
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Correo</mat-label>
+              <input
+                type="email"
+                matInput
+                formControlName="email"
+                placeholder="nombre@correo.com"
+              />
+            </mat-form-field>
           }
         </div>
       </form>
       <div class="flex justify-end">
         <button mat-button matStepperPrevious>Atras</button>
-        @if(hasRepresentative()){
-        <button mat-button matStepperNext>Siguiente</button>
+        @if (hasRepresentative()) {
+          <button mat-button matStepperNext>Siguiente</button>
         }
       </div>
     </mat-step>
-    @if(hasRepresentative()){
-    <mat-step
-      [stepControl]="formRepresentative()"
-      label="Detalles Representante"
-    >
-      <form [formGroup]="formRepresentative()" class="py-2">
-        <div class="grid grid-cols-3 gap-x-2">
-          <mat-form-field>
-            <mat-label>Nombre</mat-label>
-            <input matInput formControlName="firstname" />
-          </mat-form-field>
-          <mat-form-field>
-            <mat-label>Apellido paterno</mat-label>
-            <input matInput formControlName="middlename" />
-          </mat-form-field>
-          <mat-form-field>
-            <mat-label>Apellido materno</mat-label>
-            <input matInput formControlName="lastname" />
-          </mat-form-field>
-          <mat-form-field>
-            <mat-label>Dni</mat-label>
-            <input matInput formControlName="dni" />
-          </mat-form-field>
-          <mat-form-field>
-            <mat-label>Telefono</mat-label>
-            <input matInput formControlName="phone" />
-          </mat-form-field>
+    @if (hasRepresentative()) {
+      <mat-step
+        [stepControl]="formRepresentative()"
+        label="Detalles Representante"
+      >
+        <form [formGroup]="formRepresentative()" class="py-2">
+          <div class="grid grid-cols-3 gap-x-2">
+            <mat-form-field>
+              <mat-label>Nombre</mat-label>
+              <input matInput formControlName="firstname" />
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Apellido paterno</mat-label>
+              <input matInput formControlName="middlename" />
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Apellido materno</mat-label>
+              <input matInput formControlName="lastname" />
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Dni</mat-label>
+              <input matInput formControlName="dni" />
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Telefono</mat-label>
+              <input matInput formControlName="phone" />
+            </mat-form-field>
+          </div>
+        </form>
+        <div class="flex justify-end">
+          <button mat-button matStepperPrevious>Atras</button>
         </div>
-      </form>
-      <div class="flex justify-end">
-        <button mat-button matStepperPrevious>Atras</button>
-      </div>
-    </mat-step>
+      </mat-step>
     }
   </mat-stepper>
 </mat-dialog-content>
