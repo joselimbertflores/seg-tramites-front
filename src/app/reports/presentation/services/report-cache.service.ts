@@ -67,6 +67,12 @@ export class ReportCacheService<T> {
       route: '/home/reports/correspondence-status',
       order: 8,
     },
+     location: {
+      label: 'Ubicación',
+      route: '/home/reports/location',
+      description: 'Buscar ubicacion de tramites',
+      order: 9,
+    },
   };
 
   cache: Record<string, T> = {};

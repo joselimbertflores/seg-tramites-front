@@ -27,6 +27,12 @@ export const ReportRoutes: Routes = [
         canActivate: [reportPermissionGuard],
         loadComponent: () => import('./pages/report-search/report-search.component'),
       },
+        {
+        path: 'location',
+        data: { action: 'location' },
+        canActivate: [reportPermissionGuard],
+        loadComponent: () => import('./pages/report-location/report-location'),
+      },
       {
         path: 'unit',
         data: { action: 'unit' },

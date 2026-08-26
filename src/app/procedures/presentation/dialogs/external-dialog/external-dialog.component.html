@@ -104,7 +104,11 @@
                 formControlName="email"
                 placeholder="nombre@correo.com"
               />
+               @if (formApplicant().get("email")?.invalid) {
+                  <mat-error>Ingrese un correo válido</mat-error>
+                }
             </mat-form-field>
+
           } @else {
             <div class="col-span-2">
               <mat-form-field>
@@ -124,6 +128,9 @@
                 formControlName="email"
                 placeholder="nombre@correo.com"
               />
+               @if (formApplicant().get("email")?.invalid) {
+                  <mat-error>Ingrese un correo válido</mat-error>
+                }
             </mat-form-field>
           }
         </div>

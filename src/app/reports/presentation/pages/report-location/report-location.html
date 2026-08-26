@@ -1,0 +1,238 @@
+<div class="p-4 sm:p-4 space-y-6 mb-12">
+  <mat-accordion>
+    <form [formGroup]="filterForm()" (ngSubmit)="generate()">
+      <mat-expansion-panel expanded="true">
+        <mat-expansion-panel-header>
+          <mat-panel-title>PROPIEDADES TRAMITE</mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="flex justify-between items-center py-2">
+          <div>TIPO BUSQUEDA:</div>
+          <div>
+            <mat-button-toggle-group
+              (change)="selectSearchMode($event.value)"
+              [value]="isAdvancedMode()"
+            >
+              <mat-button-toggle [value]="false">Simple</mat-button-toggle>
+              <mat-button-toggle [value]="true">Avanzada</mat-button-toggle>
+            </mat-button-toggle-group>
+          </div>
+        </div>
+
+        @if(isAdvancedMode()){
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-x-4">
+            <mat-form-field>
+              <mat-label>Grupo</mat-label>
+              <mat-select formControlName="group">
+                @for (item of GROUPS; track $index) {
+                <mat-option [value]="item.value"> {{ item.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Codigo</mat-label>
+              <input matInput formControlName="code" />
+            </mat-form-field>
+            <div>
+              <mat-form-field>
+                <mat-label>Estado</mat-label>
+                <mat-select formControlName="state">
+                  <mat-option> ---- </mat-option>
+                  @for (state of STATES; track $index) {
+                  <mat-option [value]="state">{{ state }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <mat-form-field>
+              <mat-label>Cite</mat-label>
+              <input matInput formControlName="cite" />
+            </mat-form-field>
+            <div>
+              <mat-form-field>
+                <mat-label>Rango de registro</mat-label>
+                <mat-date-range-input [rangePicker]="picker" [max]="CURRENT_DATE">
+                  <input
+                    matStartDate
+                    formControlName="start"
+                    placeholder="Fecha inicial"
+                  />
+                  <input
+                    matEndDate
+                    formControlName="end"
+                    placeholder="Fecha final"
+                  />
+                </mat-date-range-input>
+                <mat-datepicker-toggle
+                  matIconSuffix
+                  [for]="picker"
+                ></mat-datepicker-toggle>
+                <mat-date-range-picker #picker></mat-date-range-picker>
+              </mat-form-field>
+            </div>
+            <div class="sm:col-span-2">
+              <mat-form-field>
+                <mat-label>Referencia</mat-label>
+                <textarea
+                  matInput
+                  placeholder="Descripcion del tramite"
+                  formControlName="reference"
+                ></textarea>
+              </mat-form-field>
+            </div>
+          </div>
+        } @else {
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-x-2">
+          <div>
+            <mat-form-field>
+              <mat-label>Grupo</mat-label>
+              <mat-select formControlName="group">
+                @for (item of GROUPS; track $index) {
+                <mat-option [value]="item.value">
+                  {{ item.label }}
+                </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div>
+            <mat-form-field>
+              <mat-label>Codigo</mat-label>
+              <input matInput formControlName="code" />
+            </mat-form-field>
+          </div>
+          <div class="sm:col-span-2">
+            <mat-form-field>
+              <mat-label>Referencia</mat-label>
+              <textarea
+                matInput
+                placeholder="Descripcion del tramite"
+                formControlName="reference"
+              ></textarea>
+            </mat-form-field>
+          </div>
+        </div>
+        }
+        <mat-action-row>
+          <button
+            type="button"
+            mat-icon-button
+            (click)="print()"
+          >
+            <mat-icon>print</mat-icon>
+          </button>
+          <button type="button" mat-button (click)="clear()">Limpiar</button>
+          <button
+            type="submit"
+            matButton="filled"
+            [disabled]="!isFormValid || isLoading()"
+          >
+            Buscar
+          </button>
+        </mat-action-row>
+      </mat-expansion-panel>
+    </form>
+  </mat-accordion>
+
+  @if (isLoading()){
+    <div class="flex flex-col gap-y-1">
+      <p class="text-xl">Generando reporte....</p>
+      <mat-progress-bar mode="indeterminate" />
+    </div>
+  } 
+
+  @if(!isLoading() && hasSearched() && datasource().length === 0){
+    <div class="text-center p-8 text-lg">
+      No se encontraron resultados para los filtros seleccionados.
+    </div>
+  }
+
+  @if(!isLoading() && hasSearched() && datasource().length > 0){
+     <section class="space-y-4">
+    @for (procedure of datasource(); track procedure.id) {
+      <article class="rounded-xl border border-gray-500 p-5">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div class="min-w-0">
+            <a
+              [routerLink]="[
+                '/home/reports/detail',
+                procedure.group,
+                procedure.id
+              ]"
+              class="font-semibold text-blue-600 hover:underline"
+            >
+              {{ procedure.code }}
+            </a>
+
+            <p class="mt-1">
+              {{ procedure.reference }}
+            </p>
+          </div>
+
+          <span
+            class="shrink-0 rounded-full border px-3 py-1 text-xs font-medium"
+          >
+            {{ procedure.state }}
+          </span>
+        </div>
+        <div>
+          <h2 class="mb-2 text-sm font-medium mt-4">
+            Actualmente con
+          </h2>
+
+          @if (procedure.holders.length) {
+            <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              @for (holder of procedure.holders; track holder.accountId) {
+                <div class="rounded-lg border border-gray-400 p-3">
+                  <div class="font-medium">
+                    @if (holder.officer) {
+                      {{ holder.officer.nombre }}
+                      {{ holder.officer.paterno }}
+                      {{ holder.officer.materno }}
+                    } @else {
+                      <span class="text-amber-700">
+                        Sin funcionario asignado
+                      </span>
+                    }
+                  </div>
+
+                  @if (holder.jobtitle) {
+                    <p class="mt-1 text-sm">
+                      {{ holder.jobtitle }}
+                    </p>
+                  }
+
+                  @if (holder.dependency) {
+                    <p class="mt-1 text-sm">
+                      {{ holder.dependency.nombre }}
+                    </p>
+                  }
+
+                  @if (holder.institution) {
+                    <p class="text-sm">
+                      {{ holder.institution.nombre }}
+                    </p>
+                  }
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="text-sm">
+              No se encontró una ubicación actual para este trámite.
+            </p>
+          }
+        </div>
+      </article>
+    }
+  </section>
+
+      <mat-paginator
+      showFirstLastButtons
+      [pageSizeOptions]="[10, 20, 30, 50]"
+      [pageSize]="limit()"
+      [pageIndex]="index()"
+      [length]="datasize()"
+      (page)="onPageChange($event)"
+      />
+   
+  } 
+</div>

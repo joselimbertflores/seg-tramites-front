@@ -9,6 +9,7 @@ import {
   getUnlinkSheetReport,
   getProcedureListReport,
   getRouteSheetReport,
+  getProcedureLocationReport,
 } from '../../helpers';
 import { AuthService } from '../../auth/presentation/services/auth.service';
 import { unlinkDataResponse } from '../../reports/infrastructure';
@@ -90,6 +91,24 @@ export class PdfService {
           observer.error(error);
         });
     });
+  }
+
+  locationSheet(data: any) {
+     return new Observable<pdfMake.TCreatedPdf>((observer) => {
+      getProcedureLocationReport(
+        data,
+        this.userName
+      )
+        .then((docDefinition) => {
+          const pdf = pdfMake.createPdf(docDefinition);
+          observer.next(pdf);
+          observer.complete();
+        })
+        .catch((error) => {
+          observer.error(error);
+        });
+    });
+    
   }
 
   private filtreAndTranslateParams(filterParams: filterParams) {

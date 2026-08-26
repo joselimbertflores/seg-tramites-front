@@ -79,6 +79,21 @@ export class ProcedureReportService {
       );
   }
 
+   searchProcedureLocation(
+    limit: number,
+    offset: number,
+    form: Object,
+  ): Observable<{ procedures: tableProcedureData[]; length: number }> {
+    const params = new HttpParams({ fromObject: { limit, offset } });
+    const properties = this.removeEmptyValuesFromObject(form);
+    return this.http
+      .post<{
+        procedures: any[];
+        length: number;
+      }>(`${this.url}/location`, properties, { params, context: skipUploadIndicator() })
+      
+  }
+
   searchProcedureByApplicant({
     by,
     limit,

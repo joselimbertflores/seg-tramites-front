@@ -8,3 +8,4 @@ export * from './http-context.helpers';
 export * from './reports/procedure-list.report';
 export * from './reports/unlink-sheet.report';
 export * from './reports/route-sheet.report';
+export * from './reports/procedure-location';

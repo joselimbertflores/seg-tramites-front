@@ -117,9 +117,10 @@ export class ExternalDialogComponent {
   }
 
   save(): void {
+    const {email, ...props}= this.formApplicant().value
     const form = {
       formProcedure: this.formProcedure.value,
-      formApplicant: this.formApplicant().value,
+      formApplicant: {...props, ...email!=='' && {email: email}},
       formRepresentative: this.formRepresentative().value,
       requirements: this.requirements()
         .filter(({ isSelected }) => isSelected)
@@ -153,15 +154,6 @@ export class ExternalDialogComponent {
           Validators.required,
           Validators.minLength(7),
           Validators.pattern('^[a-zA-Z0-9-]*$'),
-        ],
-      ],
-      email: [
-        '',
-        [
-          Validators.required,
-          Validators.pattern(
-            /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-          ),
         ],
       ],
       phone: [
@@ -211,6 +203,14 @@ export class ExternalDialogComponent {
   private _createFormApplicantJuridico(): FormGroup {
     return this.formBuilder.group({
       firstname: ['', Validators.required],
+       email: [
+        '',
+        [
+          Validators.pattern(
+            /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+          ),
+        ],
+      ],
       phone: [
         '',
         [
