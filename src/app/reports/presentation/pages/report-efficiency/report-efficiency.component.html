@@ -72,6 +72,10 @@
 
             <th class="w-36 px-3 py-2 text-right">Promedio</th>
 
+            <th class="w-40 px-3 py-2 text-right">Trámite mas rápido</th>
+
+            <th class="w-40 px-3 py-2 text-right">Trámite mas lento</th>
+
             <th class="w-20 px-3 py-2 text-right">Detalle</th>
           </tr>
         </thead>
@@ -91,6 +95,14 @@
 
               <td class="px-3 py-2 text-right">
                 {{ item.averageWorkingDays }} días
+              </td>
+
+              <td class="px-3 py-2 text-right">
+                {{ formatWorkingDays(item.fastestProcedure.workingDays) }}
+              </td>
+
+              <td class="px-3 py-2 text-right">
+                {{ formatWorkingDays(item.slowestProcedure.workingDays) }}
               </td>
 
               <td class="px-3 py-2 text-right">
