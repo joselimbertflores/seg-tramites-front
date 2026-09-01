@@ -11,17 +11,17 @@
   "private": true,
   "dependencies": {
     "@angular/animations": "^22.1.4",
-    "@angular/cdk": "^21.2.14",
+    "@angular/cdk": "^22.1.4",
     "@angular/common": "^22.1.4",
     "@angular/compiler": "^22.1.4",
     "@angular/core": "^22.1.4",
     "@angular/forms": "^22.1.4",
-    "@angular/material": "^21.2.14",
-    "@angular/material-moment-adapter": "^21.2.14",
+    "@angular/material": "^22.1.4",
+    "@angular/material-moment-adapter": "^22.1.4",
     "@angular/platform-browser": "^22.1.4",
     "@angular/platform-browser-dynamic": "^22.1.4",
     "@angular/router": "^22.1.4",
-    "@swimlane/ngx-graph": "^11.0.0-alpha.0",
+    "@swimlane/ngx-graph": "^13.0.0",
     "@types/d3": "^7.4.3",
     "buffer": "^6.0.3",
     "chart.js": "^4.5.0",
@@ -30,10 +30,10 @@
     "humanize-duration": "^3.32.1",
     "jwt-decode": "^4.0.0",
     "ng2-charts": "^8.0.0",
-    "ngx-infinite-scroll": "^20.0.0",
-    "ngx-mat-select-search": "^8.0.2",
+    "ngx-infinite-scroll": "^22.0.0",
+    "ngx-mat-select-search": "^9.0.0",
     "ngx-sonner": "^3.1.0",
-    "pdfmake": "^0.2.9",
+    "pdfmake": "^0.2.23",
     "rxjs": "~7.8.0",
     "socket.io-client": "^4.7.1",
     "tslib": "^2.3.0",
@@ -60,5 +60,11 @@
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
     "typescript": "^6.0.3"
+  },
+  "allowScripts": {
+    "@parcel/watcher@2.6.0": true,
+    "esbuild@0.28.2": true,
+    "lmdb@3.5.6": true,
+    "msgpackr-extract@3.0.4": true
   }
 }

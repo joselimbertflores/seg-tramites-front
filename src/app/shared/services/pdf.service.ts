@@ -2,8 +2,8 @@ import { inject, Injectable } from '@angular/core';
 
 import { Observable } from 'rxjs';
 
-import pdfMake from 'pdfmake/build/pdfmake';
-import pdfFonts from 'pdfmake/build/vfs_fonts';
+import * as pdfMake from 'pdfmake/build/pdfmake';
+import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 
 import {
   getUnlinkSheetReport,
@@ -16,7 +16,7 @@ import { unlinkDataResponse } from '../../reports/infrastructure';
 import { workflow } from '../../communications/infrastructure';
 import { Procedure } from '../../procedures/domain';
 
-pdfMake.vfs = (pdfFonts as any).pdfMake.vfs;
+// (pdfMake as any).vfs = pdfFonts.vfs;
 
 interface filterParams {
   params: Record<string, any>;

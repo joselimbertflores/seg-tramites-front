@@ -21,7 +21,6 @@ import { sendStatus } from '../../../../communications/domain';
           [links]="graph().links"
           [clusters]="graph().clusters"
           [animate]="false"
-          [draggingEnabled]="false"
           [showMiniMap]="true"
           [nodeWidth]="380"
           [nodeHeight]="200"
