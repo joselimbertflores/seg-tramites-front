@@ -3,7 +3,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-4 gap-x-4">
       <div class="sm:col-span-2">
         <select-search
-          [value]="filterForm.get('institution')?.value"
+          [value]="$safeNavigationMigration(filterForm.get('institution')?.value)"
           title="Seleccione la institucion"
           [items]="institutions()"
           (onSelect)="selectInstitution($event)"
@@ -11,7 +11,7 @@
       </div>
       <div>
         <select-search
-          [value]="filterForm.get('segment')?.value"
+          [value]="$safeNavigationMigration(filterForm.get('segment')?.value)"
           title="Seleccione el segmento"
           [items]="segments()"
           (onSelect)="selectSegment($event)"

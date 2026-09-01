@@ -24,7 +24,7 @@
           <input formControlName="dni" matInput />
           @if (officerForm.get('dni')?.hasError) {
           <mat-error>
-            {{  officerForm.get("dni")?.errors | formErrorMessages:errorMessages?.['dni'] }}
+            {{  $safeNavigationMigration(officerForm.get("dni")?.errors) | formErrorMessages:$safeNavigationMigration(errorMessages?.['dni']) }}
           </mat-error>
           }
         </mat-form-field>
@@ -33,7 +33,7 @@
           <input formControlName="telefono" matInput />
           @if (officerForm.get('telefono')?.hasError) {
           <mat-error>
-            {{  officerForm.get("telefono")?.errors | formErrorMessages:errorMessages?.['telefono'] }}
+            {{  $safeNavigationMigration(officerForm.get("telefono")?.errors) | formErrorMessages:$safeNavigationMigration(errorMessages?.['telefono']) }}
           </mat-error>
           }
         </mat-form-field>

@@ -22,7 +22,7 @@ import { AuthService } from '../../../../auth/presentation/services/auth.service
           alt="User image"
         />
         <span class="text-lg font-bold leading-8">
-          {{ user?.fullname | titlecase }}
+          {{ $safeNavigationMigration(user?.fullname) | titlecase }}
         </span>
         <span
           class="rounded-full bg-green-200 py-1 px-2 text-xs font-medium text-green-700"

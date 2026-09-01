@@ -6,7 +6,7 @@
         <autocomplete
           title="Remitente"
           [items]="officers().sender"
-          [value]="formProcedure.get('sender.fullname')?.value"
+          [value]="$safeNavigationMigration(formProcedure.get('sender.fullname')?.value)"
           (onTyped)="searchAccounts('sender', $event)"
           (onSelect)="onSelectAcount('sender', $event)"
           [readOnly]="true"
@@ -25,7 +25,7 @@
         <autocomplete
           title="Destinatario"
           [items]="officers().recipient"
-          [value]="formProcedure.get('recipient.fullname')?.value"
+          [value]="$safeNavigationMigration(formProcedure.get('recipient.fullname')?.value)"
           (onTyped)="searchAccounts('recipient', $event)"
           (onSelect)="onSelectAcount('recipient', $event)"
           placeholder="Nombre del funcionario"

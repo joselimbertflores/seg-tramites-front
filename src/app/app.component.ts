@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { NgxSonnerToaster } from 'ngx-sonner';
 
@@ -8,6 +8,7 @@ import { ThemeService } from './layout/presentation/services';
   selector: 'app-root',
   imports: [RouterModule, NgxSonnerToaster],
   templateUrl: './app.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './app.component.scss',
 })
 export class AppComponent {

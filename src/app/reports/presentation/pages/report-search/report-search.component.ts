@@ -1,5 +1,5 @@
 
-import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import {
   FormGroup,
   Validators,
@@ -55,6 +55,7 @@ interface cache {
     ReportProcedureTableComponent
 ],
   templateUrl: './report-search.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [provideNativeDateAdapter()],
 })
 export default class ReportSearchComponent {

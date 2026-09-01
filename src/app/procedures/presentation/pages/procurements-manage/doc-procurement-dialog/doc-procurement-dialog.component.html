@@ -25,7 +25,7 @@
         <autocomplete
           title="Remitente"
           [items]="participants().sender"
-          [value]="formDoc.get('sender.fullname')?.value"
+          [value]="$safeNavigationMigration(formDoc.get('sender.fullname')?.value)"
           (onTyped)="searchAccounts('sender', $event)"
           (onSelect)="onSelectAcount('sender', $event)"
         />
@@ -42,7 +42,7 @@
         <autocomplete
           title="Destinatario"
           [items]="participants().recipient"
-          [value]="formDoc.get('recipient.fullname')?.value"
+          [value]="$safeNavigationMigration(formDoc.get('recipient.fullname')?.value)"
           (onTyped)="searchAccounts('recipient', $event)"
           (onSelect)="onSelectAcount('recipient', $event)"
         />
@@ -68,7 +68,7 @@
         <autocomplete
           title="Via"
           [items]="participants().via"
-          [value]="formDoc.get('via.fullname')?.value"
+          [value]="$safeNavigationMigration(formDoc.get('via.fullname')?.value)"
           (onTyped)="searchAccounts('via', $event)"
           (onSelect)="onSelectAcount('via', $event)"
         />

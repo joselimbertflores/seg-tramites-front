@@ -74,7 +74,7 @@ import {
       >
         <mat-tab label="Descripcion">
           <div class="p-2 sm:p-4">
-            @switch (procedure()?.group) { @case (groupEnum.External) {
+            @switch ($safeNavigationMigration(procedure()?.group)) { @case (groupEnum.External) {
             <external-description [data]="external" />
             } @case (groupEnum.Internal) {
             <internal-description [data]="internal" />

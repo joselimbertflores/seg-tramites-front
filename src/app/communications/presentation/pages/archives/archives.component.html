@@ -37,7 +37,7 @@
       title="Filtrar por funcionario"
       [nullable]="true"
       (onSelect)="selectAccount($event)"
-      [value]="filterForm.get('accountId')?.value"
+      [value]="$safeNavigationMigration(filterForm.get('accountId')?.value)"
       [items]="accountInDependency()"
     />
     <form [formGroup]="filterForm">

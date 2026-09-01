@@ -1,5 +1,5 @@
 
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -46,6 +46,7 @@ interface requirementOption {
     SelectSearchComponent
 ],
   templateUrl: './external-dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [
     {
       provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
