@@ -42,33 +42,35 @@
           [multiple]="true"
           accept=".xlsx, .ods"
           (change)="loadExcel($event)"
-        />
+          />
       </div>
     </div>
 
     <div formArrayName="requerimientos" class="overflow-y-auto max-h-80 border rounded-xl p-4">
-      <div *ngFor="let control of requeriments.controls; let i = index">
-        <div class="flex gap-x-4 items-center space-y-4" [formGroupName]="i">
-          <div>
-            <mat-checkbox formControlName="activo" />
-          </div>
-          <div class="flex-1 h-[54px]">
-            <mat-form-field>
-              <mat-label>Requerimiento {{ i + 1 }}</mat-label>
-              <input
-                matInput
-                placeholder="Ingrese una descripcion"
-                formControlName="nombre"
-              />
-            </mat-form-field>
-          </div>
-          <div>
-            <button mat-icon-button (click)="removeRequirement(i)">
-              <mat-icon>delete</mat-icon>
-            </button>
+      @for (control of requeriments.controls; track control; let i = $index) {
+        <div>
+          <div class="flex gap-x-4 items-center space-y-4" [formGroupName]="i">
+            <div>
+              <mat-checkbox formControlName="activo" />
+            </div>
+            <div class="flex-1 h-[54px]">
+              <mat-form-field>
+                <mat-label>Requerimiento {{ i + 1 }}</mat-label>
+                <input
+                  matInput
+                  placeholder="Ingrese una descripcion"
+                  formControlName="nombre"
+                  />
+              </mat-form-field>
+            </div>
+            <div>
+              <button mat-icon-button (click)="removeRequirement(i)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      }
       @if(requeriments.controls.length===0){
         <div class="text-lg">
           Sin requerimientos
@@ -84,7 +86,7 @@
     color="primary"
     [disabled]="typeProcedureForm.invalid"
     (click)="save()"
-  >
+    >
     Guardar
   </button>
 </mat-dialog-actions>

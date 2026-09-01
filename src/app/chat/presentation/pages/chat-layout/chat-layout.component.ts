@@ -5,7 +5,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { ChatListComponent, ChatWindowComponent } from '../../components';
@@ -14,7 +14,7 @@ import { Chat } from '../../../domain';
 
 @Component({
   selector: 'app-chat-layout',
-  imports: [CommonModule, ChatListComponent, ChatWindowComponent],
+  imports: [ChatListComponent, ChatWindowComponent],
   templateUrl: './chat-layout.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

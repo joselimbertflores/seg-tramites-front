@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -32,7 +32,6 @@ interface cache {
 @Component({
   selector: 'app-report-location',
   imports: [
-     CommonModule,
     ReactiveFormsModule,
     MatIconModule,
     MatInputModule,
@@ -45,7 +44,7 @@ interface cache {
     MatProgressBarModule,
     MatButtonToggleModule,
     RouterLink
-  ],
+],
   templateUrl: './report-location.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
    providers: [provideNativeDateAdapter()],

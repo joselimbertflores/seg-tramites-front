@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -12,13 +12,12 @@ import { FormErrorMessagesPipe } from '../../../../../shared';
   selector: 'app-folder-dialog',
   standalone: true,
   imports: [
-    CommonModule,
     MatInputModule,
     ReactiveFormsModule,
     MatDialogModule,
     MatButtonModule,
-    FormErrorMessagesPipe,
-  ],
+    FormErrorMessagesPipe
+],
   template: `
     <h2 mat-dialog-title>Crear carpeta</h2>
     <mat-dialog-content>

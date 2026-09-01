@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   ChangeDetectionStrategy,
   linkedSignal,
@@ -17,7 +17,7 @@ interface FileItem {
 
 @Component({
   selector: 'file-chat-selector',
-  imports: [CommonModule, MatButtonModule, MatIconModule],
+  imports: [MatButtonModule, MatIconModule],
   templateUrl: './file-chat-selector.component.html',
   styles: `
     .file-panel {

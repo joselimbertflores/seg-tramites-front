@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   ChangeDetectionStrategy,
   Component,
@@ -17,12 +17,11 @@ import { publication } from '../../../infrastructure';
 @Component({
   selector: 'app-news-dialog',
   imports: [
-    CommonModule,
     MatDialogModule,
     MatButtonModule,
     PublicationCardComponent,
-    MatProgressSpinnerModule,
-  ],
+    MatProgressSpinnerModule
+],
   template: `
     <h2 mat-dialog-title class="header-news text-center">
       Comunicados ({{ data.length }})

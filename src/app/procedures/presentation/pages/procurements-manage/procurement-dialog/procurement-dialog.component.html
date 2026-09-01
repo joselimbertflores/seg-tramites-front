@@ -7,7 +7,7 @@
           <mat-label>Modalidad</mat-label>
           <mat-select formControlName="mode">
             @for (type of modes; track $index) {
-            <mat-option [value]="type">{{ type }}</mat-option>
+              <mat-option [value]="type">{{ type }}</mat-option>
             }
           </mat-select>
         </mat-form-field>
@@ -36,7 +36,7 @@
           <mat-label>Metodo de adjudicacion</mat-label>
           <mat-select formControlName="metodoAdjudicacion">
             @for (type of metodosAdjudicacion; track $index) {
-            <mat-option [value]="type">{{ type }}</mat-option>
+              <mat-option [value]="type">{{ type }}</mat-option>
             }
           </mat-select>
         </mat-form-field>
@@ -46,7 +46,7 @@
           <mat-label>Forma de adjudicacion</mat-label>
           <mat-select formControlName="formaAdjudicacion">
             @for (type of formasAdjudicacion; track $index) {
-            <mat-option [value]="type">{{ type }}</mat-option>
+              <mat-option [value]="type">{{ type }}</mat-option>
             }
           </mat-select>
         </mat-form-field>
@@ -60,57 +60,59 @@
           </button>
         </div>
         <div formArrayName="items">
-          <div *ngFor="let control of requeriments.controls; let i = index">
-            <div [formGroupName]="i" class="flex items-center gap-x-2 overflow-y-hidden py-2">
-              <div class="flex-1 min-w-0">
-                <div class="flex gap-x-2">
-                  <div class="w-1/6">
-                    <mat-form-field>
-                      <mat-label>Codigo</mat-label>
-                      <input matInput formControlName="code" />
-                    </mat-form-field>
-                  </div>
-                  <div class="w-2/6">
-                    <mat-form-field>
-                      <mat-label>Nombre</mat-label>
-                      <input matInput formControlName="name" />
-                    </mat-form-field>
-                  </div>
-                  <div class="w-1/6">
-                    <mat-form-field>
-                      <mat-label>FF</mat-label>
-                      <input matInput formControlName="ff" />
-                    </mat-form-field>
-                  </div>
-                  <div class="w-1/6">
-                    <mat-form-field>
-                      <mat-label>OF</mat-label>
-                      <input matInput formControlName="of" />
-                    </mat-form-field>
-                  </div>
-                  <div class="w-1/6">
-                    <mat-form-field floatLabel="always">
-                      <mat-label>Monto</mat-label>
-                      <input
-                        formControlName="amount"
-                        matInput
-                        type="number"
-                        placeholder="0"
-                      />
-                      <span matTextPrefix>Bs.&nbsp;</span>
-                    </mat-form-field>
+          @for (control of requeriments.controls; track control; let i = $index) {
+            <div>
+              <div [formGroupName]="i" class="flex items-center gap-x-2 overflow-y-hidden py-2">
+                <div class="flex-1 min-w-0">
+                  <div class="flex gap-x-2">
+                    <div class="w-1/6">
+                      <mat-form-field>
+                        <mat-label>Codigo</mat-label>
+                        <input matInput formControlName="code" />
+                      </mat-form-field>
+                    </div>
+                    <div class="w-2/6">
+                      <mat-form-field>
+                        <mat-label>Nombre</mat-label>
+                        <input matInput formControlName="name" />
+                      </mat-form-field>
+                    </div>
+                    <div class="w-1/6">
+                      <mat-form-field>
+                        <mat-label>FF</mat-label>
+                        <input matInput formControlName="ff" />
+                      </mat-form-field>
+                    </div>
+                    <div class="w-1/6">
+                      <mat-form-field>
+                        <mat-label>OF</mat-label>
+                        <input matInput formControlName="of" />
+                      </mat-form-field>
+                    </div>
+                    <div class="w-1/6">
+                      <mat-form-field floatLabel="always">
+                        <mat-label>Monto</mat-label>
+                        <input
+                          formControlName="amount"
+                          matInput
+                          type="number"
+                          placeholder="0"
+                          />
+                        <span matTextPrefix>Bs.&nbsp;</span>
+                      </mat-form-field>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div class="w-14 h-12">
-                <button mat-icon-button (click)="removeRequirement(i)">
-                  <mat-icon>delete</mat-icon>
-                </button>
+                <div class="w-14 h-12">
+                  <button mat-icon-button (click)="removeRequirement(i)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
+          }
           @if(requeriments.length===0){
-          <p class="text-lg">Sin elementos</p>
+            <p class="text-lg">Sin elementos</p>
           }
         </div>
       </div>
@@ -119,7 +121,7 @@
           <mat-label>Bien / Servicio</mat-label>
           <mat-select formControlName="type">
             @for (type of types; track $index) {
-            <mat-option [value]="type">{{ type }}</mat-option>
+              <mat-option [value]="type">{{ type }}</mat-option>
             }
           </mat-select>
         </mat-form-field>
@@ -132,7 +134,7 @@
             matInput
             type="number"
             placeholder="0"
-          />
+            />
           <span matTextPrefix>Bs.&nbsp;</span>
         </mat-form-field>
       </div>
@@ -176,7 +178,7 @@
     color="primary"
     [disabled]="formProcedure.invalid"
     (click)="save()"
-  >
+    >
     Guardar
   </button>
 </mat-dialog-actions>

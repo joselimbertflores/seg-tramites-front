@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   ChangeDetectionStrategy,
   Component,
@@ -34,7 +34,6 @@ import { RoleService } from '../../services';
   templateUrl: './role-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
     FormsModule,
     ReactiveFormsModule,
     MatFormFieldModule,
@@ -43,8 +42,8 @@ import { RoleService } from '../../services';
     MatDialogModule,
     MatButtonModule,
     MatInputModule,
-    MatIconModule,
-  ],
+    MatIconModule
+],
 })
 export class RoleDialogComponent {
   private dialogRef = inject(MatDialogRef);

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import {
   FormGroup,
@@ -21,7 +21,6 @@ import { finalize } from 'rxjs';
 @Component({
   selector: 'app-login',
   imports: [
-    CommonModule,
     RouterModule,
     MatFormFieldModule,
     ReactiveFormsModule,
@@ -29,8 +28,8 @@ import { finalize } from 'rxjs';
     MatInputModule,
     MatIconModule,
     MatButtonModule,
-    MatProgressSpinnerModule,
-  ],
+    MatProgressSpinnerModule
+],
   template: `
     <div class="p-4 absolute top-0 left-0">
       <img src="images/logos/gams.png" class="h-16 sm:h-24" />

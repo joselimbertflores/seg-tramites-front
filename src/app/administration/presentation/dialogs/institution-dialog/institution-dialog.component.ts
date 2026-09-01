@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { inject, Component, ChangeDetectionStrategy } from '@angular/core';
 import {
   FormGroup,
@@ -22,14 +22,13 @@ import { institution } from '../../../infrastructure';
 @Component({
   selector: 'app-institution-dialog',
   imports: [
-    CommonModule,
     MatDialogModule,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatButtonModule,
     MatInputModule,
-    MatCheckboxModule,
-  ],
+    MatCheckboxModule
+],
   templateUrl: './institution-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

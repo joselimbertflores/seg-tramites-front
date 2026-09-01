@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import {
   FormGroup,
@@ -41,7 +41,6 @@ interface cache {
 @Component({
   selector: 'app-report-search',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatIconModule,
     MatInputModule,
@@ -53,8 +52,8 @@ interface cache {
     MatDatepickerModule,
     MatProgressBarModule,
     MatButtonToggleModule,
-    ReportProcedureTableComponent,
-  ],
+    ReportProcedureTableComponent
+],
   templateUrl: './report-search.component.html',
   providers: [provideNativeDateAdapter()],
 })

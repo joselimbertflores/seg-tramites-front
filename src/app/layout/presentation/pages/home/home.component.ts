@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { MediaMatcher } from '@angular/cdk/layout';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -49,7 +49,6 @@ import { validResource } from '../../../../auth/infrastructure';
   selector: 'app-home',
   imports: [
     RouterModule,
-    CommonModule,
     MatIconModule,
     OverlayModule,
     MatBadgeModule,
@@ -62,8 +61,8 @@ import { validResource } from '../../../../auth/infrastructure';
     MatProgressSpinnerModule,
     ProfileComponent,
     SidenavMenuComponent,
-    HasPermissionDirective,
-  ],
+    HasPermissionDirective
+],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

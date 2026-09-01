@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   inject,
   signal,
@@ -62,7 +62,6 @@ interface typeProcedureOption {
 @Component({
   selector: 'app-report-applicant',
   imports: [
-    CommonModule,
     FormsModule,
     MatProgressBarModule,
     ReactiveFormsModule,
@@ -75,8 +74,8 @@ interface typeProcedureOption {
     MatIconModule,
     MatButtonModule,
     SelectSearchComponent,
-    ReportProcedureTableComponent,
-  ],
+    ReportProcedureTableComponent
+],
   templateUrl: './report-applicant.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   ChangeDetectionStrategy,
   Component,
@@ -38,7 +38,6 @@ interface excelData {
 @Component({
   selector: 'app-type-procedure-dialog',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatInputModule,
     MatButtonModule,
@@ -48,8 +47,8 @@ interface excelData {
     MatCheckboxModule,
     MatFormFieldModule,
     ReactiveFormsModule,
-    MatAutocompleteModule,
-  ],
+    MatAutocompleteModule
+],
   templateUrl: './type-procedure-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

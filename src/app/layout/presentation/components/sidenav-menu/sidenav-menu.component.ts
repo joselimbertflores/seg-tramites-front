@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
@@ -15,12 +15,11 @@ interface menu {
 @Component({
   selector: 'sidenav-menu',
   imports: [
-    CommonModule,
     MatIconModule,
     MatListModule,
     RouterModule,
-    MatExpansionModule,
-  ],
+    MatExpansionModule
+],
   template: `
     <mat-nav-list>
       @for (item of menu; track $index) { @if(item.children){

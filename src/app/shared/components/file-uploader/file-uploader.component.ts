@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   ChangeDetectionStrategy,
   Component,
@@ -14,7 +14,7 @@ import { FileIconPipe } from '../../pipes/file-icon.pipe';
 
 @Component({
   selector: 'file-uploader',
-  imports: [CommonModule, MatButtonModule, MatIconModule, FileIconPipe],
+  imports: [MatButtonModule, MatIconModule, FileIconPipe],
   template: `
     <div class="flex justify-between items-center p-2">
       <span class="text-lg">Listado de archivos:</span>

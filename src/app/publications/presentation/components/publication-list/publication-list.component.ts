@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   ChangeDetectionStrategy,
   Component,
@@ -14,11 +14,10 @@ import { InfiniteScrollWrapperComponent } from '../../../../shared';
 @Component({
   selector: 'publication-list',
   imports: [
-    CommonModule,
     InfiniteScrollModule,
     PublicationCardComponent,
-    InfiniteScrollWrapperComponent,
-  ],
+    InfiniteScrollWrapperComponent
+],
   template: `
     <!-- <div
       infiniteScroll

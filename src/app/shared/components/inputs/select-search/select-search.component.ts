@@ -38,7 +38,7 @@ export type SelectSearchOption<T> = {
         [placeholder]="placeholder()"
         (selectionChange)="select($event.value)"
         [compareWith]="compareWith"
-      >
+        >
         <mat-option>
           <ngx-mat-select-search
             [formControl]="optionFilterCtrl"
@@ -47,21 +47,22 @@ export type SelectSearchOption<T> = {
           ></ngx-mat-select-search>
         </mat-option>
         @if(nullable() && items().length > 0) {
-        <mat-option [value]="null">Ninguno</mat-option>
+          <mat-option [value]="null">Ninguno</mat-option>
         }
-
-        <mat-option
-          *ngFor="let option of filteredOptions | async"
-          [value]="option.value"
-        >
-          {{ option.label }}
-        </mat-option>
+    
+        @for (option of filteredOptions | async; track option) {
+          <mat-option
+            [value]="option.value"
+            >
+            {{ option.label }}
+          </mat-option>
+        }
       </mat-select>
       @if (optionCtrl.invalid) {
-      <mat-error>El campo es requerido</mat-error>
+        <mat-error>El campo es requerido</mat-error>
       }
     </mat-form-field>
-  `,
+    `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SelectSearchComponent<T> implements OnInit {

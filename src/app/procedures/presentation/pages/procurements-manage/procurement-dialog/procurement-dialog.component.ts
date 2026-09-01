@@ -12,7 +12,7 @@ import {
   ReactiveFormsModule,
   FormArray,
 } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import {
   MatDialogRef,
   MatDialogModule,
@@ -32,15 +32,14 @@ import { ProcurementProcedure } from '../../../../domain';
   selector: 'app-procurement-dialog',
   imports: [
     ReactiveFormsModule,
-    CommonModule,
     MatIconModule,
     MatDialogModule,
     MatInputModule,
     MatButtonModule,
     MatSelectModule,
     MatStepperModule,
-    MatFormFieldModule,
-  ],
+    MatFormFieldModule
+],
   templateUrl: './procurement-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

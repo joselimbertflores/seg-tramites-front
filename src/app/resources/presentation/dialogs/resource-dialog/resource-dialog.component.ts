@@ -4,7 +4,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { toSignal } from '@angular/core/rxjs-interop';
 
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -22,14 +22,13 @@ import { ResourceService } from '../../services/resource.service';
 @Component({
   selector: 'app-resource-dialog',
   imports: [
-    CommonModule,
     MatInputModule,
     MatDialogModule,
     MatButtonModule,
     ReactiveFormsModule,
     FileUploaderComponent,
-    AutocompleteComponent,
-  ],
+    AutocompleteComponent
+],
   template: `
     <h2 mat-dialog-title>Crear Recurso</h2>
     <mat-dialog-content>

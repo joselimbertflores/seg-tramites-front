@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   ChangeDetectionStrategy,
   Component,
@@ -38,14 +38,13 @@ type participantOptions = {
 @Component({
   selector: 'app-internal-dialog',
   imports: [
-    CommonModule,
     FormsModule,
     ReactiveFormsModule,
     MatInputModule,
     MatButtonModule,
     MatDialogModule,
-    AutocompleteComponent,
-  ],
+    AutocompleteComponent
+],
   templateUrl: './internal-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

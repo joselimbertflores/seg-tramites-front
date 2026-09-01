@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   ChangeDetectionStrategy,
   DestroyRef,
@@ -23,12 +23,11 @@ import { ReportCacheService } from '../../services';
   selector: 'app-report-dashboard',
   imports: [
     RouterModule,
-    CommonModule,
     MatIconModule,
     MatButtonModule,
     MatToolbarModule,
-    MatTooltipModule,
-  ],
+    MatTooltipModule
+],
   template: `
     <div class="flex justify-between px-4 py-2 gap-2">
       <div>

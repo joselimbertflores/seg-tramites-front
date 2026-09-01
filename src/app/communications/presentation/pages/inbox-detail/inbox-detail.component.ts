@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   ChangeDetectionStrategy,
   Component,
@@ -61,7 +61,6 @@ import {
 @Component({
   selector: 'app-inbox-detail',
   imports: [
-    CommonModule,
     MatIconModule,
     MatTabsModule,
     MatButtonModule,
@@ -74,8 +73,8 @@ import {
     InternalCommunicationComponent,
     ExternalCommunicationComponent,
     ProcurementCommunicationComponent,
-    MatProgressSpinnerModule,
-  ],
+    MatProgressSpinnerModule
+],
   templateUrl: './inbox-detail.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [

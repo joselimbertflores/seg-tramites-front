@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, computed, inject, signal } from '@angular/core';
 import {
   FormBuilder,
@@ -35,7 +35,6 @@ interface requirementOption {
 @Component({
   selector: 'app-external-dialog',
   imports: [
-    CommonModule,
     FormsModule,
     ReactiveFormsModule,
     MatDialogModule,
@@ -44,8 +43,8 @@ interface requirementOption {
     MatSelectModule,
     MatButtonModule,
     MatCheckboxModule,
-    SelectSearchComponent,
-  ],
+    SelectSearchComponent
+],
   templateUrl: './external-dialog.component.html',
   providers: [
     {

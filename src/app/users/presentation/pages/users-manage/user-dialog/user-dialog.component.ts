@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   ChangeDetectionStrategy,
   Component,
@@ -27,16 +27,15 @@ import { UserService } from '../../../services';
 @Component({
     selector: 'app-user-dialog',
     imports: [
-        CommonModule,
-        ReactiveFormsModule,
-        MatIconModule,
-        MatInputModule,
-        MatButtonModule,
-        MatDialogModule,
-        MatSelectModule,
-        MatCheckboxModule,
-        MatFormFieldModule,
-    ],
+    ReactiveFormsModule,
+    MatIconModule,
+    MatInputModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    MatFormFieldModule
+],
     templateUrl: './user-dialog.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })

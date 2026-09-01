@@ -6,7 +6,7 @@ import {
 } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { RouterModule } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 
 import {
   tableProcedureData,
@@ -16,7 +16,7 @@ import { procedureGroup } from '../../../../procedures/domain';
 
 @Component({
   selector: 'report-procedure-table',
-  imports: [CommonModule, MatTableModule, RouterModule],
+  imports: [MatTableModule, RouterModule],
   template: `
     <table mat-table [dataSource]="data()">
       @for (item of columns(); track $index) {

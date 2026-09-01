@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   ChangeDetectionStrategy,
   Component,
@@ -38,7 +38,6 @@ import { AccountService } from '../../services';
 @Component({
   selector: 'app-account-dialog',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatInputModule,
     MatIconModule,
@@ -48,8 +47,8 @@ import { AccountService } from '../../services';
     MatStepperModule,
     MatCheckboxModule,
     MatFormFieldModule,
-    SelectSearchComponent,
-  ],
+    SelectSearchComponent
+],
   templateUrl: './account-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

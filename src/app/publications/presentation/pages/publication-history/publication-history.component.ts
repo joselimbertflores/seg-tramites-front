@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   ChangeDetectionStrategy,
   Component,
@@ -19,12 +19,11 @@ import { publication } from '../../../infrastructure';
 @Component({
   selector: 'app-publication-history',
   imports: [
-    CommonModule,
     MatToolbarModule,
     PublicationCardComponent,
     InfiniteScrollWrapperComponent,
-    MatProgressSpinnerModule,
-  ],
+    MatProgressSpinnerModule
+],
   templateUrl: './publication-history.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -11,7 +11,7 @@ import {
   FormBuilder,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -41,15 +41,14 @@ interface cache {
 @Component({
   selector: 'app-report-segments',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatDatepickerModule,
     MatSelectModule,
     MatButtonModule,
     SelectSearchComponent,
     MatProgressBarModule,
-    GenericChartComponent,
-  ],
+    GenericChartComponent
+],
   templateUrl: './report-segments.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [provideNativeDateAdapter()],

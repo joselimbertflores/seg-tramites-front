@@ -11,7 +11,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
-import { CommonModule } from '@angular/common';
+
 
 import { finalize, forkJoin } from 'rxjs';
 
@@ -38,7 +38,6 @@ import {
 @Component({
   selector: 'app-detail',
   imports: [
-    CommonModule,
     MatToolbarModule,
     MatIconModule,
     MatButtonModule,
@@ -49,8 +48,8 @@ import {
     ExternalDescriptionComponent,
     InternalDescriptionComponent,
     ProcurementDescriptionComponent,
-    MatProgressSpinnerModule,
-  ],
+    MatProgressSpinnerModule
+],
   template: `
     <mat-toolbar>
       <button mat-icon-button backButton>

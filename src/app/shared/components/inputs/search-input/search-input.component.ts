@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   ChangeDetectionStrategy,
   Component,
@@ -20,12 +20,11 @@ import { MatButtonModule } from '@angular/material/button';
 @Component({
   selector: 'search-input',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatInputModule,
     MatIconModule,
-    MatButtonModule,
-  ],
+    MatButtonModule
+],
   template: `
     <mat-form-field>
       <mat-icon matPrefix>search</mat-icon>

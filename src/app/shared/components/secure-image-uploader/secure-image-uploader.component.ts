@@ -9,13 +9,13 @@ import {
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { CommonModule } from '@angular/common';
+
 
 import { FileUploadService } from '../../services/file-upload.service';
 
 @Component({
   selector: 'secure-image-uploader',
-  imports: [CommonModule, MatIconModule, MatButtonModule],
+  imports: [MatIconModule, MatButtonModule],
   template: `
     <div class="flex flex-col border border-slate-500 p-3 rounded-xl">
       @if(imageDataUrl()){

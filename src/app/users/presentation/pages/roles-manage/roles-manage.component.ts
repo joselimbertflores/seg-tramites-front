@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   ChangeDetectionStrategy,
   Component,
@@ -22,7 +22,6 @@ import { SearchInputComponent } from '../../../../shared';
 @Component({
   selector: 'app-roles-manage',
   imports: [
-    CommonModule,
     MatTableModule,
     MatToolbarModule,
     FormsModule,
@@ -30,7 +29,7 @@ import { SearchInputComponent } from '../../../../shared';
     MatButtonModule,
     MatPaginatorModule,
     SearchInputComponent
-  ],
+],
   templateUrl: './roles-manage.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

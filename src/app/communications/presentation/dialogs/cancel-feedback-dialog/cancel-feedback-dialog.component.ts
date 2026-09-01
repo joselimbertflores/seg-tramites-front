@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { MatButtonModule } from '@angular/material/button';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -10,7 +10,7 @@ interface RestoredItem {
 
 @Component({
   selector: 'app-cancel-feedback-dialog',
-  imports: [MatDialogModule, CommonModule, MatButtonModule],
+  imports: [MatDialogModule, MatButtonModule],
   template: `
     <h2 mat-dialog-title>Trámites cancelados</h2>
 

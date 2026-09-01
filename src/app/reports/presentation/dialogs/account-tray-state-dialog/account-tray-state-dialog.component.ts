@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
   ChangeDetectionStrategy,
@@ -18,11 +18,10 @@ import { finalize } from 'rxjs';
 @Component({
   selector: 'app-account-tray-state-dialog',
   imports: [
-    CommonModule,
     MatDialogModule,
     MatButtonModule,
-    MatProgressSpinnerModule,
-  ],
+    MatProgressSpinnerModule
+],
   template: `
     <h2 mat-dialog-title>Resumen trámites en bandeja</h2>
 

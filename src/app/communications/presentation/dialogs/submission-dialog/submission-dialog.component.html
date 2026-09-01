@@ -9,7 +9,7 @@
             placeholder="Seleccione una institucion"
             [items]="institutions()"
             (onSelect)="getDependencies($event)"
-          />
+            />
         </div>
         <div class="sm:col-span-2">
           <select-search
@@ -18,66 +18,66 @@
             [nullable]="true"
             [items]="dependencies()"
             (onSelect)="getRecipientsByDependency($event)"
-          />
+            />
         </div>
         <div class="sm:col-span-3">
           <mat-form-field>
             <mat-label>Destinatarios</mat-label>
             <mat-chip-grid #chipGrid aria-label="User selection">
               @for (fruit of selectedReceivers(); track $index) {
-              <mat-chip-row
-                (removed)="removeRecipient(fruit.id)"
+                <mat-chip-row
+                  (removed)="removeRecipient(fruit.id)"
                 [ngStyle]="
                   fruit.isOriginal && {
                     'background-color': 'var(--mat-sys-primary-container)'
                   }
                 "
-              >
+                >
                 <img
                   matChipAvatar
                   src="images/icons/account.png"
                   alt="Photo of officer"
-                />
+                  />
                 {{ fruit.fullname | titlecase }}
 
                 <button
                   matChipRemove
                   [attr.aria-label]="'remove ' + fruit.id"
                   (click)="removeRecipient(fruit)"
-                >
+                  >
                   <mat-icon>cancel</mat-icon>
                 </button>
               </mat-chip-row>
-              }
-            </mat-chip-grid>
-            <input
-              placeholder="Buscar destinatario"
-              #receiverInput
-              [formControl]="filterRecipientCtrl"
-              [matChipInputFor]="chipGrid"
-              [matAutocomplete]="auto"
+            }
+          </mat-chip-grid>
+          <input
+            placeholder="Buscar destinatario"
+            #receiverInput
+            [formControl]="filterRecipientCtrl"
+            [matChipInputFor]="chipGrid"
+            [matAutocomplete]="auto"
             />
-            <mat-autocomplete
-              #auto="matAutocomplete"
+          <mat-autocomplete
+            #auto="matAutocomplete"
               (optionSelected)="
                 selectRecipient($event); receiverInput.value = ''
               "
             >
-              @for (user of filteredReceivers$ | async; track user.id) {
+            @for (user of filteredReceivers$ | async; track user.id) {
               <mat-option [value]="user">
                 <div class="flex gap-x-3 items-center relative">
                   <div class="relative">
                     <img
                       class="h-6 w-6 rounded-full"
                       src="images/icons/account.png"
-                    />
+                      />
                     <span
                       class="absolute bottom-0 right-0 w-3 h-3 rounded-full border"
                       [ngClass]="{
                         'bg-green-500': user.online,
                         'bg-gray-400': !user.online
                       }"
-                    >
+                      >
                     </span>
                   </div>
                   <div class="flex flex-col">
@@ -86,72 +86,75 @@
                   </div>
                 </div>
               </mat-option>
-              }
-            </mat-autocomplete>
-          </mat-form-field>
-        </div>
-        <div class="sm:col-span-3">
-          <mat-form-field>
-            <mat-label>Instruccion / Proveido</mat-label>
-            <textarea formControlName="reference" matInput required> </textarea>
-            <mat-error *ngIf="formSubmission.controls['reference'].invalid">
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+      </div>
+      <div class="sm:col-span-3">
+        <mat-form-field>
+          <mat-label>Instruccion / Proveido</mat-label>
+          <textarea formControlName="reference" matInput required> </textarea>
+          @if (formSubmission.controls['reference'].invalid) {
+            <mat-error>
               Ingrese el motivo
             </mat-error>
-          </mat-form-field>
-        </div>
-        <div>
-          <mat-form-field>
-            <mat-label>Cantidad: hojas / anexos</mat-label>
-            <input formControlName="attachmentsCount" matInput required />
+          }
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field>
+          <mat-label>Cantidad: hojas / anexos</mat-label>
+          <input formControlName="attachmentsCount" matInput required />
+          @if (formSubmission.controls['attachmentsCount'].invalid) {
             <mat-error
-              *ngIf="formSubmission.controls['attachmentsCount'].invalid"
-            >
+              >
               Ingrese la cantidad
             </mat-error>
-          </mat-form-field>
-        </div>
-        <div>
-          <mat-form-field>
-            <mat-label>Numero de registro interno</mat-label>
-            <input formControlName="internalNumber" matInput />
-          </mat-form-field>
-        </div>
-        <div>
-          <mat-form-field>
-            <mat-label>Prioridad</mat-label>
-            <mat-select formControlName="priority">
-              @for (item of prioritys; track $index) {
+          }
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field>
+          <mat-label>Numero de registro interno</mat-label>
+          <input formControlName="internalNumber" matInput />
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field>
+          <mat-label>Prioridad</mat-label>
+          <mat-select formControlName="priority">
+            @for (item of prioritys; track $index) {
               <mat-option [value]="item.value">
                 {{ item.label }}
               </mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-        </div>
-      </div>
-    </form>
-    <div class="mt-2">
-      <div>
-        <h3 class="text-base/7 font-medium">Descripción Tramite</h3>
-      </div>
-      <div class="mt-2 border-t border-gray-100">
-        <dl class="divide-y divide-gray-100">
-          <div class="py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-            <dt class="text-sm/6 font-medium">Alterno:</dt>
-            <dd class="mt-1 text-sm/6 sm:col-span-2 sm:mt-0">
-              {{ data.procedure.code }}
-            </dd>
-          </div>
-          <div class="py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-            <dt class="text-sm/6 font-medium">Tipo:</dt>
-            <dd class="mt-1 text-sm/6 sm:col-span-2 sm:mt-0">
-              {{ data.isOriginal ? "ORIGINAL" : "COPIA" }}
-            </dd>
-          </div>
-        </dl>
+            }
+          </mat-select>
+        </mat-form-field>
       </div>
     </div>
+  </form>
+  <div class="mt-2">
+    <div>
+      <h3 class="text-base/7 font-medium">Descripción Tramite</h3>
+    </div>
+    <div class="mt-2 border-t border-gray-100">
+      <dl class="divide-y divide-gray-100">
+        <div class="py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+          <dt class="text-sm/6 font-medium">Alterno:</dt>
+          <dd class="mt-1 text-sm/6 sm:col-span-2 sm:mt-0">
+            {{ data.procedure.code }}
+          </dd>
+        </div>
+        <div class="py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+          <dt class="text-sm/6 font-medium">Tipo:</dt>
+          <dd class="mt-1 text-sm/6 sm:col-span-2 sm:mt-0">
+            {{ data.isOriginal ? "ORIGINAL" : "COPIA" }}
+          </dd>
+        </div>
+      </dl>
+    </div>
   </div>
+</div>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button mat-button color="warn" mat-dialog-close>Cancelar</button>
@@ -160,7 +163,7 @@
     color="primary"
     [disabled]="formSubmission.invalid || !isConfigValid()"
     (click)="showConfirmSend()"
-  >
+    >
     Remitir
   </button>
 </mat-dialog-actions>

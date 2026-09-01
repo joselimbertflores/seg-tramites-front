@@ -4,7 +4,7 @@ import {
   Component,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -50,14 +50,13 @@ interface pdfBlobItem {
 @Component({
   selector: 'app-route-sheet-dialog',
   imports: [
-    CommonModule,
     MatTabsModule,
     MatDialogModule,
     MatButtonModule,
     MatProgressSpinnerModule,
     PdfDisplayComponent,
-    MatIconModule,
-  ],
+    MatIconModule
+],
   template: `
     <h2 mat-dialog-title>Hoja de Ruta</h2>
     <mat-dialog-content>

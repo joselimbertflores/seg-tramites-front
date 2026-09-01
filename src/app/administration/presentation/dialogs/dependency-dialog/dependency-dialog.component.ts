@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   inject,
   signal,
@@ -30,7 +30,6 @@ import { dependency } from '../../../infrastructure';
 @Component({
   selector: 'app-dependency-dialog',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatDialogModule,
     MatButtonModule,
@@ -38,8 +37,8 @@ import { dependency } from '../../../infrastructure';
     MatInputModule,
     MatCheckboxModule,
     MatIconModule,
-    SelectSearchComponent,
-  ],
+    SelectSearchComponent
+],
   templateUrl: './dependency-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
