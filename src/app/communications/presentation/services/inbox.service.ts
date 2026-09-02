@@ -66,13 +66,19 @@ export class InboxService {
   searchRecipientsAccounts(term: string): Observable<onlineAccount[]> {
     return this.http.get<account[]>(`${this.url}/recipients/${term}`).pipe(
       map((resp) =>
-        resp.map(({ _id, user, officer, jobtitle }) => ({
-          id: _id,
-          userId: user._id,
-          fullname: `${officer?.nombre} ${officer?.paterno} ${officer?.materno}`,
-          online: false,
-          jobtitle,
-        }))
+        resp.flatMap(({ _id, user, officer, jobtitle }) =>
+          user && officer
+            ? [
+                {
+                  id: _id,
+                  userId: user._id,
+                  fullname: `${officer.nombre} ${officer.paterno} ${officer.materno}`,
+                  online: false,
+                  jobtitle,
+                },
+              ]
+            : []
+        )
       )
     );
   }
@@ -111,9 +117,7 @@ export class InboxService {
   accept(ids: string[]) {
     return this.http
       .put<bulkActionResponse>(`${this.url}/accept`, { ids })
-      .pipe(
-        map(({ ids, date }) => ({ ids, receivedDate: new Date(date) }))
-      );
+      .pipe(map(({ ids, date }) => ({ ids, receivedDate: new Date(date) })));
   }
 
   reject(ids: string[], description: string) {

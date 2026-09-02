@@ -1,105 +1,222 @@
-<h2 mat-dialog-title>{{ data ? "Editar" : "Crear" }} Cuenta</h2>
+<h2 mat-dialog-title>{{ data ? "Editar" : "Crear" }} Account</h2>
+
 <mat-dialog-content>
-  <mat-stepper orientation="vertical" [linear]="false" #stepper>
-    <mat-step [stepControl]="accountForm" label="Detalles Cuenta">
-      <form [formGroup]="accountForm" class="py-2">
-        @if(accountForm.get('dependencyId')){
-        <div class="mb-4">
-          <select-search
-            [required]="true"
-            title="Institucion"
-            [items]="institutions()"
-            (onSelect)="selectedInstitution.set($event)"
-          />
-        </div>
-        <div class="mb-4">
-          <select-search
-            title="Dependencia"
-            [required]="true"
-            [items]="dependencies.value() ?? []"
-            (onSelect)="accountForm.get('dependencyId')?.setValue($event)"
-          />
-        </div>
-        }
-        <div class="mb-4">
-          @if (selectedOfficer()) {
-          <mat-form-field>
-            <mat-label>Funcionario</mat-label>
-            <input matInput [value]="$safeNavigationMigration(selectedOfficer()?.fullName)" readonly />
-            <button matSuffix matIconButton (click)="unlink()">
-              <mat-icon>close</mat-icon>
-            </button>
-          </mat-form-field>
-          } @else {
-          <select-search
-            title="Funcionario"
-            [required]="!data"
-            [autoFilter]="false"
-            [items]="officers()"
-            (onTyped)="searchOfficer($event)"
-            (onSelect)="onSelectOfficer($event)"
-          />
-          }
-        </div>
+  <form
+    id="account-editor-form"
+    class="grid gap-6 py-2"
+    [formRoot]="accountForm"
+  >
+    <section class="grid gap-4">
+      <div>
+        <h3 class="text-sm font-semibold text-slate-800">Datos del cargo</h3>
+        <p class="text-xs text-slate-500">
+          Estos datos permanecen aunque cambie el funcionario.
+        </p>
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2">
         <mat-form-field>
-          <mat-label>Cargo</mat-label>
-          <input
-            matInput
-            formControlName="jobtitle"
-            placeholder="Ingrese el cargo"
-          />
-        </mat-form-field>
-        <mat-form-field>
-          <mat-label>Tipo de contrato</mat-label>
-          <mat-select formControlName="employmentType">
-            @for (item of employmentTypes; track $index) {
-            <mat-option [value]="item">
-              {{ item }}
-            </mat-option>
+          <mat-label>Institución</mat-label>
+          <mat-select
+            [value]="selectedInstitution()"
+            (selectionChange)="onInstitutionChange($event.value)"
+          >
+            @for (institution of institutions(); track institution.value) {
+              <mat-option [value]="institution.value">
+                {{ institution.label }}
+              </mat-option>
             }
           </mat-select>
         </mat-form-field>
 
-        <mat-checkbox formControlName="isVisible"> Visible </mat-checkbox>
-        <div class="flex justify-end">
-          <button mat-button matStepperNext>Siguiente</button>
-        </div>
-      </form>
-    </mat-step>
-    <mat-step [stepControl]="userForm" label="Detalles Usuario">
-      <form [formGroup]="userForm" class="py-2">
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <mat-form-field>
-              <mat-label>Login</mat-label>
-              <input
-                formControlName="login"
-                matInput
-                placeholder="Ingrese el login"
-              />
-            </mat-form-field>
+        <mat-form-field>
+          <mat-label>Dependencia</mat-label>
+          <mat-select [formField]="accountForm.dependencyId">
+            @if (dependencies.isLoading()) {
+              <mat-option disabled>Cargando dependencias...</mat-option>
+            }
+            @for (
+              dependency of dependencies.value() ?? [];
+              track dependency.value
+            ) {
+              <mat-option [value]="dependency.value">
+                {{ dependency.label }}
+              </mat-option>
+            }
+          </mat-select>
+          @if (
+            accountForm.dependencyId().invalid() &&
+            accountForm.dependencyId().touched()
+          ) {
+            <mat-error>Seleccione una dependencia</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <mat-form-field>
+        <mat-label>Cargo</mat-label>
+        <input
+          matInput
+          autocomplete="organization-title"
+          placeholder="Ej. Responsable de archivo"
+          [formField]="accountForm.jobtitle"
+        />
+        @if (
+          accountForm.jobtitle().invalid() && accountForm.jobtitle().touched()
+        ) {
+          <mat-error>Ingrese el cargo</mat-error>
+        }
+      </mat-form-field>
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        <mat-form-field>
+          <mat-label>Tipo de contratación</mat-label>
+          <mat-select [formField]="accountForm.employmentType">
+            <mat-option [value]="null">Sin especificar</mat-option>
+            @for (type of employmentTypes; track type) {
+              <mat-option [value]="type">{{ type }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Rol de la Account</mat-label>
+          <mat-select [formField]="accountForm.roleId">
+            @for (role of roles(); track role.value) {
+              <mat-option [value]="role.value">{{ role.label }}</mat-option>
+            }
+          </mat-select>
+          @if (
+            accountForm.roleId().invalid() && accountForm.roleId().touched()
+          ) {
+            <mat-error>Seleccione un rol</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <mat-checkbox [formField]="accountForm.isVisible">
+        Visible en búsquedas y derivaciones
+      </mat-checkbox>
+    </section>
+
+    <section class="grid gap-3 border-t border-slate-200 pt-5">
+      <h3 class="text-sm font-semibold text-slate-800">
+        Funcionario asignado
+      </h3>
+
+      @if (displayedAssignee(); as assignee) {
+        <div class="flex items-center justify-between gap-3 rounded border px-3 py-2">
+          <div class="min-w-0">
+            <p class="truncate text-sm font-medium">{{ assignee.fullName }}</p>
+            <p class="truncate text-xs text-slate-500">
+              {{ assignee.login || assignee.externalKey }}
+            </p>
           </div>
-          <div>
-            <select-search
-              title="Rol"
-              [required]="true"
-              [value]="$safeNavigationMigration(userForm.get('role')?.value)"
-              [items]="roles()"
-              (onSelect)="userForm.get('role')?.setValue($event)"
-            />
-          </div>
-          <mat-checkbox formControlName="isActive"> Habilitado </mat-checkbox>
+          <button
+            mat-icon-button
+            type="button"
+            aria-label="Quitar selección actual"
+            matTooltip="Quitar selección actual"
+            (click)="removeAssignee()"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
         </div>
-        <div class="flex justify-end">
-          <button mat-button matStepperPrevious>Atras</button>
-        </div>
-      </form>
-    </mat-step>
-  </mat-stepper>
+      } @else {
+        <mat-form-field>
+          <mat-label>Buscar funcionario (opcional)</mat-label>
+          <input
+            #identityInput
+            matInput
+            autocomplete="off"
+            placeholder="Escriba al menos 3 caracteres"
+            [matAutocomplete]="identityAutocomplete"
+            [value]="searchTerm()"
+            (input)="onIdentityInput($event)"
+          />
+          @if (debouncedCandidateQuery.isLoading() || candidates.isLoading()) {
+            <mat-spinner matSuffix [diameter]="20" />
+          } @else if (searchTerm()) {
+            <button
+              mat-icon-button
+              matSuffix
+              type="button"
+              aria-label="Limpiar búsqueda de funcionario"
+              (click)="clearSearch(); identityInput.focus()"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          }
+
+          <mat-autocomplete
+            #identityAutocomplete="matAutocomplete"
+            [displayWith]="displayIdentity"
+            (optionSelected)="onIdentitySelected($event)"
+          >
+            @if (
+              candidateQuery().length > 0 &&
+              candidateQuery().length < minimumSearchLength
+            ) {
+              <mat-option disabled>
+                Escriba al menos {{ minimumSearchLength }} caracteres
+              </mat-option>
+            } @else if (
+              debouncedCandidateQuery.isLoading() || candidates.isLoading()
+            ) {
+              <mat-option disabled>Buscando usuarios...</mat-option>
+            } @else if (candidates.error()) {
+              <mat-option disabled>No fue posible cargar los resultados</mat-option>
+            } @else if (
+              candidateQuery().length >= minimumSearchLength &&
+              (candidates.value() ?? []).length === 0
+            ) {
+              <mat-option disabled>No se encontraron usuarios</mat-option>
+            } @else {
+              @for (
+                candidate of candidates.value() ?? [];
+                track candidate.externalKey
+              ) {
+                <mat-option [value]="candidate">
+                  <div class="min-w-0 py-1 leading-tight">
+                    <div class="truncate font-medium">
+                      {{ candidate.fullName }}
+                    </div>
+                    <div class="truncate text-xs text-slate-500">
+                      {{ candidate.login }}
+                      @if (candidate.email) {
+                        · {{ candidate.email }}
+                      }
+                    </div>
+                  </div>
+                </mat-option>
+              }
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+      }
+    </section>
+  </form>
 </mat-dialog-content>
+
 <mat-dialog-actions align="end">
-  <button mat-button color="warn" mat-dialog-close>Cancelar</button>
-  <button mat-button color="primary" (click)="save()" [disabled]="!isFormValid">
-    Guardar
+  <button
+    mat-button
+    type="button"
+    [disabled]="accountForm().submitting()"
+    (click)="close()"
+  >
+    Cancelar
+  </button>
+  <button
+    mat-flat-button
+    type="submit"
+    form="account-editor-form"
+    [disabled]="accountForm().invalid() || accountForm().submitting()"
+  >
+    @if (accountForm().submitting()) {
+      Guardando...
+    } @else {
+      Guardar cambios
+    }
   </button>
 </mat-dialog-actions>

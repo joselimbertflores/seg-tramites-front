@@ -1,7 +1,10 @@
+import { role } from './role.interface';
+
 export class user {
   _id: string;
   fullname: string;
-  login: string;
+  externalKey?: string;
+  login?: string;
   isActive: boolean;
-  role: string;
+  roles: role[];
 }

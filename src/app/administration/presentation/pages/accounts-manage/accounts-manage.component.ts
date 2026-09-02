@@ -18,15 +18,13 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { OverlayModule } from '@angular/cdk/overlay';
-import { filter, firstValueFrom, of, switchMap } from 'rxjs';
+import { firstValueFrom, of } from 'rxjs';
 
 import { Account } from '../../../domain';
 import {
-  AlertService,
   overlayAnimation,
   SearchInputComponent,
   SelectSearchComponent,
-  ToastService,
 } from '../../../../shared';
 import { AccountService } from '../../services';
 import { AccountDialogComponent } from '../../dialogs';
@@ -55,17 +53,14 @@ import { AccountTrayStateDialogComponent } from '../../../../reports/presentatio
 export default class AccountsManageComponent {
   private dialogRef = inject(MatDialog);
   private accountService = inject(AccountService);
-  private alertService = inject(AlertService);
-  private toastService = inject(ToastService);
 
   readonly displayedColumns = [
     'visibility',
-    'fullname',
-    'email',
     'jobtitle',
     'dependency',
+    'role',
+    'fullname',
     'employmentType',
-    'state',
     'options',
   ];
 
@@ -114,8 +109,8 @@ export default class AccountsManageComponent {
 
   create() {
     const dialogRef = this.dialogRef.open(AccountDialogComponent, {
-      width: '700px',
-      maxWidth: '700px',
+      width: '760px',
+      maxWidth: 'calc(100vw - 32px)',
     });
     dialogRef.afterClosed().subscribe((result?: Account) => {
       if (!result) return;
@@ -128,8 +123,8 @@ export default class AccountsManageComponent {
 
   update(item: Account) {
     const dialogRef = this.dialogRef.open(AccountDialogComponent, {
-      width: '700px',
-      maxWidth: '700px',
+      width: '760px',
+      maxWidth: 'calc(100vw - 32px)',
       data: item,
     });
     dialogRef.afterClosed().subscribe((result?: Account) => {
@@ -149,28 +144,6 @@ export default class AccountsManageComponent {
       maxWidth: '600px',
       data: item,
     });
-  }
-
-  resetPassword(item: Account) {
-    this.alertService
-      .confirmDialog({
-        title: '¿Restablecer contraseña?',
-        description: 'Se creara una nueva contraseña aleatoria para el usuario',
-      })
-      .pipe(
-        filter((result) => result === true),
-        switchMap(() => this.accountService.resetPassword(item.id))
-      )
-      .subscribe((mai) => {
-        if (mai) {
-          this.toastService.showToast({
-            title: 'Contraseña restablecida',
-            description: mai.message,
-            severity: mai.ok ? 'success' : 'warning',
-            duration: 14000,
-          });
-        }
-      });
   }
 
   search(term: string) {

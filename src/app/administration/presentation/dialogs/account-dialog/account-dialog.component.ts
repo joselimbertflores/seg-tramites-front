@@ -1,189 +1,232 @@
-
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
+  debounced,
   inject,
-  resource,
   signal,
 } from '@angular/core';
+import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import {
-  FormBuilder,
-  FormGroup,
-  Validators,
-  ReactiveFormsModule,
-} from '@angular/forms';
+  disabled,
+  form,
+  FormField,
+  FormRoot,
+  validate,
+} from '@angular/forms/signals';
+import {
+  MatAutocompleteModule,
+  MatAutocompleteSelectedEvent,
+} from '@angular/material/autocomplete';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import {
   MAT_DIALOG_DATA,
   MatDialogModule,
   MatDialogRef,
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatStepperModule } from '@angular/material/stepper';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { firstValueFrom, of } from 'rxjs';
 
+import { Account } from '../../../domain';
 import {
-  SelectSearchOption,
-  SelectSearchComponent,
-  ToastService,
-} from '../../../../shared';
-import { Account, Officer } from '../../../domain';
-import { AccountService } from '../../services';
+  AccountService,
+  CreateAccountRequest,
+  IdentityCandidate,
+  UpdateAccountRequest,
+} from '../../services/account.service';
+
+interface AccountEditorModel {
+  dependencyId: string;
+  jobtitle: string;
+  employmentType: string | null;
+  isVisible: boolean;
+  roleId: string;
+}
+
+interface CurrentAssignee {
+  externalKey?: string;
+  fullName: string;
+  login?: string;
+}
 
 @Component({
   selector: 'app-account-dialog',
   imports: [
-    ReactiveFormsModule,
-    MatInputModule,
-    MatIconModule,
-    MatDialogModule,
+    FormField,
+    FormRoot,
+    MatAutocompleteModule,
     MatButtonModule,
-    MatSelectModule,
-    MatStepperModule,
     MatCheckboxModule,
+    MatDialogModule,
     MatFormFieldModule,
-    SelectSearchComponent
-],
+    MatIconModule,
+    MatInputModule,
+    MatProgressSpinnerModule,
+    MatSelectModule,
+    MatTooltipModule,
+  ],
   templateUrl: './account-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccountDialogComponent {
-  private dialogRef = inject(MatDialogRef);
-  private formBuilder = inject(FormBuilder);
-  private accountService = inject(AccountService);
-  private toastService = inject(ToastService);
+  private readonly dialogRef =
+    inject<MatDialogRef<AccountDialogComponent, Account>>(MatDialogRef);
+  private readonly accountService = inject(AccountService);
 
-  data = inject<Account | undefined>(MAT_DIALOG_DATA);
+  readonly data = inject<Account | undefined>(MAT_DIALOG_DATA);
+  readonly minimumSearchLength = 3;
+  readonly employmentTypes = ['ITEM', 'CONTRATO', 'OTROS'];
+  readonly currentAssignee: CurrentAssignee | null = this.data?.user
+    ? {
+        externalKey: this.data.user.externalKey,
+        fullName: this.data.user.fullname,
+        login: this.data.user.login,
+      }
+    : null;
+  readonly selectedAssignee = signal<IdentityCandidate | null>(null);
+  readonly assignmentChanged = signal(false);
+  readonly displayedAssignee = computed(() =>
+    this.assignmentChanged() ? this.selectedAssignee() : this.currentAssignee
+  );
 
-  accountForm: FormGroup = this.formBuilder.nonNullable.group({
-    dependencyId: ['', Validators.required],
-    officerId: ['', Validators.required],
-    jobtitle: ['', Validators.required],
-    employmentType: [null],
-    isVisible: [true, Validators.required],
-  });
-
-  userForm: FormGroup = this.formBuilder.nonNullable.group({
-    login: [
-      '',
-      [
-        Validators.required,
-        Validators.minLength(4),
-        Validators.maxLength(20),
-        Validators.pattern('^[a-zA-Z0-9._-]+$'),
-      ],
-    ],
-    isActive: [true, Validators.required],
-    role: ['', Validators.required],
-  });
-
-  selectedInstitution = signal<string | null>(null);
-  selectedOfficer = signal<Officer | null>(null);
-  roles = toSignal(this.accountService.getRoles(), { initialValue: [] });
-  officers = signal<SelectSearchOption<Officer>[]>([]);
-  institutions = toSignal(this.accountService.getInstitutions(), {
+  readonly selectedInstitution = signal<string | null>(
+    this.data?.institution._id ?? null
+  );
+  readonly institutions = toSignal(this.accountService.getInstitutions(), {
     initialValue: [],
   });
-  dependencies = resource({
-    params: () => ({ institution: this.selectedInstitution() }),
-    loader: ({ params }) =>
-      firstValueFrom(
-        params.institution
-          ? this.accountService.getDependencies(params.institution)
-          : of([])
-      ),
+  readonly dependencies = rxResource({
+    params: () => ({ institutionId: this.selectedInstitution() }),
+    stream: ({ params }) =>
+      params.institutionId
+        ? this.accountService.getDependencies(params.institutionId)
+        : of([]),
+  });
+  readonly roles = toSignal(this.accountService.getRoles(), {
+    initialValue: [],
   });
 
-  employmentTypes = ['ITEM', 'CONTRATO', 'OTROS'];
+  readonly searchTerm = signal('');
+  readonly candidateQuery = computed(() => this.searchTerm().trim());
+  readonly debouncedCandidateQuery = debounced(this.candidateQuery, 350);
+  readonly candidates = rxResource({
+    params: () => ({ term: this.debouncedCandidateQuery.value().trim() }),
+    stream: ({ params }) =>
+      params.term.length >= this.minimumSearchLength
+        ? this.accountService.searchIdentityCandidates(params.term)
+        : of([]),
+  });
 
-  ngOnInit(): void {
-    this.loadForm();
-  }
+  readonly formModel = signal<AccountEditorModel>({
+    dependencyId: this.data?.dependencia._id ?? '',
+    jobtitle: this.data?.jobtitle ?? '',
+    employmentType: this.data?.employmentType ?? null,
+    isVisible: this.data?.isVisible ?? true,
+    roleId: this.data?.role._id ?? '',
+  });
 
-  save() {
-    const subcription = this.data
-      ? this.accountService.update(
-          this.data.id,
-          this.userForm.value,
-          this.accountForm.value
-        )
-      : this.accountService.create(this.userForm.value, this.accountForm.value);
-
-    subcription.subscribe(({ account, mail }) => {
-      if (mail) {
-        this.toastService.showToast({
-          title: this.data ? 'Cuenta actualizada' : 'Cuenta creada',
-          description: mail.message,
-          severity: mail.ok ? 'success' : 'warning',
-          duration: 14000,
-        });
-      }
-      this.dialogRef.close(account);
-    });
-  }
-
-  searchOfficer(term: string): void {
-    this.accountService
-      .searchOfficersWithoutAccount(term)
-      .subscribe((options) => {
-        this.officers.set(options);
+  readonly accountForm = form(
+    this.formModel,
+    (schemaPath) => {
+      disabled(schemaPath, {
+        when: ({ state }) => state.submitting(),
       });
-  }
+      validate(schemaPath.dependencyId, ({ value }) =>
+        value()
+          ? null
+          : { kind: 'required', message: 'Seleccione una dependencia.' }
+      );
+      validate(schemaPath.jobtitle, ({ value }) =>
+        value().trim()
+          ? null
+          : { kind: 'required', message: 'Ingrese el cargo.' }
+      );
+      validate(schemaPath.roleId, ({ value }) =>
+        value() ? null : { kind: 'required', message: 'Seleccione un rol.' }
+      );
+    },
+    {
+      submission: {
+        action: async (formField) => {
+          const value = formField().value();
+          const commonRequest = {
+            dependencyId: value.dependencyId,
+            jobtitle: value.jobtitle.trim(),
+            employmentType: value.employmentType,
+            isVisible: value.isVisible,
+            roleId: value.roleId,
+          };
 
-  onSelectOfficer(officer: Officer): void {
-    const login = this.generarLogin(officer);
-    this.accountForm.patchValue({ officerId: officer.id });
-    this.userForm.patchValue({ login, isActive: true });
-    this.selectedOfficer.set(officer);
-  }
+          const request = this.data
+            ? this.accountService.update(
+                this.data.id,
+                this.buildUpdateRequest(commonRequest)
+              )
+            : this.accountService.create({
+                ...commonRequest,
+                assigneeExternalKey:
+                  this.selectedAssignee()?.externalKey ?? null,
+              });
 
-  unlink(): void {
-    this.accountForm.get('officerId')?.setValue(null);
-    this.selectedOfficer.set(null);
-  }
-
-  private loadForm(): void {
-    if (!this.data) return;
-    this.accountForm.removeControl('dependencyId');
-    this.accountForm.get('officerId')?.removeValidators(Validators.required);
-    const { user, officer, jobtitle, isVisible, employmentType } = this.data;
-
-    this.selectedOfficer.set(officer ?? null);
-    this.accountForm.patchValue({
-      isVisible,
-      jobtitle,
-      officerId: officer?.id,
-      employmentType,
-    });
-    this.userForm.patchValue(user);
-  }
-
-  get isFormValid() {
-    return this.accountForm.valid && this.userForm.valid;
-  }
-
-  private generarLogin({ fullName, dni }: Officer): string {
-    const nameParts = this.normalizeText(fullName.trim().toLowerCase()).split(
-      /\s+/
-    );
-
-    const firstNameInitial = nameParts[0]?.charAt(0) || '';
-
-    let lastName = '';
-    if (nameParts.length >= 3) {
-      lastName = nameParts[nameParts.length - 2];
-    } else if (nameParts.length >= 2) {
-      lastName = nameParts[1];
+          this.dialogRef.close(await firstValueFrom(request));
+        },
+      },
     }
-    return `${firstNameInitial}${lastName}`.toUpperCase();
+  );
+
+  readonly displayIdentity = (candidate: IdentityCandidate): string =>
+    candidate?.fullName ?? '';
+
+  onInstitutionChange(institutionId: string | null): void {
+    if (institutionId === this.selectedInstitution()) return;
+    this.selectedInstitution.set(institutionId);
+    this.formModel.update((value) => ({ ...value, dependencyId: '' }));
+    this.accountForm.dependencyId().markAsTouched();
   }
 
-  private normalizeText(text: string): string {
-    return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  onIdentityInput(event: Event): void {
+    const term = (event.target as HTMLInputElement).value;
+    this.searchTerm.set(term);
+    this.selectedAssignee.set(null);
+  }
+
+  onIdentitySelected(event: MatAutocompleteSelectedEvent): void {
+    const candidate = event.option.value as IdentityCandidate;
+    this.selectedAssignee.set(candidate);
+    this.assignmentChanged.set(true);
+    this.searchTerm.set('');
+  }
+
+  clearSearch(): void {
+    this.searchTerm.set('');
+    this.selectedAssignee.set(null);
+  }
+
+  removeAssignee(): void {
+    this.selectedAssignee.set(null);
+    this.assignmentChanged.set(true);
+    this.searchTerm.set('');
+  }
+
+  close(): void {
+    if (this.accountForm().submitting()) return;
+    this.dialogRef.close();
+  }
+
+  private buildUpdateRequest(
+    commonRequest: Omit<CreateAccountRequest, 'assigneeExternalKey'>
+  ): UpdateAccountRequest {
+    return {
+      ...commonRequest,
+      ...(this.assignmentChanged() && {
+        assigneeExternalKey: this.selectedAssignee()?.externalKey ?? null,
+      }),
+    };
   }
 }

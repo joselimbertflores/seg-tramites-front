@@ -1,17 +1,15 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { map, Observable, tap } from 'rxjs';
+import { map, Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
 import {
   account,
-  officer,
   dependency,
   institution,
   AccountMapper,
-  OfficerMapper,
-  MailResult,
 } from '../../infrastructure';
+import { Account } from '../../domain';
 import { role } from '../../../users/infrastructure';
 
 interface FilterAccountsParams {
@@ -26,6 +24,29 @@ interface selectOption {
   value: string;
   label: string;
 }
+
+export interface IdentityCandidate {
+  externalKey: string;
+  fullName: string;
+  email: string | null;
+  login: string;
+}
+
+export interface CreateAccountRequest {
+  dependencyId: string;
+  jobtitle: string;
+  employmentType: string | null;
+  isVisible: boolean;
+  roleId: string;
+  assigneeExternalKey: string | null;
+}
+
+export type UpdateAccountRequest = Omit<
+  CreateAccountRequest,
+  'assigneeExternalKey'
+> & {
+  assigneeExternalKey?: string | null;
+};
 
 @Injectable({
   providedIn: 'root',
@@ -64,17 +85,11 @@ export class AccountService {
       );
   }
 
-  searchOfficersWithoutAccount(term: string) {
+  searchIdentityCandidates(term: string): Observable<IdentityCandidate[]> {
     const params = new HttpParams({ fromObject: { term } });
-    return this.http
-      .get<officer[]>(`${this.URL}/assign`, { params })
-      .pipe(
-        map((resp) =>
-          resp
-            .map((resp) => OfficerMapper.fromResponse(resp))
-            .map((officer) => ({ value: officer, label: officer.fullName }))
-        )
-      );
+    return this.http.get<IdentityCandidate[]>(`${this.URL}/assign/users`, {
+      params,
+    });
   }
 
   findAll({
@@ -107,64 +122,15 @@ export class AccountService {
       );
   }
 
-  create(formUser: Object, formAccount: Object) {
+  create(request: CreateAccountRequest): Observable<Account> {
     return this.http
-      .post<{ account: account; pdfBase64: string; mail?: MailResult }>(
-        this.URL,
-        {
-          user: formUser,
-          account: formAccount,
-        }
-      )
-      .pipe(
-        tap(({ pdfBase64 }) => this.showPdfFromBase64(pdfBase64)),
-        map(({ account, mail }) => ({
-          account: AccountMapper.fromResponse(account),
-          mail,
-        }))
-      );
+      .post<account>(this.URL, request)
+      .pipe(map((response) => AccountMapper.fromResponse(response)));
   }
 
-  update(id: string, formUser: object, formAccount: object) {
+  update(id: string, request: UpdateAccountRequest): Observable<Account> {
     return this.http
-      .patch<{ account: account; pdfBase64: string | null; mail?: MailResult }>(
-        `${this.URL}/${id}`,
-        {
-          user: formUser,
-          account: formAccount,
-        }
-      )
-      .pipe(
-        tap(({ pdfBase64 }) => {
-          if (pdfBase64) {
-            this.showPdfFromBase64(pdfBase64);
-          }
-        }),
-        map(({ account, mail }) => ({
-          account: AccountMapper.fromResponse(account),
-          mail,
-        }))
-      );
-  }
-
-  resetPassword(id: string) {
-    return this.http
-      .patch<{ pdfBase64: string; mail?: MailResult }>(
-        `${this.URL}/reset-password/${id}`,
-        {}
-      )
-      .pipe(
-        tap(({ pdfBase64 }) => this.showPdfFromBase64(pdfBase64)),
-        map(({ mail }) => mail)
-      );
-  }
-
-  showPdfFromBase64(base64: string): void {
-    const byteCharacters = atob(base64);
-    const byteNumbers = Array.from(byteCharacters).map((c) => c.charCodeAt(0));
-    const byteArray = new Uint8Array(byteNumbers);
-    const blob = new Blob([byteArray], { type: 'application/pdf' });
-    const blobUrl = URL.createObjectURL(blob);
-    window.open(blobUrl, '_blank');
+      .patch<account>(`${this.URL}/${id}`, request)
+      .pipe(map((response) => AccountMapper.fromResponse(response)));
   }
 }
