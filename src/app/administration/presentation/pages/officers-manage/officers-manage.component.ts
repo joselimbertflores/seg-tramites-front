@@ -70,25 +70,12 @@ export default class OfficersManageComponent {
       });
   }
 
-  create() {
-    const dialogRef = this.dialogRef.open(OfficerDialogComponent, {
-      width: '600px',
-    });
-    dialogRef.afterClosed().subscribe((result: Officer) => {
-      if (!result) return;
-      this.dataSource.update((values) =>
-        [result, ...values].slice(0, this.limit())
-      );
-      this.dataSize.update((values) => (values += 1));
-    });
-  }
-
   update(item: Officer) {
     const dialogRef = this.dialogRef.open(OfficerDialogComponent, {
       width: '600px',
       data: item,
     });
-    dialogRef.afterClosed().subscribe((result:Officer|undefined) => {
+    dialogRef.afterClosed().subscribe((result: Officer | undefined) => {
       if (!result) return;
       this.dataSource.update((values) => {
         const index = values.findIndex(({ id }) => id === result.id);

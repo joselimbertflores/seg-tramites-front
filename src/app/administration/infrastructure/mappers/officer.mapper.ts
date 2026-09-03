@@ -6,12 +6,12 @@ export class OfficerMapper {
     return new Officer({
       id: response['_id'],
       nombre: response['nombre'],
-      paterno: response['paterno'],
-      materno: response['materno'],
+      paterno: response['paterno'] ?? null,
+      materno: response['materno'] ?? null,
       dni: response['dni']?.toString() ?? '',
-      telefono: response['telefono'],
+      telefono: response['telefono'] ?? null,
       activo: response['activo'],
-      email: response["email"],
+      email: response['email'] ?? null,
     });
   }
 }

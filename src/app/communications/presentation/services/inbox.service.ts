@@ -72,7 +72,13 @@ export class InboxService {
                 {
                   id: _id,
                   userId: user._id,
-                  fullname: `${officer.nombre} ${officer.paterno} ${officer.materno}`,
+                  fullname: [
+                    officer.nombre,
+                    officer.paterno,
+                    officer.materno,
+                  ]
+                    .filter(Boolean)
+                    .join(' '),
                   online: false,
                   jobtitle,
                 },

@@ -9,17 +9,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
-import { MatIconModule } from '@angular/material/icon';
 import {
   MatDialogModule,
   MAT_DIALOG_DATA,
   MatDialogRef,
 } from '@angular/material/dialog';
 
-import {
-  FormErrorMessagesPipe,
-  FieldValidationErrorMessages,
-} from '../../../../shared';
 import { OfficerService } from '../../services';
 import { Officer } from '../../../domain';
 
@@ -31,9 +26,7 @@ import { Officer } from '../../../domain';
     MatDialogModule,
     MatButtonModule,
     MatInputModule,
-    MatIconModule,
     MatCheckboxModule,
-    FormErrorMessagesPipe,
   ],
   templateUrl: './officer-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -43,43 +36,26 @@ export class OfficerDialogComponent {
   private dialogRef = inject(MatDialogRef);
   private officerService = inject(OfficerService);
 
-  data: Officer | undefined = inject(MAT_DIALOG_DATA);
-  officerForm: FormGroup = this.formBuilder.nonNullable.group({
-    nombre: ['', Validators.required],
-    paterno: ['', Validators.required],
-    materno: [''],
-    email: ['', Validators.email],
-    dni: [
-      '',
-      [
-        Validators.required,
-        Validators.pattern('^[a-zA-Z0-9-]+$'),
-        Validators.minLength(5),
-        Validators.maxLength(12),
-      ],
+  data: Officer = inject(MAT_DIALOG_DATA);
+  officerForm: FormGroup = this.formBuilder.group({
+    activo: [this.data.activo, { nonNullable: true }],
+    telefono: [
+      this.data.telefono ?? null,
+      Validators.pattern('^[0-9]*$'),
     ],
-    activo: [true],
-    telefono: ['', Validators.pattern('^[0-9]*$')],
   });
 
-  protected errorMessages: FieldValidationErrorMessages = {
-    dni: {
-      pattern: 'No se permiten caracteres especiales',
-    },
-    telefono: {
-      pattern: 'Solo se permiten numeros',
-    },
-  };
-
-  ngOnInit(): void {
-    this.officerForm.patchValue(this.data ?? {});
-  }
-
   save() {
-    const subscription = this.data
-      ? this.officerService.update(this.data.id, this.officerForm.value)
-      : this.officerService.create(this.officerForm.value);
-    subscription.subscribe((officer) => {
+    const value = this.officerForm.value;
+    const update = {
+      activo: value.activo,
+      telefono:
+        value.telefono === '' || value.telefono === null
+          ? null
+          : Number(value.telefono),
+    };
+
+    this.officerService.update(this.data.id, update).subscribe((officer) => {
       this.dialogRef.close(officer);
     });
   }

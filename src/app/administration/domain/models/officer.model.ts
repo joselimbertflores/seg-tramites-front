@@ -1,23 +1,23 @@
 interface OfficerProps {
   id: string;
   nombre: string;
-  paterno: string;
-  materno: string;
+  paterno: string | null;
+  materno: string | null;
   dni: string;
-  telefono: number;
+  telefono: number | null;
   activo: boolean;
-  email?: string;
+  email?: string | null;
 }
 
 export class Officer {
   public id: string;
   public nombre: string;
-  public paterno: string;
-  public materno: string;
+  public paterno: string | null;
+  public materno: string | null;
   public dni: string;
-  public telefono: number;
+  public telefono: number | null;
   public activo: boolean;
-  public email?: string;
+  public email?: string | null;
 
   constructor({
     id: _id,
@@ -40,6 +40,8 @@ export class Officer {
   }
 
   get fullName() {
-    return `${this.nombre} ${this.paterno} ${this.materno}`;
+    return [this.nombre, this.paterno, this.materno]
+      .filter(Boolean)
+      .join(' ');
   }
 }

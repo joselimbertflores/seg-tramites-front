@@ -30,12 +30,6 @@ export class OfficerService {
       );
   }
 
-  create(form: object): Observable<Officer> {
-    return this.http
-      .post<officer>(`${this.URL}`, form)
-      .pipe(map((resp) => OfficerMapper.fromResponse(resp)));
-  }
-
   update(id: string, officer: object): Observable<Officer> {
     return this.http
       .patch<officer>(`${this.URL}/${id}`, officer)

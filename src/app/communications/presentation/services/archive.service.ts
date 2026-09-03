@@ -37,7 +37,13 @@ export class ArchiveService {
         resp.map((el) => ({
           value: el._id,
           label: el.officer
-            ? `${el.officer.nombre} ${el.officer.paterno} ${el.officer.materno} (${el.jobtitle})`
+            ? `${[
+                el.officer.nombre,
+                el.officer.paterno,
+                el.officer.materno,
+              ]
+                .filter(Boolean)
+                .join(' ')} (${el.jobtitle})`
             : `SIN ASIGNAR (${el.jobtitle})`,
         }))
       )
