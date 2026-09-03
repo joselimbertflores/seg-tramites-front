@@ -14,7 +14,6 @@ export enum validResource {
   groupware = 'groupware',
   external = 'external',
   internal = 'internal',
-  officers = 'officers',
   archived = 'archived',
   accounts = 'accounts',
   reports = 'reports',

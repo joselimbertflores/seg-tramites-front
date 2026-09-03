@@ -9,9 +9,6 @@ export class OfficerMapper {
       paterno: response['paterno'] ?? null,
       materno: response['materno'] ?? null,
       dni: response['dni']?.toString() ?? '',
-      telefono: response['telefono'] ?? null,
-      activo: response['activo'],
-      email: response['email'] ?? null,
     });
   }
 }

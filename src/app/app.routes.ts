@@ -53,14 +53,6 @@ export const routes: Routes = [
           ),
       },
       {
-        title: 'Funcionarios',
-        path: 'officers',
-        loadComponent: () =>
-          import(
-            './administration/presentation/pages/officers-manage/officers-manage.component'
-          ),
-      },
-      {
         title: 'Dependencias',
         path: 'dependencies',
         loadComponent: () =>
