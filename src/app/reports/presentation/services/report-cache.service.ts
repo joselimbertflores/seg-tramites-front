@@ -16,7 +16,7 @@ export interface ReportItem {
 export class ReportCacheService<T> {
   private permissions = inject(AuthService).permissions;
   private actions = computed<string[] | null>(
-    () => this.permissions()[validResource.reports]
+    () => this.permissions()[validResource.reports] ?? null
   );
   private readonly permissionMappings: Record<string, ReportItem> = {
     search: {

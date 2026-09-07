@@ -5,6 +5,7 @@
   <span class="ml-4">Configuraciones</span>
 </mat-toolbar>
 <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" dynamicHeight>
+  @if (authMethod() === 'LOCAL') {
   <mat-tab label="Usuario">
     <div class="mx-auto max-w-4xl py-4">
       <div class="px-4 sm:px-0">
@@ -101,6 +102,7 @@
       </button>
     </div>
   </mat-tab>
+  }
   <mat-tab label="Personalizacion">
     <div class="mx-auto max-w-4xl py-4">
       <div class="px-4 sm:px-0">

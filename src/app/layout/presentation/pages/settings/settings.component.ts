@@ -78,6 +78,7 @@ export default class SettingsComponent implements OnInit {
   };
 
   protected user = this.authService.user;
+  protected authMethod = this.authService.authMethod;
 
   formUser = this.formBuilder.nonNullable.group(
     {
@@ -141,7 +142,7 @@ export default class SettingsComponent implements OnInit {
   }
 
   showNotification() {
-    if (this.authService.updatedPassword()) return;
+    if (!this.authService.requiresPasswordChange()) return;
     this.alertService.messageDialog({
       title: 'Cambio de contraseña requerido',
       description: 'Por razones de seguridad, debe cambiar su contraseña antes de continuar utilizando el sistema.',

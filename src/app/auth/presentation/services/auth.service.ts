@@ -1,104 +1,104 @@
 import { Injectable, computed, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError, map, tap } from 'rxjs/operators';
-import { jwtDecode } from 'jwt-decode';
-import { of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
-import { jwtPayload, menu, validResource } from '../../infrastructure';
+import { AuthMethod, AuthSession, SessionUser, menu, validResource } from '../../infrastructure';
 import { skipUploadIndicator } from '../../../helpers';
+import { AccountMapper } from '../../../administration/infrastructure';
+import { Account } from '../../../administration/domain';
+import { SocketService } from '../../../layout/presentation/services/socket.service';
 
 interface loginProps {
   login: string;
   password: string;
   remember: boolean;
 }
-@Injectable({
-  providedIn: 'root',
-})
+
+@Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly base_url: string = environment.base_url;
-  private _user = signal<jwtPayload | null>(null);
+  private readonly base_url = environment.base_url;
+  private _user = signal<SessionUser | null>(null);
   private _menu = signal<menu[]>([]);
-  private _permissions = signal<Record<validResource, string[]> | null>(null);
-  private _updatedPassword = signal<boolean>(false);
+  private _permissions = signal<Partial<Record<validResource, string[]>>>({});
+  private _authMethod = signal<AuthMethod | null>(null);
+  private _updatedPassword = signal<boolean | null>(null);
+  private _account = signal<Account | null>(null);
 
-  public user = computed(() => this._user());
-  public menu = computed(() => this._menu());
-  public permissions = computed(() => this._permissions()!);
-  public updatedPassword = computed(() => this._updatedPassword());
+  readonly user = this._user.asReadonly();
+  readonly menu = this._menu.asReadonly();
+  readonly permissions = this._permissions.asReadonly();
+  readonly authMethod = this._authMethod.asReadonly();
+  readonly updatedPassword = this._updatedPassword.asReadonly();
+  readonly account = this._account.asReadonly();
+  readonly requiresPasswordChange = computed(() => this.authMethod() === 'LOCAL' && !this.updatedPassword());
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private sockets: SocketService) {}
 
   login({ login, password, remember }: loginProps) {
-    if (remember) {
-      localStorage.setItem('login', login);
-    } else {
-      localStorage.removeItem('login');
-    }
-    return this.http
-      .post<{ token: string }>(
-        `${this.base_url}/auth`,
-        {
-          login,
-          password,
-        },
-        { context: skipUploadIndicator() }
-      )
-      .pipe(map(({ token }) => this.setAuthentication(token)));
+    if (remember) localStorage.setItem('login', login);
+    else localStorage.removeItem('login');
+    return this.http.post<AuthSession>(`${this.base_url}/auth`, { login, password }, {
+      context: skipUploadIndicator(),
+      withCredentials: true,
+    }).pipe(map((session) => this.setAuthentication(session)));
   }
 
-  logout() {
-    localStorage.removeItem('token');
+  loginWithIdentityHub(): void {
+    const backend = new URL(this.base_url, window.location.origin);
+    window.location.assign(new URL('/auth/login', backend).toString());
+  }
+
+  logout(): Observable<void> {
+    return this.http.post<void>(`${this.base_url}/auth/logout`, {}, {
+      withCredentials: true,
+      context: skipUploadIndicator(),
+    }).pipe(tap(() => this.clearSession()));
+  }
+
+  clearSession(): void {
+    this.sockets.disconnect();
     this._user.set(null);
-    this._permissions.set(null);
+    this._authMethod.set(null);
+    this._account.set(null);
+    this._permissions.set({});
+    this._menu.set([]);
+    this._updatedPassword.set(null);
   }
 
-  checkAuthStatus() {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      this.logout();
-      return of(false);
-    }
-    return this.http
-      .get<{
-        token: string;
-        menu: menu[];
-        permissions: Record<validResource, string[]>;
-        updatedPassword: boolean;
-      }>(`${this.base_url}/auth`)
-      .pipe(
-        map(({ menu, token, permissions, updatedPassword }) => {
-          this._menu.set(menu);
-          this._permissions.set(permissions);
-          this._updatedPassword.set(updatedPassword);
-          return this.setAuthentication(token);
-        }),
-        catchError(() => {
-          this.logout();
+  checkAuthStatus(): Observable<boolean> {
+    return this.http.get<AuthSession>(`${this.base_url}/auth/me`, { withCredentials: true }).pipe(
+      map((session) => this.setAuthentication(session)),
+      catchError((error: unknown) => {
+        if (error instanceof HttpErrorResponse && error.status === 401) {
+          this.clearSession();
           return of(false);
-        })
-      );
+        }
+        return throwError(() => error);
+      }),
+    );
   }
 
   updateMyUser(password: string) {
-    return this.http
-      .put<{ message: string }>(`${this.base_url}/auth`, {
-        password,
-      })
+    return this.http.put<{ message: string }>(`${this.base_url}/auth`, { password }, { withCredentials: true })
       .pipe(tap(() => this._updatedPassword.set(true)));
   }
 
   hasPermission(resource: validResource, action: string[] | string): boolean {
-    const entry = this._permissions() ? this._permissions()![resource] : null;
+    const entry = this.permissions()[resource];
     if (!entry) return false;
     const actions = Array.isArray(action) ? action : [action];
     return actions.some((action) => entry.includes(action));
   }
 
-  private setAuthentication(token: string): boolean {
-    this._user.set(jwtDecode(token));
-    localStorage.setItem('token', token);
+  private setAuthentication(session: AuthSession): boolean {
+    this._user.set(session.user);
+    this._authMethod.set(session.authMethod);
+    this._menu.set(session.menu);
+    this._permissions.set(session.permissions);
+    this._account.set(session.account ? AccountMapper.fromResponse(session.account) : null);
+    this._updatedPassword.set(session.authMethod === 'LOCAL' ? session.updatedPassword : null);
     return true;
   }
 }

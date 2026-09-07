@@ -6,7 +6,7 @@ import {
   FormBuilder,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -47,6 +47,10 @@ import { finalize } from 'rxjs';
           </p>
           <p class="text-center">Inicio de sesion</p>
         </div>
+
+        @if (ssoError()) {
+          <p role="alert" class="mb-4 text-sm">{{ ssoError() }}</p>
+        }
 
         <form [formGroup]="loginForm" (ngSubmit)="login()" autocomplete="on">
           <div class="mb-2">
@@ -96,6 +100,10 @@ import { finalize } from 'rxjs';
             }
           </button>
         </form>
+        <button type="button" matButton="outlined" class="w-full mt-4"
+          [disabled]="isLoading()" (click)="loginWithIdentityHub()">
+          Iniciar sesión con Identity Hub
+        </button>
       </div>
     </div>
   `,
@@ -118,14 +126,27 @@ export default class LoginComponent {
     remember: [false],
   });
   isLoading = signal(false);
+  ssoError = signal<string | null>(null);
 
   constructor(
     private authService: AuthService,
     private router: Router,
     private fb: FormBuilder,
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit(): void {
+    const error = this.route.snapshot.queryParamMap.get('error');
+    if (error) {
+      const messages: Record<string, string> = {
+        not_provisioned: 'Su usuario institucional no está provisionado en Seguimiento de Trámites. Contacte al administrador.',
+        access_denied: 'Identity Hub no autorizó el acceso a Seguimiento de Trámites.',
+        invalid_state: 'El intento de inicio de sesión expiró o ya fue utilizado. Intente nuevamente.',
+        identity_hub_unavailable: 'Identity Hub no está disponible temporalmente. Intente nuevamente.',
+        session_unavailable: 'No fue posible comprobar su sesión temporalmente. Intente nuevamente.',
+      };
+      this.ssoError.set(messages[error] ?? 'No fue posible iniciar sesión con Identity Hub. Intente nuevamente.');
+    }
     const loginSaved = localStorage.getItem('login');
     if (!loginSaved) return;
     this.loginForm.patchValue({ login: loginSaved, remember: true });
@@ -137,8 +158,13 @@ export default class LoginComponent {
     this.authService
       .login(this.loginForm.value)
       .pipe(finalize(() => this.isLoading.set(false)))
-      .subscribe(() => {
-        this.router.navigateByUrl('/home');
+      .subscribe({
+        next: () => this.router.navigateByUrl('/home'),
+        error: () => {},
       });
+  }
+
+  loginWithIdentityHub(): void {
+    this.authService.loginWithIdentityHub();
   }
 }

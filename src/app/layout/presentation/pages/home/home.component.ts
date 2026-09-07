@@ -109,9 +109,10 @@ export default class HomeComponent implements OnDestroy {
   }
 
   logout() {
-    this.socketService.disconnect();
-    this.authService.logout();
-    this.router.navigate(['/login']);
+    this.authService.logout().subscribe({
+      next: () => this.router.navigate(['/login']),
+      error: () => {},
+    });
   }
 
   navigateToChat() {

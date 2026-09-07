@@ -16,6 +16,7 @@ import {
 })
 export class SocketService {
   private socket: Socket | null = null;
+  private retryTimer?: ReturnType<typeof setTimeout>;
 
   private onlineClientsSubject = new BehaviorSubject<IUserSocket[]>([]);
   onlineClients$ = this.onlineClientsSubject.asObservable();
@@ -23,11 +24,22 @@ export class SocketService {
   connect(): void {
     if (this.socket) return;
     this.socket = io(environment.socket_url, {
-      auth: { token: localStorage.getItem('token') },
+      withCredentials: true,
+    });
+    this.socket.on('sessionUnavailable', () => {
+      clearTimeout(this.retryTimer);
+      this.retryTimer = setTimeout(() => this.socket?.connect(), 5000);
+    });
+    this.socket.on('connect_error', (error: Error) => {
+      if (error.message !== 'session_unavailable') return;
+      clearTimeout(this.retryTimer);
+      this.retryTimer = setTimeout(() => this.socket?.connect(), 5000);
     });
   }
 
   disconnect(): void {
+    clearTimeout(this.retryTimer);
+    this.onlineClientsSubject.next([]);
     if (this.socket) {
       this.socket.removeAllListeners();
       this.socket.disconnect();

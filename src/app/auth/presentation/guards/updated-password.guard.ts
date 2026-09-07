@@ -7,9 +7,8 @@ export const updatedPasswordGuard: CanActivateFn = (_route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
   const url = state.url;
-  if (!authService.updatedPassword() && !url.includes('/home/settings')) {
-    router.navigateByUrl('/home/settings');
-    return false;
+  if (authService.requiresPasswordChange() && !url.includes('/home/settings')) {
+    return router.parseUrl('/home/settings');
   }
   return true;
 };

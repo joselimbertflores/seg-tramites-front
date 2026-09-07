@@ -65,8 +65,10 @@ export class ProfileComponent {
 
   logout() {
     this.isOpen.set(false);
-    this.authService.logout();
-    this.router.navigateByUrl('login');
+    this.authService.logout().subscribe({
+      next: () => this.router.navigateByUrl('/login'),
+      error: () => {},
+    });
   }
 
   info() {
