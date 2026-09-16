@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Identity Hub</title>
+  <desc id="desc">Símbolo institucional de identidad: círculo teal, escudo blanco y marca de verificación teal.</desc>
+
+  <!-- Contenedor circular -->
+  <circle cx="256" cy="256" r="232" fill="#0D9488"/>
+
+  <!-- Escudo -->
+  <path
+    d="M256 104
+       C214 130 172 143 132 151
+       C120 153 112 164 112 176
+       V250
+       C112 327 157 390 256 432
+       C355 390 400 327 400 250
+       V176
+       C400 164 392 153 380 151
+       C340 143 298 130 256 104Z"
+    fill="#FFFFFF"
+  />
+
+  <!-- Check -->
+  <path
+    d="M180 257 L231 308 L334 205"
+    fill="none"
+    stroke="#0D9488"
+    stroke-width="42"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>

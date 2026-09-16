@@ -1,11 +1,5 @@
-
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import {
-  FormGroup,
-  Validators,
-  FormBuilder,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { form, FormField, FormRoot, required } from '@angular/forms/signals';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -16,26 +10,28 @@ import { MatIconModule } from '@angular/material/icon';
 
 import { AuthService } from '../../services/auth.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { finalize } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-login',
   imports: [
     RouterModule,
     MatFormFieldModule,
-    ReactiveFormsModule,
+    FormField,
+    FormRoot,
     MatCheckboxModule,
     MatInputModule,
     MatIconModule,
     MatButtonModule,
-    MatProgressSpinnerModule
-],
+    MatProgressSpinnerModule,
+  ],
   template: `
-    <div class="p-4 absolute top-0 left-0">
-      <img src="images/logos/gams.png" class="h-16 sm:h-24" />
-    </div>
-    <div class="h-screen flex items-center justify-center w-full main">
-      <div class="rounded-xl px-6 py-8 w-11/12 sm:w-[450px] box">
+    <div
+      class="main flex min-h-screen w-full items-center justify-center px-4 py-8"
+    >
+      <div
+        class="box w-full max-w-[450px] rounded-xl px-5 pb-6 pt-7 sm:px-8 sm:pb-7 sm:pt-9"
+      >
         <div class="sm:mx-auto mb-6">
           <img
             class="mx-auto h-16 mb-4"
@@ -45,24 +41,23 @@ import { finalize } from 'rxjs';
           <p class="text-center text-xl font-bold font-sans">
             Sistema de Seguimiento de Trámites
           </p>
-          <p class="text-center">Inicio de sesion</p>
+          <p class="text-center">Inicio de sesión</p>
         </div>
 
         @if (ssoError()) {
           <p role="alert" class="mb-4 text-sm">{{ ssoError() }}</p>
         }
 
-        <form [formGroup]="loginForm" (ngSubmit)="login()" autocomplete="on">
+        <form [formRoot]="loginForm" autocomplete="on">
           <div class="mb-2">
             <mat-form-field appearance="outline">
               <mat-label>Usuario</mat-label>
               <input
                 matInput
                 type="text"
-                name="username"
                 autocomplete="username"
                 placeholder="Ingrese su usuario"
-                formControlName="login"
+                [formField]="loginForm.login"
               />
             </mat-form-field>
           </div>
@@ -73,37 +68,61 @@ import { finalize } from 'rxjs';
               <input
                 matInput
                 [type]="hidePassword ? 'password' : 'text'"
-                name="password"
                 autocomplete="current-password"
                 placeholder="Ingrese su contraseña"
-                formControlName="password"
+                [formField]="loginForm.password"
               />
             </mat-form-field>
           </div>
 
           <div class="mb-4">
-            <mat-checkbox formControlName="remember">
-              Recordar Usuario
+            <mat-checkbox [formField]="loginForm.remember">
+              Recordar usuario
             </mat-checkbox>
           </div>
 
           <button
             type="submit"
             matButton="filled"
-            [disabled]="loginForm.invalid || isLoading()"
+            [disabled]="loginForm().submitting()"
             class="w-full"
           >
-            @if (isLoading()) {
+            @if (loginForm().submitting()) {
               <mat-spinner [diameter]="25" [strokeWidth]="3" />
             } @else {
               Ingresar
             }
           </button>
         </form>
-        <button type="button" matButton="outlined" class="w-full mt-4"
-          [disabled]="isLoading()" (click)="loginWithIdentityHub()">
-          Iniciar sesión con Identity Hub
+        <button
+          type="button"
+          class="mt-4 flex h-12 w-full items-center justify-center gap-3 rounded-lg border border-[var(--mat-sys-outline-variant)] bg-[var(--mat-sys-surface)] px-4 text-base font-medium text-[var(--mat-sys-on-surface)] transition-colors hover:bg-[var(--mat-sys-surface-container-low)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mat-sys-primary)] disabled:cursor-not-allowed disabled:opacity-50"
+          (click)="loginWithIdentityHub()"
+        >
+          <img
+            src="branding/identity-hub-mark.svg"
+            alt=""
+            class="h-6 w-6 shrink-0 object-contain"
+          />
+          <span>Iniciar sesión con SIAU</span>
         </button>
+
+        <footer
+          class="mt-6 border-t border-[var(--mat-sys-outline-variant)] pt-4"
+        >
+          <div
+            class="flex items-center justify-center gap-3 text-[var(--mat-sys-on-surface-variant)]"
+          >
+            <img
+              src="branding/sacaba-mark.svg"
+              alt=""
+              class="h-10 w-10 shrink-0 object-contain"
+            />
+            <span class="text-center text-xs font-medium leading-5">
+              Gobierno Autónomo Municipal de Sacaba
+            </span>
+          </div>
+        </footer>
       </div>
     </div>
   `,
@@ -120,18 +139,33 @@ import { finalize } from 'rxjs';
 })
 export default class LoginComponent {
   hidePassword = true;
-  loginForm: FormGroup = this.fb.group({
-    login: ['', Validators.required],
-    password: ['', Validators.required],
-    remember: [false],
+  loginModel = signal({
+    login: '',
+    password: '',
+    remember: false,
   });
-  isLoading = signal(false);
+  loginForm = form(
+    this.loginModel,
+    (schemaPath) => {
+      required(schemaPath.login);
+      required(schemaPath.password);
+    },
+    {
+      submission: {
+        action: async (field) => {
+          try {
+            await firstValueFrom(this.authService.login(field().value()));
+            void this.router.navigateByUrl('/home');
+          } catch {}
+        },
+      },
+    },
+  );
   ssoError = signal<string | null>(null);
 
   constructor(
     private authService: AuthService,
     private router: Router,
-    private fb: FormBuilder,
     private route: ActivatedRoute,
   ) {}
 
@@ -139,29 +173,29 @@ export default class LoginComponent {
     const error = this.route.snapshot.queryParamMap.get('error');
     if (error) {
       const messages: Record<string, string> = {
-        not_provisioned: 'Su usuario institucional no está provisionado en Seguimiento de Trámites. Contacte al administrador.',
-        access_denied: 'Identity Hub no autorizó el acceso a Seguimiento de Trámites.',
-        invalid_state: 'El intento de inicio de sesión expiró o ya fue utilizado. Intente nuevamente.',
-        identity_hub_unavailable: 'Identity Hub no está disponible temporalmente. Intente nuevamente.',
-        session_unavailable: 'No fue posible comprobar su sesión temporalmente. Intente nuevamente.',
+        not_provisioned:
+          'Su usuario institucional no está provisionado en Seguimiento de Trámites. Contacte al administrador.',
+        access_denied:
+          'Identity Hub no autorizó el acceso a Seguimiento de Trámites.',
+        invalid_state:
+          'El intento de inicio de sesión expiró o ya fue utilizado. Intente nuevamente.',
+        identity_hub_unavailable:
+          'Identity Hub no está disponible temporalmente. Intente nuevamente.',
+        session_unavailable:
+          'No fue posible comprobar su sesión temporalmente. Intente nuevamente.',
       };
-      this.ssoError.set(messages[error] ?? 'No fue posible iniciar sesión con Identity Hub. Intente nuevamente.');
+      this.ssoError.set(
+        messages[error] ??
+          'No fue posible iniciar sesión con Identity Hub. Intente nuevamente.',
+      );
     }
     const loginSaved = localStorage.getItem('login');
     if (!loginSaved) return;
-    this.loginForm.patchValue({ login: loginSaved, remember: true });
-  }
-
-  login() {
-    if (this.loginForm.invalid) return;
-    this.isLoading.set(true);
-    this.authService
-      .login(this.loginForm.value)
-      .pipe(finalize(() => this.isLoading.set(false)))
-      .subscribe({
-        next: () => this.router.navigateByUrl('/home'),
-        error: () => {},
-      });
+    this.loginModel.update((model) => ({
+      ...model,
+      login: loginSaved,
+      remember: true,
+    }));
   }
 
   loginWithIdentityHub(): void {
