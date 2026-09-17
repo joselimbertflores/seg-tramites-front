@@ -9,6 +9,7 @@ import { skipUploadIndicator } from '../../../helpers';
 import { AccountMapper } from '../../../administration/infrastructure';
 import { Account } from '../../../administration/domain';
 import { SocketService } from '../../../layout/presentation/services/socket.service';
+import { Router } from '@angular/router';
 
 interface loginProps {
   login: string;
@@ -19,6 +20,7 @@ interface loginProps {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly base_url = environment.base_url;
+  private readonly logoutChannel = new BroadcastChannel('seg-tramites-auth');
   private _user = signal<SessionUser | null>(null);
   private _menu = signal<menu[]>([]);
   private _permissions = signal<Partial<Record<validResource, string[]>>>({});
@@ -34,7 +36,13 @@ export class AuthService {
   readonly account = this._account.asReadonly();
   readonly requiresPasswordChange = computed(() => this.authMethod() === 'LOCAL' && !this.updatedPassword());
 
-  constructor(private http: HttpClient, private sockets: SocketService) {}
+  constructor(private http: HttpClient, private sockets: SocketService, private router: Router) {
+    this.logoutChannel.onmessage = (event: MessageEvent) => {
+      if (event.data?.type !== 'logout') return;
+      this.clearSession();
+      void this.router.navigateByUrl('/login');
+    };
+  }
 
   login({ login, password, remember }: loginProps) {
     if (remember) localStorage.setItem('login', login);
@@ -54,7 +62,10 @@ export class AuthService {
     return this.http.post<void>(`${this.base_url}/auth/logout`, {}, {
       withCredentials: true,
       context: skipUploadIndicator(),
-    }).pipe(tap(() => this.clearSession()));
+    }).pipe(tap(() => {
+      this.clearSession();
+      this.logoutChannel.postMessage({ type: 'logout' });
+    }));
   }
 
   clearSession(): void {
