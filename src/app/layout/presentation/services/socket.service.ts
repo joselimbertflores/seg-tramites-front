@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Socket, io } from 'socket.io-client';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
 import { publication } from '../../../publications/infrastructure';
@@ -17,28 +17,42 @@ import {
 export class SocketService {
   private socket: Socket | null = null;
   private retryTimer?: ReturnType<typeof setTimeout>;
+  private reconnectAttempts = 0;
+  private readonly sessionCheckSubject = new Subject<void>();
+  readonly sessionCheckRequired$ = this.sessionCheckSubject.asObservable();
 
   private onlineClientsSubject = new BehaviorSubject<IUserSocket[]>([]);
   onlineClients$ = this.onlineClientsSubject.asObservable();
 
   connect(): void {
     if (this.socket) return;
+    this.reconnectAttempts = 0;
     this.socket = io(environment.socket_url, {
       withCredentials: true,
+      reconnectionAttempts: 3,
     });
-    this.socket.on('sessionUnavailable', () => {
-      clearTimeout(this.retryTimer);
-      this.retryTimer = setTimeout(() => this.socket?.connect(), 5000);
+    this.socket.on('disconnect', (reason) => {
+      if (reason === 'io server disconnect') this.sessionCheckSubject.next();
     });
     this.socket.on('connect_error', (error: Error) => {
-      if (error.message !== 'session_unavailable') return;
-      clearTimeout(this.retryTimer);
-      this.retryTimer = setTimeout(() => this.socket?.connect(), 5000);
+      if (error.message === 'session_expired' || error.message === 'session_unavailable') {
+        this.sessionCheckSubject.next();
+      }
     });
+  }
+
+  reconnect(): void {
+    if (!this.socket || this.socket.connected || this.retryTimer || this.reconnectAttempts >= 3) return;
+    this.reconnectAttempts++;
+    this.retryTimer = setTimeout(() => {
+      this.retryTimer = undefined;
+      this.socket?.connect();
+    }, 5000);
   }
 
   disconnect(): void {
     clearTimeout(this.retryTimer);
+    this.retryTimer = undefined;
     this.onlineClientsSubject.next([]);
     if (this.socket) {
       this.socket.removeAllListeners();

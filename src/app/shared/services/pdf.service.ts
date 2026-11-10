@@ -17,6 +17,7 @@ import { workflow } from '../../communications/infrastructure';
 import { Procedure } from '../../procedures/domain';
 
 // (pdfMake as any).vfs = pdfFonts.vfs;
+(pdfMake as any).addVirtualFileSystem(pdfFonts);
 
 interface filterParams {
   params: Record<string, any>;

@@ -42,7 +42,7 @@ import { ChatService } from '../../../../chat/presentation/services';
 import { SocketService } from '../../services';
 import { NewsDialogComponent } from '../../../../publications/presentation/dialogs';
 import { CommunicationReportService } from '../../../../reports/presentation/services';
-import { finalize, switchMap } from 'rxjs';
+import { catchError, EMPTY, exhaustMap, finalize, switchMap, tap } from 'rxjs';
 import { validResource } from '../../../../auth/infrastructure';
 
 @Component({
@@ -179,6 +179,21 @@ export default class HomeComponent implements OnDestroy {
   }
 
   private setupSocketEvents(): void {
+    this.socketService.sessionCheckRequired$
+      .pipe(
+        exhaustMap(() => this.authService.checkAuthStatus().pipe(
+          tap((isAuthenticated) => {
+            if (isAuthenticated) this.socketService.reconnect();
+            else void this.router.navigateByUrl('/login');
+          }),
+          catchError(() => {
+            this.socketService.reconnect();
+            return EMPTY;
+          }),
+        )),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
     this.socketService.connect();
     this.chatService.initChatEvents();
   }
