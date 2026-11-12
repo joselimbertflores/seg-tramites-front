@@ -6,10 +6,30 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { ClusterNode, Edge, NgxGraphModule, Node } from '@swimlane/ngx-graph';
+import {
+  ClusterNode,
+  DagreClusterLayout,
+  Edge,
+  Graph,
+  NgxGraphModule,
+  Node,
+} from '@swimlane/ngx-graph';
 
 import { workflow } from '../../../../communications/infrastructure';
 import { sendStatus } from '../../../../communications/domain';
+
+class WorkflowClusterLayout extends DagreClusterLayout {
+  override run(graph: Graph): Graph {
+    const result = super.run(graph);
+    // ngx-graph also measures clusters after layout. Keep Dagre's enclosing
+    // dimensions instead of replacing them with the global card dimensions.
+    for (const cluster of result.clusters ?? []) {
+      cluster.meta = { ...cluster.meta, forceDimensions: true };
+    }
+    return result;
+  }
+}
+
 @Component({
   selector: 'workflow-graph',
   imports: [CommonModule, NgxGraphModule, MatIconModule],
@@ -24,7 +44,7 @@ import { sendStatus } from '../../../../communications/domain';
           [showMiniMap]="true"
           [nodeWidth]="380"
           [nodeHeight]="200"
-          layout="dagreCluster"
+          [layout]="clusterLayout"
         >
           <ng-template #defsTemplate>
             <svg:marker
@@ -143,6 +163,7 @@ import { sendStatus } from '../../../../communications/domain';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkflowGraphComponent {
+  readonly clusterLayout = new WorkflowClusterLayout();
   workflow = input.required<workflow[]>();
   graph = computed(() => this.createGraph(this.workflow()));
 
